@@ -1,11 +1,11 @@
-import { eq, and, lt, sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { Database } from "../db";
-import { apiKeys, claimTokens, type NewApiKey, type NewClaimToken } from "../db/schema";
+import { claimTokens, type NewClaimToken } from "../db/schema";
+import type { KVService } from "./kv-service";
 import {
   generateId,
   generateApiKey,
   generateClaimToken,
-  hashApiKey,
   getKeyPrefix,
 } from "../lib/crypto";
 
@@ -27,30 +27,24 @@ export interface ClaimResult {
 }
 
 /**
- * 密钥服务：管理 API Key 和 Claim Token
+ * 密钥服务：管理 API Key（KV）和 Claim Token（D1）
  */
 export class KeyService {
-  constructor(private db: Database) { }
+  constructor(
+    private db: Database,
+    private kvService: KVService
+  ) { }
 
   /**
-   * 为用户生成新的 API Key
+   * 为用户生成新的 API Key（存储到 KV）
    */
-  async generateKey(userId: string, name?: string): Promise<GenerateKeyResult> {
+  async generateKey(userId: string, _name?: string): Promise<GenerateKeyResult> {
     const rawKey = generateApiKey();
-    const keyHash = await hashApiKey(rawKey);
     const keyPrefix = getKeyPrefix(rawKey);
     const keyId = generateId();
 
-    const newKey: NewApiKey = {
-      id: keyId,
-      userId,
-      keyPrefix,
-      keyHash,
-      name: name ?? "Default Key",
-      isActive: true,
-    };
-
-    await this.db.insert(apiKeys).values(newKey);
+    // 存储到 KV
+    await this.kvService.storeApiKey(rawKey, userId, keyPrefix);
 
     return {
       rawKey,
@@ -60,11 +54,11 @@ export class KeyService {
   }
 
   /**
-   * 创建 Claim Token（15 分钟有效）
+   * 创建 Claim Token（15 分钟有效，存储到 D1）
    */
   async createClaimToken(userId: string, rawKey: string): Promise<CreateClaimResult> {
     const token = generateClaimToken();
-    const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 分钟
+    const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
     const newClaim: NewClaimToken = {
       token,
@@ -120,16 +114,9 @@ export class KeyService {
   }
 
   /**
-   * 验证 API Key 并返回用户 ID
+   * 验证 API Key（从 KV）
    */
   async validateApiKey(rawKey: string): Promise<string | null> {
-    const keyHash = await hashApiKey(rawKey);
-    const key = await this.db.query.apiKeys.findFirst({
-      where: and(
-        eq(apiKeys.keyHash, keyHash),
-        eq(apiKeys.isActive, true)
-      ),
-    });
-    return key?.userId ?? null;
+    return this.kvService.validateApiKey(rawKey);
   }
 }

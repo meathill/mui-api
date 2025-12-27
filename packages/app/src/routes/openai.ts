@@ -2,12 +2,13 @@ import { Hono } from "hono";
 import type { CloudflareBindings } from "../types";
 import { authMiddleware } from "../middleware/auth";
 import { createDb } from "../db";
+import { KVService } from "../services/kv-service";
 import { OpenAIService, type ChatCompletionRequest } from "../services/openai-service";
 import { BillingService } from "../services/billing-service";
 
 const openai = new Hono<{ Bindings: CloudflareBindings }>();
 
-// 应用认证中间件
+// 应用认证中间件（包含并发控制）
 openai.use("/*", authMiddleware);
 
 /**
@@ -27,14 +28,15 @@ openai.post("/chat/completions", async (c) => {
 
   const openaiService = new OpenAIService(c.env.OPENAI_API_KEY);
   const db = createDb(c.env.DB);
-  const billingService = new BillingService(db);
+  const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
+  const kvService = new KVService(c.env.KV, defaultMaxConcurrency);
+  const billingService = new BillingService(kvService, db);
 
   try {
     if (body.stream) {
       // 流式响应
       const upstreamResponse = await openaiService.chatCompletionStream(body);
 
-      // 创建 TransformStream 来透传并收集 usage
       const { readable, writable } = new TransformStream();
       const writer = writable.getWriter();
       const reader = upstreamResponse.body?.getReader();
@@ -47,7 +49,7 @@ openai.post("/chat/completions", async (c) => {
       const processStream = async () => {
         const decoder = new TextDecoder();
         let buffer = "";
-        let model = body.model;
+        const model = body.model;
         let inputTokens = 0;
         let outputTokens = 0;
 
@@ -56,10 +58,8 @@ openai.post("/chat/completions", async (c) => {
             const { done, value } = await reader.read();
             if (done) break;
 
-            // 透传数据
             await writer.write(value);
 
-            // 解析 usage
             buffer += decoder.decode(value, { stream: true });
             const lines = buffer.split("\n");
             buffer = lines.pop() ?? "";
@@ -82,7 +82,7 @@ openai.post("/chat/completions", async (c) => {
           await writer.close();
         }
 
-        // 异步计费（如果有 usage 数据）
+        // 异步计费
         if (inputTokens > 0 || outputTokens > 0) {
           await billingService.processUsage(userId, null, {
             model,
@@ -92,14 +92,8 @@ openai.post("/chat/completions", async (c) => {
         }
       };
 
-      // 使用 waitUntil 异步处理（但这里我们需要同步透传）
-      // 改为在透传完成后处理计费
       c.executionCtx.waitUntil(processStream());
 
-      // 注意：上面的方案有问题，因为我们需要同步透传
-      // 改用更简单的方案：直接透传，计费使用估算
-
-      // 返回流式响应
       return new Response(readable, {
         headers: {
           "Content-Type": "text/event-stream",
@@ -125,7 +119,6 @@ openai.post("/chat/completions", async (c) => {
   } catch (error) {
     console.error("OpenAI API 调用失败:", error);
 
-    // 尝试解析上游错误
     try {
       const upstreamError = JSON.parse(String(error).replace("Error: ", ""));
       return c.json(upstreamError, 502);
@@ -146,7 +139,6 @@ openai.get("/models", async (c) => {
   const db = createDb(c.env.DB);
   const modelList = await db.query.models.findMany();
 
-  // 如果数据库为空，返回默认模型
   if (modelList.length === 0) {
     return c.json({
       object: "list",

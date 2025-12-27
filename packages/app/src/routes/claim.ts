@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import type { CloudflareBindings } from "../types";
 import { createDb } from "../db";
+import { KVService } from "../services/kv-service";
 import { KeyService } from "../services/key-service";
 
 const claim = new Hono<{ Bindings: CloudflareBindings }>();
@@ -18,7 +19,9 @@ claim.post("/api/claim", async (c) => {
   }
 
   const db = createDb(c.env.DB);
-  const keyService = new KeyService(db);
+  const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
+  const kvService = new KVService(c.env.KV, defaultMaxConcurrency);
+  const keyService = new KeyService(db, kvService);
 
   const result = await keyService.claimApiKey(token);
 

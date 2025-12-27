@@ -1,7 +1,7 @@
-import { eq, sql } from "drizzle-orm";
 import type { Database } from "../db";
-import { models, usageLogs, wallets, type NewUsageLog } from "../db/schema";
+import { usageLogs, type NewUsageLog } from "../db/schema";
 import { generateId } from "../lib/crypto";
+import type { KVService } from "./kv-service";
 
 // 默认模型定价（每 1M tokens，USD）
 const DEFAULT_PRICING: Record<string, { input: number; output: number }> = {
@@ -21,63 +21,42 @@ export interface UsageInfo {
 }
 
 /**
- * 计费服务：计算费用、扣除余额、记录使用
+ * 计费服务：计算费用、扣除余额（KV）、记录使用日志（D1）
  */
 export class BillingService {
-  constructor(private db: Database) { }
+  constructor(
+    private kvService: KVService,
+    private db: Database
+  ) { }
 
   /**
    * 计算请求费用
    */
-  async calculateCost(
+  calculateCost(
     model: string,
     inputTokens: number,
     outputTokens: number
-  ): Promise<number> {
-    // 先尝试从数据库获取定价
-    const modelConfig = await this.db.query.models.findFirst({
-      where: eq(models.id, model),
-    });
+  ): number {
+    const pricing = DEFAULT_PRICING[model] ?? DEFAULT_PRICING["gpt-4o-mini"];
+    const inputPrice = pricing.input;
+    const outputPrice = pricing.output;
 
-    let inputPrice: number;
-    let outputPrice: number;
-    let markupRate: number;
-
-    if (modelConfig) {
-      inputPrice = modelConfig.inputPrice ?? 0;
-      outputPrice = modelConfig.outputPrice ?? 0;
-      markupRate = modelConfig.markupRate ?? DEFAULT_MARKUP_RATE;
-    } else {
-      // 使用默认定价
-      const defaultPricing = DEFAULT_PRICING[model] ?? DEFAULT_PRICING["gpt-4o-mini"];
-      inputPrice = defaultPricing.input;
-      outputPrice = defaultPricing.output;
-      markupRate = DEFAULT_MARKUP_RATE;
-    }
-
-    // 计算费用：(tokens / 1M) * price * markup
     const inputCost = (inputTokens / 1_000_000) * inputPrice;
     const outputCost = (outputTokens / 1_000_000) * outputPrice;
-    const totalCost = (inputCost + outputCost) * markupRate;
+    const totalCost = (inputCost + outputCost) * DEFAULT_MARKUP_RATE;
 
     return totalCost;
   }
 
   /**
-   * 扣除用户余额
+   * 扣除用户余额（从 KV）
    */
   async deductBalance(userId: string, cost: number): Promise<void> {
-    await this.db
-      .update(wallets)
-      .set({
-        balance: sql`${wallets.balance} - ${cost}`,
-        updatedAt: new Date(),
-      })
-      .where(eq(wallets.userId, userId));
+    await this.kvService.deductBalance(userId, cost);
   }
 
   /**
-   * 记录使用日志
+   * 记录使用日志（写入 D1）
    */
   async logUsage(
     userId: string,
@@ -101,20 +80,23 @@ export class BillingService {
   }
 
   /**
-   * 处理完整的计费流程（计算 + 扣费 + 记录）
+   * 处理完整的计费流程（计算 + KV扣费 + D1记录日志）
    */
   async processUsage(
     userId: string,
     apiKeyId: string | null,
     usage: UsageInfo
   ): Promise<number> {
-    const cost = await this.calculateCost(
+    const cost = this.calculateCost(
       usage.model,
       usage.inputTokens,
       usage.outputTokens
     );
 
+    // KV 扣款
     await this.deductBalance(userId, cost);
+
+    // D1 记录日志
     await this.logUsage(
       userId,
       apiKeyId,
