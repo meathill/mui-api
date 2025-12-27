@@ -13,6 +13,7 @@ export interface CloudflareBindings {
 declare module "hono" {
   interface ContextVariableMap {
     userId: string;
+    balance: number;
     db: import("./db").Database;
   }
 }

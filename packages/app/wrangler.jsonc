@@ -9,5 +9,12 @@
       "database_name": "mui-api",
       "database_id": "cac559c7-48f0-4720-8d5a-db017864a279"
     }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "aeab02ed56cc4d2ca6e8558aa90b8663",
+      "preview_id": "aeab02ed56cc4d2ca6e8558aa90b8663"
+    }
   ]
 }

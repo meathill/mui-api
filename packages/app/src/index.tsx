@@ -3,6 +3,7 @@ import type { CloudflareBindings } from "./types";
 import { renderer } from "./renderer";
 import admin from "./routes/admin";
 import claim from "./routes/claim";
+import openai from "./routes/openai";
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -10,6 +11,7 @@ app.use(renderer);
 
 // 挂载路由
 app.route("/admin", admin);
+app.route("/v1", openai);
 app.route("/", claim);
 
 // 首页
