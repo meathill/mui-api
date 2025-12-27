@@ -1,12 +1,15 @@
 import { Hono } from "hono";
 import type { CloudflareBindings } from "./types";
 import { renderer } from "./renderer";
+import { loggerMiddleware } from "./middleware/logger";
 import admin from "./routes/admin";
 import claim from "./routes/claim";
 import openai from "./routes/openai";
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
+// 全局中间件
+app.use("*", loggerMiddleware);
 app.use(renderer);
 
 // 挂载路由
