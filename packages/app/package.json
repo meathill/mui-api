@@ -6,15 +6,25 @@
     "build": "vite build",
     "preview": "$npm_execpath run build && vite preview",
     "deploy": "$npm_execpath run build && wrangler deploy",
-    "cf-typegen": "wrangler types --env-interface CloudflareBindings"
+    "cf-typegen": "wrangler types --env-interface CloudflareBindings",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "wrangler d1 migrations apply mui-api --local",
+    "db:push": "wrangler d1 migrations apply mui-api --remote",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
-    "hono": "^4.11.3"
+    "drizzle-orm": "^0.45.1",
+    "hono": "^4.11.3",
+    "resend": "^6.6.0"
   },
   "devDependencies": {
-    "@cloudflare/vite-plugin": "^1.19.0",
+    "@cloudflare/vite-plugin": "1.13.0",
+    "@cloudflare/workers-types": "^4.20251225.0",
+    "drizzle-kit": "^0.31.8",
     "vite": "^6.4.1",
     "vite-ssr-components": "^0.5.2",
+    "vitest": "^4.0.16",
     "wrangler": "^4.54.0"
   }
 }
