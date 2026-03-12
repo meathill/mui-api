@@ -1,13 +1,8 @@
-import { eq } from "drizzle-orm";
-import type { Database } from "../db";
-import { claimTokens, type NewClaimToken } from "../db/schema";
-import type { KVService } from "./kv-service";
-import {
-  generateId,
-  generateApiKey,
-  generateClaimToken,
-  getKeyPrefix,
-} from "../lib/crypto";
+import { eq } from 'drizzle-orm';
+import type { Database } from '../db';
+import { claimTokens, type NewClaimToken } from '../db/schema';
+import type { KVService } from './kv-service';
+import { generateId, generateApiKey, generateClaimToken, getKeyPrefix } from '../lib/crypto';
 
 export interface GenerateKeyResult {
   rawKey: string;
@@ -32,8 +27,8 @@ export interface ClaimResult {
 export class KeyService {
   constructor(
     private db: Database,
-    private kvService: KVService
-  ) { }
+    private kvService: KVService,
+  ) {}
 
   /**
    * 为用户生成新的 API Key（存储到 KV）
@@ -85,15 +80,15 @@ export class KeyService {
     });
 
     if (!claim) {
-      return { success: false, error: "Token 不存在" };
+      return { success: false, error: 'Token 不存在' };
     }
 
     if (claim.used) {
-      return { success: false, error: "Token 已被使用" };
+      return { success: false, error: 'Token 已被使用' };
     }
 
     if (new Date(claim.expiresAt) < new Date()) {
-      return { success: false, error: "Token 已过期" };
+      return { success: false, error: 'Token 已过期' };
     }
 
     const rawKey = claim.tempRawKey;
@@ -103,7 +98,7 @@ export class KeyService {
       .update(claimTokens)
       .set({
         used: true,
-        tempRawKey: "",
+        tempRawKey: '',
       })
       .where(eq(claimTokens.token, token));
 

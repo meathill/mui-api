@@ -1,15 +1,15 @@
-import type { Database } from "../db";
-import { usageLogs, type NewUsageLog } from "../db/schema";
-import { generateId } from "../lib/crypto";
-import type { KVService } from "./kv-service";
+import type { Database } from '../db';
+import { usageLogs, type NewUsageLog } from '../db/schema';
+import { generateId } from '../lib/crypto';
+import type { KVService } from './kv-service';
 
 // 默认加价倍率
 const DEFAULT_MARKUP_RATE = 1.2;
 
 // 兜底定价（当 DB 中无配置且未传入 modelPricing 时）
 const FALLBACK_PRICING: Record<string, { input: number; output: number }> = {
-  "gpt-4o": { input: 2.5, output: 10 },
-  "gpt-4o-mini": { input: 0.15, output: 0.6 },
+  'gpt-4o': { input: 2.5, output: 10 },
+  'gpt-4o-mini': { input: 0.15, output: 0.6 },
 };
 
 export interface UsageInfo {
@@ -37,12 +37,7 @@ export class BillingService {
    * 计算请求费用
    * 优先使用传入的 modelPricing（来自 DB models 表），否则使用兜底定价
    */
-  calculateCost(
-    model: string,
-    inputTokens: number,
-    outputTokens: number,
-    modelPricing?: ModelPricing | null,
-  ): number {
+  calculateCost(model: string, inputTokens: number, outputTokens: number, modelPricing?: ModelPricing | null): number {
     let inputPrice: number;
     let outputPrice: number;
     let markupRate: number;
@@ -56,7 +51,7 @@ export class BillingService {
       if (!fallback) {
         console.warn(`模型 ${model} 无定价配置，使用 gpt-4o-mini 兜底`);
       }
-      const pricing = fallback ?? FALLBACK_PRICING["gpt-4o-mini"];
+      const pricing = fallback ?? FALLBACK_PRICING['gpt-4o-mini'];
       inputPrice = pricing.input;
       outputPrice = pricing.output;
       markupRate = DEFAULT_MARKUP_RATE;
@@ -109,25 +104,13 @@ export class BillingService {
     usage: UsageInfo,
     modelPricing?: ModelPricing | null,
   ): Promise<number> {
-    const cost = this.calculateCost(
-      usage.model,
-      usage.inputTokens,
-      usage.outputTokens,
-      modelPricing,
-    );
+    const cost = this.calculateCost(usage.model, usage.inputTokens, usage.outputTokens, modelPricing);
 
     // KV 扣款
     await this.deductBalance(userId, cost);
 
     // D1 记录日志
-    await this.logUsage(
-      userId,
-      apiKeyId,
-      usage.model,
-      usage.inputTokens,
-      usage.outputTokens,
-      cost,
-    );
+    await this.logUsage(userId, apiKeyId, usage.model, usage.inputTokens, usage.outputTokens, cost);
 
     return cost;
   }

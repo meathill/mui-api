@@ -1,4 +1,4 @@
-import type { Context, Next } from "hono";
+import type { Context, Next } from 'hono';
 
 /**
  * 请求日志中间件
@@ -11,7 +11,7 @@ export async function loggerMiddleware(c: Context, next: Next) {
   // 请求信息
   const method = c.req.method;
   const path = c.req.path;
-  const userAgent = c.req.header("User-Agent") || "-";
+  const userAgent = c.req.header('User-Agent') || '-';
 
   console.log(`[${requestId}] --> ${method} ${path}`);
 
@@ -39,11 +39,7 @@ export async function loggerMiddleware(c: Context, next: Next) {
 /**
  * 简化版日志函数，用于关键操作
  */
-export function logOperation(
-  operation: string,
-  userId: string | null,
-  details?: Record<string, unknown>
-) {
+export function logOperation(operation: string, userId: string | null, details?: Record<string, unknown>) {
   const timestamp = new Date().toISOString();
   console.log(
     JSON.stringify({
@@ -51,6 +47,6 @@ export function logOperation(
       operation,
       userId,
       ...details,
-    })
+    }),
   );
 }

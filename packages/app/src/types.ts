@@ -29,10 +29,10 @@ export interface KVUserMetadata {
 }
 
 // Hono 类型扩展
-declare module "hono" {
+declare module 'hono' {
   interface ContextVariableMap {
     userId: string;
     balance: number;
-    db: import("./db").Database;
+    db: import('./db').Database;
   }
 }

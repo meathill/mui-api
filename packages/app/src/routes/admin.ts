@@ -1,13 +1,13 @@
-import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
-import { Hono } from "hono";
-import { cors } from "hono/cors";
-import type { CloudflareBindings } from "../types";
-import { createDb } from "../db";
-import { models, usageLogs, spendingLimits } from "../db/schema";
-import { KVService } from "../services/kv-service";
-import { KeyService } from "../services/key-service";
-import { EmailService } from "../services/email-service";
-import { generateId } from "../lib/crypto";
+import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
+import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import type { CloudflareBindings } from '../types';
+import { createDb } from '../db';
+import { models, usageLogs, spendingLimits } from '../db/schema';
+import { KVService } from '../services/kv-service';
+import { KeyService } from '../services/key-service';
+import { EmailService } from '../services/email-service';
+import { generateId } from '../lib/crypto';
 import {
   RechargeSchema,
   SetConcurrencySchema,
@@ -17,8 +17,8 @@ import {
   SpendingLimitSchema,
   GlobalConfigSchema,
   UsageQuerySchema,
-} from "../lib/validators";
-import { badRequest, notFound, internalError, unauthorized, zodErrorToApiError } from "../lib/errors";
+} from '../lib/validators';
+import { badRequest, notFound, internalError, unauthorized, zodErrorToApiError } from '../lib/errors';
 
 const admin = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -26,21 +26,21 @@ const admin = new Hono<{ Bindings: CloudflareBindings }>();
  * CORS 中间件 — Dashboard 和 Worker 跨域部署时需要
  */
 admin.use(
-  "/*",
+  '/*',
   cors({
     origin: (origin) => origin,
-    allowHeaders: ["Content-Type", "X-Admin-Secret"],
-    allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowHeaders: ['Content-Type', 'X-Admin-Secret'],
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   }),
 );
 
 /**
  * 管理员密钥验证中间件
  */
-admin.use("/*", async (c, next) => {
-  const adminSecret = c.req.header("X-Admin-Secret");
+admin.use('/*', async (c, next) => {
+  const adminSecret = c.req.header('X-Admin-Secret');
   if (!adminSecret || adminSecret !== c.env.ADMIN_SECRET) {
-    return unauthorized(c, "管理员密钥无效");
+    return unauthorized(c, '管理员密钥无效');
   }
   await next();
 });
@@ -51,23 +51,23 @@ admin.use("/*", async (c, next) => {
  * GET /admin/users
  * 列出所有用户
  */
-admin.get("/users", async (c) => {
-  const cursor = c.req.query("cursor");
+admin.get('/users', async (c) => {
+  const cursor = c.req.query('cursor');
   const kvService = new KVService(c.env.KV);
   const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
 
   const list = await c.env.KV.list({
-    prefix: "user:",
+    prefix: 'user:',
     cursor: cursor || undefined,
     limit: 50,
   });
 
   const users = [];
   for (const key of list.keys) {
-    const { data, metadata } = await kvService.getUser(key.name.replace("user:", ""));
+    const { data, metadata } = await kvService.getUser(key.name.replace('user:', ''));
     if (data && metadata) {
       users.push({
-        userId: key.name.replace("user:", ""),
+        userId: key.name.replace('user:', ''),
         email: metadata.email,
         balance: data.balance,
         concurrency: data.concurrency,
@@ -89,7 +89,7 @@ admin.get("/users", async (c) => {
  * POST /admin/recharge
  * 充值接口：自动区分新老用户
  */
-admin.post("/recharge", async (c) => {
+admin.post('/recharge', async (c) => {
   const body = await c.req.json();
   const result = RechargeSchema.safeParse(body);
 
@@ -122,7 +122,7 @@ admin.post("/recharge", async (c) => {
       return c.json({
         success: true,
         isNewUser: true,
-        message: "新用户已创建，Claim 邮件已发送",
+        message: '新用户已创建，Claim 邮件已发送',
         userId,
         balance: amount,
         claimUrl,
@@ -135,13 +135,13 @@ admin.post("/recharge", async (c) => {
     return c.json({
       success: true,
       isNewUser: false,
-      message: "充值成功，通知邮件已发送",
+      message: '充值成功，通知邮件已发送',
       userId,
       balance: newBalance,
     });
   } catch (error) {
-    console.error("充值失败:", error);
-    return internalError(c, "充值失败", String(error));
+    console.error('充值失败:', error);
+    return internalError(c, '充值失败', String(error));
   }
 });
 
@@ -149,7 +149,7 @@ admin.post("/recharge", async (c) => {
  * POST /admin/set-concurrency
  * 设置用户最大并发数
  */
-admin.post("/set-concurrency", async (c) => {
+admin.post('/set-concurrency', async (c) => {
   const body = await c.req.json();
   const result = SetConcurrencySchema.safeParse(body);
 
@@ -162,7 +162,7 @@ admin.post("/set-concurrency", async (c) => {
   const { data, metadata } = await kvService.getUser(userId);
 
   if (!data || !metadata) {
-    return notFound(c, "用户不存在");
+    return notFound(c, '用户不存在');
   }
 
   metadata.maxConcurrency = maxConcurrency;
@@ -175,10 +175,10 @@ admin.post("/set-concurrency", async (c) => {
  * GET /admin/user
  * 查询用户信息
  */
-admin.get("/user", async (c) => {
+admin.get('/user', async (c) => {
   const query = {
-    email: c.req.query("email"),
-    userId: c.req.query("userId"),
+    email: c.req.query('email'),
+    userId: c.req.query('userId'),
   };
 
   const result = GetUserSchema.safeParse(query);
@@ -192,13 +192,13 @@ admin.get("/user", async (c) => {
   if (!userId && result.data.email) {
     userId = await kvService.findUserByEmail(result.data.email);
     if (!userId) {
-      return notFound(c, "用户不存在");
+      return notFound(c, '用户不存在');
     }
   }
 
   const { data, metadata } = await kvService.getUser(userId!);
   if (!data || !metadata) {
-    return notFound(c, "用户不存在");
+    return notFound(c, '用户不存在');
   }
 
   return c.json({
@@ -221,7 +221,7 @@ admin.get("/user", async (c) => {
  * POST /admin/set-spending-limit
  * 设置用户月度消费限额
  */
-admin.post("/set-spending-limit", async (c) => {
+admin.post('/set-spending-limit', async (c) => {
   const body = await c.req.json();
   const result = SpendingLimitSchema.safeParse(body);
 
@@ -255,12 +255,12 @@ admin.post("/set-spending-limit", async (c) => {
  * POST /admin/unsuspend-user
  * 解除用户暂停
  */
-admin.post("/unsuspend-user", async (c) => {
+admin.post('/unsuspend-user', async (c) => {
   const body = await c.req.json();
   const { userId } = body as { userId: string };
 
   if (!userId) {
-    return badRequest(c, "userId 不能为空");
+    return badRequest(c, 'userId 不能为空');
   }
 
   const db = createDb(c.env.DB);
@@ -282,7 +282,7 @@ admin.post("/unsuspend-user", async (c) => {
  * GET /admin/global-config
  * 获取全局配置
  */
-admin.get("/global-config", async (c) => {
+admin.get('/global-config', async (c) => {
   const kvService = new KVService(c.env.KV);
   const config = await kvService.getGlobalConfig();
 
@@ -291,7 +291,7 @@ admin.get("/global-config", async (c) => {
     config: config ?? {
       dailySpendingCap: 0,
       monthlySpendingCap: 0,
-      adminEmail: c.env.ADMIN_EMAIL ?? "",
+      adminEmail: c.env.ADMIN_EMAIL ?? '',
       isServicePaused: false,
     },
   });
@@ -301,7 +301,7 @@ admin.get("/global-config", async (c) => {
  * POST /admin/global-config
  * 设置全局消费阈值
  */
-admin.post("/global-config", async (c) => {
+admin.post('/global-config', async (c) => {
   const body = await c.req.json();
   const result = GlobalConfigSchema.safeParse(body);
 
@@ -312,7 +312,7 @@ admin.post("/global-config", async (c) => {
   const kvService = new KVService(c.env.KV);
   const config = {
     ...result.data,
-    adminEmail: result.data.adminEmail ?? c.env.ADMIN_EMAIL ?? "",
+    adminEmail: result.data.adminEmail ?? c.env.ADMIN_EMAIL ?? '',
   };
   await kvService.setGlobalConfig(config);
 
@@ -325,7 +325,7 @@ admin.post("/global-config", async (c) => {
  * GET /admin/models
  * 列出所有模型
  */
-admin.get("/models", async (c) => {
+admin.get('/models', async (c) => {
   const db = createDb(c.env.DB);
   const modelList = await db.select().from(models);
   return c.json({ success: true, models: modelList });
@@ -335,7 +335,7 @@ admin.get("/models", async (c) => {
  * POST /admin/models
  * 创建模型
  */
-admin.post("/models", async (c) => {
+admin.post('/models', async (c) => {
   const body = await c.req.json();
   const result = ModelCreateSchema.safeParse(body);
 
@@ -349,7 +349,7 @@ admin.post("/models", async (c) => {
     await db.insert(models).values(result.data);
     return c.json({ success: true, model: result.data }, 201);
   } catch (error) {
-    if (String(error).includes("UNIQUE")) {
+    if (String(error).includes('UNIQUE')) {
       return badRequest(c, `模型 ${result.data.id} 已存在`);
     }
     throw error;
@@ -360,8 +360,8 @@ admin.post("/models", async (c) => {
  * PUT /admin/models/:id
  * 更新模型
  */
-admin.put("/models/:id", async (c) => {
-  const modelId = c.req.param("id");
+admin.put('/models/:id', async (c) => {
+  const modelId = c.req.param('id');
   const body = await c.req.json();
   const result = ModelUpdateSchema.safeParse(body);
 
@@ -384,8 +384,8 @@ admin.put("/models/:id", async (c) => {
  * DELETE /admin/models/:id
  * 删除模型
  */
-admin.delete("/models/:id", async (c) => {
-  const modelId = c.req.param("id");
+admin.delete('/models/:id', async (c) => {
+  const modelId = c.req.param('id');
   const db = createDb(c.env.DB);
 
   const existing = await db.select().from(models).where(eq(models.id, modelId)).get();
@@ -404,14 +404,14 @@ admin.delete("/models/:id", async (c) => {
  * GET /admin/usage
  * 查询用量日志
  */
-admin.get("/usage", async (c) => {
+admin.get('/usage', async (c) => {
   const query = {
-    userId: c.req.query("userId"),
-    modelId: c.req.query("modelId"),
-    startDate: c.req.query("startDate"),
-    endDate: c.req.query("endDate"),
-    page: c.req.query("page"),
-    pageSize: c.req.query("pageSize"),
+    userId: c.req.query('userId'),
+    modelId: c.req.query('modelId'),
+    startDate: c.req.query('startDate'),
+    endDate: c.req.query('endDate'),
+    page: c.req.query('page'),
+    pageSize: c.req.query('pageSize'),
   };
 
   const result = UsageQuerySchema.safeParse(query);
@@ -430,11 +430,7 @@ admin.get("/usage", async (c) => {
 
   const where = conditions.length > 0 ? and(...conditions) : undefined;
 
-  const countResult = await db
-    .select({ count: sql<number>`count(*)` })
-    .from(usageLogs)
-    .where(where)
-    .get();
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(usageLogs).where(where).get();
   const total = countResult?.count ?? 0;
 
   const offset = (page - 1) * pageSize;
@@ -462,15 +458,15 @@ admin.get("/usage", async (c) => {
  * GET /admin/spending-stats
  * 消费统计
  */
-admin.get("/spending-stats", async (c) => {
+admin.get('/spending-stats', async (c) => {
   const kvService = new KVService(c.env.KV);
 
   const today = new Date().toISOString().slice(0, 10);
   const month = new Date().toISOString().slice(0, 7);
 
   const [dailySpending, monthlySpending, globalConfig] = await Promise.all([
-    c.env.KV.get<number>(`stats:daily:${today}`, "json"),
-    c.env.KV.get<number>(`stats:monthly:${month}`, "json"),
+    c.env.KV.get<number>(`stats:daily:${today}`, 'json'),
+    c.env.KV.get<number>(`stats:monthly:${month}`, 'json'),
     kvService.getGlobalConfig(),
   ]);
 

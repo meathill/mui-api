@@ -1,28 +1,21 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { api, type UserInfo } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { useEffect, useState } from 'react';
+import { api, type UserInfo } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default function UsersPage() {
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
-  const [rechargeEmail, setRechargeEmail] = useState("");
-  const [rechargeAmount, setRechargeAmount] = useState("");
-  const [rechargeMsg, setRechargeMsg] = useState("");
+  const [rechargeEmail, setRechargeEmail] = useState('');
+  const [rechargeAmount, setRechargeAmount] = useState('');
+  const [rechargeMsg, setRechargeMsg] = useState('');
 
   async function loadUsers() {
     try {
@@ -30,7 +23,7 @@ export default function UsersPage() {
       const data = await api.getUsers();
       setUsers(data.users);
     } catch (e) {
-      setError(e instanceof Error ? e.message : "加载失败");
+      setError(e instanceof Error ? e.message : '加载失败');
     } finally {
       setLoading(false);
     }
@@ -42,15 +35,15 @@ export default function UsersPage() {
 
   async function handleRecharge(e: React.FormEvent) {
     e.preventDefault();
-    setRechargeMsg("");
+    setRechargeMsg('');
     try {
       const result = await api.recharge(rechargeEmail, Number(rechargeAmount));
       setRechargeMsg(`充值成功，余额: $${result.balance.toFixed(2)}`);
-      setRechargeEmail("");
-      setRechargeAmount("");
+      setRechargeEmail('');
+      setRechargeAmount('');
       loadUsers();
     } catch (err) {
-      setRechargeMsg(err instanceof Error ? err.message : "充值失败");
+      setRechargeMsg(err instanceof Error ? err.message : '充值失败');
     }
   }
 
@@ -59,7 +52,7 @@ export default function UsersPage() {
       await api.unsuspendUser(userId);
       loadUsers();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "操作失败");
+      alert(err instanceof Error ? err.message : '操作失败');
     }
   }
 
@@ -71,20 +64,11 @@ export default function UsersPage() {
         <h3 className="font-medium mb-3">充值</h3>
         <form onSubmit={handleRecharge} className="flex gap-3 items-end">
           <div>
-            <label className="block text-xs text-muted-foreground mb-1">
-              邮箱
-            </label>
-            <Input
-              type="email"
-              value={rechargeEmail}
-              onChange={(e) => setRechargeEmail(e.target.value)}
-              required
-            />
+            <label className="block text-xs text-muted-foreground mb-1">邮箱</label>
+            <Input type="email" value={rechargeEmail} onChange={(e) => setRechargeEmail(e.target.value)} required />
           </div>
           <div>
-            <label className="block text-xs text-muted-foreground mb-1">
-              金额 (USD)
-            </label>
+            <label className="block text-xs text-muted-foreground mb-1">金额 (USD)</label>
             <Input
               type="number"
               step="0.01"
@@ -96,9 +80,7 @@ export default function UsersPage() {
             />
           </div>
           <Button type="submit">充值</Button>
-          {rechargeMsg && (
-            <span className="text-sm text-muted-foreground">{rechargeMsg}</span>
-          )}
+          {rechargeMsg && <span className="text-sm text-muted-foreground">{rechargeMsg}</span>}
         </form>
       </Card>
 
@@ -122,9 +104,7 @@ export default function UsersPage() {
               {users.map((user) => (
                 <TableRow key={user.userId}>
                   <TableCell>{user.email}</TableCell>
-                  <TableCell className="text-right font-mono">
-                    ${user.balance.toFixed(4)}
-                  </TableCell>
+                  <TableCell className="text-right font-mono">${user.balance.toFixed(4)}</TableCell>
                   <TableCell className="text-right">
                     {user.concurrency}/{user.maxConcurrency}
                   </TableCell>
@@ -136,15 +116,11 @@ export default function UsersPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-muted-foreground">
-                    {new Date(user.createdAt).toLocaleDateString("zh-CN")}
+                    {user.createdAt ? new Date(user.createdAt).toLocaleDateString('zh-CN') : '-'}
                   </TableCell>
                   <TableCell className="text-center">
                     {user.isSuspended && (
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        onClick={() => handleUnsuspend(user.userId)}
-                      >
+                      <Button variant="ghost" size="xs" onClick={() => user.userId && handleUnsuspend(user.userId)}>
                         解除暂停
                       </Button>
                     )}

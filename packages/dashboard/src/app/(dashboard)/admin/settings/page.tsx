@@ -1,38 +1,35 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { api, type GlobalConfig, type SpendingStats } from "@/lib/api";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
+import { useEffect, useState } from 'react';
+import { api, type GlobalConfig, type SpendingStats } from '@/lib/api';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 
 export default function SettingsPage() {
   const [config, setConfig] = useState<GlobalConfig | null>(null);
   const [stats, setStats] = useState<SpendingStats | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [msg, setMsg] = useState("");
+  const [error, setError] = useState('');
+  const [msg, setMsg] = useState('');
 
-  const [dailyCap, setDailyCap] = useState("");
-  const [monthlyCap, setMonthlyCap] = useState("");
-  const [adminEmail, setAdminEmail] = useState("");
+  const [dailyCap, setDailyCap] = useState('');
+  const [monthlyCap, setMonthlyCap] = useState('');
+  const [adminEmail, setAdminEmail] = useState('');
 
   async function loadData() {
     try {
       setLoading(true);
-      const [configRes, statsRes] = await Promise.all([
-        api.getGlobalConfig(),
-        api.getSpendingStats(),
-      ]);
+      const [configRes, statsRes] = await Promise.all([api.getGlobalConfig(), api.getSpendingStats()]);
       setConfig(configRes.config);
       setStats(statsRes.stats);
-      setDailyCap(String(configRes.config.dailySpendingCap || ""));
-      setMonthlyCap(String(configRes.config.monthlySpendingCap || ""));
-      setAdminEmail(configRes.config.adminEmail || "");
+      setDailyCap(String(configRes.config.dailySpendingCap || ''));
+      setMonthlyCap(String(configRes.config.monthlySpendingCap || ''));
+      setAdminEmail(configRes.config.adminEmail || '');
     } catch (e) {
-      setError(e instanceof Error ? e.message : "加载失败");
+      setError(e instanceof Error ? e.message : '加载失败');
     } finally {
       setLoading(false);
     }
@@ -44,30 +41,30 @@ export default function SettingsPage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    setMsg("");
+    setMsg('');
     try {
       await api.setGlobalConfig({
         dailySpendingCap: Number(dailyCap) || 0,
         monthlySpendingCap: Number(monthlyCap) || 0,
         adminEmail: adminEmail || undefined,
       } as GlobalConfig);
-      setMsg("保存成功");
+      setMsg('保存成功');
       loadData();
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : "保存失败");
+      setMsg(err instanceof Error ? err.message : '保存失败');
     }
   }
 
   async function handleTogglePause() {
     if (!config) return;
     const newState = !config.isServicePaused;
-    const action = newState ? "暂停" : "恢复";
+    const action = newState ? '暂停' : '恢复';
     if (!confirm(`确定要${action}服务？`)) return;
     try {
       await api.setGlobalConfig({ isServicePaused: newState } as GlobalConfig);
       loadData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : "操作失败");
+      alert(err instanceof Error ? err.message : '操作失败');
     }
   }
 
@@ -83,39 +80,27 @@ export default function SettingsPage() {
         <div className="grid grid-cols-2 gap-4 mb-6">
           <Card className="p-4">
             <p className="text-xs text-muted-foreground mb-1">今日消费</p>
-            <p className="text-2xl font-bold font-mono">
-              ${stats.dailySpending.toFixed(2)}
-            </p>
+            <p className="text-2xl font-bold font-mono">${stats.dailySpending.toFixed(2)}</p>
             {stats.dailySpendingCap > 0 && (
               <div className="mt-3">
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
                   <span>上限 ${stats.dailySpendingCap.toFixed(2)}</span>
-                  <span>
-                    {((stats.dailySpending / stats.dailySpendingCap) * 100).toFixed(1)}%
-                  </span>
+                  <span>{((stats.dailySpending / stats.dailySpendingCap) * 100).toFixed(1)}%</span>
                 </div>
-                <Progress
-                  value={Math.min(100, (stats.dailySpending / stats.dailySpendingCap) * 100)}
-                />
+                <Progress value={Math.min(100, (stats.dailySpending / stats.dailySpendingCap) * 100)} />
               </div>
             )}
           </Card>
           <Card className="p-4">
             <p className="text-xs text-muted-foreground mb-1">本月消费</p>
-            <p className="text-2xl font-bold font-mono">
-              ${stats.monthlySpending.toFixed(2)}
-            </p>
+            <p className="text-2xl font-bold font-mono">${stats.monthlySpending.toFixed(2)}</p>
             {stats.monthlySpendingCap > 0 && (
               <div className="mt-3">
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
                   <span>上限 ${stats.monthlySpendingCap.toFixed(2)}</span>
-                  <span>
-                    {((stats.monthlySpending / stats.monthlySpendingCap) * 100).toFixed(1)}%
-                  </span>
+                  <span>{((stats.monthlySpending / stats.monthlySpendingCap) * 100).toFixed(1)}%</span>
                 </div>
-                <Progress
-                  value={Math.min(100, (stats.monthlySpending / stats.monthlySpendingCap) * 100)}
-                />
+                <Progress value={Math.min(100, (stats.monthlySpending / stats.monthlySpendingCap) * 100)} />
               </div>
             )}
           </Card>
@@ -129,21 +114,19 @@ export default function SettingsPage() {
             <div>
               <h3 className="font-medium">服务状态</h3>
               <p className="text-sm text-muted-foreground">
-                {config.isServicePaused
-                  ? "服务已暂停，所有 API 请求将返回 503"
-                  : "服务正常运行中"}
+                {config.isServicePaused ? '服务已暂停，所有 API 请求将返回 503' : '服务正常运行中'}
               </p>
             </div>
             <div className="flex items-center gap-3">
-              <Badge variant={config.isServicePaused ? "destructive" : "secondary"}>
-                {config.isServicePaused ? "已暂停" : "运行中"}
+              <Badge variant={config.isServicePaused ? 'destructive' : 'secondary'}>
+                {config.isServicePaused ? '已暂停' : '运行中'}
               </Badge>
               <Button
-                variant={config.isServicePaused ? "default" : "destructive"}
+                variant={config.isServicePaused ? 'default' : 'destructive'}
                 size="sm"
                 onClick={handleTogglePause}
               >
-                {config.isServicePaused ? "恢复服务" : "暂停服务"}
+                {config.isServicePaused ? '恢复服务' : '暂停服务'}
               </Button>
             </div>
           </div>
@@ -156,9 +139,7 @@ export default function SettingsPage() {
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">
-                日消费上限 (USD)
-              </label>
+              <label className="block text-xs text-muted-foreground mb-1">日消费上限 (USD)</label>
               <Input
                 type="number"
                 step="0.01"
@@ -169,9 +150,7 @@ export default function SettingsPage() {
               />
             </div>
             <div>
-              <label className="block text-xs text-muted-foreground mb-1">
-                月消费上限 (USD)
-              </label>
+              <label className="block text-xs text-muted-foreground mb-1">月消费上限 (USD)</label>
               <Input
                 type="number"
                 step="0.01"
@@ -183,9 +162,7 @@ export default function SettingsPage() {
             </div>
           </div>
           <div>
-            <label className="block text-xs text-muted-foreground mb-1">
-              管理员邮箱（接收告警）
-            </label>
+            <label className="block text-xs text-muted-foreground mb-1">管理员邮箱（接收告警）</label>
             <Input
               type="email"
               value={adminEmail}

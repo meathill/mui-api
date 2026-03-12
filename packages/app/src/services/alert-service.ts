@@ -1,8 +1,8 @@
-import { eq, sql } from "drizzle-orm";
-import type { Database } from "../db";
-import { spendingLimits, usageLogs } from "../db/schema";
-import type { KVService } from "./kv-service";
-import type { EmailService } from "./email-service";
+import { eq, sql } from 'drizzle-orm';
+import type { Database } from '../db';
+import { spendingLimits, usageLogs } from '../db/schema';
+import type { KVService } from './kv-service';
+import type { EmailService } from './email-service';
 
 // 告警冷却时间：24 小时内不重复发送
 const ALERT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
@@ -32,10 +32,7 @@ export class AlertService {
    * 计费完成后调用，检查所有告警条件
    */
   async checkAfterBilling(userId: string, cost: number): Promise<void> {
-    await Promise.all([
-      this.checkUserSpending(userId, cost),
-      this.checkGlobalSpending(cost),
-    ]);
+    await Promise.all([this.checkUserSpending(userId, cost), this.checkGlobalSpending(cost)]);
   }
 
   /**
@@ -43,21 +40,13 @@ export class AlertService {
    */
   private async checkUserSpending(userId: string, cost: number): Promise<void> {
     // 查询用户的消费限额配置
-    const limit = await this.db
-      .select()
-      .from(spendingLimits)
-      .where(eq(spendingLimits.userId, userId))
-      .get();
+    const limit = await this.db.select().from(spendingLimits).where(eq(spendingLimits.userId, userId)).get();
 
     if (!limit?.monthlyLimit) return;
 
     // 累加 KV 中的月度消费
     const monthKey = this.getMonthKey();
-    const totalSpending = await this.kvService.incrementUserMonthlySpending(
-      userId,
-      monthKey,
-      cost,
-    );
+    const totalSpending = await this.kvService.incrementUserMonthlySpending(userId, monthKey, cost);
 
     const threshold = limit.alertThreshold ?? 0.8;
     const ratio = totalSpending / limit.monthlyLimit;
@@ -90,24 +79,20 @@ export class AlertService {
     // 检查日消费上限
     if (config.dailySpendingCap > 0 && dailyTotal >= config.dailySpendingCap) {
       await this.kvService.setGlobalConfig({ ...config, isServicePaused: true });
-      await this.sendGlobalAlert("日", dailyTotal, config.dailySpendingCap);
+      await this.sendGlobalAlert('日', dailyTotal, config.dailySpendingCap);
     }
 
     // 检查月消费上限
     if (config.monthlySpendingCap > 0 && monthlyTotal >= config.monthlySpendingCap) {
       await this.kvService.setGlobalConfig({ ...config, isServicePaused: true });
-      await this.sendGlobalAlert("月", monthlyTotal, config.monthlySpendingCap);
+      await this.sendGlobalAlert('月', monthlyTotal, config.monthlySpendingCap);
     }
   }
 
   /**
    * 暂停用户并发送通知
    */
-  private async suspendUser(
-    userId: string,
-    totalSpending: number,
-    monthlyLimit: number,
-  ): Promise<void> {
+  private async suspendUser(userId: string, totalSpending: number, monthlyLimit: number): Promise<void> {
     // 更新 KV 中的 isSuspended 状态
     await this.kvService.suspendUser(userId);
 
@@ -163,11 +148,7 @@ export class AlertService {
   /**
    * 发送全局消费告警
    */
-  private async sendGlobalAlert(
-    period: string,
-    totalSpending: number,
-    cap: number,
-  ): Promise<void> {
+  private async sendGlobalAlert(period: string, totalSpending: number, cap: number): Promise<void> {
     await this.emailService.sendAlertEmail(
       this.adminEmail,
       `[告警] 全局${period}消费已达上限`,

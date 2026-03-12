@@ -1,8 +1,8 @@
-import { Hono } from "hono";
-import type { CloudflareBindings } from "../types";
-import { createDb } from "../db";
-import { KVService } from "../services/kv-service";
-import { KeyService } from "../services/key-service";
+import { Hono } from 'hono';
+import type { CloudflareBindings } from '../types';
+import { createDb } from '../db';
+import { KVService } from '../services/kv-service';
+import { KeyService } from '../services/key-service';
 
 const claim = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -10,12 +10,12 @@ const claim = new Hono<{ Bindings: CloudflareBindings }>();
  * POST /api/claim
  * 通过 Token 换取 API Key（一次性）
  */
-claim.post("/api/claim", async (c) => {
+claim.post('/api/claim', async (c) => {
   const body = await c.req.json<{ token: string }>();
   const { token } = body;
 
   if (!token) {
-    return c.json({ error: "缺少 token 参数" }, 400);
+    return c.json({ error: '缺少 token 参数' }, 400);
   }
 
   const db = createDb(c.env.DB);
@@ -39,11 +39,11 @@ claim.post("/api/claim", async (c) => {
  * GET /claim
  * 领卡页面
  */
-claim.get("/claim", async (c) => {
-  const token = c.req.query("token");
+claim.get('/claim', async (c) => {
+  const token = c.req.query('token');
 
   if (!token) {
-    return c.html(getErrorPage("无效的链接"));
+    return c.html(getErrorPage('无效的链接'));
   }
 
   return c.html(getClaimPage(token));

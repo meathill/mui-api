@@ -1,79 +1,61 @@
-"use client";
+'use client';
 
-import { mergeProps } from "@base-ui/react/merge-props";
-import { useRender } from "@base-ui/react/use-render";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  MoreHorizontalIcon,
-} from "lucide-react";
-import type * as React from "react";
-import { cn } from "@/lib/utils";
-import { type Button, buttonVariants } from "@/components/ui/button";
+import { mergeProps } from '@base-ui/react/merge-props';
+import { useRender } from '@base-ui/react/use-render';
+import { ChevronLeftIcon, ChevronRightIcon, MoreHorizontalIcon } from 'lucide-react';
+import type * as React from 'react';
+import { cn } from '@/lib/utils';
+import { type Button, buttonVariants } from '@/components/ui/button';
 
-export function Pagination({
-  className,
-  ...props
-}: React.ComponentProps<"nav">): React.ReactElement {
+export function Pagination({ className, ...props }: React.ComponentProps<'nav'>): React.ReactElement {
   return (
     <nav
       aria-label="pagination"
-      className={cn("mx-auto flex w-full justify-center", className)}
+      className={cn('mx-auto flex w-full justify-center', className)}
       data-slot="pagination"
       {...props}
     />
   );
 }
 
-export function PaginationContent({
-  className,
-  ...props
-}: React.ComponentProps<"ul">): React.ReactElement {
-  return (
-    <ul
-      className={cn("flex flex-row items-center gap-1", className)}
-      data-slot="pagination-content"
-      {...props}
-    />
-  );
+export function PaginationContent({ className, ...props }: React.ComponentProps<'ul'>): React.ReactElement {
+  return <ul className={cn('flex flex-row items-center gap-1', className)} data-slot="pagination-content" {...props} />;
 }
 
-export function PaginationItem({
-  ...props
-}: React.ComponentProps<"li">): React.ReactElement {
+export function PaginationItem({ ...props }: React.ComponentProps<'li'>): React.ReactElement {
   return <li data-slot="pagination-item" {...props} />;
 }
 
 export type PaginationLinkProps = {
   isActive?: boolean;
-  size?: React.ComponentProps<typeof Button>["size"];
-} & useRender.ComponentProps<"a">;
+  size?: React.ComponentProps<typeof Button>['size'];
+} & useRender.ComponentProps<'a'>;
 
 export function PaginationLink({
   className,
   isActive,
-  size = "icon",
+  size = 'icon',
   render,
   ...props
 }: PaginationLinkProps): React.ReactElement {
   const defaultProps = {
-    "aria-current": isActive ? ("page" as const) : undefined,
+    'aria-current': isActive ? ('page' as const) : undefined,
     className: render
       ? className
       : cn(
           buttonVariants({
             size,
-            variant: isActive ? "outline" : "ghost",
+            variant: isActive ? 'outline' : 'ghost',
           }),
           className,
         ),
-    "data-active": isActive,
-    "data-slot": "pagination-link",
+    'data-active': isActive,
+    'data-slot': 'pagination-link',
   };
 
   return useRender({
-    defaultTagName: "a",
-    props: mergeProps<"a">(defaultProps, props),
+    defaultTagName: 'a',
+    props: mergeProps<'a'>(defaultProps, props),
     render,
   });
 }
@@ -85,7 +67,7 @@ export function PaginationPrevious({
   return (
     <PaginationLink
       aria-label="Go to previous page"
-      className={cn("max-sm:aspect-square max-sm:p-0", className)}
+      className={cn('max-sm:aspect-square max-sm:p-0', className)}
       size="default"
       {...props}
     >
@@ -102,7 +84,7 @@ export function PaginationNext({
   return (
     <PaginationLink
       aria-label="Go to next page"
-      className={cn("max-sm:aspect-square max-sm:p-0", className)}
+      className={cn('max-sm:aspect-square max-sm:p-0', className)}
       size="default"
       {...props}
     >
@@ -112,14 +94,11 @@ export function PaginationNext({
   );
 }
 
-export function PaginationEllipsis({
-  className,
-  ...props
-}: React.ComponentProps<"span">): React.ReactElement {
+export function PaginationEllipsis({ className, ...props }: React.ComponentProps<'span'>): React.ReactElement {
   return (
     <span
       aria-hidden
-      className={cn("flex min-w-7 justify-center", className)}
+      className={cn('flex min-w-7 justify-center', className)}
       data-slot="pagination-ellipsis"
       {...props}
     >

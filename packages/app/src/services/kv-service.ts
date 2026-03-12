@@ -1,13 +1,13 @@
-import type { KVUserData, KVUserMetadata } from "../types";
-import { hashApiKey } from "../lib/crypto";
+import type { KVUserData, KVUserMetadata } from '../types';
+import { hashApiKey } from '../lib/crypto';
 
-import type { GlobalConfig } from "./alert-service";
+import type { GlobalConfig } from './alert-service';
 
-const USER_KEY_PREFIX = "user:";
-const APIKEY_PREFIX = "apikey:";
-const GLOBAL_CONFIG_KEY = "config:global";
-const GLOBAL_SPENDING_PREFIX = "stats:";
-const USER_SPENDING_PREFIX = "spending:user:";
+const USER_KEY_PREFIX = 'user:';
+const APIKEY_PREFIX = 'apikey:';
+const GLOBAL_CONFIG_KEY = 'config:global';
+const GLOBAL_SPENDING_PREFIX = 'stats:';
+const USER_SPENDING_PREFIX = 'spending:user:';
 const CONCURRENCY_TTL = 60; // 60秒 TTL，防止程序崩溃导致计数器不归零
 
 export interface ApiKeyMetadata {
@@ -22,21 +22,16 @@ export interface ApiKeyMetadata {
 export class KVService {
   constructor(
     private kv: KVNamespace,
-    private defaultMaxConcurrency: number = 3
-  ) { }
+    private defaultMaxConcurrency: number = 3,
+  ) {}
 
   // ==================== 用户数据 ====================
 
   /**
    * 获取用户数据
    */
-  async getUser(
-    userId: string
-  ): Promise<{ data: KVUserData | null; metadata: KVUserMetadata | null }> {
-    const result = await this.kv.getWithMetadata<KVUserData, KVUserMetadata>(
-      `${USER_KEY_PREFIX}${userId}`,
-      "json"
-    );
+  async getUser(userId: string): Promise<{ data: KVUserData | null; metadata: KVUserMetadata | null }> {
+    const result = await this.kv.getWithMetadata<KVUserData, KVUserMetadata>(`${USER_KEY_PREFIX}${userId}`, 'json');
     return {
       data: result.value,
       metadata: result.metadata,
@@ -46,11 +41,7 @@ export class KVService {
   /**
    * 创建或更新用户
    */
-  async setUser(
-    userId: string,
-    data: KVUserData,
-    metadata: KVUserMetadata
-  ): Promise<void> {
+  async setUser(userId: string, data: KVUserData, metadata: KVUserMetadata): Promise<void> {
     await this.kv.put(`${USER_KEY_PREFIX}${userId}`, JSON.stringify(data), {
       metadata,
     });
@@ -93,7 +84,7 @@ export class KVService {
   async addBalance(userId: string, amount: number): Promise<number> {
     const { data, metadata } = await this.getUser(userId);
     if (!data || !metadata) {
-      throw new Error("用户不存在");
+      throw new Error('用户不存在');
     }
 
     data.balance += amount;
@@ -123,12 +114,9 @@ export class KVService {
   async findUserByEmail(email: string): Promise<string | null> {
     const list = await this.kv.list({ prefix: USER_KEY_PREFIX });
     for (const key of list.keys) {
-      const { metadata } = await this.kv.getWithMetadata<KVUserData, KVUserMetadata>(
-        key.name,
-        "json"
-      );
+      const { metadata } = await this.kv.getWithMetadata<KVUserData, KVUserMetadata>(key.name, 'json');
       if (metadata?.email === email) {
-        return key.name.replace(USER_KEY_PREFIX, "");
+        return key.name.replace(USER_KEY_PREFIX, '');
       }
     }
     return null;
@@ -179,11 +167,7 @@ export class KVService {
   /**
    * 存储 API Key（哈希后）
    */
-  async storeApiKey(
-    rawKey: string,
-    userId: string,
-    keyPrefix: string
-  ): Promise<void> {
+  async storeApiKey(rawKey: string, userId: string, keyPrefix: string): Promise<void> {
     const keyHash = await hashApiKey(rawKey);
     const metadata: ApiKeyMetadata = {
       keyPrefix,
@@ -198,10 +182,7 @@ export class KVService {
    */
   async validateApiKey(rawKey: string): Promise<string | null> {
     const keyHash = await hashApiKey(rawKey);
-    const result = await this.kv.getWithMetadata<string, ApiKeyMetadata>(
-      `${APIKEY_PREFIX}${keyHash}`,
-      "text"
-    );
+    const result = await this.kv.getWithMetadata<string, ApiKeyMetadata>(`${APIKEY_PREFIX}${keyHash}`, 'text');
 
     if (!result.value || !result.metadata?.isActive) {
       return null;
@@ -216,7 +197,7 @@ export class KVService {
    * 获取全局配置
    */
   async getGlobalConfig(): Promise<GlobalConfig | null> {
-    return this.kv.get<GlobalConfig>(GLOBAL_CONFIG_KEY, "json");
+    return this.kv.get<GlobalConfig>(GLOBAL_CONFIG_KEY, 'json');
   }
 
   /**
@@ -232,7 +213,7 @@ export class KVService {
    */
   async incrementGlobalSpending(key: string, amount: number, ttlSeconds: number): Promise<number> {
     const fullKey = `${GLOBAL_SPENDING_PREFIX}${key}`;
-    const current = await this.kv.get<number>(fullKey, "json") ?? 0;
+    const current = (await this.kv.get<number>(fullKey, 'json')) ?? 0;
     const newTotal = current + amount;
     await this.kv.put(fullKey, JSON.stringify(newTotal), {
       expirationTtl: ttlSeconds,
@@ -243,13 +224,9 @@ export class KVService {
   /**
    * 累加用户月度消费，返回累加后的总值
    */
-  async incrementUserMonthlySpending(
-    userId: string,
-    monthKey: string,
-    amount: number,
-  ): Promise<number> {
+  async incrementUserMonthlySpending(userId: string, monthKey: string, amount: number): Promise<number> {
     const fullKey = `${USER_SPENDING_PREFIX}${userId}:${monthKey}`;
-    const current = await this.kv.get<number>(fullKey, "json") ?? 0;
+    const current = (await this.kv.get<number>(fullKey, 'json')) ?? 0;
     const newTotal = current + amount;
     await this.kv.put(fullKey, JSON.stringify(newTotal), {
       expirationTtl: 35 * 24 * 3600, // 35 天
@@ -262,7 +239,7 @@ export class KVService {
    */
   async getUserMonthlySpending(userId: string, monthKey: string): Promise<number> {
     const fullKey = `${USER_SPENDING_PREFIX}${userId}:${monthKey}`;
-    return await this.kv.get<number>(fullKey, "json") ?? 0;
+    return (await this.kv.get<number>(fullKey, 'json')) ?? 0;
   }
 
   /**
@@ -292,10 +269,7 @@ export class KVService {
    */
   async disableApiKey(rawKey: string): Promise<void> {
     const keyHash = await hashApiKey(rawKey);
-    const result = await this.kv.getWithMetadata<string, ApiKeyMetadata>(
-      `${APIKEY_PREFIX}${keyHash}`,
-      "text"
-    );
+    const result = await this.kv.getWithMetadata<string, ApiKeyMetadata>(`${APIKEY_PREFIX}${keyHash}`, 'text');
 
     if (result.value && result.metadata) {
       result.metadata.isActive = false;

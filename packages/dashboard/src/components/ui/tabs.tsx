@@ -1,21 +1,15 @@
-"use client";
+'use client';
 
-import { Tabs as TabsPrimitive } from "@base-ui/react/tabs";
-import type React from "react";
-import { cn } from "@/lib/utils";
+import { Tabs as TabsPrimitive } from '@base-ui/react/tabs';
+import type React from 'react';
+import { cn } from '@/lib/utils';
 
-export type TabsVariant = "default" | "underline";
+export type TabsVariant = 'default' | 'underline';
 
-export function Tabs({
-  className,
-  ...props
-}: TabsPrimitive.Root.Props): React.ReactElement {
+export function Tabs({ className, ...props }: TabsPrimitive.Root.Props): React.ReactElement {
   return (
     <TabsPrimitive.Root
-      className={cn(
-        "flex flex-col gap-2 data-[orientation=vertical]:flex-row",
-        className,
-      )}
+      className={cn('flex flex-col gap-2 data-[orientation=vertical]:flex-row', className)}
       data-slot="tabs"
       {...props}
     />
@@ -23,7 +17,7 @@ export function Tabs({
 }
 
 export function TabsList({
-  variant = "default",
+  variant = 'default',
   className,
   children,
   ...props
@@ -33,11 +27,11 @@ export function TabsList({
   return (
     <TabsPrimitive.List
       className={cn(
-        "relative z-0 flex w-fit items-center justify-center gap-x-0.5 text-muted-foreground",
-        "data-[orientation=vertical]:flex-col",
-        variant === "default"
-          ? "rounded-lg bg-muted p-0.5 text-muted-foreground/72"
-          : "data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 *:data-[slot=tabs-tab]:hover:bg-accent",
+        'relative z-0 flex w-fit items-center justify-center gap-x-0.5 text-muted-foreground',
+        'data-[orientation=vertical]:flex-col',
+        variant === 'default'
+          ? 'rounded-lg bg-muted p-0.5 text-muted-foreground/72'
+          : 'data-[orientation=vertical]:px-1 data-[orientation=horizontal]:py-1 *:data-[slot=tabs-tab]:hover:bg-accent',
         className,
       )}
       data-slot="tabs-list"
@@ -46,10 +40,10 @@ export function TabsList({
       {children}
       <TabsPrimitive.Indicator
         className={cn(
-          "absolute bottom-0 left-0 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom) transition-[width,translate] duration-200 ease-in-out",
-          variant === "underline"
-            ? "z-10 bg-primary data-[orientation=horizontal]:h-0.5 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px"
-            : "-z-1 rounded-md bg-background shadow-sm/5 dark:bg-input",
+          'absolute bottom-0 left-0 h-(--active-tab-height) w-(--active-tab-width) translate-x-(--active-tab-left) -translate-y-(--active-tab-bottom) transition-[width,translate] duration-200 ease-in-out',
+          variant === 'underline'
+            ? 'z-10 bg-primary data-[orientation=horizontal]:h-0.5 data-[orientation=vertical]:w-0.5 data-[orientation=vertical]:-translate-x-px data-[orientation=horizontal]:translate-y-px'
+            : '-z-1 rounded-md bg-background shadow-sm/5 dark:bg-input',
         )}
         data-slot="tab-indicator"
       />
@@ -57,10 +51,7 @@ export function TabsList({
   );
 }
 
-export function TabsTab({
-  className,
-  ...props
-}: TabsPrimitive.Tab.Props): React.ReactElement {
+export function TabsTab({ className, ...props }: TabsPrimitive.Tab.Props): React.ReactElement {
   return (
     <TabsPrimitive.Tab
       className={cn(
@@ -73,17 +64,8 @@ export function TabsTab({
   );
 }
 
-export function TabsPanel({
-  className,
-  ...props
-}: TabsPrimitive.Panel.Props): React.ReactElement {
-  return (
-    <TabsPrimitive.Panel
-      className={cn("flex-1 outline-none", className)}
-      data-slot="tabs-content"
-      {...props}
-    />
-  );
+export function TabsPanel({ className, ...props }: TabsPrimitive.Panel.Props): React.ReactElement {
+  return <TabsPrimitive.Panel className={cn('flex-1 outline-none', className)} data-slot="tabs-content" {...props} />;
 }
 
 export { TabsPrimitive, TabsTab as TabsTrigger, TabsPanel as TabsContent };

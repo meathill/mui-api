@@ -1,7 +1,7 @@
-import { eq, sql } from "drizzle-orm";
-import type { Database } from "../db";
-import { users, wallets, type NewUser } from "../db/schema";
-import { generateId } from "../lib/crypto";
+import { eq, sql } from 'drizzle-orm';
+import type { Database } from '../db';
+import { users, wallets, type NewUser } from '../db/schema';
+import { generateId } from '../lib/crypto';
 
 export interface RechargeResult {
   isNewUser: boolean;
@@ -13,7 +13,7 @@ export interface RechargeResult {
  * 充值服务：处理用户充值逻辑
  */
 export class RechargeService {
-  constructor(private db: Database) { }
+  constructor(private db: Database) {}
 
   /**
    * 执行充值操作
@@ -55,7 +55,7 @@ export class RechargeService {
     await this.db.insert(wallets).values({
       userId,
       balance: amount,
-      currency: "USD",
+      currency: 'USD',
     });
 
     return {

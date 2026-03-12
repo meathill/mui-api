@@ -28,15 +28,13 @@ export function extractCompatUsage(data: Record<string, unknown>): UsageResult |
  * 从 OpenAI 兼容格式 SSE 流中提取 usage
  * 读取 tee 后的副本流，解析最后一个包含 usage 的 chunk
  */
-export async function extractCompatStreamUsage(
-  response: Response,
-): Promise<UsageResult | null> {
+export async function extractCompatStreamUsage(response: Response): Promise<UsageResult | null> {
   const reader = response.body?.getReader();
   if (!reader) return null;
 
   const decoder = new TextDecoder();
-  let buffer = "";
-  let model = "";
+  let buffer = '';
+  let model = '';
   let inputTokens = 0;
   let outputTokens = 0;
 
@@ -46,11 +44,11 @@ export async function extractCompatStreamUsage(
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
 
       for (const line of lines) {
-        if (line.startsWith("data: ") && line !== "data: [DONE]") {
+        if (line.startsWith('data: ') && line !== 'data: [DONE]') {
           try {
             const data = JSON.parse(line.slice(6));
             if (data.model) model = data.model;
@@ -74,18 +72,15 @@ export async function extractCompatStreamUsage(
 /**
  * 从原生 Provider 响应中提取 usage（非流式）
  */
-export function extractNativeUsage(
-  provider: string,
-  data: Record<string, unknown>,
-): UsageResult | null {
+export function extractNativeUsage(provider: string, data: Record<string, unknown>): UsageResult | null {
   switch (provider) {
-    case "openai":
+    case 'openai':
       return extractCompatUsage(data);
 
-    case "anthropic":
+    case 'anthropic':
       return extractAnthropicUsage(data);
 
-    case "google-ai-studio":
+    case 'google-ai-studio':
       return extractGoogleUsage(data);
 
     default:
@@ -107,7 +102,7 @@ function extractAnthropicUsage(data: Record<string, unknown>): UsageResult | nul
 
 function extractGoogleUsage(data: Record<string, unknown>): UsageResult | null {
   const usageMetadata = data.usageMetadata as Record<string, number> | undefined;
-  const modelVersion = (data.modelVersion as string) ?? "unknown";
+  const modelVersion = (data.modelVersion as string) ?? 'unknown';
   if (!usageMetadata) return null;
 
   return {
@@ -120,12 +115,9 @@ function extractGoogleUsage(data: Record<string, unknown>): UsageResult | null {
 /**
  * 从原生 Provider SSE 流中提取 usage
  */
-export async function extractNativeStreamUsage(
-  provider: string,
-  response: Response,
-): Promise<UsageResult | null> {
+export async function extractNativeStreamUsage(provider: string, response: Response): Promise<UsageResult | null> {
   // OpenAI 和 CF AI Gateway compat 模式使用相同的 SSE 格式
-  if (provider === "openai") {
+  if (provider === 'openai') {
     return extractCompatStreamUsage(response);
   }
 
@@ -133,7 +125,7 @@ export async function extractNativeStreamUsage(
   if (!reader) return null;
 
   const decoder = new TextDecoder();
-  let buffer = "";
+  let buffer = '';
   let result: UsageResult | null = null;
 
   try {
@@ -142,11 +134,11 @@ export async function extractNativeStreamUsage(
       if (done) break;
 
       buffer += decoder.decode(value, { stream: true });
-      const lines = buffer.split("\n");
-      buffer = lines.pop() ?? "";
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
 
       for (const line of lines) {
-        if (!line.startsWith("data: ") || line === "data: [DONE]") continue;
+        if (!line.startsWith('data: ') || line === 'data: [DONE]') continue;
         try {
           const data = JSON.parse(line.slice(6)) as Record<string, unknown>;
           const extracted = extractNativeUsage(provider, data);

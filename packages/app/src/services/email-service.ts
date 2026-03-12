@@ -1,4 +1,4 @@
-import { Resend } from "resend";
+import { Resend } from 'resend';
 
 export interface EmailConfig {
   apiKey: string;
@@ -16,8 +16,8 @@ export class EmailService {
 
   constructor(config: EmailConfig) {
     this.resend = new Resend(config.apiKey);
-    this.fromEmail = config.fromEmail ?? "noreply@example.com";
-    this.fromName = config.fromName ?? "Uni-Gateway";
+    this.fromEmail = config.fromEmail ?? 'noreply@example.com';
+    this.fromName = config.fromName ?? 'Uni-Gateway';
   }
 
   /**
@@ -28,12 +28,12 @@ export class EmailService {
       await this.resend.emails.send({
         from: `${this.fromName} <${this.fromEmail}>`,
         to: email,
-        subject: "🔑 领取你的 API Key - Uni-Gateway",
+        subject: '🔑 领取你的 API Key - Uni-Gateway',
         html: this.getClaimEmailHtml(claimUrl),
       });
       return true;
     } catch (error) {
-      console.error("发送 Claim 邮件失败:", error);
+      console.error('发送 Claim 邮件失败:', error);
       return false;
     }
   }
@@ -41,21 +41,17 @@ export class EmailService {
   /**
    * 发送充值成功邮件（老用户）
    */
-  async sendRechargeSuccessEmail(
-    email: string,
-    amount: number,
-    newBalance: number
-  ): Promise<boolean> {
+  async sendRechargeSuccessEmail(email: string, amount: number, newBalance: number): Promise<boolean> {
     try {
       await this.resend.emails.send({
         from: `${this.fromName} <${this.fromEmail}>`,
         to: email,
-        subject: "💰 充值成功 - Uni-Gateway",
+        subject: '💰 充值成功 - Uni-Gateway',
         html: this.getRechargeSuccessEmailHtml(amount, newBalance),
       });
       return true;
     } catch (error) {
-      console.error("发送充值成功邮件失败:", error);
+      console.error('发送充值成功邮件失败:', error);
       return false;
     }
   }
@@ -63,11 +59,7 @@ export class EmailService {
   /**
    * 发送告警邮件（消费限额、全局阈值等）
    */
-  async sendAlertEmail(
-    to: string,
-    subject: string,
-    message: string,
-  ): Promise<boolean> {
+  async sendAlertEmail(to: string, subject: string, message: string): Promise<boolean> {
     try {
       await this.resend.emails.send({
         from: `${this.fromName} <${this.fromEmail}>`,
@@ -77,7 +69,7 @@ export class EmailService {
       });
       return true;
     } catch (error) {
-      console.error("发送告警邮件失败:", error);
+      console.error('发送告警邮件失败:', error);
       return false;
     }
   }
