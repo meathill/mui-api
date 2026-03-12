@@ -5,6 +5,7 @@ import { loggerMiddleware } from "./middleware/logger";
 import admin from "./routes/admin";
 import claim from "./routes/claim";
 import openai from "./routes/openai";
+import providers from "./routes/providers";
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -15,6 +16,7 @@ app.use(renderer);
 // 挂载路由
 app.route("/admin", admin);
 app.route("/v1", openai);
+app.route("/providers", providers);
 app.route("/", claim);
 
 // 首页

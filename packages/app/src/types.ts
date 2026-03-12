@@ -4,10 +4,14 @@ export interface CloudflareBindings {
   KV: KVNamespace;
   OPENAI_API_KEY: string;
   GOOGLE_API_KEY: string;
+  ANTHROPIC_API_KEY: string;
   RESEND_API_KEY: string;
   ADMIN_SECRET: string;
+  ADMIN_EMAIL: string;
   BASE_URL: string;
   FROM_EMAIL?: string;
+  CF_ACCOUNT_ID: string;
+  CF_GATEWAY_ID: string;
   DEFAULT_MAX_CONCURRENCY?: string; // 默认 "3"
 }
 
@@ -15,6 +19,7 @@ export interface CloudflareBindings {
 export interface KVUserData {
   balance: number;
   concurrency: number;
+  isSuspended?: boolean;
 }
 
 export interface KVUserMetadata {

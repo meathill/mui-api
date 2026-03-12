@@ -3,21 +3,25 @@ import { usageLogs, type NewUsageLog } from "../db/schema";
 import { generateId } from "../lib/crypto";
 import type { KVService } from "./kv-service";
 
-// 默认模型定价（每 1M tokens，USD）
-const DEFAULT_PRICING: Record<string, { input: number; output: number }> = {
+// 默认加价倍率
+const DEFAULT_MARKUP_RATE = 1.2;
+
+// 兜底定价（当 DB 中无配置且未传入 modelPricing 时）
+const FALLBACK_PRICING: Record<string, { input: number; output: number }> = {
   "gpt-4o": { input: 2.5, output: 10 },
   "gpt-4o-mini": { input: 0.15, output: 0.6 },
-  "gpt-4-turbo": { input: 10, output: 30 },
-  "gpt-4": { input: 30, output: 60 },
-  "gpt-3.5-turbo": { input: 0.5, output: 1.5 },
 };
-
-const DEFAULT_MARKUP_RATE = 1.2;
 
 export interface UsageInfo {
   inputTokens: number;
   outputTokens: number;
   model: string;
+}
+
+export interface ModelPricing {
+  inputPrice: number;
+  outputPrice: number;
+  markupRate: number;
 }
 
 /**
@@ -26,24 +30,41 @@ export interface UsageInfo {
 export class BillingService {
   constructor(
     private kvService: KVService,
-    private db: Database
-  ) { }
+    private db: Database,
+  ) {}
 
   /**
    * 计算请求费用
+   * 优先使用传入的 modelPricing（来自 DB models 表），否则使用兜底定价
    */
   calculateCost(
     model: string,
     inputTokens: number,
-    outputTokens: number
+    outputTokens: number,
+    modelPricing?: ModelPricing | null,
   ): number {
-    const pricing = DEFAULT_PRICING[model] ?? DEFAULT_PRICING["gpt-4o-mini"];
-    const inputPrice = pricing.input;
-    const outputPrice = pricing.output;
+    let inputPrice: number;
+    let outputPrice: number;
+    let markupRate: number;
+
+    if (modelPricing) {
+      inputPrice = modelPricing.inputPrice;
+      outputPrice = modelPricing.outputPrice;
+      markupRate = modelPricing.markupRate;
+    } else {
+      const fallback = FALLBACK_PRICING[model];
+      if (!fallback) {
+        console.warn(`模型 ${model} 无定价配置，使用 gpt-4o-mini 兜底`);
+      }
+      const pricing = fallback ?? FALLBACK_PRICING["gpt-4o-mini"];
+      inputPrice = pricing.input;
+      outputPrice = pricing.output;
+      markupRate = DEFAULT_MARKUP_RATE;
+    }
 
     const inputCost = (inputTokens / 1_000_000) * inputPrice;
     const outputCost = (outputTokens / 1_000_000) * outputPrice;
-    const totalCost = (inputCost + outputCost) * DEFAULT_MARKUP_RATE;
+    const totalCost = (inputCost + outputCost) * markupRate;
 
     return totalCost;
   }
@@ -64,7 +85,7 @@ export class BillingService {
     model: string,
     inputTokens: number,
     outputTokens: number,
-    cost: number
+    cost: number,
   ): Promise<void> {
     const log: NewUsageLog = {
       id: generateId(),
@@ -85,12 +106,14 @@ export class BillingService {
   async processUsage(
     userId: string,
     apiKeyId: string | null,
-    usage: UsageInfo
+    usage: UsageInfo,
+    modelPricing?: ModelPricing | null,
   ): Promise<number> {
     const cost = this.calculateCost(
       usage.model,
       usage.inputTokens,
-      usage.outputTokens
+      usage.outputTokens,
+      modelPricing,
     );
 
     // KV 扣款
@@ -103,7 +126,7 @@ export class BillingService {
       usage.model,
       usage.inputTokens,
       usage.outputTokens,
-      cost
+      cost,
     );
 
     return cost;

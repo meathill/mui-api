@@ -38,7 +38,7 @@ export class KeyService {
   /**
    * 为用户生成新的 API Key（存储到 KV）
    */
-  async generateKey(userId: string, _name?: string): Promise<GenerateKeyResult> {
+  async generateKey(userId: string): Promise<GenerateKeyResult> {
     const rawKey = generateApiKey();
     const keyPrefix = getKeyPrefix(rawKey);
     const keyId = generateId();

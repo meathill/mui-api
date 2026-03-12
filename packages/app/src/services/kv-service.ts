@@ -1,8 +1,13 @@
 import type { KVUserData, KVUserMetadata } from "../types";
 import { hashApiKey } from "../lib/crypto";
 
+import type { GlobalConfig } from "./alert-service";
+
 const USER_KEY_PREFIX = "user:";
 const APIKEY_PREFIX = "apikey:";
+const GLOBAL_CONFIG_KEY = "config:global";
+const GLOBAL_SPENDING_PREFIX = "stats:";
+const USER_SPENDING_PREFIX = "spending:user:";
 const CONCURRENCY_TTL = 60; // 60秒 TTL，防止程序崩溃导致计数器不归零
 
 export interface ApiKeyMetadata {
@@ -203,6 +208,83 @@ export class KVService {
     }
 
     return result.value;
+  }
+
+  // ==================== 消费统计 ====================
+
+  /**
+   * 获取全局配置
+   */
+  async getGlobalConfig(): Promise<GlobalConfig | null> {
+    return this.kv.get<GlobalConfig>(GLOBAL_CONFIG_KEY, "json");
+  }
+
+  /**
+   * 设置全局配置
+   */
+  async setGlobalConfig(config: GlobalConfig): Promise<void> {
+    await this.kv.put(GLOBAL_CONFIG_KEY, JSON.stringify(config));
+  }
+
+  /**
+   * 累加全局消费（日/月），返回累加后的总值
+   * key 例如 "daily:2026-03-11" 或 "monthly:2026-03"
+   */
+  async incrementGlobalSpending(key: string, amount: number, ttlSeconds: number): Promise<number> {
+    const fullKey = `${GLOBAL_SPENDING_PREFIX}${key}`;
+    const current = await this.kv.get<number>(fullKey, "json") ?? 0;
+    const newTotal = current + amount;
+    await this.kv.put(fullKey, JSON.stringify(newTotal), {
+      expirationTtl: ttlSeconds,
+    });
+    return newTotal;
+  }
+
+  /**
+   * 累加用户月度消费，返回累加后的总值
+   */
+  async incrementUserMonthlySpending(
+    userId: string,
+    monthKey: string,
+    amount: number,
+  ): Promise<number> {
+    const fullKey = `${USER_SPENDING_PREFIX}${userId}:${monthKey}`;
+    const current = await this.kv.get<number>(fullKey, "json") ?? 0;
+    const newTotal = current + amount;
+    await this.kv.put(fullKey, JSON.stringify(newTotal), {
+      expirationTtl: 35 * 24 * 3600, // 35 天
+    });
+    return newTotal;
+  }
+
+  /**
+   * 获取用户月度消费
+   */
+  async getUserMonthlySpending(userId: string, monthKey: string): Promise<number> {
+    const fullKey = `${USER_SPENDING_PREFIX}${userId}:${monthKey}`;
+    return await this.kv.get<number>(fullKey, "json") ?? 0;
+  }
+
+  /**
+   * 暂停用户
+   */
+  async suspendUser(userId: string): Promise<void> {
+    const { data, metadata } = await this.getUser(userId);
+    if (data && metadata) {
+      data.isSuspended = true;
+      await this.setUser(userId, data, metadata);
+    }
+  }
+
+  /**
+   * 解除用户暂停
+   */
+  async unsuspendUser(userId: string): Promise<void> {
+    const { data, metadata } = await this.getUser(userId);
+    if (data && metadata) {
+      data.isSuspended = false;
+      await this.setUser(userId, data, metadata);
+    }
   }
 
   /**

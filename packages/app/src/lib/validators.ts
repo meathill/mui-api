@@ -23,6 +23,50 @@ export const GetUserSchema = z.object({
 );
 export type GetUserInput = z.infer<typeof GetUserSchema>;
 
+// ==================== 模型管理 ====================
+
+export const ModelCreateSchema = z.object({
+  id: z.string().min(1, "模型 ID 不能为空"),
+  provider: z.enum(["openai", "anthropic", "google-ai-studio"]),
+  upstreamModelId: z.string().optional(),
+  inputPrice: z.number().min(0, "价格不能为负"),
+  outputPrice: z.number().min(0, "价格不能为负"),
+  markupRate: z.number().min(1).default(1.2),
+});
+export type ModelCreateInput = z.infer<typeof ModelCreateSchema>;
+
+export const ModelUpdateSchema = ModelCreateSchema.partial().omit({ id: true });
+export type ModelUpdateInput = z.infer<typeof ModelUpdateSchema>;
+
+// ==================== 消费限额 ====================
+
+export const SpendingLimitSchema = z.object({
+  userId: z.string().min(1, "userId 不能为空"),
+  monthlyLimit: z.number().positive("限额必须大于 0"),
+  alertThreshold: z.number().min(0).max(1).default(0.8),
+});
+export type SpendingLimitInput = z.infer<typeof SpendingLimitSchema>;
+
+export const GlobalConfigSchema = z.object({
+  dailySpendingCap: z.number().min(0).default(0),
+  monthlySpendingCap: z.number().min(0).default(0),
+  adminEmail: z.string().email().optional(),
+  isServicePaused: z.boolean().default(false),
+});
+export type GlobalConfigInput = z.infer<typeof GlobalConfigSchema>;
+
+// ==================== 用量查询 ====================
+
+export const UsageQuerySchema = z.object({
+  userId: z.string().optional(),
+  modelId: z.string().optional(),
+  startDate: z.string().optional(),
+  endDate: z.string().optional(),
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+});
+export type UsageQueryInput = z.infer<typeof UsageQuerySchema>;
+
 // ==================== Claim 接口 ====================
 
 export const ClaimSchema = z.object({

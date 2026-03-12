@@ -60,6 +60,60 @@ export class EmailService {
     }
   }
 
+  /**
+   * 发送告警邮件（消费限额、全局阈值等）
+   */
+  async sendAlertEmail(
+    to: string,
+    subject: string,
+    message: string,
+  ): Promise<boolean> {
+    try {
+      await this.resend.emails.send({
+        from: `${this.fromName} <${this.fromEmail}>`,
+        to,
+        subject,
+        html: this.getAlertEmailHtml(subject, message),
+      });
+      return true;
+    } catch (error) {
+      console.error("发送告警邮件失败:", error);
+      return false;
+    }
+  }
+
+  private getAlertEmailHtml(title: string, message: string): string {
+    return `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
+    .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+    .header { text-align: center; padding: 20px 0; background: #FEF2F2; border-radius: 8px; }
+    .content { background: #FFF7ED; border: 1px solid #F59E0B; padding: 16px; border-radius: 8px; margin: 20px 0; }
+    .footer { text-align: center; color: #666; font-size: 12px; margin-top: 40px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2>${title}</h2>
+    </div>
+    <div class="content">
+      <p>${message}</p>
+    </div>
+    <p>请登录管理后台查看详情并采取措施。</p>
+    <div class="footer">
+      <p>Uni-Gateway - 统一 AI 接口网关</p>
+    </div>
+  </div>
+</body>
+</html>
+    `.trim();
+  }
+
   private getClaimEmailHtml(claimUrl: string): string {
     return `
 <!DOCTYPE html>

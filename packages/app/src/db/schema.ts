@@ -69,6 +69,20 @@ export const usageLogs = sqliteTable("usage_logs", {
   ),
 });
 
+// 7. 消费限额表
+export const spendingLimits = sqliteTable("spending_limits", {
+  userId: text("user_id")
+    .primaryKey()
+    .references(() => users.id),
+  monthlyLimit: real("monthly_limit"), // 月度消费上限 USD
+  alertThreshold: real("alert_threshold").default(0.8), // 告警阈值百分比（0.8 = 80%）
+  isSuspended: integer("is_suspended", { mode: "boolean" }).default(false),
+  lastAlertAt: integer("last_alert_at", { mode: "timestamp" }),
+  updatedAt: integer("updated_at", { mode: "timestamp" }).default(
+    sql`(unixepoch())`,
+  ),
+});
+
 // 导出类型
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -87,3 +101,6 @@ export type NewModel = typeof models.$inferInsert;
 
 export type UsageLog = typeof usageLogs.$inferSelect;
 export type NewUsageLog = typeof usageLogs.$inferInsert;
+
+export type SpendingLimit = typeof spendingLimits.$inferSelect;
+export type NewSpendingLimit = typeof spendingLimits.$inferInsert;

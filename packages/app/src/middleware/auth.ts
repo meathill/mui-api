@@ -50,6 +50,23 @@ export async function authMiddleware(
     );
   }
 
+  // 检查全局服务暂停状态
+  const globalConfig = await kvService.getGlobalConfig();
+  if (globalConfig?.isServicePaused) {
+    return c.json(
+      { error: { message: "服务暂时不可用，请稍后重试", type: "service_paused" } },
+      503,
+    );
+  }
+
+  // 检查用户暂停状态
+  if (data.isSuspended) {
+    return c.json(
+      { error: { message: "账户已因超出消费限额被暂停，请联系管理员", type: "account_suspended" } },
+      403,
+    );
+  }
+
   // 检查余额
   if (data.balance < MIN_BALANCE) {
     return c.json(
@@ -59,7 +76,7 @@ export async function authMiddleware(
           type: "insufficient_quota",
         },
       },
-      402
+      402,
     );
   }
 
