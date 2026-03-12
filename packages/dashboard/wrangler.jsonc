@@ -9,23 +9,24 @@
     "binding": "ASSETS",
     "directory": ".open-next/assets"
   },
-  "services": [
-    {
-      "binding": "WORKER_SELF_REFERENCE",
-      "service": "mui-dashboard"
-    }
-  ],
-  "observability": {
-    "enabled": true
-  },
-  "placement": {
-    "mode": "smart"
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "NEXT_CACHE_DO_QUEUE",
+        "class_name": "DOQueueHandler"
+      }
+    ]
   },
   "d1_databases": [
     {
       "binding": "DB",
       "database_name": "mui-api",
       "database_id": "cac559c7-48f0-4720-8d5a-db017864a279"
+    },
+    {
+      "binding": "NEXT_TAG_CACHE_D1",
+      "database_name": "tag-cache",
+      "database_id": "5f26868d-5d24-4645-8954-a27168f6fcd6"
     }
   ],
   "kv_namespaces": [
@@ -34,5 +35,37 @@
       "id": "aeab02ed56cc4d2ca6e8558aa90b8663",
       "preview_id": "aeab02ed56cc4d2ca6e8558aa90b8663"
     }
-  ]
+  ],
+  "images": {
+    "binding": "IMAGES"
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["DOQueueHandler"]
+    }
+  ],
+  "observability": {
+    "enabled": true
+  },
+  "placement": {
+    "mode": "smart"
+  },
+  "r2_buckets": [
+    {
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "site-cache"
+    }
+  ],
+  "services": [
+    {
+      "binding": "WORKER_SELF_REFERENCE",
+      "service": "mui-dashboard"
+    }
+  ],
+  "vars": {
+    "NEXT_PUBLIC_API_BASE": "https://muirouter.com",
+    "ADMIN_EMAILS": "meathill@gmail.com",
+    "BETTER_AUTH_URL": "https://muirouter.com"
+  }
 }
