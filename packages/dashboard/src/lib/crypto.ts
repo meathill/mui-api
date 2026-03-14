@@ -40,3 +40,15 @@ export async function hashApiKey(key: string): Promise<string> {
 export function getKeyPrefix(key: string): string {
   return key.substring(0, 12) + '...';
 }
+
+/**
+ * 生成 16 位随机 Claim Token
+ */
+export function generateClaimToken(): string {
+  const bytes = new Uint8Array(12);
+  crypto.getRandomValues(bytes);
+  return btoa(String.fromCharCode(...bytes))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+}

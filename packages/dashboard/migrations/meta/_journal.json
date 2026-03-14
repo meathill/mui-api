@@ -1,0 +1,20 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1773366502615,
+      "tag": "0000_previous_wildside",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1773710400000,
+      "tag": "0001_app_shared_tables",
+      "breakpoints": true
+    }
+  ]
+}

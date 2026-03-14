@@ -64,7 +64,8 @@
     }
   ],
   "vars": {
-    "NEXT_PUBLIC_API_BASE": "https://muirouter.com",
+    "NEXT_PUBLIC_API_BASE": "https://api.muirouter.com",
+    "NEXT_PUBLIC_SITE_URL": "https://muirouter.com",
     "ADMIN_EMAILS": "meathill@gmail.com",
     "BETTER_AUTH_URL": "https://muirouter.com"
   }

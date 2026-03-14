@@ -1,0 +1,38 @@
+import { NextResponse } from 'next/server';
+import { requireAdmin } from '@/lib/admin';
+import { getKV, getGlobalConfig, setGlobalConfig, type GlobalConfig } from '@/lib/kv';
+
+/**
+ * GET /api/admin/global-config — 获取全局配置
+ */
+export async function GET() {
+  const result = await requireAdmin();
+  if ('error' in result) return result.error;
+
+  const kv = await getKV();
+  const config = await getGlobalConfig(kv);
+
+  return NextResponse.json({
+    success: true,
+    config: config ?? {
+      dailySpendingCap: 0,
+      monthlySpendingCap: 0,
+      adminEmail: '',
+      isServicePaused: false,
+    },
+  });
+}
+
+/**
+ * POST /api/admin/global-config — 设置全局配置
+ */
+export async function POST(request: Request) {
+  const result = await requireAdmin();
+  if ('error' in result) return result.error;
+
+  const body = (await request.json()) as GlobalConfig;
+  const kv = await getKV();
+  await setGlobalConfig(kv, body);
+
+  return NextResponse.json({ success: true, config: body });
+}

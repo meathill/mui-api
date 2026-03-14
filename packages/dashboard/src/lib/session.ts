@@ -1,6 +1,6 @@
 import { headers } from 'next/headers';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { createAuth } from './auth';
+import { getAuth } from './auth';
 
 interface SessionUser {
   id: string;
@@ -18,12 +18,7 @@ interface SessionResult {
  */
 export async function getSession(): Promise<SessionResult> {
   try {
-    const { env } = await getCloudflareContext();
-    const auth = createAuth(env.DB, {
-      BETTER_AUTH_SECRET: env.BETTER_AUTH_SECRET,
-      BETTER_AUTH_URL: env.BETTER_AUTH_URL,
-    });
-
+    const auth = await getAuth();
     const headerStore = await headers();
     const session = await auth.api.getSession({ headers: headerStore });
 
@@ -31,6 +26,7 @@ export async function getSession(): Promise<SessionResult> {
       return { user: null, isAdmin: false };
     }
 
+    const { env } = await getCloudflareContext({ async: true });
     const adminEmails = (env.ADMIN_EMAILS || '')
       .split(',')
       .map((e) => e.trim().toLowerCase())
@@ -46,7 +42,8 @@ export async function getSession(): Promise<SessionResult> {
       },
       isAdmin,
     };
-  } catch {
+  } catch (error) {
+    console.error('[getSession] 获取会话失败:', error);
     return { user: null, isAdmin: false };
   }
 }

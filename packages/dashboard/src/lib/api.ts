@@ -1,6 +1,6 @@
 /**
  * 客户端 API 调用层
- * 所有请求走 Next.js API Route 代理，不再直连 API Worker
+ * 所有请求走 Next.js API Route，直接操作共享 D1/KV
  */
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -27,7 +27,6 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 
 // ==================== 管理员 API ====================
-// 通过 /api/admin/* 代理到 API Worker
 
 export const adminApi = {
   getUsers: (cursor?: string) =>
@@ -100,7 +99,6 @@ export const adminApi = {
 };
 
 // ==================== 用户 API ====================
-// 通过 /api/user/* 代理
 
 export const userApi = {
   getProfile: () => request<{ user: UserInfo }>('/api/user'),

@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
-import { proxyToApi } from '@/lib/api-proxy';
+import { getDb } from '@/lib/db';
+import { getKV, resolveAppUserId, getUserData } from '@/lib/kv';
 
 /**
- * GET /api/user — 获取当前登录用户的 API Gateway 信息
- * 通过 email 在 API Worker 中查找对应用户
+ * GET /api/user — 获取当前登录用户的信息（余额、并发等）
  */
 export async function GET() {
   const { user } = await getSession();
@@ -12,26 +12,35 @@ export async function GET() {
     return NextResponse.json({ error: '未登录' }, { status: 401 });
   }
 
-  const response = await proxyToApi(`/admin/user?email=${encodeURIComponent(user.email)}`);
-  const data = await response.json();
+  const db = await getDb();
+  const appUserId = await resolveAppUserId(db, user.email);
 
-  if (!response.ok) {
-    // 用户在 API Worker 中不存在（尚未充值），返回空数据
-    if (response.status === 404) {
-      return NextResponse.json({
-        user: {
-          userId: null,
-          email: user.email,
-          balance: 0,
-          concurrency: 0,
-          isSuspended: false,
-          maxConcurrency: 3,
-          createdAt: null,
-        },
-      });
-    }
-    return NextResponse.json(data, { status: response.status });
+  if (!appUserId) {
+    return NextResponse.json({
+      user: {
+        userId: null,
+        email: user.email,
+        balance: 0,
+        concurrency: 0,
+        isSuspended: false,
+        maxConcurrency: 3,
+        createdAt: null,
+      },
+    });
   }
 
-  return NextResponse.json(data);
+  const kv = await getKV();
+  const { data, metadata } = await getUserData(kv, appUserId);
+
+  return NextResponse.json({
+    user: {
+      userId: appUserId,
+      email: user.email,
+      balance: data?.balance ?? 0,
+      concurrency: data?.concurrency ?? 0,
+      isSuspended: data?.isSuspended ?? false,
+      maxConcurrency: metadata?.maxConcurrency ?? 3,
+      createdAt: metadata?.createdAt ?? null,
+    },
+  });
 }
