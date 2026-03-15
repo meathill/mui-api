@@ -47,8 +47,8 @@ export async function POST(request: Request) {
     if (outputPrice != null && outputPrice < 0) {
       return NextResponse.json({ error: '输出价格不能为负数' }, { status: 400 });
     }
-    if (markupRate != null && markupRate < 1) {
-      return NextResponse.json({ error: '加价倍率不能小于 1' }, { status: 400 });
+    if (markupRate != null && markupRate < 0.01) {
+      return NextResponse.json({ error: '加价倍率不能小于 0.01' }, { status: 400 });
     }
 
     const db = await getDb();

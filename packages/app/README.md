@@ -36,12 +36,15 @@ pnpm install
 创建 `.dev.vars` 文件：
 
 ```bash
-ADMIN_SECRET=your-admin-secret
+CF_AIG_TOKEN=your-cf-ai-gateway-token
 RESEND_API_KEY=re_xxx
+ADMIN_SECRET=your-admin-secret
+ADMIN_EMAIL=admin@example.com
 BASE_URL=http://localhost:5173
-OPENAI_API_KEY=sk-xxx
 FROM_EMAIL=noreply@yourdomain.com
 ```
+
+> **说明**：各 AI Provider 的 API Key 在 [CF AI Gateway 控制台](https://dash.cloudflare.com/?to=/:account/ai/ai-gateway) 配置（Stored Keys / Unified Billing），本服务只需 `CF_AIG_TOKEN` 认证网关。
 
 ### 3. 配置 D1 和 KV
 
@@ -106,11 +109,11 @@ curl http://localhost:5173/v1/chat/completions \
 
 ## 计费规则
 
-| 模型 | Input ($/1M tokens) | Output ($/1M tokens) | 加价率 |
-|------|---------------------|----------------------|--------|
-| gpt-4o | 2.5 | 10 | 1.2x |
-| gpt-4o-mini | 0.15 | 0.6 | 1.2x |
-| gpt-4-turbo | 10 | 30 | 1.2x |
+模型定价通过 Dashboard 管理后台的「模型管理」页面配置，存储在 D1 `models` 表中。
+每条模型记录包含：输入价格、输出价格（$/1M tokens）、加价倍率（最低 0.01x）。
+
+支持的 Provider：`openai`、`anthropic`、`google-ai-studio`。
+所有请求通过 [CF AI Gateway](https://developers.cloudflare.com/ai-gateway/) 转发。
 
 ## 开发
 

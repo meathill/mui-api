@@ -28,8 +28,8 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if (body.outputPrice != null && body.outputPrice < 0) {
       return NextResponse.json({ error: '输出价格不能为负数' }, { status: 400 });
     }
-    if (body.markupRate != null && body.markupRate < 1) {
-      return NextResponse.json({ error: '加价倍率不能小于 1' }, { status: 400 });
+    if (body.markupRate != null && body.markupRate < 0.01) {
+      return NextResponse.json({ error: '加价倍率不能小于 0.01' }, { status: 400 });
     }
 
     const existing = await db.select().from(models).where(eq(models.id, modelId)).get();

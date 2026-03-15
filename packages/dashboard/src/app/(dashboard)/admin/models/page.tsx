@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { ArrowDownIcon, ArrowUpIcon, ArrowUpDownIcon, SearchIcon } from 'lucide-react';
 import { api, type ModelInfo, type ModelCreateInput } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,6 +29,10 @@ import {
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const PROVIDERS = ['openai', 'anthropic', 'google-ai-studio'];
+const PAGE_SIZE = 20;
+
+type SortField = 'id' | 'provider' | 'inputPrice' | 'outputPrice' | 'markupRate';
+type SortDirection = 'asc' | 'desc';
 
 interface ModelFormData {
   id: string;
@@ -47,6 +52,34 @@ const EMPTY_FORM: ModelFormData = {
   markupRate: '1.2',
 };
 
+// 可排序列配置
+const SORTABLE_COLUMNS: { field: SortField; label: string; align?: string }[] = [
+  { field: 'id', label: '模型 ID' },
+  { field: 'provider', label: 'Provider' },
+  { field: 'inputPrice', label: '输入价格', align: 'text-right' },
+  { field: 'outputPrice', label: '输出价格', align: 'text-right' },
+  { field: 'markupRate', label: '倍率', align: 'text-right' },
+];
+
+function SortIndicator({
+  field,
+  sortField,
+  sortDirection,
+}: {
+  field: SortField;
+  sortField: SortField | null;
+  sortDirection: SortDirection;
+}) {
+  if (sortField !== field) {
+    return <ArrowUpDownIcon className="inline ml-1 h-3 w-3 text-muted-foreground/40" />;
+  }
+  return sortDirection === 'desc' ? (
+    <ArrowDownIcon className="inline ml-1 h-3 w-3" />
+  ) : (
+    <ArrowUpIcon className="inline ml-1 h-3 w-3" />
+  );
+}
+
 export default function ModelsPage() {
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -56,6 +89,16 @@ export default function ModelsPage() {
   const [form, setForm] = useState<ModelFormData>(EMPTY_FORM);
   const [formMsg, setFormMsg] = useState('');
 
+  // 排序
+  const [sortField, setSortField] = useState<SortField | null>('id');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
+
+  // 搜索
+  const [search, setSearch] = useState('');
+
+  // 分页
+  const [page, setPage] = useState(1);
+
   // 删除确认弹窗
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleteModelId, setDeleteModelId] = useState('');
@@ -63,6 +106,40 @@ export default function ModelsPage() {
   // 错误弹窗
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // 数据处理流水线：搜索 → 排序 → 分页
+  const filteredModels = useMemo(() => {
+    if (!search.trim()) return models;
+    const keyword = search.toLowerCase();
+    return models.filter(
+      (m) =>
+        m.id.toLowerCase().includes(keyword) ||
+        m.provider.toLowerCase().includes(keyword) ||
+        (m.upstreamModelId?.toLowerCase().includes(keyword) ?? false),
+    );
+  }, [models, search]);
+
+  const sortedModels = useMemo(() => {
+    if (!sortField) return filteredModels;
+    return [...filteredModels].sort((a, b) => {
+      const aVal = a[sortField];
+      const bVal = b[sortField];
+      if (aVal == null && bVal == null) return 0;
+      if (aVal == null) return 1;
+      if (bVal == null) return -1;
+      const cmp = typeof aVal === 'string' ? aVal.localeCompare(bVal as string) : (aVal as number) - (bVal as number);
+      return sortDirection === 'desc' ? -cmp : cmp;
+    });
+  }, [filteredModels, sortField, sortDirection]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedModels.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const pagedModels = sortedModels.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+
+  // 搜索变化时回到第 1 页
+  useEffect(() => {
+    setPage(1);
+  }, [search]);
 
   async function loadModels() {
     try {
@@ -79,6 +156,20 @@ export default function ModelsPage() {
   useEffect(() => {
     loadModels();
   }, []);
+
+  function handleSort(field: SortField) {
+    if (sortField === field) {
+      if (sortDirection === 'desc') {
+        setSortDirection('asc');
+      } else {
+        // 取消排序
+        setSortField(null);
+      }
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  }
 
   function handleEdit(model: ModelInfo) {
     setEditingId(model.id);
@@ -158,6 +249,17 @@ export default function ModelsPage() {
         <Button onClick={handleAdd}>添加模型</Button>
       </div>
 
+      {/* 搜索栏 */}
+      <div className="relative mb-4 max-w-sm">
+        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          placeholder="搜索模型 ID、Provider、上游模型..."
+          className="pl-9"
+        />
+      </div>
+
       {/* 编辑/新增弹窗 */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogBackdrop />
@@ -224,8 +326,8 @@ export default function ModelsPage() {
               <label className="block text-xs text-muted-foreground mb-1">加价倍率</label>
               <Input
                 type="number"
-                step="0.1"
-                min="1"
+                step="0.01"
+                min="0.01"
                 value={form.markupRate}
                 onChange={(e) => updateField('markupRate', e.target.value)}
               />
@@ -280,55 +382,84 @@ export default function ModelsPage() {
       {loading ? (
         <p className="text-muted-foreground">加载中...</p>
       ) : (
-        <Card>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>模型 ID</TableHead>
-                <TableHead>Provider</TableHead>
-                <TableHead>上游模型</TableHead>
-                <TableHead className="text-right">输入价格</TableHead>
-                <TableHead className="text-right">输出价格</TableHead>
-                <TableHead className="text-right">倍率</TableHead>
-                <TableHead className="text-center">操作</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {models.map((model) => (
-                <TableRow key={model.id}>
-                  <TableCell className="font-mono text-xs">{model.id}</TableCell>
-                  <TableCell>
-                    <Badge variant="secondary">{model.provider}</Badge>
-                  </TableCell>
-                  <TableCell className="text-muted-foreground text-xs">{model.upstreamModelId || '-'}</TableCell>
-                  <TableCell className="text-right font-mono">${model.inputPrice?.toFixed(2) ?? '-'}</TableCell>
-                  <TableCell className="text-right font-mono">${model.outputPrice?.toFixed(2) ?? '-'}</TableCell>
-                  <TableCell className="text-right">{model.markupRate?.toFixed(1) ?? '-'}x</TableCell>
-                  <TableCell className="text-center space-x-1">
-                    <Button variant="ghost" size="xs" onClick={() => handleEdit(model)}>
-                      编辑
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="xs"
-                      className="text-destructive"
-                      onClick={() => handleDeleteClick(model.id)}
-                    >
-                      删除
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-              {models.length === 0 && (
+        <>
+          <Card>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                    暂无模型
-                  </TableCell>
+                  {SORTABLE_COLUMNS.map((col) => (
+                    <TableHead
+                      key={col.field}
+                      className={`cursor-pointer select-none hover:bg-muted/50 ${col.align ?? ''}`}
+                      onClick={() => handleSort(col.field)}
+                    >
+                      {col.label}
+                      <SortIndicator field={col.field} sortField={sortField} sortDirection={sortDirection} />
+                    </TableHead>
+                  ))}
+                  <TableHead>上游模型</TableHead>
+                  <TableHead className="text-center">操作</TableHead>
                 </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </Card>
+              </TableHeader>
+              <TableBody>
+                {pagedModels.map((model) => (
+                  <TableRow key={model.id}>
+                    <TableCell className="font-mono text-xs">{model.id}</TableCell>
+                    <TableCell>
+                      <Badge variant="secondary">{model.provider}</Badge>
+                    </TableCell>
+                    <TableCell className="text-right font-mono">${model.inputPrice?.toFixed(2) ?? '-'}</TableCell>
+                    <TableCell className="text-right font-mono">${model.outputPrice?.toFixed(2) ?? '-'}</TableCell>
+                    <TableCell className="text-right">{model.markupRate?.toFixed(2) ?? '-'}x</TableCell>
+                    <TableCell className="text-muted-foreground text-xs">{model.upstreamModelId || '-'}</TableCell>
+                    <TableCell className="text-center space-x-1">
+                      <Button variant="ghost" size="xs" onClick={() => handleEdit(model)}>
+                        编辑
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="xs"
+                        className="text-destructive"
+                        onClick={() => handleDeleteClick(model.id)}
+                      >
+                        删除
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {pagedModels.length === 0 && (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                      {search ? '无匹配结果' : '暂无模型'}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </Card>
+
+          {/* 分页 */}
+          {sortedModels.length > PAGE_SIZE && (
+            <div className="flex items-center justify-between mt-4">
+              <span className="text-sm text-muted-foreground">
+                共 {sortedModels.length} 条，第 {safePage}/{totalPages} 页
+              </span>
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => setPage(safePage - 1)} disabled={safePage <= 1}>
+                  上一页
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(safePage + 1)}
+                  disabled={safePage >= totalPages}
+                >
+                  下一页
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
