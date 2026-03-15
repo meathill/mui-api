@@ -123,7 +123,7 @@ describe('KeyService', () => {
 
   describe('validateApiKey', () => {
     it('委托给 KVService', async () => {
-      kvService.validateApiKey.mockResolvedValue('user-1');
+      kvService.validateApiKey.mockResolvedValue({ userId: 'user-1', keyHash: 'hash-abc' });
       const result = await service.validateApiKey('sk-gw-raw');
       expect(result).toBe('user-1');
       expect(kvService.validateApiKey).toHaveBeenCalledWith('sk-gw-raw');

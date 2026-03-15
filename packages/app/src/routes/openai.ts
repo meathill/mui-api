@@ -73,19 +73,23 @@ openai.post('/chat/completions', async (c) => {
       // 异步提取 usage + 计费
       c.executionCtx.waitUntil(
         (async () => {
-          const usage = await extractCompatStreamUsage(new Response(billingStream));
-          if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
-            const cost = await billingService.processUsage(
-              userId,
-              null,
-              {
-                model: modelId,
-                inputTokens: usage.inputTokens,
-                outputTokens: usage.outputTokens,
-              },
-              modelPricing,
-            );
-            await alertService.checkAfterBilling(userId, cost);
+          try {
+            const usage = await extractCompatStreamUsage(new Response(billingStream));
+            if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
+              const cost = await billingService.processUsage(
+                userId,
+                c.get('apiKeyId'),
+                {
+                  model: modelId,
+                  inputTokens: usage.inputTokens,
+                  outputTokens: usage.outputTokens,
+                },
+                modelPricing,
+              );
+              await alertService.checkAfterBilling(userId, cost);
+            }
+          } catch (error) {
+            console.error('流式计费失败:', error);
           }
         })(),
       );
@@ -103,17 +107,21 @@ openai.post('/chat/completions', async (c) => {
     if (usage) {
       c.executionCtx.waitUntil(
         (async () => {
-          const cost = await billingService.processUsage(
-            userId,
-            null,
-            {
-              model: modelId,
-              inputTokens: usage.prompt_tokens ?? 0,
-              outputTokens: usage.completion_tokens ?? 0,
-            },
-            modelPricing,
-          );
-          await alertService.checkAfterBilling(userId, cost);
+          try {
+            const cost = await billingService.processUsage(
+              userId,
+              c.get('apiKeyId'),
+              {
+                model: modelId,
+                inputTokens: usage.prompt_tokens ?? 0,
+                outputTokens: usage.completion_tokens ?? 0,
+              },
+              modelPricing,
+            );
+            await alertService.checkAfterBilling(userId, cost);
+          } catch (error) {
+            console.error('非流式计费失败:', error);
+          }
         })(),
       );
     }

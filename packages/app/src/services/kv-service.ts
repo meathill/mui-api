@@ -178,9 +178,9 @@ export class KVService {
   }
 
   /**
-   * 验证 API Key，返回 userId 或 null
+   * 验证 API Key，返回 userId 和 keyHash，或 null
    */
-  async validateApiKey(rawKey: string): Promise<string | null> {
+  async validateApiKey(rawKey: string): Promise<{ userId: string; keyHash: string } | null> {
     const keyHash = await hashApiKey(rawKey);
     const result = await this.kv.getWithMetadata<string, ApiKeyMetadata>(`${APIKEY_PREFIX}${keyHash}`, 'text');
 
@@ -188,7 +188,7 @@ export class KVService {
       return null;
     }
 
-    return result.value;
+    return { userId: result.value, keyHash };
   }
 
   // ==================== 消费统计 ====================

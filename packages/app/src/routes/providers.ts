@@ -24,6 +24,7 @@ providers.all('/:provider{.+}/*', async (c) => {
   }
 
   const userId = c.get('userId');
+  const apiKeyId = c.get('apiKeyId');
   const { billingService, alertService, gatewayService } = createProxyServices(c.env);
 
   // 提取 provider 之后的路径
@@ -44,14 +45,18 @@ providers.all('/:provider{.+}/*', async (c) => {
 
       c.executionCtx.waitUntil(
         (async () => {
-          const usage = await extractNativeStreamUsage(provider, new Response(billingStream));
-          if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
-            const cost = await billingService.processUsage(userId, null, {
-              model: usage.model,
-              inputTokens: usage.inputTokens,
-              outputTokens: usage.outputTokens,
-            });
-            await alertService.checkAfterBilling(userId, cost);
+          try {
+            const usage = await extractNativeStreamUsage(provider, new Response(billingStream));
+            if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
+              const cost = await billingService.processUsage(userId, apiKeyId, {
+                model: usage.model,
+                inputTokens: usage.inputTokens,
+                outputTokens: usage.outputTokens,
+              });
+              await alertService.checkAfterBilling(userId, cost);
+            }
+          } catch (error) {
+            console.error('原生代理流式计费失败:', error);
           }
         })(),
       );
@@ -71,7 +76,7 @@ providers.all('/:provider{.+}/*', async (c) => {
           const data = (await billingResponse.json()) as Record<string, unknown>;
           const usage = extractNativeUsage(provider, data);
           if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
-            const cost = await billingService.processUsage(userId, null, {
+            const cost = await billingService.processUsage(userId, apiKeyId, {
               model: usage.model,
               inputTokens: usage.inputTokens,
               outputTokens: usage.outputTokens,

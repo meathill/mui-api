@@ -24,10 +24,11 @@ export async function authMiddleware(c: Context<{ Bindings: CloudflareBindings }
   const kvService = new KVService(c.env.KV, defaultMaxConcurrency);
 
   // 验证 API Key
-  const userId = await kvService.validateApiKey(apiKey);
-  if (!userId) {
+  const keyResult = await kvService.validateApiKey(apiKey);
+  if (!keyResult) {
     return c.json({ error: { message: '无效的 API Key', type: 'invalid_api_key' } }, 401);
   }
+  const { userId, keyHash: apiKeyId } = keyResult;
 
   // 获取用户数据，如果 KV 中不存在则自动初始化（余额为 0）
   let { data } = await kvService.getUser(userId);
@@ -80,6 +81,7 @@ export async function authMiddleware(c: Context<{ Bindings: CloudflareBindings }
 
   // 注入用户信息
   c.set('userId', userId);
+  c.set('apiKeyId', apiKeyId);
   c.set('balance', data.balance);
 
   try {

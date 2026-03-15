@@ -109,9 +109,10 @@ export class KeyService {
   }
 
   /**
-   * 验证 API Key（从 KV）
+   * 验证 API Key（从 KV），返回 userId
    */
   async validateApiKey(rawKey: string): Promise<string | null> {
-    return this.kvService.validateApiKey(rawKey);
+    const result = await this.kvService.validateApiKey(rawKey);
+    return result?.userId ?? null;
   }
 }
