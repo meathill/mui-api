@@ -96,7 +96,7 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-opus-4-6',
     provider: 'anthropic',
-    upstreamModelId: 'claude-opus-4-6-20250514',
+    upstreamModelId: 'claude-opus-4-6',
     inputPrice: 5,
     outputPrice: 25,
     markupRate: 1.2,
@@ -104,7 +104,7 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-sonnet-4-6',
     provider: 'anthropic',
-    upstreamModelId: 'claude-sonnet-4-6-20250514',
+    upstreamModelId: 'claude-sonnet-4-6',
     inputPrice: 3,
     outputPrice: 15,
     markupRate: 1.2,
@@ -112,7 +112,7 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-sonnet-4-5',
     provider: 'anthropic',
-    upstreamModelId: 'claude-sonnet-4-5-20250514',
+    upstreamModelId: 'claude-sonnet-4-5',
     inputPrice: 3,
     outputPrice: 15,
     markupRate: 1.2,
@@ -120,7 +120,7 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-haiku-4-5',
     provider: 'anthropic',
-    upstreamModelId: 'claude-haiku-4-5-20250514',
+    upstreamModelId: 'claude-haiku-4-5',
     inputPrice: 1,
     outputPrice: 5,
     markupRate: 1.2,
