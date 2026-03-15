@@ -27,10 +27,9 @@ export async function POST(request: Request) {
     }
 
     const { env } = await getCloudflareContext({ async: true });
-    const emailService = createEmailService({
-      apiKey: env.RESEND_API_KEY,
-      fromEmail: env.FROM_EMAIL,
-    });
+    const emailService = env.RESEND_API_KEY
+      ? createEmailService({ apiKey: env.RESEND_API_KEY, fromEmail: env.FROM_EMAIL })
+      : null;
 
     const db = await getDb();
     const kv = await getKV();
@@ -68,12 +67,12 @@ export async function POST(request: Request) {
 
       const baseUrl = env.NEXT_PUBLIC_SITE_URL || 'https://muirouter.com';
       const claimUrl = `${baseUrl}/claim?token=${token}`;
-      await emailService.sendClaimEmail(email, claimUrl);
+      const emailSent = await emailService?.sendClaimEmail(email, claimUrl);
 
       return NextResponse.json({
         success: true,
         isNewUser: true,
-        message: '首次充值，Claim 邮件已发送',
+        message: emailSent ? '首次充值，Claim 邮件已发送' : '首次充值成功（邮件服务未配置）',
         userId,
         balance: amount,
         claimUrl,
@@ -82,12 +81,12 @@ export async function POST(request: Request) {
 
     // 老用户充值
     const newBalance = await addBalance(kv, userId, amount);
-    await emailService.sendRechargeSuccessEmail(email, amount, newBalance);
+    const emailSent = await emailService?.sendRechargeSuccessEmail(email, amount, newBalance);
 
     return NextResponse.json({
       success: true,
       isNewUser: false,
-      message: '充值成功，通知邮件已发送',
+      message: emailSent ? '充值成功，通知邮件已发送' : '充值成功',
       userId,
       balance: newBalance,
     });
