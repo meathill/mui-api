@@ -1,12 +1,7 @@
 import { Hono } from 'hono';
 import type { CloudflareBindings } from '../types';
 import { authMiddleware } from '../middleware/auth';
-import { createDb } from '../db';
-import { KVService } from '../services/kv-service';
-import { GatewayService } from '../services/gateway-service';
-import { BillingService } from '../services/billing-service';
-import { AlertService } from '../services/alert-service';
-import { EmailService } from '../services/email-service';
+import { createProxyServices } from '../services/service-factory';
 import { extractNativeUsage, extractNativeStreamUsage } from '../services/usage-extractor';
 
 const providers = new Hono<{ Bindings: CloudflareBindings }>();
@@ -29,17 +24,7 @@ providers.all('/:provider{.+}/*', async (c) => {
   }
 
   const userId = c.get('userId');
-  const db = createDb(c.env.DB);
-  const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
-  const kvService = new KVService(c.env.KV, defaultMaxConcurrency);
-  const billingService = new BillingService(kvService, db);
-  const emailService = new EmailService({
-    apiKey: c.env.RESEND_API_KEY,
-    fromEmail: c.env.FROM_EMAIL,
-  });
-  const alertService = new AlertService(kvService, db, emailService, c.env.ADMIN_EMAIL);
-
-  const gatewayService = new GatewayService(c.env.CF_ACCOUNT_ID, c.env.CF_GATEWAY_ID, c.env.CF_AIG_TOKEN);
+  const { billingService, alertService, gatewayService } = createProxyServices(c.env);
 
   // 提取 provider 之后的路径
   const fullPath = c.req.path;

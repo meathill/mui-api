@@ -4,11 +4,7 @@ import type { CloudflareBindings } from '../types';
 import { authMiddleware } from '../middleware/auth';
 import { createDb } from '../db';
 import { models } from '../db/schema';
-import { KVService } from '../services/kv-service';
-import { GatewayService } from '../services/gateway-service';
-import { BillingService } from '../services/billing-service';
-import { AlertService } from '../services/alert-service';
-import { EmailService } from '../services/email-service';
+import { createProxyServices } from '../services/service-factory';
 import { extractCompatStreamUsage } from '../services/usage-extractor';
 
 const openai = new Hono<{ Bindings: CloudflareBindings }>();
@@ -38,15 +34,7 @@ openai.post('/chat/completions', async (c) => {
   }
 
   const modelId = body.model as string;
-  const db = createDb(c.env.DB);
-  const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
-  const kvService = new KVService(c.env.KV, defaultMaxConcurrency);
-  const billingService = new BillingService(kvService, db);
-  const emailService = new EmailService({
-    apiKey: c.env.RESEND_API_KEY,
-    fromEmail: c.env.FROM_EMAIL,
-  });
-  const alertService = new AlertService(kvService, db, emailService, c.env.ADMIN_EMAIL);
+  const { db, billingService, alertService, gatewayService } = createProxyServices(c.env);
 
   // 查 DB 获取 model 配置
   const modelConfig = await db.select().from(models).where(eq(models.id, modelId)).get();
@@ -72,8 +60,6 @@ openai.post('/chat/completions', async (c) => {
     provider = inferred;
     upstreamModel = modelId;
   }
-
-  const gatewayService = new GatewayService(c.env.CF_ACCOUNT_ID, c.env.CF_GATEWAY_ID, c.env.CF_AIG_TOKEN);
 
   const isStream = body.stream === true;
 

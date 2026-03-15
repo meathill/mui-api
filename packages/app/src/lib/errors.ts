@@ -31,15 +31,16 @@ export function createErrorResponse(message: string, type: string, code?: string
  * 将 Zod 错误转换为 API 错误
  */
 export function zodErrorToApiError(error: ZodError): ApiError {
-  const firstError = error.errors[0];
-  const path = firstError?.path.join('.') || '';
-  const message = firstError?.message || '验证失败';
+  const issues = error.issues;
+  const firstIssue = issues[0];
+  const path = firstIssue?.path.join('.') || '';
+  const message = firstIssue?.message || '验证失败';
 
   return createErrorResponse(
     path ? `${path}: ${message}` : message,
     'invalid_request_error',
     'validation_error',
-    error.errors.map((e) => ({
+    issues.map((e) => ({
       path: e.path.join('.'),
       message: e.message,
     })),
