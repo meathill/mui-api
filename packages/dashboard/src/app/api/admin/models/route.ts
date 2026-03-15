@@ -41,6 +41,15 @@ export async function POST(request: Request) {
     if (!id || !provider) {
       return NextResponse.json({ error: 'id 和 provider 为必填' }, { status: 400 });
     }
+    if (inputPrice != null && inputPrice < 0) {
+      return NextResponse.json({ error: '输入价格不能为负数' }, { status: 400 });
+    }
+    if (outputPrice != null && outputPrice < 0) {
+      return NextResponse.json({ error: '输出价格不能为负数' }, { status: 400 });
+    }
+    if (markupRate != null && markupRate < 1) {
+      return NextResponse.json({ error: '加价倍率不能小于 1' }, { status: 400 });
+    }
 
     const db = await getDb();
     try {

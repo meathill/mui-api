@@ -9,6 +9,7 @@ export default function DashboardHome() {
   const [balance, setBalance] = useState<number>(0);
   const [keyCount, setKeyCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     async function loadData() {
@@ -16,8 +17,8 @@ export default function DashboardHome() {
         const [profileRes, keysRes] = await Promise.all([userApi.getProfile(), userApi.getKeys()]);
         setBalance(profileRes.user.balance);
         setKeyCount(keysRes.keys.filter((k) => k.isActive).length);
-      } catch {
-        // 静默处理
+      } catch (e) {
+        setError(e instanceof Error ? e.message : '加载失败');
       } finally {
         setLoading(false);
       }
@@ -27,6 +28,9 @@ export default function DashboardHome() {
 
   if (loading) {
     return <p className="text-muted-foreground">加载中...</p>;
+  }
+  if (error) {
+    return <p className="text-destructive">{error}</p>;
   }
 
   return (

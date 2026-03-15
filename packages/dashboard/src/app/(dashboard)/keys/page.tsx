@@ -95,8 +95,20 @@ export default function KeysPage() {
     }
   }
 
-  function handleCopyKey() {
-    navigator.clipboard.writeText(newRawKey);
+  async function handleCopyKey() {
+    try {
+      await navigator.clipboard.writeText(newRawKey);
+    } catch {
+      // 降级：选中文本让用户手动复制
+      const el = document.querySelector('.select-all');
+      if (el) {
+        const range = document.createRange();
+        range.selectNodeContents(el);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
+    }
   }
 
   return (

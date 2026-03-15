@@ -58,7 +58,15 @@ function ClaimContent() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // 降级：选中文本
+      // 降级：选中 code 元素中的文本
+      const codeEl = document.querySelector('code');
+      if (codeEl) {
+        const range = document.createRange();
+        range.selectNodeContents(codeEl);
+        const selection = window.getSelection();
+        selection?.removeAllRanges();
+        selection?.addRange(range);
+      }
     }
   }
 

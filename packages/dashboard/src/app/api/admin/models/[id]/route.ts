@@ -22,6 +22,16 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     };
     const db = await getDb();
 
+    if (body.inputPrice != null && body.inputPrice < 0) {
+      return NextResponse.json({ error: '输入价格不能为负数' }, { status: 400 });
+    }
+    if (body.outputPrice != null && body.outputPrice < 0) {
+      return NextResponse.json({ error: '输出价格不能为负数' }, { status: 400 });
+    }
+    if (body.markupRate != null && body.markupRate < 1) {
+      return NextResponse.json({ error: '加价倍率不能小于 1' }, { status: 400 });
+    }
+
     const existing = await db.select().from(models).where(eq(models.id, modelId)).get();
     if (!existing) {
       return NextResponse.json({ error: `模型 ${modelId} 不存在` }, { status: 404 });

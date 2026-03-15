@@ -36,11 +36,22 @@ export async function POST(request: Request) {
     const result = await requireAdmin();
     if ('error' in result) return result.error;
 
-    const body = (await request.json()) as GlobalConfig;
+    const body = (await request.json()) as Partial<GlobalConfig>;
     const kv = await getKV();
-    await setGlobalConfig(kv, body);
 
-    return NextResponse.json({ success: true, config: body });
+    // 先读取现有配置，合并后写入，避免部分字段覆盖导致数据丢失
+    const existing = await getGlobalConfig(kv);
+    const merged: GlobalConfig = {
+      dailySpendingCap: 0,
+      monthlySpendingCap: 0,
+      adminEmail: '',
+      isServicePaused: false,
+      ...existing,
+      ...body,
+    };
+    await setGlobalConfig(kv, merged);
+
+    return NextResponse.json({ success: true, config: merged });
   } catch (error) {
     console.error('POST /api/admin/global-config 错误:', error);
     return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
