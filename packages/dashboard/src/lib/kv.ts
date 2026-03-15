@@ -182,30 +182,35 @@ export async function listAllUsers(
   }>;
   cursor: string | null;
 }> {
-  const list = await kv.list({
+  const list = await kv.list<KVUserMetadata>({
     prefix: USER_KEY_PREFIX,
     cursor: cursor || undefined,
     limit: 50,
   });
 
-  const users = [];
-  for (const key of list.keys) {
-    const { data, metadata } = await getUserData(kv, key.name.replace(USER_KEY_PREFIX, ''));
-    if (data && metadata) {
-      users.push({
+  // kv.list 返回 metadata 但不返回 value，需要并行批量获取 value
+  const results = await Promise.all(
+    list.keys.map(async (key) => {
+      const metadata = key.metadata;
+      if (!metadata) return null;
+
+      const value = await kv.get<KVUserData>(key.name, 'json');
+      if (!value) return null;
+
+      return {
         userId: key.name.replace(USER_KEY_PREFIX, ''),
         email: metadata.email,
-        balance: data.balance,
-        concurrency: data.concurrency,
-        isSuspended: data.isSuspended ?? false,
+        balance: value.balance,
+        concurrency: value.concurrency,
+        isSuspended: value.isSuspended ?? false,
         maxConcurrency: metadata.maxConcurrency ?? defaultMaxConcurrency,
         createdAt: metadata.createdAt,
-      });
-    }
-  }
+      };
+    }),
+  );
 
   return {
-    users,
+    users: results.filter((u) => u !== null),
     cursor: list.list_complete ? null : list.cursor,
   };
 }

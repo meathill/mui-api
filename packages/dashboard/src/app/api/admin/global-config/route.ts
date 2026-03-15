@@ -6,33 +6,43 @@ import { getKV, getGlobalConfig, setGlobalConfig, type GlobalConfig } from '@/li
  * GET /api/admin/global-config — 获取全局配置
  */
 export async function GET() {
-  const result = await requireAdmin();
-  if ('error' in result) return result.error;
+  try {
+    const result = await requireAdmin();
+    if ('error' in result) return result.error;
 
-  const kv = await getKV();
-  const config = await getGlobalConfig(kv);
+    const kv = await getKV();
+    const config = await getGlobalConfig(kv);
 
-  return NextResponse.json({
-    success: true,
-    config: config ?? {
-      dailySpendingCap: 0,
-      monthlySpendingCap: 0,
-      adminEmail: '',
-      isServicePaused: false,
-    },
-  });
+    return NextResponse.json({
+      success: true,
+      config: config ?? {
+        dailySpendingCap: 0,
+        monthlySpendingCap: 0,
+        adminEmail: '',
+        isServicePaused: false,
+      },
+    });
+  } catch (error) {
+    console.error('GET /api/admin/global-config 错误:', error);
+    return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
+  }
 }
 
 /**
  * POST /api/admin/global-config — 设置全局配置
  */
 export async function POST(request: Request) {
-  const result = await requireAdmin();
-  if ('error' in result) return result.error;
+  try {
+    const result = await requireAdmin();
+    if ('error' in result) return result.error;
 
-  const body = (await request.json()) as GlobalConfig;
-  const kv = await getKV();
-  await setGlobalConfig(kv, body);
+    const body = (await request.json()) as GlobalConfig;
+    const kv = await getKV();
+    await setGlobalConfig(kv, body);
 
-  return NextResponse.json({ success: true, config: body });
+    return NextResponse.json({ success: true, config: body });
+  } catch (error) {
+    console.error('POST /api/admin/global-config 错误:', error);
+    return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
+  }
 }
