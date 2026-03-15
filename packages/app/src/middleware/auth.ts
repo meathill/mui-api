@@ -29,10 +29,14 @@ export async function authMiddleware(c: Context<{ Bindings: CloudflareBindings }
     return c.json({ error: { message: '无效的 API Key', type: 'invalid_api_key' } }, 401);
   }
 
-  // 获取用户数据
-  const { data } = await kvService.getUser(userId);
+  // 获取用户数据，如果 KV 中不存在则自动初始化（余额为 0）
+  let { data } = await kvService.getUser(userId);
   if (!data) {
-    return c.json({ error: { message: '用户不存在', type: 'invalid_api_key' } }, 401);
+    data = { balance: 0, concurrency: 0, isSuspended: false };
+    await kvService.setUser(userId, data, {
+      email: '',
+      createdAt: new Date().toISOString(),
+    });
   }
 
   // 检查全局服务暂停状态
