@@ -1,14 +1,6 @@
 /**
  * 加密和随机生成工具
- * 从 packages/app/src/lib/crypto.ts 复制，供 Dashboard 端管理 API Key
  */
-
-/**
- * 生成 UUID v4
- */
-export function generateId(): string {
-  return crypto.randomUUID();
-}
 
 /**
  * 生成 API Key，格式：sk-gw-xxxxx

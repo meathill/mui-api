@@ -7,6 +7,15 @@ import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogPopup,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogClose,
+} from '@/components/ui/alert-dialog';
 
 export default function SettingsPage() {
   const [config, setConfig] = useState<GlobalConfig | null>(null);
@@ -18,6 +27,13 @@ export default function SettingsPage() {
   const [dailyCap, setDailyCap] = useState('');
   const [monthlyCap, setMonthlyCap] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
+
+  // 暂停/恢复确认弹窗
+  const [pauseDialogOpen, setPauseDialogOpen] = useState(false);
+
+  // 错误弹窗
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   async function loadData() {
     try {
@@ -55,25 +71,62 @@ export default function SettingsPage() {
     }
   }
 
-  async function handleTogglePause() {
+  function handleTogglePauseClick() {
     if (!config) return;
-    const newState = !config.isServicePaused;
-    const action = newState ? '暂停' : '恢复';
-    if (!confirm(`确定要${action}服务？`)) return;
+    setPauseDialogOpen(true);
+  }
+
+  async function handleConfirmTogglePause() {
+    if (!config) return;
+    setPauseDialogOpen(false);
     try {
-      await api.setGlobalConfig({ isServicePaused: newState } as GlobalConfig);
+      await api.setGlobalConfig({ isServicePaused: !config.isServicePaused } as GlobalConfig);
       loadData();
     } catch (err) {
-      alert(err instanceof Error ? err.message : '操作失败');
+      setErrorMessage(err instanceof Error ? err.message : '操作失败');
+      setErrorDialogOpen(true);
     }
   }
 
   if (loading) return <p className="text-muted-foreground">加载中...</p>;
   if (error) return <p className="text-destructive">{error}</p>;
 
+  const pauseAction = config?.isServicePaused ? '恢复' : '暂停';
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">全局设置</h2>
+
+      {/* 暂停/恢复确认弹窗 */}
+      <AlertDialog open={pauseDialogOpen} onOpenChange={setPauseDialogOpen}>
+        <AlertDialogPopup>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认{pauseAction}服务</AlertDialogTitle>
+            <AlertDialogDescription>
+              {config?.isServicePaused ? '恢复后所有 API 请求将正常处理。' : '暂停后所有 API 请求将返回 503 错误。'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button variant="outline">取消</Button>} />
+            <Button variant={config?.isServicePaused ? 'default' : 'destructive'} onClick={handleConfirmTogglePause}>
+              确认{pauseAction}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogPopup>
+      </AlertDialog>
+
+      {/* 错误弹窗 */}
+      <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+        <AlertDialogPopup>
+          <AlertDialogHeader>
+            <AlertDialogTitle>操作失败</AlertDialogTitle>
+            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button>确定</Button>} />
+          </AlertDialogFooter>
+        </AlertDialogPopup>
+      </AlertDialog>
 
       {/* 消费概况 */}
       {stats && (
@@ -124,7 +177,7 @@ export default function SettingsPage() {
               <Button
                 variant={config.isServicePaused ? 'default' : 'destructive'}
                 size="sm"
-                onClick={handleTogglePause}
+                onClick={handleTogglePauseClick}
               >
                 {config.isServicePaused ? '恢复服务' : '暂停服务'}
               </Button>

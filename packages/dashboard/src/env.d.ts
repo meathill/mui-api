@@ -8,7 +8,6 @@ declare namespace Cloudflare {
     BETTER_AUTH_SECRET: string;
     BETTER_AUTH_URL: string;
     ADMIN_EMAILS: string;
-    ADMIN_SECRET: string;
     RESEND_API_KEY: string;
     FROM_EMAIL: string;
     NEXT_PUBLIC_SITE_URL: string;

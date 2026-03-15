@@ -1,7 +1,9 @@
+import { eq } from 'drizzle-orm';
 import { NextRequest, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
-import { getKV, getUserData, resolveAppUserId } from '@/lib/kv';
+import { getKV, getUserData } from '@/lib/kv';
 import { getDb } from '@/lib/db';
+import { user as userTable } from '@/db/schema';
 
 /**
  * GET /api/admin/user — 查询单个用户信息
@@ -19,10 +21,11 @@ export async function GET(request: NextRequest) {
 
   if (!userId && email) {
     const db = await getDb();
-    userId = await resolveAppUserId(db, email);
-    if (!userId) {
+    const row = await db.select({ id: userTable.id }).from(userTable).where(eq(userTable.email, email)).get();
+    if (!row) {
       return NextResponse.json({ error: '用户不存在' }, { status: 404 });
     }
+    userId = row.id;
   }
 
   if (!userId) {

@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
 import { getSession } from '@/lib/session';
 import { getDb } from '@/lib/db';
-import { resolveAppUserId } from '@/lib/kv';
 import { usageLogs } from '@/db/app-schema';
 
 /**
@@ -15,13 +14,6 @@ export async function GET(request: NextRequest) {
   }
 
   const db = await getDb();
-  const appUserId = await resolveAppUserId(db, user.email);
-  if (!appUserId) {
-    return NextResponse.json({
-      logs: [],
-      pagination: { page: 1, pageSize: 20, total: 0, totalPages: 0 },
-    });
-  }
 
   const searchParams = new URL(request.url).searchParams;
   const modelId = searchParams.get('modelId');
@@ -30,7 +22,7 @@ export async function GET(request: NextRequest) {
   const page = Number(searchParams.get('page') || '1');
   const pageSize = Number(searchParams.get('pageSize') || '20');
 
-  const conditions = [eq(usageLogs.userId, appUserId)];
+  const conditions = [eq(usageLogs.userId, user.id)];
   if (modelId) conditions.push(eq(usageLogs.modelId, modelId));
   if (startDate) conditions.push(gte(usageLogs.createdAt, new Date(startDate)));
   if (endDate) conditions.push(lte(usageLogs.createdAt, new Date(endDate)));

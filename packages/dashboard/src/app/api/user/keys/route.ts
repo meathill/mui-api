@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
-import { getDb } from '@/lib/db';
-import { getKV, resolveAppUserId, listUserApiKeys, storeApiKey, deleteApiKey, getApiKeyMetadata } from '@/lib/kv';
+import { getKV, listUserApiKeys, storeApiKey, deleteApiKey, getApiKeyMetadata } from '@/lib/kv';
 import { generateApiKey, hashApiKey, getKeyPrefix } from '@/lib/crypto';
 
 /**
@@ -13,14 +12,8 @@ export async function GET() {
     return NextResponse.json({ error: '未登录' }, { status: 401 });
   }
 
-  const db = await getDb();
-  const appUserId = await resolveAppUserId(db, user.email);
-  if (!appUserId) {
-    return NextResponse.json({ keys: [] });
-  }
-
   const kv = await getKV();
-  const keys = await listUserApiKeys(kv, appUserId);
+  const keys = await listUserApiKeys(kv, user.id);
   return NextResponse.json({ keys });
 }
 
@@ -33,18 +26,12 @@ export async function POST() {
     return NextResponse.json({ error: '未登录' }, { status: 401 });
   }
 
-  const db = await getDb();
-  const appUserId = await resolveAppUserId(db, user.email);
-  if (!appUserId) {
-    return NextResponse.json({ error: '尚未开通 API 服务，请联系管理员充值' }, { status: 400 });
-  }
-
   const rawKey = generateApiKey();
   const keyHash = await hashApiKey(rawKey);
   const keyPrefix = getKeyPrefix(rawKey);
 
   const kv = await getKV();
-  await storeApiKey(kv, keyHash, appUserId, keyPrefix);
+  await storeApiKey(kv, keyHash, user.id, keyPrefix);
 
   return NextResponse.json({
     rawKey,
@@ -68,15 +55,9 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: '缺少 keyId' }, { status: 400 });
   }
 
-  const db = await getDb();
-  const appUserId = await resolveAppUserId(db, user.email);
-  if (!appUserId) {
-    return NextResponse.json({ error: '用户不存在' }, { status: 404 });
-  }
-
   const kv = await getKV();
   const metadata = await getApiKeyMetadata(kv, body.keyId);
-  if (!metadata || metadata.userId !== appUserId) {
+  if (!metadata || metadata.userId !== user.id) {
     return NextResponse.json({ error: '无权操作此 Key' }, { status: 403 });
   }
 

@@ -1,22 +1,16 @@
 /**
- * App Worker 的 D1 表定义
- * 复制自 packages/app/src/db/schema.ts，供 dashboard 直接查询共享 D1
- * 注意：drizzle.config.ts 不引用此文件，不会为这些表生成 migration
+ * App 业务表定义
+ * 与 packages/app 共享同一个 D1 数据库
+ * 用户体系统一使用 better-auth 的 user 表，此处只定义业务表
  */
 import { sql } from 'drizzle-orm';
 import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
-
-export const appUsers = sqliteTable('users', {
-  id: text('id').primaryKey(),
-  email: text('email').unique().notNull(),
-  stripeCustomerId: text('stripe_customer_id'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
+import { user } from './schema';
 
 export const wallets = sqliteTable('wallets', {
   userId: text('user_id')
     .primaryKey()
-    .references(() => appUsers.id),
+    .references(() => user.id),
   balance: real('balance').default(0.0),
   currency: text('currency').default('USD'),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
@@ -24,9 +18,9 @@ export const wallets = sqliteTable('wallets', {
 
 export const apiKeys = sqliteTable('api_keys', {
   id: text('id').primaryKey(),
-  userId: text('user_id').references(() => appUsers.id),
+  userId: text('user_id').references(() => user.id),
   keyPrefix: text('key_prefix').notNull(),
-  keyHash: text('key_hash').notNull(),
+  keyHash: text('key_hash').notNull().unique(),
   name: text('name'),
   isActive: integer('is_active', { mode: 'boolean' }).default(true),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
@@ -63,7 +57,7 @@ export const usageLogs = sqliteTable('usage_logs', {
 export const spendingLimits = sqliteTable('spending_limits', {
   userId: text('user_id')
     .primaryKey()
-    .references(() => appUsers.id),
+    .references(() => user.id),
   monthlyLimit: real('monthly_limit'),
   alertThreshold: real('alert_threshold').default(0.8),
   isSuspended: integer('is_suspended', { mode: 'boolean' }).default(false),

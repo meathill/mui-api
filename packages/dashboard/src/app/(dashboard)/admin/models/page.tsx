@@ -14,6 +14,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogPopup,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogClose,
+} from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 const PROVIDERS = ['openai', 'anthropic', 'google-ai-studio'];
@@ -44,6 +53,14 @@ export default function ModelsPage() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ModelFormData>(EMPTY_FORM);
   const [formMsg, setFormMsg] = useState('');
+
+  // 删除确认弹窗
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleteModelId, setDeleteModelId] = useState('');
+
+  // 错误弹窗
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   async function loadModels() {
     try {
@@ -112,13 +129,19 @@ export default function ModelsPage() {
     }
   }
 
-  async function handleDelete(id: string) {
-    if (!confirm(`确定删除模型 ${id}？`)) return;
+  function handleDeleteClick(id: string) {
+    setDeleteModelId(id);
+    setDeleteDialogOpen(true);
+  }
+
+  async function handleConfirmDelete() {
+    setDeleteDialogOpen(false);
     try {
-      await api.deleteModel(id);
+      await api.deleteModel(deleteModelId);
       loadModels();
     } catch (err) {
-      alert(err instanceof Error ? err.message : '删除失败');
+      setErrorMessage(err instanceof Error ? err.message : '删除失败');
+      setErrorDialogOpen(true);
     }
   }
 
@@ -133,6 +156,7 @@ export default function ModelsPage() {
         <Button onClick={handleAdd}>添加模型</Button>
       </div>
 
+      {/* 编辑/新增弹窗 */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogBackdrop />
         <DialogPopup>
@@ -204,16 +228,47 @@ export default function ModelsPage() {
             </div>
             <div className="col-span-2 flex gap-3 items-center justify-end">
               {formMsg && <span className="text-sm text-muted-foreground">{formMsg}</span>}
-              <DialogClose>
-                <Button type="button" variant="outline">
-                  取消
-                </Button>
-              </DialogClose>
+              <DialogClose
+                render={
+                  <Button type="button" variant="outline">
+                    取消
+                  </Button>
+                }
+              />
               <Button type="submit">{editingId ? '更新' : '创建'}</Button>
             </div>
           </form>
         </DialogPopup>
       </Dialog>
+
+      {/* 删除确认弹窗 */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogPopup>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认删除</AlertDialogTitle>
+            <AlertDialogDescription>确定删除模型 {deleteModelId}？此操作不可恢复。</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button variant="outline">取消</Button>} />
+            <Button variant="destructive" onClick={handleConfirmDelete}>
+              确认删除
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogPopup>
+      </AlertDialog>
+
+      {/* 错误弹窗 */}
+      <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+        <AlertDialogPopup>
+          <AlertDialogHeader>
+            <AlertDialogTitle>操作失败</AlertDialogTitle>
+            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button>确定</Button>} />
+          </AlertDialogFooter>
+        </AlertDialogPopup>
+      </AlertDialog>
 
       {error && <p className="text-destructive mb-4">{error}</p>}
       {loading ? (
@@ -251,7 +306,7 @@ export default function ModelsPage() {
                       variant="ghost"
                       size="xs"
                       className="text-destructive"
-                      onClick={() => handleDelete(model.id)}
+                      onClick={() => handleDeleteClick(model.id)}
                     >
                       删除
                     </Button>

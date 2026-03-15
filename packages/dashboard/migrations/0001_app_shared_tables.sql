@@ -1,22 +1,13 @@
--- App 共享表：这些表由 packages/app 的 migration 首次创建，
--- 此处使用 IF NOT EXISTS 确保 dashboard 本地开发时也能正确初始化。
--- 线上环境这些表已存在，IF NOT EXISTS 会安全跳过。
+-- App 业务表
+-- 用户体系统一使用 better-auth 的 user 表，此处只创建业务表
+-- 外键引用 user 表（由 0000 migration 创建）
 
-CREATE TABLE IF NOT EXISTS `users` (
-	`id` text PRIMARY KEY NOT NULL,
-	`email` text NOT NULL,
-	`stripe_customer_id` text,
-	`created_at` integer DEFAULT (unixepoch())
-);
---> statement-breakpoint
-CREATE UNIQUE INDEX IF NOT EXISTS `users_email_unique` ON `users` (`email`);
---> statement-breakpoint
 CREATE TABLE IF NOT EXISTS `wallets` (
 	`user_id` text PRIMARY KEY NOT NULL,
 	`balance` real DEFAULT 0,
 	`currency` text DEFAULT 'USD',
 	`updated_at` integer DEFAULT (unixepoch()),
-	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS `api_keys` (
@@ -27,8 +18,10 @@ CREATE TABLE IF NOT EXISTS `api_keys` (
 	`name` text,
 	`is_active` integer DEFAULT true,
 	`created_at` integer DEFAULT (unixepoch()),
-	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );
+--> statement-breakpoint
+CREATE UNIQUE INDEX IF NOT EXISTS `api_keys_key_hash_unique` ON `api_keys` (`key_hash`);
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS `claim_tokens` (
 	`token` text PRIMARY KEY NOT NULL,
@@ -65,5 +58,5 @@ CREATE TABLE IF NOT EXISTS `spending_limits` (
 	`is_suspended` integer DEFAULT false,
 	`last_alert_at` integer,
 	`updated_at` integer DEFAULT (unixepoch()),
-	FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`user_id`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE no action
 );

@@ -2,10 +2,7 @@
  * KV 操作工具函数
  * 与 packages/app/src/services/kv-service.ts 使用相同的 key 格式和数据结构
  */
-import { eq } from 'drizzle-orm';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { appUsers } from '@/db/app-schema';
-import type { AppDb } from './db';
 
 // ==================== 类型定义 ====================
 
@@ -47,15 +44,6 @@ const GLOBAL_SPENDING_PREFIX = 'stats:';
 export async function getKV(): Promise<KVNamespace> {
   const { env } = await getCloudflareContext({ async: true });
   return env.KV;
-}
-
-/**
- * 通过 email 在 D1 app users 表中查找 userId
- * 比 KV 遍历高效（有 unique 索引）
- */
-export async function resolveAppUserId(db: AppDb, email: string): Promise<string | null> {
-  const row = await db.select({ id: appUsers.id }).from(appUsers).where(eq(appUsers.email, email)).get();
-  return row?.id ?? null;
 }
 
 // ==================== 用户数据 ====================

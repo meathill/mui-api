@@ -13,6 +13,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
+import {
+  AlertDialog,
+  AlertDialogPopup,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogClose,
+} from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface ApiKey {
@@ -30,6 +39,14 @@ export default function KeysPage() {
   const [newKeyDialogOpen, setNewKeyDialogOpen] = useState(false);
   const [newRawKey, setNewRawKey] = useState('');
   const [creating, setCreating] = useState(false);
+
+  // 错误弹窗
+  const [errorDialogOpen, setErrorDialogOpen] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  // 吊销确认弹窗
+  const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [revokeKeyId, setRevokeKeyId] = useState('');
 
   async function loadKeys() {
     try {
@@ -55,19 +72,26 @@ export default function KeysPage() {
       setNewKeyDialogOpen(true);
       loadKeys();
     } catch (e) {
-      alert(e instanceof Error ? e.message : '创建失败');
+      setErrorMessage(e instanceof Error ? e.message : '创建失败');
+      setErrorDialogOpen(true);
     } finally {
       setCreating(false);
     }
   }
 
-  async function handleRevokeKey(keyId: string) {
-    if (!confirm('确定吊销此 API Key？吊销后无法恢复。')) return;
+  function handleRevokeClick(keyId: string) {
+    setRevokeKeyId(keyId);
+    setRevokeDialogOpen(true);
+  }
+
+  async function handleConfirmRevoke() {
+    setRevokeDialogOpen(false);
     try {
-      await userApi.revokeKey(keyId);
+      await userApi.revokeKey(revokeKeyId);
       loadKeys();
     } catch (e) {
-      alert(e instanceof Error ? e.message : '吊销失败');
+      setErrorMessage(e instanceof Error ? e.message : '吊销失败');
+      setErrorDialogOpen(true);
     }
   }
 
@@ -95,12 +119,39 @@ export default function KeysPage() {
             <Button variant="outline" onClick={handleCopyKey}>
               复制
             </Button>
-            <DialogClose>
-              <Button>我已保存</Button>
-            </DialogClose>
+            <DialogClose render={<Button>我已保存</Button>} />
           </div>
         </DialogPopup>
       </Dialog>
+
+      {/* 错误弹窗 */}
+      <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
+        <AlertDialogPopup>
+          <AlertDialogHeader>
+            <AlertDialogTitle>操作失败</AlertDialogTitle>
+            <AlertDialogDescription>{errorMessage}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button>确定</Button>} />
+          </AlertDialogFooter>
+        </AlertDialogPopup>
+      </AlertDialog>
+
+      {/* 吊销确认弹窗 */}
+      <AlertDialog open={revokeDialogOpen} onOpenChange={setRevokeDialogOpen}>
+        <AlertDialogPopup>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认吊销</AlertDialogTitle>
+            <AlertDialogDescription>确定吊销此 API Key？吊销后无法恢复。</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogClose render={<Button variant="outline">取消</Button>} />
+            <Button variant="destructive" onClick={handleConfirmRevoke}>
+              确认吊销
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogPopup>
+      </AlertDialog>
 
       {error && <p className="text-destructive mb-4">{error}</p>}
 
@@ -137,7 +188,7 @@ export default function KeysPage() {
                         variant="ghost"
                         size="xs"
                         className="text-destructive"
-                        onClick={() => handleRevokeKey(key.id)}
+                        onClick={() => handleRevokeClick(key.id)}
                       >
                         吊销
                       </Button>

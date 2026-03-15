@@ -1,47 +1,37 @@
-# OpenNext Starter
+# MUI Router Dashboard
 
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+MUI Router 的管理面板，基于 Next.js 16 + OpenNext 部署在 Cloudflare Workers 上。
 
-## Getting Started
+## 技术栈
 
-Read the documentation at https://opennext.js.org/cloudflare.
+- **框架**：Next.js 16 + OpenNext（`@opennextjs/cloudflare`）
+- **认证**：better-auth（drizzle adapter）
+- **数据库**：Cloudflare D1（SQLite），与 `packages/app` 共享
+- **KV 存储**：Cloudflare KV，与 `packages/app` 共享
+- **UI**：Tailwind CSS 4 + Base UI
 
-## Develop
+## 架构
 
-Run the Next.js development server:
+- 用户体系统一使用 better-auth 的 `user` 表，不存在独立的用户表
+- 业务数据（余额、API Key 等）存储在 KV 中，以 better-auth `user.id` 为 key
+- 用量日志、模型配置等存储在 D1 业务表中
+- 邮件发送使用 Resend
 
-```bash
-npm run dev
-# or similar package manager command
-```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-## Preview
-
-Preview the application locally on the Cloudflare runtime:
+## 本地开发
 
 ```bash
-npm run preview
-# or similar package manager command
+pnpm run db:migrate:local  # 初始化 D1（auth 表 + 业务表）
+pnpm run dev               # 启动开发服务器（端口 3035）
 ```
 
-## Deploy
-
-Deploy the application to Cloudflare:
+## 部署
 
 ```bash
-npm run deploy
-# or similar package manager command
+pnpm run db:migrate:prod   # 执行远程 D1 migration
+pnpm run deploy            # 构建 + 部署到 Cloudflare
 ```
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+需要配置的 Cloudflare Secrets：
+- `BETTER_AUTH_SECRET`
+- `RESEND_API_KEY`
+- `FROM_EMAIL`

@@ -1,15 +1,22 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { userApi, adminApi, type ModelInfo } from '@/lib/api';
+import { adminApi, type ModelInfo } from '@/lib/api';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import {
+  Dialog,
+  DialogBackdrop,
+  DialogClose,
+  DialogPopup,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 
 export default function PlaygroundPage() {
   const [models, setModels] = useState<ModelInfo[]>([]);
-  const [keys, setKeys] = useState<Array<{ id: string; keyPrefix: string }>>([]);
   const [selectedModel, setSelectedModel] = useState('');
-  const [selectedKey, setSelectedKey] = useState('');
   const [prompt, setPrompt] = useState('');
   const [response, setResponse] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,22 +24,22 @@ export default function PlaygroundPage() {
   const [tokenInfo, setTokenInfo] = useState<{
     inputTokens: number;
     outputTokens: number;
-    cost: number;
   } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  // API Key 输入弹窗
+  const [apiKeyDialogOpen, setApiKeyDialogOpen] = useState(false);
+  const [apiKeyInput, setApiKeyInput] = useState('');
+  // 记住用户输入的 Key（session 级别）
+  const [savedApiKey, setSavedApiKey] = useState('');
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [modelsRes, keysRes] = await Promise.all([adminApi.getModels(), userApi.getKeys()]);
+        const modelsRes = await adminApi.getModels();
         setModels(modelsRes.models);
-        const activeKeys = keysRes.keys.filter((k) => k.isActive);
-        setKeys(activeKeys);
         if (modelsRes.models.length > 0) {
           setSelectedModel(modelsRes.models[0].id);
-        }
-        if (activeKeys.length > 0) {
-          setSelectedKey(activeKeys[0].keyPrefix);
         }
       } catch {
         // 静默处理
@@ -41,24 +48,30 @@ export default function PlaygroundPage() {
     loadData();
   }, []);
 
-  async function handleSend() {
+  function handleSendClick() {
     if (!prompt.trim() || !selectedModel) return;
+    if (savedApiKey) {
+      doSend(savedApiKey);
+    } else {
+      setApiKeyInput('');
+      setApiKeyDialogOpen(true);
+    }
+  }
 
+  function handleApiKeyConfirm() {
+    if (!apiKeyInput.trim()) return;
+    setSavedApiKey(apiKeyInput.trim());
+    setApiKeyDialogOpen(false);
+    doSend(apiKeyInput.trim());
+  }
+
+  async function doSend(apiKey: string) {
     setLoading(true);
     setResponse('');
     setError('');
     setTokenInfo(null);
 
     const apiBase = process.env.NEXT_PUBLIC_API_BASE || '';
-
-    // 注意：Playground 无法获取原始 API Key，需要用户手动输入
-    // 这里提示用户需要自己的 API Key
-    const apiKey = window.prompt('请输入你的 API Key（sk-gw-xxx）：');
-    if (!apiKey) {
-      setLoading(false);
-      return;
-    }
-
     abortRef.current = new AbortController();
 
     try {
@@ -79,7 +92,12 @@ export default function PlaygroundPage() {
       if (!res.ok) {
         const data = (await res.json()) as Record<string, unknown>;
         const errObj = data.error as Record<string, string> | undefined;
-        setError(errObj?.message || `请求失败 (${res.status})`);
+        const errMsg = errObj?.message || `请求失败 (${res.status})`;
+        // Key 无效时清除已保存的 Key
+        if (res.status === 401) {
+          setSavedApiKey('');
+        }
+        setError(errMsg);
         setLoading(false);
         return;
       }
@@ -107,13 +125,10 @@ export default function PlaygroundPage() {
                 fullResponse += content;
                 setResponse(fullResponse);
               }
-
-              // 检查 usage 信息（通常在最后一个 chunk）
               if (parsed.usage) {
                 setTokenInfo({
                   inputTokens: parsed.usage.prompt_tokens || 0,
                   outputTokens: parsed.usage.completion_tokens || 0,
-                  cost: 0,
                 });
               }
             } catch {
@@ -136,9 +151,37 @@ export default function PlaygroundPage() {
     setLoading(false);
   }
 
+  function handleClearKey() {
+    setSavedApiKey('');
+  }
+
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">API Demo</h2>
+
+      {/* API Key 输入弹窗 */}
+      <Dialog open={apiKeyDialogOpen} onOpenChange={setApiKeyDialogOpen}>
+        <DialogBackdrop />
+        <DialogPopup>
+          <DialogTitle>输入 API Key</DialogTitle>
+          <DialogDescription>请输入你的 API Key 以调用 API。可在「API Key」页面生成。</DialogDescription>
+          <div className="mt-4">
+            <Input
+              type="password"
+              value={apiKeyInput}
+              onChange={(e) => setApiKeyInput(e.target.value)}
+              placeholder="sk-gw-xxx"
+              onKeyDown={(e) => e.key === 'Enter' && handleApiKeyConfirm()}
+            />
+          </div>
+          <div className="flex justify-end gap-3 mt-4">
+            <DialogClose render={<Button variant="outline">取消</Button>} />
+            <Button onClick={handleApiKeyConfirm} disabled={!apiKeyInput.trim()}>
+              确认
+            </Button>
+          </div>
+        </DialogPopup>
+      </Dialog>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 输入区 */}
@@ -159,6 +202,15 @@ export default function PlaygroundPage() {
               </select>
             </div>
 
+            {savedApiKey && (
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <span>已设置 API Key: {savedApiKey.substring(0, 12)}...</span>
+                <Button variant="ghost" size="xs" onClick={handleClearKey}>
+                  清除
+                </Button>
+              </div>
+            )}
+
             <div>
               <label className="block text-sm font-medium mb-1">Prompt</label>
               <textarea
@@ -176,7 +228,7 @@ export default function PlaygroundPage() {
                   停止
                 </Button>
               ) : (
-                <Button onClick={handleSend} disabled={!prompt.trim()}>
+                <Button onClick={handleSendClick} disabled={!prompt.trim()}>
                   发送
                 </Button>
               )}

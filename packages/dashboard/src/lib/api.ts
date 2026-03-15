@@ -137,7 +137,7 @@ export const api = adminApi;
 // ==================== 类型定义 ====================
 
 export interface UserInfo {
-  userId: string | null;
+  userId: string;
   email: string;
   balance: number;
   concurrency: number;

@@ -5,7 +5,8 @@
       "name": "dashboard",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["--filter", "dashboard", "dev"],
-      "port": 3035
+      "port": 3035,
+      "autoPort": false
     },
     {
       "name": "api",
