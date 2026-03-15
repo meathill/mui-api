@@ -1,6 +1,5 @@
 import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
 import { Hono } from 'hono';
-import { cors } from 'hono/cors';
 import type { CloudflareBindings } from '../types';
 import { createDb } from '../db';
 import { models, usageLogs, spendingLimits } from '../db/schema';
@@ -21,18 +20,6 @@ import {
 import { badRequest, notFound, internalError, unauthorized, zodErrorToApiError } from '../lib/errors';
 
 const admin = new Hono<{ Bindings: CloudflareBindings }>();
-
-/**
- * CORS 中间件 — Dashboard 和 Worker 跨域部署时需要
- */
-admin.use(
-  '/*',
-  cors({
-    origin: (origin) => origin,
-    allowHeaders: ['Content-Type', 'X-Admin-Secret'],
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  }),
-);
 
 /**
  * 管理员密钥验证中间件

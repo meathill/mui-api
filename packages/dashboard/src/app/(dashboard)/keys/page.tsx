@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { userApi } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -12,6 +12,8 @@ import {
   DialogPopup,
   DialogTitle,
   DialogDescription,
+  DialogHeader,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -39,6 +41,8 @@ export default function KeysPage() {
   const [newKeyDialogOpen, setNewKeyDialogOpen] = useState(false);
   const [newRawKey, setNewRawKey] = useState('');
   const [creating, setCreating] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const copiedTimerRef = useRef<ReturnType<typeof setTimeout>>(null);
 
   // 错误弹窗
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
@@ -69,13 +73,21 @@ export default function KeysPage() {
     try {
       const result = await userApi.createKey();
       setNewRawKey(result.rawKey);
+      setCopied(false);
       setNewKeyDialogOpen(true);
-      loadKeys();
     } catch (e) {
       setErrorMessage(e instanceof Error ? e.message : '创建失败');
       setErrorDialogOpen(true);
     } finally {
       setCreating(false);
+    }
+  }
+
+  function handleNewKeyDialogChange(open: boolean) {
+    setNewKeyDialogOpen(open);
+    if (!open) {
+      // 弹窗关闭时刷新列表
+      loadKeys();
     }
   }
 
@@ -98,6 +110,9 @@ export default function KeysPage() {
   async function handleCopyKey() {
     try {
       await navigator.clipboard.writeText(newRawKey);
+      setCopied(true);
+      if (copiedTimerRef.current) clearTimeout(copiedTimerRef.current);
+      copiedTimerRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
       // 降级：选中文本让用户手动复制
       const el = document.querySelector('.select-all');
@@ -121,18 +136,22 @@ export default function KeysPage() {
       </div>
 
       {/* 新 Key 弹窗 */}
-      <Dialog open={newKeyDialogOpen} onOpenChange={setNewKeyDialogOpen}>
+      <Dialog open={newKeyDialogOpen} onOpenChange={handleNewKeyDialogChange}>
         <DialogBackdrop />
         <DialogPopup>
-          <DialogTitle>API Key 已生成</DialogTitle>
-          <DialogDescription>请立即复制并妥善保管，此 Key 仅显示一次，关闭后无法再查看。</DialogDescription>
-          <div className="mt-4 p-3 bg-muted rounded-lg font-mono text-sm break-all select-all">{newRawKey}</div>
-          <div className="flex justify-end gap-3 mt-4">
+          <DialogHeader>
+            <DialogTitle>API Key 已生成</DialogTitle>
+            <DialogDescription>请立即复制并妥善保管，此 Key 仅显示一次，关闭后无法再查看。</DialogDescription>
+          </DialogHeader>
+          <div className="px-6 pb-2">
+            <div className="p-3 bg-muted rounded-lg font-mono text-sm break-all select-all">{newRawKey}</div>
+          </div>
+          <DialogFooter variant="bare">
             <Button variant="outline" onClick={handleCopyKey}>
-              复制
+              {copied ? '已复制 ✓' : '复制'}
             </Button>
             <DialogClose render={<Button>我已保存</Button>} />
-          </div>
+          </DialogFooter>
         </DialogPopup>
       </Dialog>
 

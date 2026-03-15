@@ -13,6 +13,8 @@ import {
   DialogPopup,
   DialogTitle,
   DialogDescription,
+  DialogHeader,
+  DialogFooter,
 } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -160,9 +162,11 @@ export default function ModelsPage() {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogBackdrop />
         <DialogPopup>
-          <DialogTitle>{editingId ? `编辑: ${editingId}` : '添加模型'}</DialogTitle>
-          <DialogDescription>配置模型的 Provider、上游模型 ID 和定价信息</DialogDescription>
-          <form onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 mt-4">
+          <DialogHeader>
+            <DialogTitle>{editingId ? `编辑: ${editingId}` : '添加模型'}</DialogTitle>
+            <DialogDescription>配置模型的 Provider、上游模型 ID 和定价信息</DialogDescription>
+          </DialogHeader>
+          <form id="model-form" onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 px-6">
             <div>
               <label className="block text-xs text-muted-foreground mb-1">模型 ID</label>
               <Input
@@ -226,18 +230,20 @@ export default function ModelsPage() {
                 onChange={(e) => updateField('markupRate', e.target.value)}
               />
             </div>
-            <div className="col-span-2 flex gap-3 items-center justify-end">
-              {formMsg && <span className="text-sm text-muted-foreground">{formMsg}</span>}
-              <DialogClose
-                render={
-                  <Button type="button" variant="outline">
-                    取消
-                  </Button>
-                }
-              />
-              <Button type="submit">{editingId ? '更新' : '创建'}</Button>
-            </div>
           </form>
+          <DialogFooter variant="bare">
+            {formMsg && <span className="text-sm text-muted-foreground mr-auto">{formMsg}</span>}
+            <DialogClose
+              render={
+                <Button type="button" variant="outline">
+                  取消
+                </Button>
+              }
+            />
+            <Button type="submit" form="model-form">
+              {editingId ? '更新' : '创建'}
+            </Button>
+          </DialogFooter>
         </DialogPopup>
       </Dialog>
 

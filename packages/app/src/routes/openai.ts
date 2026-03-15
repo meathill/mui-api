@@ -108,13 +108,10 @@ openai.post('/chat/completions', async (c) => {
         })(),
       );
 
-      return new Response(clientStream, {
-        headers: {
-          'Content-Type': 'text/event-stream',
-          'Cache-Control': 'no-cache',
-          Connection: 'keep-alive',
-        },
-      });
+      c.header('Content-Type', 'text/event-stream');
+      c.header('Cache-Control', 'no-cache');
+      c.header('Connection', 'keep-alive');
+      return c.body(clientStream);
     }
 
     // 非流式响应
