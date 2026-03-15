@@ -12,6 +12,8 @@ import {
   DialogPopup,
   DialogTitle,
   DialogDescription,
+  DialogHeader,
+  DialogFooter,
 } from '@/components/ui/dialog';
 
 export default function PlaygroundPage() {
@@ -163,9 +165,11 @@ export default function PlaygroundPage() {
       <Dialog open={apiKeyDialogOpen} onOpenChange={setApiKeyDialogOpen}>
         <DialogBackdrop />
         <DialogPopup>
-          <DialogTitle>输入 API Key</DialogTitle>
-          <DialogDescription>请输入你的 API Key 以调用 API。可在「API Key」页面生成。</DialogDescription>
-          <div className="mt-4">
+          <DialogHeader>
+            <DialogTitle>输入 API Key</DialogTitle>
+            <DialogDescription>请输入你的 API Key 以调用 API。可在「API Key」页面生成。</DialogDescription>
+          </DialogHeader>
+          <div className="px-6">
             <Input
               type="password"
               value={apiKeyInput}
@@ -174,12 +178,12 @@ export default function PlaygroundPage() {
               onKeyDown={(e) => e.key === 'Enter' && handleApiKeyConfirm()}
             />
           </div>
-          <div className="flex justify-end gap-3 mt-4">
+          <DialogFooter variant="bare">
             <DialogClose render={<Button variant="outline">取消</Button>} />
             <Button onClick={handleApiKeyConfirm} disabled={!apiKeyInput.trim()}>
               确认
             </Button>
-          </div>
+          </DialogFooter>
         </DialogPopup>
       </Dialog>
 
