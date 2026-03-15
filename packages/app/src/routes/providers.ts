@@ -39,11 +39,7 @@ providers.all('/:provider{.+}/*', async (c) => {
   });
   const alertService = new AlertService(kvService, db, emailService, c.env.ADMIN_EMAIL);
 
-  const gatewayService = new GatewayService(c.env.CF_ACCOUNT_ID, c.env.CF_GATEWAY_ID, {
-    openai: c.env.OPENAI_API_KEY,
-    anthropic: c.env.ANTHROPIC_API_KEY,
-    'google-ai-studio': c.env.GOOGLE_API_KEY,
-  });
+  const gatewayService = new GatewayService(c.env.CF_ACCOUNT_ID, c.env.CF_GATEWAY_ID, c.env.CF_AIG_TOKEN);
 
   // 提取 provider 之后的路径
   const fullPath = c.req.path;

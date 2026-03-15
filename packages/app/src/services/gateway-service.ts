@@ -1,32 +1,17 @@
 /**
  * CF AI Gateway 统一代理服务
- * 所有 AI 请求通过 CF AI Gateway 转发，不再直连 Provider
+ * 所有 AI 请求通过 CF AI Gateway 转发
+ * Provider 的 API key 在 CF AI Gateway 控制台配置（Stored Keys / Unified Billing），
+ * 本服务通过 cf-aig-authorization 头认证网关
+ *
+ * @see https://developers.cloudflare.com/ai-gateway/configuration/authentication/
+ * @see https://developers.cloudflare.com/ai-gateway/get-started/
  */
 
-// Provider 名称到 CF AI Gateway 路径的映射
-const PROVIDER_CONFIGS: Record<
-  string,
-  {
-    authHeader: string;
-    authFormat: (key: string) => string;
-  }
-> = {
-  openai: {
-    authHeader: 'Authorization',
-    authFormat: (key) => `Bearer ${key}`,
-  },
-  anthropic: {
-    authHeader: 'x-api-key',
-    authFormat: (key) => key,
-  },
-  'google-ai-studio': {
-    authHeader: 'x-goog-api-key',
-    authFormat: (key) => key,
-  },
-};
+const SUPPORTED_PROVIDERS = new Set(['openai', 'anthropic', 'google-ai-studio']);
 
-// Anthropic 需要额外的 header
-const EXTRA_HEADERS: Record<string, Record<string, string>> = {
+// 原生代理模式下，某些 provider 需要额外的 header
+const PROVIDER_EXTRA_HEADERS: Record<string, Record<string, string>> = {
   anthropic: {
     'anthropic-version': '2023-06-01',
   },
@@ -38,15 +23,17 @@ export class GatewayService {
   constructor(
     accountId: string,
     gatewayId: string,
-    private providerKeys: Record<string, string>,
+    private cfAigToken: string,
   ) {
     this.baseUrl = `https://gateway.ai.cloudflare.com/v1/${accountId}/${gatewayId}`;
   }
 
   /**
-   * OpenAI 兼容模式
+   * OpenAI 兼容模式（compat endpoint）
    * 将请求代理到 CF AI Gateway 的 /compat/chat/completions 端点
    * model 改写为 "provider/upstreamModelId" 格式
+   *
+   * @see https://developers.cloudflare.com/ai-gateway/get-started/#2-send-your-first-request
    */
   async proxyCompat(
     body: Record<string, unknown>,
@@ -54,14 +41,8 @@ export class GatewayService {
     upstreamModel: string,
     stream: boolean,
   ): Promise<Response> {
-    const providerConfig = PROVIDER_CONFIGS[provider];
-    if (!providerConfig) {
+    if (!SUPPORTED_PROVIDERS.has(provider)) {
       throw new Error(`不支持的 provider: ${provider}`);
-    }
-
-    const apiKey = this.providerKeys[provider];
-    if (!apiKey) {
-      throw new Error(`未配置 ${provider} 的 API key`);
     }
 
     const url = `${this.baseUrl}/compat/chat/completions`;
@@ -73,8 +54,7 @@ export class GatewayService {
 
     const headers: Record<string, string> = {
       'Content-Type': 'application/json',
-      [providerConfig.authHeader]: providerConfig.authFormat(apiKey),
-      ...EXTRA_HEADERS[provider],
+      'cf-aig-authorization': `Bearer ${this.cfAigToken}`,
     };
 
     const response = await fetch(url, {
@@ -94,30 +74,29 @@ export class GatewayService {
   /**
    * 原生代理模式
    * 将请求透传到 CF AI Gateway 的 provider 专用端点
+   * 各 provider 的 API schema 不同，需要额外 header
+   *
+   * @see https://developers.cloudflare.com/ai-gateway/usage/providers/openai/
+   * @see https://developers.cloudflare.com/ai-gateway/usage/providers/anthropic/
+   * @see https://developers.cloudflare.com/ai-gateway/usage/providers/google-ai-studio/
    */
   async proxyNative(provider: string, path: string, request: Request): Promise<Response> {
-    const providerConfig = PROVIDER_CONFIGS[provider];
-    if (!providerConfig) {
+    if (!SUPPORTED_PROVIDERS.has(provider)) {
       throw new Error(`不支持的 provider: ${provider}`);
-    }
-
-    const apiKey = this.providerKeys[provider];
-    if (!apiKey) {
-      throw new Error(`未配置 ${provider} 的 API key`);
     }
 
     const url = `${this.baseUrl}/${provider}/${path}`;
 
-    // 构造新的 headers，保留原始请求的 Content-Type 等，替换认证信息
+    // 构造新的 headers，保留原始请求的 Content-Type 等
     const headers = new Headers(request.headers);
-    // 移除客户端原始的认证 header
+    // 移除客户端可能携带的认证 header（不应透传给上游）
     headers.delete('Authorization');
     headers.delete('x-api-key');
     headers.delete('x-goog-api-key');
-    // 设置正确的 provider 认证
-    headers.set(providerConfig.authHeader, providerConfig.authFormat(apiKey));
-    // 添加 provider 特定的额外 headers
-    const extras = EXTRA_HEADERS[provider];
+    // Stored Keys 模式统一用 cf-aig-authorization 认证网关
+    headers.set('cf-aig-authorization', `Bearer ${this.cfAigToken}`);
+    // 添加 provider 特定的额外 headers（如 Anthropic 的 anthropic-version）
+    const extras = PROVIDER_EXTRA_HEADERS[provider];
     if (extras) {
       for (const [key, value] of Object.entries(extras)) {
         headers.set(key, value);

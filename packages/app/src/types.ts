@@ -2,9 +2,7 @@
 export interface CloudflareBindings {
   DB: D1Database;
   KV: KVNamespace;
-  OPENAI_API_KEY: string;
-  GOOGLE_API_KEY: string;
-  ANTHROPIC_API_KEY: string;
+  CF_AIG_TOKEN: string;
   RESEND_API_KEY: string;
   ADMIN_SECRET: string;
   ADMIN_EMAIL: string;

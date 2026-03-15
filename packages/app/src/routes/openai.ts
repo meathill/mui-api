@@ -73,11 +73,7 @@ openai.post('/chat/completions', async (c) => {
     upstreamModel = modelId;
   }
 
-  const gatewayService = new GatewayService(c.env.CF_ACCOUNT_ID, c.env.CF_GATEWAY_ID, {
-    openai: c.env.OPENAI_API_KEY,
-    anthropic: c.env.ANTHROPIC_API_KEY,
-    'google-ai-studio': c.env.GOOGLE_API_KEY,
-  });
+  const gatewayService = new GatewayService(c.env.CF_ACCOUNT_ID, c.env.CF_GATEWAY_ID, c.env.CF_AIG_TOKEN);
 
   const isStream = body.stream === true;
 
