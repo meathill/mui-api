@@ -1,6 +1,14 @@
 import { NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
-import { getKV, listUserApiKeys, storeApiKey, deleteApiKey, getApiKeyMetadata } from '@/lib/kv';
+import {
+  getKV,
+  getUserData,
+  createUser,
+  listUserApiKeys,
+  storeApiKey,
+  deleteApiKey,
+  getApiKeyMetadata,
+} from '@/lib/kv';
 import { generateApiKey, hashApiKey, getKeyPrefix } from '@/lib/crypto';
 
 /**
@@ -37,6 +45,13 @@ export async function POST() {
     const keyPrefix = getKeyPrefix(rawKey);
 
     const kv = await getKV();
+
+    // 确保 KV 中有用户数据（否则 API Key 校验时会因 user 不存在返回 401）
+    const { data } = await getUserData(kv, user.id);
+    if (!data) {
+      await createUser(kv, user.id, user.email);
+    }
+
     await storeApiKey(kv, keyHash, user.id, keyPrefix);
 
     return NextResponse.json({
