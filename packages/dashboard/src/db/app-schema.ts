@@ -16,24 +16,6 @@ export const wallets = sqliteTable('wallets', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
-export const apiKeys = sqliteTable('api_keys', {
-  id: text('id').primaryKey(),
-  userId: text('user_id').references(() => user.id),
-  keyPrefix: text('key_prefix').notNull(),
-  keyHash: text('key_hash').notNull().unique(),
-  name: text('name'),
-  isActive: integer('is_active', { mode: 'boolean' }).default(true),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
-
-export const claimTokens = sqliteTable('claim_tokens', {
-  token: text('token').primaryKey(),
-  userId: text('user_id').notNull(),
-  tempRawKey: text('temp_raw_key').notNull(),
-  expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
-  used: integer('used', { mode: 'boolean' }).default(false),
-});
-
 export const models = sqliteTable('models', {
   id: text('id').primaryKey(),
   provider: text('provider').notNull(),

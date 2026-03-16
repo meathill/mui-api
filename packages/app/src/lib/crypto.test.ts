@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { generateId, generateApiKey, hashApiKey, generateClaimToken, getKeyPrefix } from './crypto';
+import { generateId, generateApiKey, hashApiKey, getKeyPrefix } from './crypto';
 
 describe('Crypto Utilities', () => {
   describe('generateId', () => {
@@ -49,24 +49,6 @@ describe('Crypto Utilities', () => {
       const hash1 = await hashApiKey('key-1');
       const hash2 = await hashApiKey('key-2');
       expect(hash1).not.toBe(hash2);
-    });
-  });
-
-  describe('generateClaimToken', () => {
-    it('should generate a 16-character token', () => {
-      const token = generateClaimToken();
-      expect(token.length).toBe(16);
-    });
-
-    it('should be URL-safe', () => {
-      const token = generateClaimToken();
-      expect(token).not.toMatch(/[+/=]/);
-    });
-
-    it('should generate unique tokens', () => {
-      const token1 = generateClaimToken();
-      const token2 = generateClaimToken();
-      expect(token1).not.toBe(token2);
     });
   });
 

@@ -8,7 +8,6 @@ import {
   SpendingLimitSchema,
   GlobalConfigSchema,
   UsageQuerySchema,
-  ClaimSchema,
   ChatCompletionSchema,
 } from './validators';
 
@@ -146,16 +145,6 @@ describe('UsageQuerySchema', () => {
 
   it('拒绝超限 pageSize', () => {
     expect(UsageQuerySchema.safeParse({ pageSize: 101 }).success).toBe(false);
-  });
-});
-
-describe('ClaimSchema', () => {
-  it('接受非空 token', () => {
-    expect(ClaimSchema.safeParse({ token: 'abc123' }).success).toBe(true);
-  });
-
-  it('拒绝空 token', () => {
-    expect(ClaimSchema.safeParse({ token: '' }).success).toBe(false);
   });
 });
 

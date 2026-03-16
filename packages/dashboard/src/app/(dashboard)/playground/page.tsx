@@ -1,16 +1,11 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { adminApi, userApi, type ModelInfo } from '@/lib/api';
+import { adminApi, type ModelInfo } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 
-interface ApiKeyOption {
-  id: string;
-  keyPrefix: string;
-  isActive: boolean;
-  createdAt: string;
-}
+const LOCAL_STORAGE_KEY = 'playground_api_key';
 
 export default function PlaygroundPage() {
   const [models, setModels] = useState<ModelInfo[]>([]);
@@ -25,44 +20,49 @@ export default function PlaygroundPage() {
   } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  // API Key 选择
-  const [apiKeys, setApiKeys] = useState<ApiKeyOption[]>([]);
-  const [selectedKeyId, setSelectedKeyId] = useState('');
-  // 存储完整 key（创建后一次性获取）
-  const [rawKeyMap, setRawKeyMap] = useState<Record<string, string>>({});
+  // API Key 直接输入并持久化到 localStorage
+  const [apiKey, setApiKey] = useState('');
 
   useEffect(() => {
-    async function loadData() {
+    const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
+    if (saved) {
+      setApiKey(saved);
+    }
+
+    async function loadModels() {
       try {
-        const [modelsRes, keysRes] = await Promise.all([adminApi.getModels(), userApi.getKeys()]);
+        const modelsRes = await adminApi.getModels();
         setModels(modelsRes.models);
         if (modelsRes.models.length > 0) {
           setSelectedModel(modelsRes.models[0].id);
-        }
-        const activeKeys = keysRes.keys.filter((k) => k.isActive);
-        setApiKeys(activeKeys);
-        if (activeKeys.length > 0) {
-          setSelectedKeyId(activeKeys[0].id);
         }
       } catch {
         // 静默处理
       }
     }
-    loadData();
+    loadModels();
   }, []);
+
+  function handleApiKeyChange(value: string) {
+    setApiKey(value);
+    if (value) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, value);
+    } else {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    }
+  }
 
   function handleSendClick() {
     if (!prompt.trim() || !selectedModel) return;
 
-    const rawKey = rawKeyMap[selectedKeyId];
-    if (!rawKey) {
-      setError('请先选择一个 API Key。如果列表为空，请到「API Key」页面创建。');
+    if (!apiKey.trim()) {
+      setError('请先输入 API Key。可在「API Key」页面创建后粘贴到此处。');
       return;
     }
-    doSend(rawKey);
+    doSend(apiKey.trim());
   }
 
-  async function doSend(apiKey: string) {
+  async function doSend(key: string) {
     setLoading(true);
     setResponse('');
     setError('');
@@ -76,7 +76,7 @@ export default function PlaygroundPage() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey}`,
+          Authorization: `Bearer ${key}`,
         },
         body: JSON.stringify({
           model: selectedModel,
@@ -144,26 +144,6 @@ export default function PlaygroundPage() {
     setLoading(false);
   }
 
-  async function handleCreateKey() {
-    try {
-      const result = await userApi.createKey();
-      const newKey: ApiKeyOption = {
-        id: `new-${Date.now()}`,
-        keyPrefix: result.keyPrefix,
-        isActive: true,
-        createdAt: new Date().toISOString(),
-      };
-      setApiKeys((prev) => [...prev, newKey]);
-      setRawKeyMap((prev) => ({ ...prev, [newKey.id]: result.rawKey }));
-      setSelectedKeyId(newKey.id);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '创建 API Key 失败');
-    }
-  }
-
-  // 当选择 key 变化时，如果没有存储 rawKey，需要提示
-  const hasRawKey = !!rawKeyMap[selectedKeyId];
-
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">API Demo</h2>
@@ -189,29 +169,14 @@ export default function PlaygroundPage() {
 
             <div>
               <label className="block text-sm font-medium mb-1">API Key</label>
-              <div className="flex gap-2">
-                <select
-                  value={selectedKeyId}
-                  onChange={(e) => setSelectedKeyId(e.target.value)}
-                  className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors"
-                >
-                  {apiKeys.length === 0 && <option value="">暂无可用 Key</option>}
-                  {apiKeys.map((k) => (
-                    <option key={k.id} value={k.id}>
-                      {k.keyPrefix}
-                    </option>
-                  ))}
-                </select>
-                <Button variant="outline" size="sm" onClick={handleCreateKey}>
-                  新建
-                </Button>
-              </div>
-              {selectedKeyId && !hasRawKey && (
-                <p className="text-xs text-amber-600 mt-1">
-                  已有 Key 无法用于 Playground（出于安全原因，完整 Key 仅在创建时可见）。请点击「新建」创建一个临时
-                  Key。
-                </p>
-              )}
+              <input
+                type="password"
+                value={apiKey}
+                onChange={(e) => handleApiKeyChange(e.target.value)}
+                placeholder="粘贴你的 API Key（sk-gw-...）"
+                className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors font-mono"
+              />
+              <p className="text-xs text-muted-foreground mt-1">Key 会保存在浏览器本地，不会上传到服务器。</p>
             </div>
 
             <div>
@@ -231,7 +196,7 @@ export default function PlaygroundPage() {
                   停止
                 </Button>
               ) : (
-                <Button onClick={handleSendClick} disabled={!prompt.trim() || !hasRawKey}>
+                <Button onClick={handleSendClick} disabled={!prompt.trim() || !apiKey.trim()}>
                   发送
                 </Button>
               )}

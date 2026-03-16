@@ -21,19 +21,19 @@ export class EmailService {
   }
 
   /**
-   * 发送 Claim 邮件（新用户）
+   * 发送欢迎邮件（新用户）
    */
-  async sendClaimEmail(email: string, claimUrl: string): Promise<boolean> {
+  async sendWelcomeEmail(email: string, amount: number, dashboardUrl: string): Promise<boolean> {
     try {
       await this.resend.emails.send({
         from: `${this.fromName} <${this.fromEmail}>`,
         to: email,
-        subject: '🔑 领取你的 API Key - Uni-Gateway',
-        html: this.getClaimEmailHtml(claimUrl),
+        subject: '欢迎使用 Uni-Gateway',
+        html: this.getWelcomeEmailHtml(amount, dashboardUrl),
       });
       return true;
     } catch (error) {
-      console.error('发送 Claim 邮件失败:', error);
+      console.error('发送欢迎邮件失败:', error);
       return false;
     }
   }
@@ -106,7 +106,7 @@ export class EmailService {
     `.trim();
   }
 
-  private getClaimEmailHtml(claimUrl: string): string {
+  private getWelcomeEmailHtml(amount: number, dashboardUrl: string): string {
     return `
 <!DOCTYPE html>
 <html>
@@ -116,26 +116,26 @@ export class EmailService {
     body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; }
     .container { max-width: 600px; margin: 0 auto; padding: 20px; }
     .header { text-align: center; padding: 20px 0; }
+    .amount { font-size: 32px; font-weight: bold; color: #10B981; text-align: center; }
     .button { display: inline-block; padding: 12px 24px; background: #4F46E5; color: white; text-decoration: none; border-radius: 6px; font-weight: 600; }
-    .warning { background: #FEF3C7; border: 1px solid #F59E0B; padding: 12px; border-radius: 6px; margin: 20px 0; }
     .footer { text-align: center; color: #666; font-size: 12px; margin-top: 40px; }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <h1>🎉 欢迎使用 Uni-Gateway</h1>
+      <h1>欢迎使用 Uni-Gateway</h1>
     </div>
 
     <p>你好！</p>
-    <p>感谢你的支持！你的账户已创建成功，现在可以领取你的 API Key。</p>
+    <p>感谢你的支持！你的账户已创建成功，初始余额：</p>
+
+    <div class="amount">$${amount.toFixed(2)}</div>
+
+    <p>请登录 Dashboard 创建你的 API Key：</p>
 
     <div style="text-align: center; margin: 30px 0;">
-      <a href="${claimUrl}" class="button">领取 API Key</a>
-    </div>
-
-    <div class="warning">
-      ⚠️ <strong>重要提示</strong>：API Key 仅显示一次，请务必立即保存。链接有效期 15 分钟。
+      <a href="${dashboardUrl}" class="button">前往 Dashboard</a>
     </div>
 
     <p>如有任何问题，请回复此邮件联系我们。</p>

@@ -1,8 +1,6 @@
 import { Hono } from 'hono';
 import type { CloudflareBindings } from '../../types';
-import { createDb } from '../../db';
 import { KVService } from '../../services/kv-service';
-import { KeyService } from '../../services/key-service';
 import { EmailService } from '../../services/email-service';
 import { generateId } from '../../lib/crypto';
 import { RechargeSchema, SetConcurrencySchema, GetUserSchema } from '../../lib/validators';
@@ -61,10 +59,8 @@ users.post('/recharge', async (c) => {
   }
 
   const { email, amount } = result.data;
-  const db = createDb(c.env.DB);
   const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
   const kvService = new KVService(c.env.KV, defaultMaxConcurrency);
-  const keyService = new KeyService(db, kvService);
   const emailService = new EmailService({
     apiKey: c.env.RESEND_API_KEY,
     fromEmail: c.env.FROM_EMAIL,
@@ -77,18 +73,15 @@ users.post('/recharge', async (c) => {
       userId = generateId();
       await kvService.createUser(userId, email, amount);
 
-      const keyResult = await keyService.generateKey(userId);
-      const claimResult = await keyService.createClaimToken(userId, keyResult.rawKey);
-      const claimUrl = `${c.env.BASE_URL}/claim?token=${claimResult.token}`;
-      await emailService.sendClaimEmail(email, claimUrl);
+      const dashboardUrl = `${c.env.BASE_URL}`;
+      await emailService.sendWelcomeEmail(email, amount, dashboardUrl);
 
       return c.json({
         success: true,
         isNewUser: true,
-        message: '新用户已创建，Claim 邮件已发送',
+        message: '新用户已创建，欢迎邮件已发送',
         userId,
         balance: amount,
-        claimUrl,
       });
     }
 

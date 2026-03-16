@@ -66,13 +66,6 @@ export const UsageQuerySchema = z.object({
 });
 export type UsageQueryInput = z.infer<typeof UsageQuerySchema>;
 
-// ==================== Claim 接口 ====================
-
-export const ClaimSchema = z.object({
-  token: z.string().min(1, 'token 不能为空'),
-});
-export type ClaimInput = z.infer<typeof ClaimSchema>;
-
 // ==================== OpenAI 接口 ====================
 
 export const ChatMessageSchema = z.object({

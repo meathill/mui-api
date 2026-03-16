@@ -4,7 +4,6 @@ import type { CloudflareBindings } from './types';
 import { renderer } from './renderer';
 import { loggerMiddleware } from './middleware/logger';
 import admin from './routes/admin';
-import claim from './routes/claim';
 import openai from './routes/openai';
 import providers from './routes/providers';
 
@@ -26,8 +25,6 @@ app.use(renderer);
 app.route('/admin', admin);
 app.route('/v1', openai);
 app.route('/providers', providers);
-app.route('/', claim);
-
 // 首页
 app.get('/', (c) => {
   return c.render(<h1>Uni-Gateway - AI API 统一网关</h1>);

@@ -1,6 +1,6 @@
 import { getTableName } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
-import { apiKeys, claimTokens, models, usageLogs, users, wallets } from './schema';
+import { models, usageLogs, users, wallets } from './schema';
 
 describe('Database Schema', () => {
   describe('users table', () => {
@@ -28,36 +28,6 @@ describe('Database Schema', () => {
       expect(columnNames).toContain('balance');
       expect(columnNames).toContain('currency');
       expect(columnNames).toContain('updatedAt');
-    });
-  });
-
-  describe('apiKeys table', () => {
-    it('should have correct table name', () => {
-      expect(getTableName(apiKeys)).toBe('api_keys');
-    });
-
-    it('should have required columns', () => {
-      const columnNames = Object.keys(apiKeys);
-      expect(columnNames).toContain('id');
-      expect(columnNames).toContain('userId');
-      expect(columnNames).toContain('keyPrefix');
-      expect(columnNames).toContain('keyHash');
-      expect(columnNames).toContain('isActive');
-    });
-  });
-
-  describe('claimTokens table', () => {
-    it('should have correct table name', () => {
-      expect(getTableName(claimTokens)).toBe('claim_tokens');
-    });
-
-    it('should have required columns', () => {
-      const columnNames = Object.keys(claimTokens);
-      expect(columnNames).toContain('token');
-      expect(columnNames).toContain('userId');
-      expect(columnNames).toContain('tempRawKey');
-      expect(columnNames).toContain('expiresAt');
-      expect(columnNames).toContain('used');
     });
   });
 

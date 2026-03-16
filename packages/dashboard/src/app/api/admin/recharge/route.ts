@@ -3,17 +3,15 @@ import { NextResponse } from 'next/server';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
-import { getKV, createUser, addBalance, getUserData, storeApiKey } from '@/lib/kv';
-import { claimTokens } from '@/db/app-schema';
+import { getKV, createUser, addBalance, getUserData } from '@/lib/kv';
 import { user as userTable } from '@/db/schema';
-import { generateApiKey, generateClaimToken, hashApiKey, getKeyPrefix } from '@/lib/crypto';
 import { createEmailService } from '@/lib/email';
 
 /**
  * POST /api/admin/recharge — 充值
  * Body: { email: string, amount: number }
  *
- * 用户已注册：增加余额（KV）→ 发通知邮件
+ * 用户已注册：增加余额（KV）→ 发充值成功邮件
  * 用户未注册：返回错误，要求用户先自行注册
  */
 export async function POST(request: Request) {
@@ -48,34 +46,14 @@ export async function POST(request: Request) {
       // 用户已注册但 KV 中没有数据（首次充值），初始化 KV
       await createUser(kv, userId, email, amount);
 
-      // 生成初始 API Key
-      const rawKey = generateApiKey();
-      const keyHash = await hashApiKey(rawKey);
-      const keyPrefix = getKeyPrefix(rawKey);
-      await storeApiKey(kv, keyHash, userId, keyPrefix);
-
-      // 创建 Claim Token
-      const token = generateClaimToken();
-      const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
-      await db.insert(claimTokens).values({
-        token,
-        userId,
-        tempRawKey: rawKey,
-        expiresAt,
-        used: false,
-      });
-
-      const baseUrl = env.NEXT_PUBLIC_SITE_URL || 'https://muirouter.com';
-      const claimUrl = `${baseUrl}/claim?token=${token}`;
-      const emailSent = await emailService?.sendClaimEmail(email, claimUrl);
+      const emailSent = await emailService?.sendRechargeSuccessEmail(email, amount, amount);
 
       return NextResponse.json({
         success: true,
         isNewUser: true,
-        message: emailSent ? '首次充值，Claim 邮件已发送' : '首次充值成功（邮件服务未配置）',
+        message: emailSent ? '首次充值成功，通知邮件已发送' : '首次充值成功（邮件服务未配置）',
         userId,
         balance: amount,
-        claimUrl,
       });
     }
 

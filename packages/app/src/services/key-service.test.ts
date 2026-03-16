@@ -9,34 +9,13 @@ function createMockKvService() {
   };
 }
 
-// Mock Database
-function createMockDb() {
-  return {
-    insert: vi.fn(() => ({
-      values: vi.fn(),
-    })),
-    query: {
-      claimTokens: {
-        findFirst: vi.fn(),
-      },
-    },
-    update: vi.fn(() => ({
-      set: vi.fn(() => ({
-        where: vi.fn(),
-      })),
-    })),
-  };
-}
-
 describe('KeyService', () => {
   let kvService: ReturnType<typeof createMockKvService>;
-  let db: ReturnType<typeof createMockDb>;
   let service: KeyService;
 
   beforeEach(() => {
     kvService = createMockKvService();
-    db = createMockDb();
-    service = new KeyService(db as never, kvService as never);
+    service = new KeyService(kvService as never);
   });
 
   describe('generateKey', () => {
@@ -54,70 +33,6 @@ describe('KeyService', () => {
       const r2 = await service.generateKey('user-1');
       expect(r1.rawKey).not.toBe(r2.rawKey);
       expect(r1.keyId).not.toBe(r2.keyId);
-    });
-  });
-
-  describe('createClaimToken', () => {
-    it('创建 15 分钟有效的 claim token', async () => {
-      const before = Date.now();
-      const result = await service.createClaimToken('user-1', 'sk-gw-rawkey');
-      const after = Date.now();
-
-      expect(result.token).toBeTruthy();
-      // 过期时间应在 15 分钟左右
-      const expiresMs = result.expiresAt.getTime();
-      expect(expiresMs).toBeGreaterThanOrEqual(before + 15 * 60 * 1000 - 100);
-      expect(expiresMs).toBeLessThanOrEqual(after + 15 * 60 * 1000 + 100);
-
-      expect(db.insert).toHaveBeenCalled();
-    });
-  });
-
-  describe('claimApiKey', () => {
-    it('成功领取未使用、未过期的 token', async () => {
-      db.query.claimTokens.findFirst.mockResolvedValue({
-        token: 'tk-1',
-        userId: 'user-1',
-        tempRawKey: 'sk-gw-raw',
-        expiresAt: new Date(Date.now() + 60000),
-        used: false,
-      });
-
-      const result = await service.claimApiKey('tk-1');
-      expect(result.success).toBe(true);
-      expect(result.rawKey).toBe('sk-gw-raw');
-      expect(db.update).toHaveBeenCalled();
-    });
-
-    it('拒绝不存在的 token', async () => {
-      db.query.claimTokens.findFirst.mockResolvedValue(null);
-      const result = await service.claimApiKey('nonexistent');
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('不存在');
-    });
-
-    it('拒绝已使用的 token', async () => {
-      db.query.claimTokens.findFirst.mockResolvedValue({
-        token: 'tk-1',
-        used: true,
-        expiresAt: new Date(Date.now() + 60000),
-        tempRawKey: '',
-      });
-      const result = await service.claimApiKey('tk-1');
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('已被使用');
-    });
-
-    it('拒绝过期的 token', async () => {
-      db.query.claimTokens.findFirst.mockResolvedValue({
-        token: 'tk-1',
-        used: false,
-        expiresAt: new Date(Date.now() - 60000),
-        tempRawKey: 'sk-gw-raw',
-      });
-      const result = await service.claimApiKey('tk-1');
-      expect(result.success).toBe(false);
-      expect(result.error).toContain('已过期');
     });
   });
 

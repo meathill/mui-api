@@ -34,18 +34,6 @@ export async function hashApiKey(key: string): Promise<string> {
 }
 
 /**
- * 生成 16 位随机 Claim Token
- */
-export function generateClaimToken(): string {
-  const bytes = new Uint8Array(12);
-  crypto.getRandomValues(bytes);
-  return btoa(String.fromCharCode(...bytes))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
-}
-
-/**
  * 获取 API Key 前缀（用于展示）
  */
 export function getKeyPrefix(key: string): string {
