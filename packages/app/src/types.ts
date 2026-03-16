@@ -22,6 +22,7 @@ export interface KVUserData {
 
 export interface KVUserMetadata {
   maxConcurrency?: number;
+  rateMultiplier?: number; // 用户费率倍率，默认 1
   email: string;
   createdAt: string;
 }
@@ -30,7 +31,9 @@ export interface KVUserMetadata {
 declare module 'hono' {
   interface ContextVariableMap {
     userId: string;
+    apiKeyId: string;
     balance: number;
+    rateMultiplier: number;
     db: import('./db').Database;
   }
 }

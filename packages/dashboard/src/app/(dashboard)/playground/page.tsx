@@ -1,20 +1,16 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { adminApi, type ModelInfo } from '@/lib/api';
+import { adminApi, userApi, type ModelInfo } from '@/lib/api';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogClose,
-  DialogPopup,
-  DialogTitle,
-  DialogDescription,
-  DialogHeader,
-  DialogFooter,
-} from '@/components/ui/dialog';
+
+interface ApiKeyOption {
+  id: string;
+  keyPrefix: string;
+  isActive: boolean;
+  createdAt: string;
+}
 
 export default function PlaygroundPage() {
   const [models, setModels] = useState<ModelInfo[]>([]);
@@ -29,19 +25,24 @@ export default function PlaygroundPage() {
   } | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  // API Key 输入弹窗
-  const [apiKeyDialogOpen, setApiKeyDialogOpen] = useState(false);
-  const [apiKeyInput, setApiKeyInput] = useState('');
-  // 记住用户输入的 Key（session 级别）
-  const [savedApiKey, setSavedApiKey] = useState('');
+  // API Key 选择
+  const [apiKeys, setApiKeys] = useState<ApiKeyOption[]>([]);
+  const [selectedKeyId, setSelectedKeyId] = useState('');
+  // 存储完整 key（创建后一次性获取）
+  const [rawKeyMap, setRawKeyMap] = useState<Record<string, string>>({});
 
   useEffect(() => {
     async function loadData() {
       try {
-        const modelsRes = await adminApi.getModels();
+        const [modelsRes, keysRes] = await Promise.all([adminApi.getModels(), userApi.getKeys()]);
         setModels(modelsRes.models);
         if (modelsRes.models.length > 0) {
           setSelectedModel(modelsRes.models[0].id);
+        }
+        const activeKeys = keysRes.keys.filter((k) => k.isActive);
+        setApiKeys(activeKeys);
+        if (activeKeys.length > 0) {
+          setSelectedKeyId(activeKeys[0].id);
         }
       } catch {
         // 静默处理
@@ -52,19 +53,13 @@ export default function PlaygroundPage() {
 
   function handleSendClick() {
     if (!prompt.trim() || !selectedModel) return;
-    if (savedApiKey) {
-      doSend(savedApiKey);
-    } else {
-      setApiKeyInput('');
-      setApiKeyDialogOpen(true);
-    }
-  }
 
-  function handleApiKeyConfirm() {
-    if (!apiKeyInput.trim()) return;
-    setSavedApiKey(apiKeyInput.trim());
-    setApiKeyDialogOpen(false);
-    doSend(apiKeyInput.trim());
+    const rawKey = rawKeyMap[selectedKeyId];
+    if (!rawKey) {
+      setError('请先选择一个 API Key。如果列表为空，请到「API Key」页面创建。');
+      return;
+    }
+    doSend(rawKey);
   }
 
   async function doSend(apiKey: string) {
@@ -95,10 +90,6 @@ export default function PlaygroundPage() {
         const data = (await res.json()) as Record<string, unknown>;
         const errObj = data.error as Record<string, string> | undefined;
         const errMsg = errObj?.message || `请求失败 (${res.status})`;
-        // Key 无效时清除已保存的 Key
-        if (res.status === 401) {
-          setSavedApiKey('');
-        }
         setError(errMsg);
         setLoading(false);
         return;
@@ -153,39 +144,29 @@ export default function PlaygroundPage() {
     setLoading(false);
   }
 
-  function handleClearKey() {
-    setSavedApiKey('');
+  async function handleCreateKey() {
+    try {
+      const result = await userApi.createKey();
+      const newKey: ApiKeyOption = {
+        id: `new-${Date.now()}`,
+        keyPrefix: result.keyPrefix,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+      };
+      setApiKeys((prev) => [...prev, newKey]);
+      setRawKeyMap((prev) => ({ ...prev, [newKey.id]: result.rawKey }));
+      setSelectedKeyId(newKey.id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : '创建 API Key 失败');
+    }
   }
+
+  // 当选择 key 变化时，如果没有存储 rawKey，需要提示
+  const hasRawKey = !!rawKeyMap[selectedKeyId];
 
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">API Demo</h2>
-
-      {/* API Key 输入弹窗 */}
-      <Dialog open={apiKeyDialogOpen} onOpenChange={setApiKeyDialogOpen}>
-        <DialogBackdrop />
-        <DialogPopup>
-          <DialogHeader>
-            <DialogTitle>输入 API Key</DialogTitle>
-            <DialogDescription>请输入你的 API Key 以调用 API。可在「API Key」页面生成。</DialogDescription>
-          </DialogHeader>
-          <div className="px-6">
-            <Input
-              type="password"
-              value={apiKeyInput}
-              onChange={(e) => setApiKeyInput(e.target.value)}
-              placeholder="sk-gw-xxx"
-              onKeyDown={(e) => e.key === 'Enter' && handleApiKeyConfirm()}
-            />
-          </div>
-          <DialogFooter variant="bare">
-            <DialogClose render={<Button variant="outline">取消</Button>} />
-            <Button onClick={handleApiKeyConfirm} disabled={!apiKeyInput.trim()}>
-              确认
-            </Button>
-          </DialogFooter>
-        </DialogPopup>
-      </Dialog>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 输入区 */}
@@ -206,14 +187,32 @@ export default function PlaygroundPage() {
               </select>
             </div>
 
-            {savedApiKey && (
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span>已设置 API Key: {savedApiKey.substring(0, 12)}...</span>
-                <Button variant="ghost" size="xs" onClick={handleClearKey}>
-                  清除
+            <div>
+              <label className="block text-sm font-medium mb-1">API Key</label>
+              <div className="flex gap-2">
+                <select
+                  value={selectedKeyId}
+                  onChange={(e) => setSelectedKeyId(e.target.value)}
+                  className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors"
+                >
+                  {apiKeys.length === 0 && <option value="">暂无可用 Key</option>}
+                  {apiKeys.map((k) => (
+                    <option key={k.id} value={k.id}>
+                      {k.keyPrefix}
+                    </option>
+                  ))}
+                </select>
+                <Button variant="outline" size="sm" onClick={handleCreateKey}>
+                  新建
                 </Button>
               </div>
-            )}
+              {selectedKeyId && !hasRawKey && (
+                <p className="text-xs text-amber-600 mt-1">
+                  已有 Key 无法用于 Playground（出于安全原因，完整 Key 仅在创建时可见）。请点击「新建」创建一个临时
+                  Key。
+                </p>
+              )}
+            </div>
 
             <div>
               <label className="block text-sm font-medium mb-1">Prompt</label>
@@ -232,7 +231,7 @@ export default function PlaygroundPage() {
                   停止
                 </Button>
               ) : (
-                <Button onClick={handleSendClick} disabled={!prompt.trim()}>
+                <Button onClick={handleSendClick} disabled={!prompt.trim() || !hasRawKey}>
                   发送
                 </Button>
               )}

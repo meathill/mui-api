@@ -34,6 +34,7 @@ openai.post('/chat/completions', async (c) => {
   }
 
   const modelId = body.model as string;
+  const userRateMultiplier = c.get('rateMultiplier');
   const { db, billingService, alertService, gatewayService } = createProxyServices(c.env);
 
   // 查 DB 获取 model 配置
@@ -85,6 +86,7 @@ openai.post('/chat/completions', async (c) => {
                   outputTokens: usage.outputTokens,
                 },
                 modelPricing,
+                userRateMultiplier,
               );
               await alertService.checkAfterBilling(userId, cost);
             }
@@ -117,6 +119,7 @@ openai.post('/chat/completions', async (c) => {
                 outputTokens: usage.completion_tokens ?? 0,
               },
               modelPricing,
+              userRateMultiplier,
             );
             await alertService.checkAfterBilling(userId, cost);
           } catch (error) {

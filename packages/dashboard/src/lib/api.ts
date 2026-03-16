@@ -63,6 +63,12 @@ export const adminApi = {
       body: JSON.stringify({ userId }),
     }),
 
+  setRateMultiplier: (userId: string, rateMultiplier: number) =>
+    request('/api/admin/set-rate-multiplier', {
+      method: 'POST',
+      body: JSON.stringify({ userId, rateMultiplier }),
+    }),
+
   getModels: () => request<{ models: ModelInfo[] }>('/api/admin/models'),
 
   createModel: (model: ModelCreateInput) =>
@@ -143,6 +149,7 @@ export interface UserInfo {
   concurrency: number;
   isSuspended: boolean;
   maxConcurrency: number;
+  rateMultiplier: number;
   createdAt: string | null;
 }
 

@@ -37,7 +37,13 @@ export class BillingService {
    * 计算请求费用
    * 优先使用传入的 modelPricing（来自 DB models 表），否则使用兜底定价
    */
-  calculateCost(model: string, inputTokens: number, outputTokens: number, modelPricing?: ModelPricing | null): number {
+  calculateCost(
+    model: string,
+    inputTokens: number,
+    outputTokens: number,
+    modelPricing?: ModelPricing | null,
+    userRateMultiplier: number = 1,
+  ): number {
     let inputPrice: number;
     let outputPrice: number;
     let markupRate: number;
@@ -59,7 +65,7 @@ export class BillingService {
 
     const inputCost = (inputTokens / 1_000_000) * inputPrice;
     const outputCost = (outputTokens / 1_000_000) * outputPrice;
-    const totalCost = (inputCost + outputCost) * markupRate;
+    const totalCost = (inputCost + outputCost) * markupRate * userRateMultiplier;
 
     return totalCost;
   }
@@ -103,8 +109,15 @@ export class BillingService {
     apiKeyId: string | null,
     usage: UsageInfo,
     modelPricing?: ModelPricing | null,
+    userRateMultiplier: number = 1,
   ): Promise<number> {
-    const cost = this.calculateCost(usage.model, usage.inputTokens, usage.outputTokens, modelPricing);
+    const cost = this.calculateCost(
+      usage.model,
+      usage.inputTokens,
+      usage.outputTokens,
+      modelPricing,
+      userRateMultiplier,
+    );
 
     // KV 扣款
     await this.deductBalance(userId, cost);

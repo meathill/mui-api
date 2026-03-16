@@ -31,13 +31,11 @@ export async function authMiddleware(c: Context<{ Bindings: CloudflareBindings }
   const { userId, keyHash: apiKeyId } = keyResult;
 
   // 获取用户数据，如果 KV 中不存在则自动初始化（余额为 0）
-  let { data } = await kvService.getUser(userId);
+  let { data, metadata } = await kvService.getUser(userId);
   if (!data) {
     data = { balance: 0, concurrency: 0, isSuspended: false };
-    await kvService.setUser(userId, data, {
-      email: '',
-      createdAt: new Date().toISOString(),
-    });
+    metadata = { email: '', createdAt: new Date().toISOString() };
+    await kvService.setUser(userId, data, metadata);
   }
 
   // 检查全局服务暂停状态
@@ -83,6 +81,7 @@ export async function authMiddleware(c: Context<{ Bindings: CloudflareBindings }
   c.set('userId', userId);
   c.set('apiKeyId', apiKeyId);
   c.set('balance', data.balance);
+  c.set('rateMultiplier', metadata?.rateMultiplier ?? 1);
 
   try {
     await next();
