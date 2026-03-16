@@ -1,7 +1,10 @@
+import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { CloudflareBindings } from '../types';
 import { authMiddleware } from '../middleware/auth';
 import { createProxyServices } from '../services/service-factory';
+import { createDb } from '../db';
+import { models } from '../db/schema';
 import { extractNativeUsage, extractNativeStreamUsage } from '../services/usage-extractor';
 
 const providers = new Hono<{ Bindings: CloudflareBindings }>();
@@ -14,7 +17,7 @@ providers.use('/*', authMiddleware);
 
 /**
  * 原生 Provider API 透传代理
- * /providers/:provider/* → CF AI Gateway /{provider}/*
+ * /providers/:provider/* → CF AI Gateway /{provider}/* 或 Bedrock
  */
 providers.all('/:provider{.+}/*', async (c) => {
   const provider = c.req.param('provider');
@@ -26,15 +29,30 @@ providers.all('/:provider{.+}/*', async (c) => {
   const userId = c.get('userId');
   const apiKeyId = c.get('apiKeyId');
   const userRateMultiplier = c.get('rateMultiplier');
-  const { billingService, alertService, gatewayService } = createProxyServices(c.env);
-
-  // 提取 provider 之后的路径
-  const fullPath = c.req.path;
-  const providerPrefix = `/providers/${provider}/`;
-  const path = fullPath.startsWith(providerPrefix) ? fullPath.slice(providerPrefix.length) : fullPath;
+  const { billingService, alertService, gatewayService, bedrockService } = createProxyServices(c.env);
 
   try {
-    const response = await gatewayService.proxyNative(provider, path, c.req.raw);
+    let response: Response;
+
+    if (provider === 'anthropic') {
+      // Anthropic 走 Bedrock InvokeModel
+      const body = await c.req.json<Record<string, unknown>>();
+      const modelId = body.model as string;
+
+      // 查 DB 获取 Bedrock 上游模型 ID
+      const db = createDb(c.env.DB);
+      const modelConfig = await db.select().from(models).where(eq(models.id, modelId)).get();
+      const upstreamModel = modelConfig?.upstreamModelId ?? modelId;
+      const isStream = body.stream === true;
+
+      response = await bedrockService.proxyNative(body, upstreamModel, isStream);
+    } else {
+      // 其他 provider 走 CF AI Gateway
+      const fullPath = c.req.path;
+      const providerPrefix = `/providers/${provider}/`;
+      const path = fullPath.startsWith(providerPrefix) ? fullPath.slice(providerPrefix.length) : fullPath;
+      response = await gatewayService.proxyNative(provider, path, c.req.raw);
+    }
 
     // 判断是否为流式响应
     const contentType = response.headers.get('content-type') ?? '';

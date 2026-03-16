@@ -27,6 +27,7 @@
   "vars": {
     "DEFAULT_MAX_CONCURRENCY": 3,
     "CF_ACCOUNT_ID": "fdc63eeea83ae8f5234357308b9a638b",
-    "CF_GATEWAY_ID": "api-router"
+    "CF_GATEWAY_ID": "api-router",
+    "AWS_BEDROCK_REGION": "us-west-2"
   }
 }

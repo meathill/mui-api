@@ -92,11 +92,11 @@ export const SEED_MODELS: NewModel[] = [
     markupRate: 1.2,
   },
 
-  // Anthropic (Claude)
+  // Anthropic (Claude) — 通过 AWS Bedrock，使用跨区推理 ID
   {
     id: 'claude-opus-4-6',
     provider: 'anthropic',
-    upstreamModelId: 'claude-opus-4-6',
+    upstreamModelId: 'us.anthropic.claude-opus-4-6-v1',
     inputPrice: 5,
     outputPrice: 25,
     markupRate: 1.2,
@@ -104,7 +104,7 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-sonnet-4-6',
     provider: 'anthropic',
-    upstreamModelId: 'claude-sonnet-4-6',
+    upstreamModelId: 'us.anthropic.claude-sonnet-4-6',
     inputPrice: 3,
     outputPrice: 15,
     markupRate: 1.2,
@@ -112,7 +112,7 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-sonnet-4-5',
     provider: 'anthropic',
-    upstreamModelId: 'claude-sonnet-4-5',
+    upstreamModelId: 'us.anthropic.claude-sonnet-4-5-20250929-v1:0',
     inputPrice: 3,
     outputPrice: 15,
     markupRate: 1.2,
@@ -120,7 +120,7 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-haiku-4-5',
     provider: 'anthropic',
-    upstreamModelId: 'claude-haiku-4-5',
+    upstreamModelId: 'us.anthropic.claude-haiku-4-5-20251001-v1:0',
     inputPrice: 1,
     outputPrice: 5,
     markupRate: 1.2,

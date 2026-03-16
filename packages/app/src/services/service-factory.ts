@@ -5,6 +5,7 @@ import { BillingService } from './billing-service';
 import { AlertService } from './alert-service';
 import { EmailService } from './email-service';
 import { GatewayService } from './gateway-service';
+import { BedrockService } from './bedrock-service';
 
 export interface ProxyServices {
   db: Database;
@@ -12,6 +13,7 @@ export interface ProxyServices {
   billingService: BillingService;
   alertService: AlertService;
   gatewayService: GatewayService;
+  bedrockService: BedrockService;
 }
 
 /**
@@ -29,6 +31,7 @@ export function createProxyServices(env: CloudflareBindings): ProxyServices {
   });
   const alertService = new AlertService(kvService, db, emailService, env.ADMIN_EMAIL);
   const gatewayService = new GatewayService(env.CF_ACCOUNT_ID, env.CF_GATEWAY_ID, env.CF_AIG_TOKEN);
+  const bedrockService = new BedrockService(env.AWS_BEDROCK_API_KEY, env.AWS_BEDROCK_REGION ?? 'us-east-1');
 
-  return { db, kvService, billingService, alertService, gatewayService };
+  return { db, kvService, billingService, alertService, gatewayService, bedrockService };
 }
