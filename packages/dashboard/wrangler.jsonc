@@ -21,7 +21,8 @@
     {
       "binding": "DB",
       "database_name": "mui-api",
-      "database_id": "cac559c7-48f0-4720-8d5a-db017864a279"
+      "database_id": "cac559c7-48f0-4720-8d5a-db017864a279",
+      "migrations_dir": "drizzle"
     },
     {
       "binding": "NEXT_TAG_CACHE_D1",
