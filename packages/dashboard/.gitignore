@@ -48,3 +48,7 @@ next-env.d.ts
 .wrangler
 .dev.vars*
 
+# playwright
+/test-results/
+/playwright-report/
+

@@ -1,0 +1,28 @@
+import { cloudflareTest } from '@cloudflare/vitest-pool-workers';
+import { defineConfig } from 'vitest/config';
+
+export default defineConfig({
+  plugins: [
+    cloudflareTest({
+      wrangler: { configPath: './wrangler.jsonc' },
+      miniflare: {
+        bindings: {
+          ADMIN_SECRET: 'test-admin-secret',
+          CF_AIG_TOKEN: 'test-token',
+          RESEND_API_KEY: 'test-resend-key',
+          ADMIN_EMAIL: 'admin@test.com',
+          BASE_URL: 'http://localhost',
+          CF_ACCOUNT_ID: 'test-account',
+          CF_GATEWAY_ID: 'test-gateway',
+          AWS_BEDROCK_API_KEY: 'test-bedrock-key',
+          AWS_BEDROCK_REGION: 'us-west-2',
+        },
+      },
+    }),
+  ],
+  test: {
+    globals: true,
+    include: ['e2e/**/*.test.ts'],
+    setupFiles: ['./e2e/setup.ts'],
+  },
+});

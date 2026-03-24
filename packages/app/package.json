@@ -11,7 +11,8 @@
     "db:migrate": "wrangler d1 migrations apply mui-api --local",
     "db:push": "wrangler d1 migrations apply mui-api --remote",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "vitest run -c vitest.e2e.config.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.1",
@@ -21,11 +22,12 @@
   },
   "devDependencies": {
     "@cloudflare/vite-plugin": "1.13.0",
-    "@cloudflare/workers-types": "^4.20251225.0",
+    "@cloudflare/vitest-pool-workers": "^0.13.3",
+    "@cloudflare/workers-types": "^4.20260317.1",
     "drizzle-kit": "^0.31.8",
     "vite": "^6.4.1",
     "vite-ssr-components": "^0.5.2",
-    "vitest": "^4.0.16",
+    "vitest": "^4.1.1",
     "wrangler": "^4.54.0"
   }
 }

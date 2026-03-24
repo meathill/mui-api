@@ -4,10 +4,7 @@
   "account_id": "fdc63eeea83ae8f5234357308b9a638b",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-03-05",
-  "compatibility_flags": [
-    "nodejs_compat",
-    "global_fetch_strictly_public"
-  ],
+  "compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
   "assets": {
     "binding": "ASSETS",
     "directory": ".open-next/assets"
@@ -45,9 +42,7 @@
   "migrations": [
     {
       "tag": "v1",
-      "new_sqlite_classes": [
-        "DOQueueHandler"
-      ]
+      "new_sqlite_classes": ["DOQueueHandler"]
     }
   ],
   "observability": {
