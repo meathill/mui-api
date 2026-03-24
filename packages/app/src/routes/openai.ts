@@ -5,7 +5,7 @@ import { authMiddleware } from '../middleware/auth';
 import { createDb } from '../db';
 import { models } from '../db/schema';
 import { createProxyServices } from '../services/service-factory';
-import { extractCompatStreamUsage } from '../services/usage-extractor';
+import { extractCompatStreamUsage, extractCompatUsage } from '../services/usage-extractor';
 
 const openai = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -158,9 +158,104 @@ openai.get('/models', async (c) => {
     data: modelList.map((m) => ({
       id: m.id,
       object: 'model',
+      created: 0,
       owned_by: m.provider,
     })),
   });
+});
+
+/**
+ * ALL /v1/*
+ * 通用代理：将所有未匹配的 /v1/* 请求透传到 CF AI Gateway 的 OpenAI 端点
+ * 支持 /v1/completions、/v1/embeddings、/v1/images/*、/v1/audio/* 等
+ */
+openai.all('/*', async (c) => {
+  const userId = c.get('userId');
+  const apiKeyId = c.get('apiKeyId');
+  const userRateMultiplier = c.get('rateMultiplier');
+  const { billingService, alertService, gatewayService } = createProxyServices(c.env);
+
+  // 提取请求路径，转为 OpenAI API 路径
+  const path = c.req.path.replace(/^\/v1\//, '');
+
+  try {
+    const response = await gatewayService.proxyNative('openai', `v1/${path}`, c.req.raw);
+
+    // 判断是否为流式响应
+    const contentType = response.headers.get('content-type') ?? '';
+    const isStream = contentType.includes('text/event-stream');
+
+    if (isStream) {
+      const [clientStream, billingStream] = response.body!.tee();
+
+      c.executionCtx.waitUntil(
+        (async () => {
+          try {
+            const usage = await extractCompatStreamUsage(new Response(billingStream));
+            if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
+              const cost = await billingService.processUsage(
+                userId,
+                apiKeyId,
+                {
+                  model: usage.model,
+                  inputTokens: usage.inputTokens,
+                  outputTokens: usage.outputTokens,
+                },
+                null,
+                userRateMultiplier,
+              );
+              await alertService.checkAfterBilling(userId, cost);
+            }
+          } catch (error) {
+            console.error('通用代理流式计费失败:', error);
+          }
+        })(),
+      );
+
+      return new Response(clientStream, {
+        status: response.status,
+        headers: response.headers,
+      });
+    }
+
+    // 非流式：尝试提取 usage 计费
+    const [clientResponse, billingResponse] = [response.clone(), response];
+
+    c.executionCtx.waitUntil(
+      (async () => {
+        try {
+          const data = (await billingResponse.json()) as Record<string, unknown>;
+          const usage = extractCompatUsage(data);
+          if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
+            const cost = await billingService.processUsage(
+              userId,
+              apiKeyId,
+              {
+                model: usage.model,
+                inputTokens: usage.inputTokens,
+                outputTokens: usage.outputTokens,
+              },
+              null,
+              userRateMultiplier,
+            );
+            await alertService.checkAfterBilling(userId, cost);
+          }
+        } catch {
+          // 非 JSON 响应或无 usage 字段，跳过计费（如 /v1/images 返回图片等）
+        }
+      })(),
+    );
+
+    return clientResponse;
+  } catch (error) {
+    console.error('通用代理调用失败:', error);
+
+    if (error instanceof Error) {
+      return c.json({ error: { message: error.message, type: 'api_error' } }, 502);
+    }
+
+    return c.json({ error: { message: '上游 API 调用失败', type: 'api_error' } }, 502);
+  }
 });
 
 export default openai;
