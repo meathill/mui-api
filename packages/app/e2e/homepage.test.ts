@@ -15,6 +15,8 @@ describe('首页', () => {
 
   it('GET / 返回正确的 Content-Type', async () => {
     const res = await SELF.fetch('http://localhost/');
-    expect(res.headers.get('content-type')).toContain('text/html');
+    const contentType = res.headers.get('content-type');
+    expect(contentType).not.toBeNull();
+    expect(contentType).toContain('text/html');
   });
 });
