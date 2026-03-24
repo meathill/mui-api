@@ -7,6 +7,8 @@ import { signUp } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { SocialLoginButtons } from '@/components/social-login-buttons';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -55,6 +57,15 @@ export default function RegisterPage() {
     <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-6">
       <Card className="w-full max-w-sm p-6">
         <h2 className="text-xl font-bold text-center mb-6">注册 MUI Router</h2>
+
+        <SocialLoginButtons />
+
+        <div className="relative my-4">
+          <Separator />
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
+            或
+          </span>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>

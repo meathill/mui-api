@@ -12,5 +12,9 @@ declare namespace Cloudflare {
     FROM_EMAIL: string;
     NEXT_PUBLIC_SITE_URL: string;
     NEXT_PUBLIC_API_BASE: string;
+    GITHUB_CLIENT_ID: string;
+    GITHUB_CLIENT_SECRET: string;
+    GOOGLE_CLIENT_ID: string;
+    GOOGLE_CLIENT_SECRET: string;
   }
 }
