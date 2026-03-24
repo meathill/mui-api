@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import type { CloudflareBindings } from '../../types';
 import { KVService } from '../../services/kv-service';
 import { EmailService } from '../../services/email-service';
+import { createDb, rechargeLogs } from '../../db';
 import { generateId } from '../../lib/crypto';
 import { RechargeSchema, SetConcurrencySchema, GetUserSchema } from '../../lib/validators';
 import { notFound, internalError, zodErrorToApiError } from '../../lib/errors';
@@ -58,13 +59,14 @@ users.post('/recharge', async (c) => {
     return c.json(zodErrorToApiError(result.error), 400);
   }
 
-  const { email, amount } = result.data;
+  const { email, amount, note } = result.data;
   const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
   const kvService = new KVService(c.env.KV, defaultMaxConcurrency);
   const emailService = new EmailService({
     apiKey: c.env.RESEND_API_KEY,
     fromEmail: c.env.FROM_EMAIL,
   });
+  const db = createDb(c.env.DB);
 
   try {
     let userId = await kvService.findUserByEmail(email);
@@ -72,6 +74,15 @@ users.post('/recharge', async (c) => {
     if (!userId) {
       userId = generateId();
       await kvService.createUser(userId, email, amount);
+
+      await db.insert(rechargeLogs).values({
+        id: generateId(),
+        userId,
+        operatorId: null,
+        amount,
+        balanceAfter: amount,
+        note: note || null,
+      });
 
       const dashboardUrl = `${c.env.BASE_URL}`;
       await emailService.sendWelcomeEmail(email, amount, dashboardUrl);
@@ -86,6 +97,16 @@ users.post('/recharge', async (c) => {
     }
 
     const newBalance = await kvService.addBalance(userId, amount);
+
+    await db.insert(rechargeLogs).values({
+      id: generateId(),
+      userId,
+      operatorId: null,
+      amount,
+      balanceAfter: newBalance,
+      note: note || null,
+    });
+
     await emailService.sendRechargeSuccessEmail(email, amount, newBalance);
 
     return c.json({
@@ -146,10 +167,11 @@ users.get('/user', async (c) => {
   let userId = result.data.userId;
 
   if (!userId && result.data.email) {
-    userId = await kvService.findUserByEmail(result.data.email);
-    if (!userId) {
+    const found = await kvService.findUserByEmail(result.data.email);
+    if (!found) {
       return notFound(c, '用户不存在');
     }
+    userId = found;
   }
 
   const { data, metadata } = await kvService.getUser(userId!);

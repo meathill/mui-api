@@ -39,11 +39,19 @@ export const adminApi = {
     return request<{ user: UserInfo }>(`/api/admin/user?${query}`);
   },
 
-  recharge: (email: string, amount: number) =>
+  recharge: (email: string, amount: number, note?: string) =>
     request<{ success: boolean; userId: string; balance: number }>('/api/admin/recharge', {
       method: 'POST',
-      body: JSON.stringify({ email, amount }),
+      body: JSON.stringify({ email, amount, note }),
     }),
+
+  getRechargeLogs: (params: { userId?: string; page?: number; pageSize?: number }) => {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== '') query.set(key, String(value));
+    }
+    return request<{ logs: RechargeLogItem[]; pagination: Pagination }>(`/api/admin/recharge-logs?${query}`);
+  },
 
   setConcurrency: (userId: string, maxConcurrency: number) =>
     request('/api/admin/set-concurrency', {
@@ -102,6 +110,8 @@ export const adminApi = {
     }),
 
   getSpendingStats: () => request<{ stats: SpendingStats }>('/api/admin/spending-stats'),
+
+  getUsageSummary: () => request<{ summary: UsageSummary }>('/api/admin/usage-summary'),
 };
 
 // ==================== 用户 API ====================
@@ -203,6 +213,23 @@ export interface GlobalConfig {
   monthlySpendingCap: number;
   adminEmail: string;
   isServicePaused: boolean;
+}
+
+export interface RechargeLogItem {
+  id: string;
+  userId: string;
+  operatorId: string | null;
+  amount: number;
+  balanceAfter: number | null;
+  note: string | null;
+  createdAt: string | null;
+}
+
+export interface UsageSummary {
+  cost: number;
+  inputTokens: number;
+  outputTokens: number;
+  requests: number;
 }
 
 export interface SpendingStats {

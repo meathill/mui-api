@@ -53,6 +53,17 @@ export const spendingLimits = sqliteTable('spending_limits', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
+// 8. 充值记录表
+export const rechargeLogs = sqliteTable('recharge_logs', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  operatorId: text('operator_id'),
+  amount: real('amount').notNull(),
+  balanceAfter: real('balance_after'),
+  note: text('note'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
+
 // 导出类型
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -68,3 +79,6 @@ export type NewUsageLog = typeof usageLogs.$inferInsert;
 
 export type SpendingLimit = typeof spendingLimits.$inferSelect;
 export type NewSpendingLimit = typeof spendingLimits.$inferInsert;
+
+export type RechargeLog = typeof rechargeLogs.$inferSelect;
+export type NewRechargeLog = typeof rechargeLogs.$inferInsert;

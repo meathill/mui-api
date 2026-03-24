@@ -9,5 +9,7 @@
     "types": ["vite/client", "@cloudflare/workers-types"],
     "jsx": "react-jsx",
     "jsxImportSource": "hono/jsx"
-  }
+  },
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }

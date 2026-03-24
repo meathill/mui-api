@@ -2,7 +2,7 @@ import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
 import { Hono } from 'hono';
 import type { CloudflareBindings } from '../../types';
 import { createDb } from '../../db';
-import { spendingLimits, usageLogs } from '../../db/schema';
+import { spendingLimits, usageLogs, rechargeLogs } from '../../db/schema';
 import { KVService } from '../../services/kv-service';
 import { SpendingLimitSchema, GlobalConfigSchema, UsageQuerySchema } from '../../lib/validators';
 import { badRequest, zodErrorToApiError } from '../../lib/errors';
@@ -193,6 +193,48 @@ spending.get('/spending-stats', async (c) => {
       dailySpendingCap: globalConfig?.dailySpendingCap ?? 0,
       monthlySpendingCap: globalConfig?.monthlySpendingCap ?? 0,
       isServicePaused: globalConfig?.isServicePaused ?? false,
+    },
+  });
+});
+
+// ==================== 充值记录 ====================
+
+/**
+ * GET /admin/recharge-logs
+ * 查询充值记录
+ */
+spending.get('/recharge-logs', async (c) => {
+  const userId = c.req.query('userId');
+  const page = Math.max(1, Number(c.req.query('page')) || 1);
+  const pageSize = Math.min(100, Math.max(1, Number(c.req.query('pageSize')) || 20));
+
+  const db = createDb(c.env.DB);
+
+  const conditions = [];
+  if (userId) conditions.push(eq(rechargeLogs.userId, userId));
+
+  const where = conditions.length > 0 ? and(...conditions) : undefined;
+
+  const countResult = await db.select({ count: sql<number>`count(*)` }).from(rechargeLogs).where(where).get();
+  const total = countResult?.count ?? 0;
+
+  const offset = (page - 1) * pageSize;
+  const logs = await db
+    .select()
+    .from(rechargeLogs)
+    .where(where)
+    .orderBy(desc(rechargeLogs.createdAt))
+    .limit(pageSize)
+    .offset(offset);
+
+  return c.json({
+    success: true,
+    logs,
+    pagination: {
+      page,
+      pageSize,
+      total,
+      totalPages: Math.ceil(total / pageSize),
     },
   });
 });

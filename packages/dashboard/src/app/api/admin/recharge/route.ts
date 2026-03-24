@@ -5,6 +5,7 @@ import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
 import { getKV, createUser, addBalance, getUserData } from '@/lib/kv';
 import { user as userTable } from '@/db/schema';
+import { rechargeLogs } from '@/db/app-schema';
 import { createEmailService } from '@/lib/email';
 
 /**
@@ -19,7 +20,11 @@ export async function POST(request: Request) {
     const result = await requireAdmin();
     if ('error' in result) return result.error;
 
-    const { email, amount } = (await request.json()) as { email: string; amount: number };
+    const { email, amount, note } = (await request.json()) as {
+      email: string;
+      amount: number;
+      note?: string;
+    };
     if (!email || !amount || amount <= 0) {
       return NextResponse.json({ error: 'email 和 amount（正数）为必填' }, { status: 400 });
     }
@@ -46,6 +51,15 @@ export async function POST(request: Request) {
       // 用户已注册但 KV 中没有数据（首次充值），初始化 KV
       await createUser(kv, userId, email, amount);
 
+      await db.insert(rechargeLogs).values({
+        id: crypto.randomUUID(),
+        userId,
+        operatorId: result.user.id,
+        amount,
+        balanceAfter: amount,
+        note: note || null,
+      });
+
       const emailSent = await emailService?.sendRechargeSuccessEmail(email, amount, amount);
 
       return NextResponse.json({
@@ -59,6 +73,16 @@ export async function POST(request: Request) {
 
     // 老用户充值
     const newBalance = await addBalance(kv, userId, amount);
+
+    await db.insert(rechargeLogs).values({
+      id: crypto.randomUUID(),
+      userId,
+      operatorId: result.user.id,
+      amount,
+      balanceAfter: newBalance,
+      note: note || null,
+    });
+
     const emailSent = await emailService?.sendRechargeSuccessEmail(email, amount, newBalance);
 
     return NextResponse.json({

@@ -1,7 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { api, type UsageLog, type UsageQueryParams, type Pagination } from '@/lib/api';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  api,
+  type UserInfo,
+  type UsageLog,
+  type UsageQueryParams,
+  type UsageSummary,
+  type Pagination,
+} from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -17,6 +24,16 @@ export default function UsagePage() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  // 用户映射：userId -> email
+  const [users, setUsers] = useState<UserInfo[]>([]);
+  const userMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const u of users) {
+      map.set(u.userId, u.email);
+    }
+    return map;
+  }, [users]);
 
   const [filters, setFilters] = useState<UsageQueryParams>({
     page: 1,
@@ -44,6 +61,13 @@ export default function UsagePage() {
     loadUsage(filters);
   }, [filters]);
 
+  useEffect(() => {
+    api
+      .getUsers()
+      .then((data) => setUsers(data.users))
+      .catch(() => {});
+  }, []);
+
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     setFilters({
@@ -68,27 +92,36 @@ export default function UsagePage() {
     setFilters((prev) => ({ ...prev, page }));
   }
 
-  const totalCost = logs.reduce((sum, log) => sum + (log.cost ?? 0), 0);
-  const totalInput = logs.reduce((sum, log) => sum + (log.inputTokens ?? 0), 0);
-  const totalOutput = logs.reduce((sum, log) => sum + (log.outputTokens ?? 0), 0);
+  const [summary, setSummary] = useState<UsageSummary>({ cost: 0, inputTokens: 0, outputTokens: 0, requests: 0 });
+
+  useEffect(() => {
+    api
+      .getUsageSummary()
+      .then((data) => setSummary(data.summary))
+      .catch(() => {});
+  }, []);
 
   return (
     <div>
       <h2 className="text-xl font-bold mb-4">用量统计</h2>
 
-      {/* 汇总卡片 */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      {/* 今日汇总 */}
+      <div className="grid grid-cols-4 gap-4 mb-6">
         <Card className="p-4">
-          <p className="text-xs text-muted-foreground">本页总费用</p>
-          <p className="text-2xl font-bold font-mono">${totalCost.toFixed(4)}</p>
+          <p className="text-xs text-muted-foreground">今日费用</p>
+          <p className="text-2xl font-bold font-mono">${summary.cost.toFixed(4)}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-xs text-muted-foreground">输入 Tokens</p>
-          <p className="text-2xl font-bold font-mono">{totalInput.toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground">今日输入</p>
+          <p className="text-2xl font-bold font-mono">{summary.inputTokens.toLocaleString()}</p>
         </Card>
         <Card className="p-4">
-          <p className="text-xs text-muted-foreground">输出 Tokens</p>
-          <p className="text-2xl font-bold font-mono">{totalOutput.toLocaleString()}</p>
+          <p className="text-xs text-muted-foreground">今日输出</p>
+          <p className="text-2xl font-bold font-mono">{summary.outputTokens.toLocaleString()}</p>
+        </Card>
+        <Card className="p-4">
+          <p className="text-xs text-muted-foreground">今日请求</p>
+          <p className="text-2xl font-bold font-mono">{summary.requests.toLocaleString()}</p>
         </Card>
       </div>
 
@@ -142,8 +175,8 @@ export default function UsagePage() {
                     <TableCell className="text-muted-foreground text-xs">
                       {log.createdAt ? new Date(log.createdAt).toLocaleString('zh-CN') : '-'}
                     </TableCell>
-                    <TableCell className="font-mono text-xs">
-                      {log.userId ? `${log.userId.slice(0, 8)}...` : '-'}
+                    <TableCell className="text-xs" title={log.userId || ''}>
+                      {log.userId ? userMap.get(log.userId) || `${log.userId.slice(0, 8)}...` : '-'}
                     </TableCell>
                     <TableCell>{log.modelId || '-'}</TableCell>
                     <TableCell className="text-right font-mono">{log.inputTokens?.toLocaleString() ?? '-'}</TableCell>

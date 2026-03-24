@@ -21,7 +21,7 @@ const mockDb = {
 describe('BillingService', () => {
   describe('calculateCost', () => {
     it('should calculate cost for gpt-4o model', async () => {
-      const service = new BillingService(mockDb as never);
+      const service = new BillingService(null as never, mockDb as never);
       const cost = await service.calculateCost('gpt-4o', 1000, 500);
 
       // gpt-4o: input $2.5/1M, output $10/1M, markup 1.2
@@ -32,7 +32,7 @@ describe('BillingService', () => {
     });
 
     it('should calculate cost for gpt-4o-mini model', async () => {
-      const service = new BillingService(mockDb as never);
+      const service = new BillingService(null as never, mockDb as never);
       const cost = await service.calculateCost('gpt-4o-mini', 10000, 5000);
 
       // gpt-4o-mini: input $0.15/1M, output $0.6/1M, markup 1.2
@@ -43,7 +43,7 @@ describe('BillingService', () => {
     });
 
     it('should use default pricing for unknown models', async () => {
-      const service = new BillingService(mockDb as never);
+      const service = new BillingService(null as never, mockDb as never);
       const cost = await service.calculateCost('unknown-model', 1000, 500);
 
       // Falls back to gpt-4o-mini pricing

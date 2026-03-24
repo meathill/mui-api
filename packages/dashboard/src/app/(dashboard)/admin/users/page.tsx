@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { ArrowDownIcon, ArrowUpIcon, ArrowUpDownIcon, SearchIcon } from 'lucide-react';
-import { api, type UserInfo } from '@/lib/api';
+import { api, type UserInfo, type RechargeLogItem } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -72,7 +72,12 @@ export default function UsersPage() {
   // 充值
   const [rechargeEmail, setRechargeEmail] = useState('');
   const [rechargeAmount, setRechargeAmount] = useState('');
+  const [rechargeNote, setRechargeNote] = useState('');
   const [rechargeMsg, setRechargeMsg] = useState('');
+
+  // 充值记录
+  const [rechargeLogs, setRechargeLogs] = useState<RechargeLogItem[]>([]);
+  const [rechargeLogsLoading, setRechargeLogsLoading] = useState(false);
 
   // 排序
   const [sortField, setSortField] = useState<SortField | null>('createdAt');
@@ -93,6 +98,15 @@ export default function UsersPage() {
   // 错误弹窗
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // userId -> email 映射
+  const userMap = useMemo(() => {
+    const map = new Map<string, string>();
+    for (const u of users) {
+      map.set(u.userId, u.email);
+    }
+    return map;
+  }, [users]);
 
   // 数据处理流水线：搜索 → 排序 → 分页
   const filteredUsers = useMemo(() => {
@@ -144,8 +158,21 @@ export default function UsersPage() {
     }
   }
 
+  async function loadRechargeLogs() {
+    try {
+      setRechargeLogsLoading(true);
+      const data = await api.getRechargeLogs({ pageSize: 10 });
+      setRechargeLogs(data.logs);
+    } catch {
+      // 静默处理
+    } finally {
+      setRechargeLogsLoading(false);
+    }
+  }
+
   useEffect(() => {
     loadUsers();
+    loadRechargeLogs();
   }, []);
 
   function handleSort(field: SortField) {
@@ -165,11 +192,13 @@ export default function UsersPage() {
     e.preventDefault();
     setRechargeMsg('');
     try {
-      const result = await api.recharge(rechargeEmail, Number(rechargeAmount));
+      const result = await api.recharge(rechargeEmail, Number(rechargeAmount), rechargeNote || undefined);
       setRechargeMsg(`充值成功，余额: $${result.balance.toFixed(2)}`);
       setRechargeEmail('');
       setRechargeAmount('');
+      setRechargeNote('');
       loadUsers();
+      loadRechargeLogs();
     } catch (err) {
       setRechargeMsg(err instanceof Error ? err.message : '充值失败');
     }
@@ -306,9 +335,62 @@ export default function UsersPage() {
               required
             />
           </div>
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1">备注</label>
+            <Input
+              type="text"
+              value={rechargeNote}
+              onChange={(e) => setRechargeNote(e.target.value)}
+              placeholder="可选"
+              className="w-40"
+            />
+          </div>
           <Button type="submit">充值</Button>
           {rechargeMsg && <span className="text-sm text-muted-foreground">{rechargeMsg}</span>}
         </form>
+      </Card>
+
+      {/* 充值记录 */}
+      <Card className="p-4 mb-6">
+        <h3 className="font-medium mb-3">最近充值记录</h3>
+        {rechargeLogsLoading ? (
+          <p className="text-sm text-muted-foreground">加载中...</p>
+        ) : rechargeLogs.length === 0 ? (
+          <p className="text-sm text-muted-foreground">暂无充值记录</p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>时间</TableHead>
+                <TableHead>用户</TableHead>
+                <TableHead>操作者</TableHead>
+                <TableHead className="text-right">金额</TableHead>
+                <TableHead className="text-right">充值后余额</TableHead>
+                <TableHead>备注</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rechargeLogs.map((log) => (
+                <TableRow key={log.id}>
+                  <TableCell className="text-muted-foreground">
+                    {log.createdAt ? new Date(log.createdAt).toLocaleString('zh-CN') : '-'}
+                  </TableCell>
+                  <TableCell className="text-xs" title={log.userId}>
+                    {userMap.get(log.userId) || log.userId}
+                  </TableCell>
+                  <TableCell className="text-xs" title={log.operatorId || ''}>
+                    {log.operatorId ? userMap.get(log.operatorId) || log.operatorId : '-'}
+                  </TableCell>
+                  <TableCell className="text-right font-mono">${log.amount.toFixed(2)}</TableCell>
+                  <TableCell className="text-right font-mono">
+                    {log.balanceAfter != null ? `$${log.balanceAfter.toFixed(2)}` : '-'}
+                  </TableCell>
+                  <TableCell className="text-muted-foreground">{log.note || '-'}</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </Card>
 
       {/* 搜索栏 */}

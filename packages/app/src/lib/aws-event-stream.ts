@@ -99,7 +99,7 @@ function decodeHeaders(data: Uint8Array): Record<string, string> {
   return headers;
 }
 
-function concat(a: Uint8Array, b: Uint8Array): Uint8Array {
+function concat(a: Uint8Array<ArrayBufferLike>, b: Uint8Array<ArrayBufferLike>): Uint8Array<ArrayBuffer> {
   const result = new Uint8Array(a.byteLength + b.byteLength);
   result.set(a, 0);
   result.set(b, a.byteLength);

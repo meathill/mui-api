@@ -17,14 +17,10 @@ export interface ApiError {
  * 创建标准化错误响应
  */
 export function createErrorResponse(message: string, type: string, code?: string, details?: unknown): ApiError {
-  return {
-    error: {
-      message,
-      type,
-      ...(code && { code }),
-      ...(details && { details }),
-    },
-  };
+  const error: ApiError['error'] = { message, type };
+  if (code) error.code = code;
+  if (details) error.details = details;
+  return { error };
 }
 
 /**

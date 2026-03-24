@@ -182,9 +182,10 @@ export class KVService {
    */
   async validateApiKey(rawKey: string): Promise<{ userId: string; keyHash: string } | null> {
     const keyHash = await hashApiKey(rawKey);
-    const result = await this.kv.getWithMetadata<string, ApiKeyMetadata>(`${APIKEY_PREFIX}${keyHash}`, 'text');
+    const result = await this.kv.getWithMetadata(`${APIKEY_PREFIX}${keyHash}`, 'text');
+    const metadata = result.metadata as ApiKeyMetadata | null;
 
-    if (!result.value || !result.metadata?.isActive) {
+    if (!result.value || !metadata?.isActive) {
       return null;
     }
 
@@ -269,12 +270,13 @@ export class KVService {
    */
   async disableApiKey(rawKey: string): Promise<void> {
     const keyHash = await hashApiKey(rawKey);
-    const result = await this.kv.getWithMetadata<string, ApiKeyMetadata>(`${APIKEY_PREFIX}${keyHash}`, 'text');
+    const result = await this.kv.getWithMetadata(`${APIKEY_PREFIX}${keyHash}`, 'text');
+    const metadata = result.metadata as ApiKeyMetadata | null;
 
-    if (result.value && result.metadata) {
-      result.metadata.isActive = false;
+    if (result.value && metadata) {
+      metadata.isActive = false;
       await this.kv.put(`${APIKEY_PREFIX}${keyHash}`, result.value, {
-        metadata: result.metadata,
+        metadata,
       });
     }
   }

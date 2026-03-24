@@ -36,6 +36,16 @@ export const usageLogs = sqliteTable('usage_logs', {
   createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
+export const rechargeLogs = sqliteTable('recharge_logs', {
+  id: text('id').primaryKey(),
+  userId: text('user_id').notNull(),
+  operatorId: text('operator_id'),
+  amount: real('amount').notNull(),
+  balanceAfter: real('balance_after'),
+  note: text('note'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
+
 export const spendingLimits = sqliteTable('spending_limits', {
   userId: text('user_id')
     .primaryKey()

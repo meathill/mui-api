@@ -5,6 +5,7 @@ import { z } from 'zod';
 export const RechargeSchema = z.object({
   email: z.string().email('邮箱格式无效'),
   amount: z.number().positive('金额必须大于 0'),
+  note: z.string().optional(),
 });
 export type RechargeInput = z.infer<typeof RechargeSchema>;
 
