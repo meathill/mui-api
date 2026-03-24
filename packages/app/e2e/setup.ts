@@ -27,6 +27,17 @@ await db.batch([
     'CREATE TABLE IF NOT EXISTS spending_limits (user_id TEXT PRIMARY KEY NOT NULL, monthly_limit REAL, alert_threshold REAL DEFAULT 0.8, is_suspended INTEGER DEFAULT false, last_alert_at INTEGER, updated_at INTEGER DEFAULT (unixepoch()), FOREIGN KEY (user_id) REFERENCES users(id))',
   ),
 
+  db.prepare(
+    'CREATE TABLE IF NOT EXISTS recharge_logs (id TEXT PRIMARY KEY NOT NULL, user_id TEXT NOT NULL, operator_id TEXT, amount REAL NOT NULL, balance_after REAL, note TEXT, created_at INTEGER DEFAULT (unixepoch()))',
+  ),
+  db.prepare(
+    'CREATE TABLE IF NOT EXISTS usage_stats (id TEXT PRIMARY KEY NOT NULL, granularity TEXT NOT NULL, period_start INTEGER NOT NULL, period_end INTEGER NOT NULL, user_id TEXT, model_id TEXT, total_cost REAL DEFAULT 0, total_input_tokens INTEGER DEFAULT 0, total_output_tokens INTEGER DEFAULT 0, request_count INTEGER DEFAULT 0, created_at INTEGER DEFAULT (unixepoch()), updated_at INTEGER DEFAULT (unixepoch()))',
+  ),
+  db.prepare(
+    'CREATE UNIQUE INDEX IF NOT EXISTS idx_usage_stats_unique ON usage_stats (granularity, period_start, user_id, model_id)',
+  ),
+  db.prepare('CREATE INDEX IF NOT EXISTS idx_usage_stats_query ON usage_stats (granularity, period_start, period_end)'),
+
   // 种子数据：测试用户
   db.prepare("INSERT OR IGNORE INTO users (id, email) VALUES ('test-user-1', 'test@example.com')"),
   db.prepare("INSERT OR IGNORE INTO wallets (user_id, balance) VALUES ('test-user-1', 10.0)"),

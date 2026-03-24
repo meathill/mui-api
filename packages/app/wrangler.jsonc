@@ -25,6 +25,9 @@
   "placement": {
     "mode": "smart"
   },
+  "triggers": {
+    "crons": ["5 * * * *", "15 0 * * *", "30 0 * * 1", "45 0 1 * *"]
+  },
   "vars": {
     "DEFAULT_MAX_CONCURRENCY": 3,
     "CF_ACCOUNT_ID": "fdc63eeea83ae8f5234357308b9a638b",

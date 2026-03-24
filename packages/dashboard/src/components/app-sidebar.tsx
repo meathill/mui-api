@@ -2,7 +2,19 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { House, Key, ChartBar, Terminal, UsersThree, Cube, ChartLineUp, GearSix, SignOut } from '@phosphor-icons/react';
+import {
+  House,
+  Key,
+  ChartBar,
+  Terminal,
+  UsersThree,
+  Cube,
+  ChartLineUp,
+  GearSix,
+  SignOut,
+  Receipt,
+  ChartPie,
+} from '@phosphor-icons/react';
 import { cn } from '@/lib/utils';
 import { signOut } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
@@ -23,8 +35,10 @@ const USER_NAV: NavItem[] = [
 
 const ADMIN_NAV: NavItem[] = [
   { href: '/admin/users', label: '用户管理', icon: UsersThree },
+  { href: '/admin/recharge', label: '充值记录', icon: Receipt },
   { href: '/admin/models', label: '模型管理', icon: Cube },
   { href: '/admin/usage', label: '用量统计', icon: ChartLineUp },
+  { href: '/admin/statistics', label: '统计分析', icon: ChartPie },
   { href: '/admin/settings', label: '系统设置', icon: GearSix },
 ];
 

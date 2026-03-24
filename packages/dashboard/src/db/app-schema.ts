@@ -46,6 +46,21 @@ export const rechargeLogs = sqliteTable('recharge_logs', {
   createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
+export const usageStats = sqliteTable('usage_stats', {
+  id: text('id').primaryKey(),
+  granularity: text('granularity').notNull(), // 'hourly' | 'daily' | 'weekly' | 'monthly'
+  periodStart: integer('period_start', { mode: 'timestamp' }).notNull(),
+  periodEnd: integer('period_end', { mode: 'timestamp' }).notNull(),
+  userId: text('user_id'), // NULL = 全局聚合
+  modelId: text('model_id'), // NULL = 所有模型聚合
+  totalCost: real('total_cost').default(0),
+  totalInputTokens: integer('total_input_tokens').default(0),
+  totalOutputTokens: integer('total_output_tokens').default(0),
+  requestCount: integer('request_count').default(0),
+  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
+});
+
 export const spendingLimits = sqliteTable('spending_limits', {
   userId: text('user_id')
     .primaryKey()

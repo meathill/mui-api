@@ -45,7 +45,13 @@ export const adminApi = {
       body: JSON.stringify({ email, amount, note }),
     }),
 
-  getRechargeLogs: (params: { userId?: string; page?: number; pageSize?: number }) => {
+  getRechargeLogs: (params: {
+    userId?: string;
+    startDate?: string;
+    endDate?: string;
+    page?: number;
+    pageSize?: number;
+  }) => {
     const query = new URLSearchParams();
     for (const [key, value] of Object.entries(params)) {
       if (value !== undefined && value !== '') query.set(key, String(value));
@@ -112,6 +118,14 @@ export const adminApi = {
   getSpendingStats: () => request<{ stats: SpendingStats }>('/api/admin/spending-stats'),
 
   getUsageSummary: () => request<{ summary: UsageSummary }>('/api/admin/usage-summary'),
+
+  getStatistics: (params: StatisticsParams) => {
+    const query = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+      if (value !== undefined && value !== '') query.set(key, String(value));
+    }
+    return request<StatisticsResponse>(`/api/admin/statistics?${query}`);
+  },
 };
 
 // ==================== 用户 API ====================
@@ -238,4 +252,40 @@ export interface SpendingStats {
   dailySpendingCap: number;
   monthlySpendingCap: number;
   isServicePaused: boolean;
+}
+
+export interface StatisticsParams {
+  startDate: string;
+  endDate: string;
+  granularity?: 'hourly' | 'daily' | 'weekly' | 'monthly';
+  userId?: string;
+}
+
+export interface StatisticsResponse {
+  success: boolean;
+  overview: {
+    totalCost: number;
+    totalInputTokens: number;
+    totalOutputTokens: number;
+    requestCount: number;
+  };
+  byModel: Array<{
+    modelId: string | null;
+    totalCost: number;
+    totalInputTokens: number;
+    totalOutputTokens: number;
+    requestCount: number;
+  }>;
+  byUser: Array<{
+    userId: string | null;
+    email: string | null;
+    totalCost: number;
+    requestCount: number;
+  }>;
+  timeSeries: Array<{
+    periodStart: string | number | null;
+    totalCost: number;
+    requestCount: number;
+  }>;
+  source: 'aggregated' | 'realtime';
 }

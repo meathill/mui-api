@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { eq, and, sql, desc } from 'drizzle-orm';
+import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
 import { rechargeLogs } from '@/db/app-schema';
@@ -14,11 +14,21 @@ export async function GET(request: NextRequest) {
 
     const searchParams = new URL(request.url).searchParams;
     const userId = searchParams.get('userId');
+    const startDate = searchParams.get('startDate');
+    const endDate = searchParams.get('endDate');
     const page = Math.max(1, Number(searchParams.get('page') || '1'));
     const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize') || '20')));
 
     const conditions = [];
     if (userId) conditions.push(eq(rechargeLogs.userId, userId));
+    if (startDate) {
+      const start = new Date(startDate);
+      conditions.push(gte(rechargeLogs.createdAt, start));
+    }
+    if (endDate) {
+      const end = new Date(endDate + 'T23:59:59');
+      conditions.push(lte(rechargeLogs.createdAt, end));
+    }
 
     const where = conditions.length > 0 ? and(...conditions) : undefined;
     const db = await getDb();

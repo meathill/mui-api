@@ -1,6 +1,6 @@
 import { getTableName } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
-import { models, usageLogs, users, wallets } from './schema';
+import { models, usageLogs, usageStats, rechargeLogs, spendingLimits, users, wallets } from './schema';
 
 describe('Database Schema', () => {
   describe('users table', () => {
@@ -61,6 +61,59 @@ describe('Database Schema', () => {
       expect(columnNames).toContain('inputTokens');
       expect(columnNames).toContain('outputTokens');
       expect(columnNames).toContain('cost');
+    });
+  });
+
+  describe('usageStats table', () => {
+    it('should have correct table name', () => {
+      expect(getTableName(usageStats)).toBe('usage_stats');
+    });
+
+    it('should have required columns', () => {
+      const columnNames = Object.keys(usageStats);
+      expect(columnNames).toContain('id');
+      expect(columnNames).toContain('granularity');
+      expect(columnNames).toContain('periodStart');
+      expect(columnNames).toContain('periodEnd');
+      expect(columnNames).toContain('userId');
+      expect(columnNames).toContain('modelId');
+      expect(columnNames).toContain('totalCost');
+      expect(columnNames).toContain('totalInputTokens');
+      expect(columnNames).toContain('totalOutputTokens');
+      expect(columnNames).toContain('requestCount');
+      expect(columnNames).toContain('createdAt');
+      expect(columnNames).toContain('updatedAt');
+    });
+  });
+
+  describe('rechargeLogs table', () => {
+    it('should have correct table name', () => {
+      expect(getTableName(rechargeLogs)).toBe('recharge_logs');
+    });
+
+    it('should have required columns', () => {
+      const columnNames = Object.keys(rechargeLogs);
+      expect(columnNames).toContain('id');
+      expect(columnNames).toContain('userId');
+      expect(columnNames).toContain('operatorId');
+      expect(columnNames).toContain('amount');
+      expect(columnNames).toContain('balanceAfter');
+      expect(columnNames).toContain('note');
+      expect(columnNames).toContain('createdAt');
+    });
+  });
+
+  describe('spendingLimits table', () => {
+    it('should have correct table name', () => {
+      expect(getTableName(spendingLimits)).toBe('spending_limits');
+    });
+
+    it('should have required columns', () => {
+      const columnNames = Object.keys(spendingLimits);
+      expect(columnNames).toContain('userId');
+      expect(columnNames).toContain('monthlyLimit');
+      expect(columnNames).toContain('alertThreshold');
+      expect(columnNames).toContain('isSuspended');
     });
   });
 });
