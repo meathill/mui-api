@@ -12,4 +12,11 @@ describe('首页', () => {
     const text = await res.text();
     expect(text).toContain('Uni-Gateway');
   });
+
+  it('GET / 返回正确的 Content-Type', async () => {
+    const res = await SELF.fetch('http://localhost/');
+    const contentType = res.headers.get('content-type');
+    expect(contentType).not.toBeNull();
+    expect(contentType).toContain('text/html');
+  });
 });

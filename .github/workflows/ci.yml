@@ -17,7 +17,7 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm biome format --check
+      - run: pnpm biome check --formatter-enabled=true --linter-enabled=false --assist-enabled=false
 
   unit-test:
     runs-on: ubuntu-latest
