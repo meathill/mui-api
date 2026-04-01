@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { defaultMessages } from './test-messages';
 
 test.describe('SEO', () => {
   test.describe('首页 meta 标签', () => {
@@ -8,12 +9,12 @@ test.describe('SEO', () => {
 
     test('包含正确的 title', async ({ page }) => {
       await expect(page).toHaveTitle(/MUI Router/);
-      await expect(page).toHaveTitle(/一个 Key/);
+      await expect(page).toHaveTitle(new RegExp(defaultMessages.metadata.ogTitle));
     });
 
     test('包含 description', async ({ page }) => {
       const description = page.locator('meta[name="description"]');
-      await expect(description).toHaveAttribute('content', /统一 AI API 网关/);
+      await expect(description).toHaveAttribute('content', defaultMessages.metadata.description);
     });
 
     test('包含 keywords', async ({ page }) => {
@@ -83,13 +84,13 @@ test.describe('SEO', () => {
   test.describe('子页面 meta', () => {
     test('登录页有独立 title', async ({ page }) => {
       await page.goto('/login');
-      await expect(page).toHaveTitle(/登录/);
+      await expect(page).toHaveTitle(new RegExp(defaultMessages.header.login));
       await expect(page).toHaveTitle(/MUI Router/);
     });
 
     test('注册页有独立 title', async ({ page }) => {
       await page.goto('/register');
-      await expect(page).toHaveTitle(/注册/);
+      await expect(page).toHaveTitle(new RegExp(defaultMessages.header.register));
       await expect(page).toHaveTitle(/MUI Router/);
     });
   });
