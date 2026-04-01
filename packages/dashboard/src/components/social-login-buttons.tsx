@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import { GithubIcon } from 'lucide-react';
 import { signIn } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
@@ -19,6 +20,7 @@ function GoogleIcon({ className }: { className?: string }) {
 type Provider = 'github' | 'google';
 
 export function SocialLoginButtons() {
+  const t = useTranslations('login');
   const [loadingProvider, setLoadingProvider] = useState<Provider | null>(null);
 
   async function handleSocialLogin(provider: Provider) {
@@ -38,7 +40,7 @@ export function SocialLoginButtons() {
         onClick={() => handleSocialLogin('github')}
       >
         <GithubIcon className="size-4" />
-        {loadingProvider === 'github' ? '跳转中...' : '使用 GitHub 登录'}
+        {loadingProvider === 'github' ? t('redirecting') : t('githubLogin')}
       </Button>
       <Button
         variant="outline"
@@ -47,7 +49,7 @@ export function SocialLoginButtons() {
         onClick={() => handleSocialLogin('google')}
       >
         <GoogleIcon className="size-4" />
-        {loadingProvider === 'google' ? '跳转中...' : '使用 Google 登录'}
+        {loadingProvider === 'google' ? t('redirecting') : t('googleLogin')}
       </Button>
     </div>
   );

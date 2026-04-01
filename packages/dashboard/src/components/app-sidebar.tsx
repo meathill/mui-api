@@ -1,7 +1,6 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import {
   House,
   Key,
@@ -19,27 +18,29 @@ import { cn } from '@/lib/utils';
 import { signOut } from '@/lib/auth-client';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { LanguageSwitcher } from '@/components/language-switcher';
+import { Link, usePathname } from '@/i18n/navigation';
 
 interface NavItem {
   href: string;
-  label: string;
+  labelKey: string;
   icon: React.ComponentType<{ size?: number; weight?: 'regular' | 'fill' }>;
 }
 
 const USER_NAV: NavItem[] = [
-  { href: '/app', label: '数据概览', icon: House },
-  { href: '/keys', label: 'API Key', icon: Key },
-  { href: '/usage', label: '消费明细', icon: ChartBar },
-  { href: '/playground', label: 'API Demo', icon: Terminal },
+  { href: '/app', labelKey: 'overview', icon: House },
+  { href: '/keys', labelKey: 'apiKey', icon: Key },
+  { href: '/usage', labelKey: 'usage', icon: ChartBar },
+  { href: '/playground', labelKey: 'playground', icon: Terminal },
 ];
 
 const ADMIN_NAV: NavItem[] = [
-  { href: '/admin/users', label: '用户管理', icon: UsersThree },
-  { href: '/admin/recharge', label: '充值记录', icon: Receipt },
-  { href: '/admin/models', label: '模型管理', icon: Cube },
-  { href: '/admin/usage', label: '用量统计', icon: ChartLineUp },
-  { href: '/admin/statistics', label: '统计分析', icon: ChartPie },
-  { href: '/admin/settings', label: '系统设置', icon: GearSix },
+  { href: '/admin/users', labelKey: 'userManagement', icon: UsersThree },
+  { href: '/admin/recharge', labelKey: 'rechargeLogs', icon: Receipt },
+  { href: '/admin/models', labelKey: 'modelManagement', icon: Cube },
+  { href: '/admin/usage', labelKey: 'usageStats', icon: ChartLineUp },
+  { href: '/admin/statistics', labelKey: 'statistics', icon: ChartPie },
+  { href: '/admin/settings', labelKey: 'settings', icon: GearSix },
 ];
 
 interface AppSidebarProps {
@@ -53,6 +54,7 @@ interface AppSidebarProps {
 
 export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
   const pathname = usePathname();
+  const t = useTranslations('sidebar');
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + '/');
@@ -67,7 +69,7 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
     <aside className="w-56 border-r border-border bg-card flex flex-col">
       <div className="p-4 border-b border-border">
         <h1 className="text-lg font-bold text-foreground">MUI Router</h1>
-        <p className="text-xs text-muted-foreground">控制台</p>
+        <p className="text-xs text-muted-foreground">{t('console')}</p>
       </div>
 
       <nav className="flex-1 p-2 overflow-auto">
@@ -86,7 +88,7 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
               )}
             >
               <IconComponent size={18} weight={active ? 'fill' : 'regular'} />
-              {item.label}
+              {t(item.labelKey)}
             </Link>
           );
         })}
@@ -94,7 +96,7 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
         {isAdmin && (
           <>
             <Separator className="my-2" />
-            <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">管理</p>
+            <p className="px-3 py-1 text-xs font-medium text-muted-foreground uppercase tracking-wider">{t('admin')}</p>
             {ADMIN_NAV.map((item) => {
               const active = isActive(item.href);
               const IconComponent = item.icon;
@@ -110,7 +112,7 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
                   )}
                 >
                   <IconComponent size={18} weight={active ? 'fill' : 'regular'} />
-                  {item.label}
+                  {t(item.labelKey)}
                 </Link>
               );
             })}
@@ -119,12 +121,15 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
       </nav>
 
       <div className="p-3 border-t border-border">
+        <div className="mb-2">
+          <LanguageSwitcher />
+        </div>
         <div className="flex items-center justify-between">
           <div className="min-w-0">
             <p className="text-sm font-medium truncate">{user.name}</p>
             <p className="text-xs text-muted-foreground truncate">{user.email}</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleSignOut} title="退出登录">
+          <Button variant="ghost" size="icon" onClick={handleSignOut} title={t('signOut')}>
             <SignOut size={16} />
           </Button>
         </div>
