@@ -4,6 +4,7 @@ import { defaultMessages } from './test-messages';
 test.describe('营销页面', () => {
   const registerLink = { name: defaultMessages.header.register, exact: true } as const;
   const loginLink = { name: defaultMessages.header.login, exact: true } as const;
+  const pricingLink = { name: defaultMessages.header.pricing, exact: true } as const;
 
   test('首页可访问且包含标题', async ({ page }) => {
     await page.goto('/');
@@ -29,5 +30,27 @@ test.describe('营销页面', () => {
     await page.goto('/');
     await page.getByRole('navigation').getByRole('link', loginLink).click();
     await expect(page).toHaveURL('/login');
+  });
+
+  test('首页导航包含价格页入口并可跳转', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('navigation').getByRole('link', pricingLink).click();
+    await expect(page).toHaveURL('/pricing');
+    await expect(page.getByRole('heading', { level: 1, name: defaultMessages.pricing.title })).toBeVisible();
+  });
+
+  test('点击查看定价按钮跳转到价格页', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('link', { name: defaultMessages.hero.ctaSecondary, exact: true }).click();
+    await expect(page).toHaveURL('/pricing');
+  });
+
+  test('价格页展示 OpenAI 和 Gemini 的主要价格', async ({ page }) => {
+    await page.goto('/pricing');
+    await expect(page.getByRole('heading', { level: 1, name: defaultMessages.pricing.title })).toBeVisible();
+    await expect(page.getByText('OpenAI').first()).toBeVisible();
+    await expect(page.getByText('Gemini').first()).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'GPT-5.4', exact: true }).first()).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'gemini-3.1-pro-preview', exact: true }).first()).toBeVisible();
   });
 });

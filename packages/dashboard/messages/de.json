@@ -7,6 +7,7 @@
   "header": {
     "login": "Anmelden",
     "register": "Registrieren",
+    "pricing": "Preise",
     "dashboard": "Dashboard"
   },
   "hero": {
@@ -71,6 +72,50 @@
     "description": "Registrieren Sie sich für Ihren API Key, laden Sie auf und starten Sie sofort.",
     "descriptionLine2": "Unterstützt alle großen KI-Modelle, Bezahlung nach Verbrauch.",
     "button": "Kostenlos registrieren"
+  },
+  "pricing": {
+    "metadata": {
+      "title": "Preise",
+      "description": "Offizielle Modellpreise von OpenAI und Gemini. Keine Abos, nutzungsabhängige Abrechnung."
+    },
+    "eyebrow": "Offizielle Modellpreise",
+    "title": "Preise",
+    "subtitle": "Keine Abonnements und keine Paketlimits. Diese Seite zeigt die aktuellen öffentlichen Preise von OpenAI und Gemini für einen schnellen Vergleich.",
+    "summary": {
+      "noSubscriptionTitle": "Keine Abos",
+      "noSubscriptionDescription": "Keine Tarife, keine monatlichen Gebühren und keine paketbasierten Limits.",
+      "officialTitle": "Offizielle Listenpreise",
+      "officialDescription": "Alle Werte hier sind veröffentlichte Referenzpreise der Anbieter, nicht die Aufschläge von MUI Router.",
+      "unitTitle": "Klare Einheit",
+      "unitDescription": "Alle Preise werden in {unit} angezeigt."
+    },
+    "updatedAtLabel": "Zuletzt synchronisiert",
+    "actualBillingNotice": "MUI Router rechnet nach den im Dashboard konfigurierten Modellpreisen ab. Diese Seite dient nur als öffentliche Preisreferenz.",
+    "sourceLabel": "Quellen",
+    "officialSource": "Offizielle Quelle",
+    "unit": "USD / 1M Tokens",
+    "notesTitle": "Hinweise",
+    "scopeNotice": "Hier sind nur die Kernpreise für Text- und multimodale Tokens enthalten. Audio, Bilderzeugung, Live API, Batch, Grounding und Tool-Kosten sind ausgeschlossen.",
+    "referenceNotice": "Die Preise wurden am {date} manuell von den offiziellen Seiten der Anbieter synchronisiert. Anbieter können ihre Listenpreise später ändern.",
+    "billingNotice": "Wenn ein Modellpreis im Dashboard von dieser Seite abweicht, ist die Dashboard-Konfiguration für die Abrechnung maßgeblich.",
+    "providers": {
+      "openai": "Aktuelle, von OpenAI veröffentlichte Tokenpreise für Flaggschiff- und Coding-Modelle.",
+      "gemini": "Aktuelle öffentliche Gemini 3 / 3.1 Tokenpreise für die wichtigsten Text- und multimodalen Vorschaumodelle."
+    },
+    "columns": {
+      "model": "Modell",
+      "modelId": "Modell-ID",
+      "input": "Eingabe",
+      "cachedInput": "Cache-Eingabe",
+      "output": "Ausgabe",
+      "notes": "Hinweise"
+    },
+    "notes": {
+      "none": "-",
+      "openaiLongContext": "Long-Context-Preise gelten oberhalb von 270k Kontext: $5.00 / $0.50 / $22.50.",
+      "gemini31ProPreview": "Vorschaumodell. Prompts über 200k Tokens wechseln zu $4.00 / $0.40 / $18.00.",
+      "geminiPreview": "Vorschaumodell. Preise und Limits können sich vor der stabilen Veröffentlichung ändern."
+    }
   },
   "login": {
     "title": "Bei MUI Router anmelden",

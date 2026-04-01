@@ -44,7 +44,7 @@ export function HeroSection() {
             <ArrowRightIcon size={18} />
           </Link>
           <Link
-            href="#pricing"
+            href="/pricing"
             className="inline-flex h-12 items-center rounded-lg border border-border px-8 text-base font-medium hover:bg-accent transition-colors"
           >
             {t('ctaSecondary')}

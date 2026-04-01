@@ -7,6 +7,7 @@
   "header": {
     "login": "登录",
     "register": "注册",
+    "pricing": "价格",
     "dashboard": "进入控制台"
   },
   "hero": {
@@ -71,6 +72,50 @@
     "description": "注册即可获取 API Key，充值后立即开始调用。",
     "descriptionLine2": "支持所有主流 AI 模型，按量计费，用多少花多少。",
     "button": "免费注册"
+  },
+  "pricing": {
+    "metadata": {
+      "title": "价格",
+      "description": "OpenAI 与 Gemini 官方模型价格一览。无订阅，按量付费。"
+    },
+    "eyebrow": "官方模型价格",
+    "title": "价格",
+    "subtitle": "没有订阅套餐，也没有包量限制。这里整理了 OpenAI 和 Gemini 最新公开价格，方便你快速横向比较。",
+    "summary": {
+      "noSubscriptionTitle": "没有订阅",
+      "noSubscriptionDescription": "不卖套餐，不收月费，也没有按套餐分层的模型限制。",
+      "officialTitle": "官方原价",
+      "officialDescription": "本页展示的是供应商公开参考价，不是 MUI Router 的加价后价格。",
+      "unitTitle": "统一单位",
+      "unitDescription": "所有价格统一按 {unit} 展示。"
+    },
+    "updatedAtLabel": "最近同步",
+    "actualBillingNotice": "MUI Router 的实际扣费以控制台中的模型定价配置为准，这个页面只提供公开价格参考。",
+    "sourceLabel": "价格来源",
+    "officialSource": "官方来源",
+    "unit": "USD / 1M tokens",
+    "notesTitle": "补充说明",
+    "scopeNotice": "这里只展示核心文本与多模态 token 价格，不包含音频、图片生成、Live API、Batch、Grounding 和工具调用等额外收费项。",
+    "referenceNotice": "价格于 {date} 手动同步自各供应商官方页面，后续官方如有调整，请以官方最新公布为准。",
+    "billingNotice": "如果控制台里的模型价格与本页不一致，最终计费以控制台配置为准。",
+    "providers": {
+      "openai": "OpenAI 当前公开的旗舰模型与代码模型 token 定价。",
+      "gemini": "Gemini 3 / 3.1 当前公开的主流文本与多模态预览模型 token 定价。"
+    },
+    "columns": {
+      "model": "模型",
+      "modelId": "模型 ID",
+      "input": "输入",
+      "cachedInput": "缓存输入",
+      "output": "输出",
+      "notes": "说明"
+    },
+    "notes": {
+      "none": "-",
+      "openaiLongContext": "超过 270k 上下文后启用长上下文档位：$5.00 / $0.50 / $22.50。",
+      "gemini31ProPreview": "预览版模型。超过 200k tokens 的 prompt 按 $4.00 / $0.40 / $18.00 计。",
+      "geminiPreview": "预览版模型，价格和限制在正式发布前仍可能调整。"
+    }
   },
   "login": {
     "title": "登录 MUI Router",

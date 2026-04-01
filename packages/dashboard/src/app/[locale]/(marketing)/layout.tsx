@@ -16,6 +16,12 @@ export default async function MarketingLayout({ children }: { children: React.Re
           </Link>
           <nav className="flex items-center gap-3">
             <LanguageSwitcher />
+            <Link
+              href="/pricing"
+              className="inline-flex h-9 items-center rounded-lg px-4 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+            >
+              {t('pricing')}
+            </Link>
             {user ? (
               <Link
                 href="/app"

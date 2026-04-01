@@ -7,6 +7,7 @@
   "header": {
     "login": "ログイン",
     "register": "新規登録",
+    "pricing": "価格",
     "dashboard": "ダッシュボード"
   },
   "hero": {
@@ -71,6 +72,50 @@
     "description": "登録してAPI Keyを取得、チャージしてすぐに呼び出し開始。",
     "descriptionLine2": "すべての主要AIモデルに対応、従量課金。",
     "button": "無料で登録"
+  },
+  "pricing": {
+    "metadata": {
+      "title": "価格",
+      "description": "OpenAI と Gemini の公式モデル価格一覧。サブスクリプションなし、従量課金。"
+    },
+    "eyebrow": "公式モデル価格",
+    "title": "価格",
+    "subtitle": "サブスクリプションプランもパッケージ上限もありません。このページでは OpenAI と Gemini の最新公開価格を一覧で比較できます。",
+    "summary": {
+      "noSubscriptionTitle": "サブスクなし",
+      "noSubscriptionDescription": "プラン販売なし、月額料金なし、パッケージによる制限もありません。",
+      "officialTitle": "公式価格",
+      "officialDescription": "ここに表示する金額はプロバイダー公開の参考価格であり、MUI Router のマークアップ後価格ではありません。",
+      "unitTitle": "統一単位",
+      "unitDescription": "すべての価格は {unit} で表示します。"
+    },
+    "updatedAtLabel": "最終同期日",
+    "actualBillingNotice": "MUI Router の実際の請求はダッシュボードで設定されたモデル価格に従います。このページは公開価格の参考用です。",
+    "sourceLabel": "参照元",
+    "officialSource": "公式ソース",
+    "unit": "USD / 1M tokens",
+    "notesTitle": "補足",
+    "scopeNotice": "ここでは主要なテキストおよびマルチモーダルの token 価格のみを掲載します。音声、画像生成、Live API、Batch、grounding、ツール料金は含みません。",
+    "referenceNotice": "価格は {date} に公式ページから手動同期しました。以後、各社が公開価格を更新する場合があります。",
+    "billingNotice": "ダッシュボード内のモデル価格がこのページと異なる場合、請求にはダッシュボード設定が適用されます。",
+    "providers": {
+      "openai": "OpenAI が公開している最新のフラッグシップモデルとコード向けモデルの token 価格です。",
+      "gemini": "Gemini 3 / 3.1 の主要なテキスト・マルチモーダル preview モデルに対する最新の公開 token 価格です。"
+    },
+    "columns": {
+      "model": "モデル",
+      "modelId": "モデル ID",
+      "input": "入力",
+      "cachedInput": "キャッシュ入力",
+      "output": "出力",
+      "notes": "補足"
+    },
+    "notes": {
+      "none": "-",
+      "openaiLongContext": "270k を超えるコンテキストでは長文コンテキスト料金が適用されます: $5.00 / $0.50 / $22.50。",
+      "gemini31ProPreview": "Preview モデルです。200k tokens を超える prompt は $4.00 / $0.40 / $18.00 になります。",
+      "geminiPreview": "Preview モデルのため、正式版前に価格や制限が変わる可能性があります。"
+    }
   },
   "login": {
     "title": "MUI Routerにログイン",

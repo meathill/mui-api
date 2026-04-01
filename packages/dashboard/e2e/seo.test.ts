@@ -78,6 +78,8 @@ test.describe('SEO', () => {
     test('sitemap.xml 可访问', async ({ page }) => {
       const response = await page.goto('/sitemap.xml');
       expect(response?.status()).toBe(200);
+      const text = await response?.text();
+      expect(text).toContain('/pricing');
     });
   });
 
@@ -92,6 +94,16 @@ test.describe('SEO', () => {
       await page.goto('/register');
       await expect(page).toHaveTitle(new RegExp(defaultMessages.header.register));
       await expect(page).toHaveTitle(/MUI Router/);
+    });
+
+    test('价格页有独立 title 和 description', async ({ page }) => {
+      await page.goto('/pricing');
+      await expect(page).toHaveTitle(new RegExp(defaultMessages.pricing.metadata.title));
+      await expect(page).toHaveTitle(/MUI Router/);
+      await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+        'content',
+        defaultMessages.pricing.metadata.description,
+      );
     });
   });
 });
