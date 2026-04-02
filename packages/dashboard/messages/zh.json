@@ -170,6 +170,21 @@
     "activeKeys": "活跃 API Key",
     "apiStatus": "API 状态",
     "running": "正常运行",
+    "topUp": {
+      "title": "在线充值",
+      "description": "使用 Stripe Checkout 托管支付，支付成功后自动到账。",
+      "hint": "支持固定面额 $10 / $20 / $50，充多少得多少。",
+      "button": "充值 ${amount}",
+      "redirecting": "跳转到 Stripe...",
+      "processingTitle": "充值处理中",
+      "processingDesc": "支付已完成，系统正在确认到账，通常几秒内完成。",
+      "successTitle": "充值成功",
+      "successDesc": "已到账 ${amount}，当前余额 ${balance}。",
+      "cancelledTitle": "支付已取消",
+      "cancelledDesc": "本次没有扣款，你可以重新选择充值档位。",
+      "failedTitle": "充值处理失败",
+      "failedDesc": "支付结果暂时无法确认，请稍后刷新页面或联系管理员。"
+    },
     "quickStart": "快速开始",
     "curlComment": "# 使用 curl 调用 API"
   },
@@ -412,6 +427,7 @@
     "requestFailed": "请求失败 ({status})",
     "saveSuccess": "保存成功",
     "saveFailed": "保存失败",
+    "topUpFailed": "充值会话创建失败",
     "confirm": "确定"
   },
   "common": {

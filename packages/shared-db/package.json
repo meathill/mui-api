@@ -1,0 +1,26 @@
+{
+  "name": "@muirouter/shared-db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "node ./scripts/db-migrate.ts local",
+    "db:migrate:prod": "node ./scripts/db-migrate.ts prod",
+    "typecheck": "tsc --noEmit"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./auth": "./src/auth-schema.ts",
+    "./business": "./src/business-schema.ts"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.45.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.2",
+    "drizzle-kit": "^0.31.10",
+    "typescript": "^5.9.3",
+    "wrangler": "^4.77.0"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowImportingTsExtensions": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "lib": ["ESNext"],
+    "types": ["node"]
+  },
+  "include": ["src", "scripts", "dev-config.ts", "drizzle.config.ts"],
+  "exclude": ["node_modules"]
+}

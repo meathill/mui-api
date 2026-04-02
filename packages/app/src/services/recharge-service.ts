@@ -46,9 +46,15 @@ export class RechargeService {
 
     // 新用户：创建用户和钱包
     const userId = generateId();
+    const now = new Date();
     const newUser: NewUser = {
       id: userId,
+      name: email,
       email,
+      emailVerified: false,
+      image: null,
+      createdAt: now,
+      updatedAt: now,
     };
 
     await this.db.insert(users).values(newUser);

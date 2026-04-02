@@ -1,103 +1,48 @@
-import { sql } from 'drizzle-orm';
-import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import {
+  models,
+  rechargeLogs,
+  spendingLimits,
+  stripeTopupSessions,
+  usageLogs,
+  usageStats,
+  wallets,
+  type Model,
+  type NewModel,
+  type NewRechargeLog,
+  type NewSpendingLimit,
+  type NewStripeTopupSession,
+  type NewUsageLog,
+  type NewUsageStat,
+  type NewWallet,
+  type RechargeLog,
+  type SpendingLimit,
+  type StripeTopupSession,
+  type UsageLog,
+  type UsageStat,
+  type Wallet,
+} from '@muirouter/shared-db/business';
+import { user, type AuthUser as User, type NewAuthUser as NewUser } from '@muirouter/shared-db/auth';
 
-// 1. 用户表：以邮箱为核心身份
-export const users = sqliteTable('users', {
-  id: text('id').primaryKey(), // UUID
-  email: text('email').unique().notNull(),
-  stripeCustomerId: text('stripe_customer_id'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
+// 向后兼容 app 侧既有命名；底层已切到 better-auth 的 user 表。
+export const users = user;
 
-// 2. 钱包表：存储余额
-export const wallets = sqliteTable('wallets', {
-  userId: text('user_id')
-    .primaryKey()
-    .references(() => users.id),
-  balance: real('balance').default(0.0), // 存储单位：USD
-  currency: text('currency').default('USD'),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
+export { models, rechargeLogs, spendingLimits, stripeTopupSessions, usageLogs, usageStats, wallets };
 
-// 3. 模型定价表
-export const models = sqliteTable('models', {
-  id: text('id').primaryKey(), // 网关暴露的模型名，如 "gpt-4o", "gemini-pro"
-  provider: text('provider').notNull(), // "openai", "google", "replicate"
-  upstreamModelId: text('upstream_model_id'), // 上游真实模型名
-  inputPrice: real('input_price'), // 每 1M token 价格
-  outputPrice: real('output_price'),
-  markupRate: real('markup_rate').default(1.2), // 利润倍率
-});
-
-// 6. 使用日志
-export const usageLogs = sqliteTable('usage_logs', {
-  id: text('id').primaryKey(),
-  userId: text('user_id'),
-  apiKeyId: text('api_key_id'),
-  modelId: text('model_id'),
-  inputTokens: integer('input_tokens'),
-  outputTokens: integer('output_tokens'),
-  cost: real('cost'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
-
-// 7. 消费限额表
-export const spendingLimits = sqliteTable('spending_limits', {
-  userId: text('user_id')
-    .primaryKey()
-    .references(() => users.id),
-  monthlyLimit: real('monthly_limit'), // 月度消费上限 USD
-  alertThreshold: real('alert_threshold').default(0.8), // 告警阈值百分比（0.8 = 80%）
-  isSuspended: integer('is_suspended', { mode: 'boolean' }).default(false),
-  lastAlertAt: integer('last_alert_at', { mode: 'timestamp' }),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
-
-// 8. 充值记录表
-export const rechargeLogs = sqliteTable('recharge_logs', {
-  id: text('id').primaryKey(),
-  userId: text('user_id').notNull(),
-  operatorId: text('operator_id'),
-  amount: real('amount').notNull(),
-  balanceAfter: real('balance_after'),
-  note: text('note'),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
-
-// 9. 用量统计聚合表
-export const usageStats = sqliteTable('usage_stats', {
-  id: text('id').primaryKey(),
-  granularity: text('granularity').notNull(), // 'hourly' | 'daily' | 'weekly' | 'monthly'
-  periodStart: integer('period_start', { mode: 'timestamp' }).notNull(),
-  periodEnd: integer('period_end', { mode: 'timestamp' }).notNull(),
-  userId: text('user_id'), // NULL = 全局聚合
-  modelId: text('model_id'), // NULL = 所有模型聚合
-  totalCost: real('total_cost').default(0),
-  totalInputTokens: integer('total_input_tokens').default(0),
-  totalOutputTokens: integer('total_output_tokens').default(0),
-  requestCount: integer('request_count').default(0),
-  createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
-
-// 导出类型
-export type User = typeof users.$inferSelect;
-export type NewUser = typeof users.$inferInsert;
-
-export type Wallet = typeof wallets.$inferSelect;
-export type NewWallet = typeof wallets.$inferInsert;
-
-export type Model = typeof models.$inferSelect;
-export type NewModel = typeof models.$inferInsert;
-
-export type UsageLog = typeof usageLogs.$inferSelect;
-export type NewUsageLog = typeof usageLogs.$inferInsert;
-
-export type SpendingLimit = typeof spendingLimits.$inferSelect;
-export type NewSpendingLimit = typeof spendingLimits.$inferInsert;
-
-export type RechargeLog = typeof rechargeLogs.$inferSelect;
-export type NewRechargeLog = typeof rechargeLogs.$inferInsert;
-
-export type UsageStat = typeof usageStats.$inferSelect;
-export type NewUsageStat = typeof usageStats.$inferInsert;
+export type {
+  Model,
+  NewModel,
+  NewRechargeLog,
+  NewSpendingLimit,
+  NewStripeTopupSession,
+  NewUsageLog,
+  NewUsageStat,
+  NewWallet,
+  RechargeLog,
+  SpendingLimit,
+  StripeTopupSession,
+  UsageLog,
+  UsageStat,
+  User,
+  NewUser,
+  Wallet,
+};

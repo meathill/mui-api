@@ -170,6 +170,21 @@
     "activeKeys": "API Keys actives",
     "apiStatus": "Statut API",
     "running": "En cours",
+    "topUp": {
+      "title": "Recharger le solde",
+      "description": "Payez via Stripe Checkout hébergé et créditez automatiquement votre portefeuille.",
+      "hint": "Montants fixes uniquement : $10 / $20 / $50. Vous recevez exactement ce que vous payez.",
+      "button": "Recharger ${amount} $",
+      "redirecting": "Redirection vers Stripe...",
+      "processingTitle": "Recharge en cours",
+      "processingDesc": "Le paiement est terminé et nous confirmons le crédit. Cela prend généralement quelques secondes.",
+      "successTitle": "Recharge réussie",
+      "successDesc": "${amount} ont été crédités. Solde actuel : ${balance}.",
+      "cancelledTitle": "Paiement annulé",
+      "cancelledDesc": "Aucun débit n'a été effectué. Vous pouvez choisir un montant et réessayer.",
+      "failedTitle": "Échec du traitement de la recharge",
+      "failedDesc": "Nous n'avons pas encore pu confirmer le résultat du paiement. Actualisez plus tard ou contactez le support."
+    },
     "quickStart": "Démarrage rapide",
     "curlComment": "# Appeler l'API avec curl"
   },
@@ -412,6 +427,7 @@
     "requestFailed": "Échec de la requête ({status})",
     "saveSuccess": "Enregistré avec succès",
     "saveFailed": "Échec de l'enregistrement",
+    "topUpFailed": "Impossible de créer la session de recharge",
     "confirm": "OK"
   },
   "common": {

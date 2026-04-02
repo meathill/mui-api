@@ -51,6 +51,16 @@
 - Cookie 通过 `nextCookies()` 插件管理
 - App 端通过 API Key hash 认证，与 better-auth 无关
 
+### Stripe 充值使用 Checkout + webhook 幂等入账
+
+**决策**：用户自助充值采用 Stripe Checkout Session，一次性支付固定档位 `$10 / $20 / $50`，到账以 webhook 为准，不依赖前端回跳。
+
+**原因**：
+- Stripe Checkout 适合固定金额的一次性支付，落地快，减少自行处理支付表单和 SCA 的复杂度
+- 回跳页不可靠，用户可能关闭页面或使用异步支付方式，必须以 webhook 作为最终入账触发点
+- 通过 `recharge_logs(source, source_id)` 唯一标识和 `stripe_topup_sessions` 状态表做幂等，可以避免重复加余额
+- 复用 KV 中的 `stripeCustomerId`，能保留 Stripe Customer 关联，减少重复建档
+
 ## 关键模式
 
 ### Claim Token（一次性密钥查看）
@@ -89,7 +99,13 @@ API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0）
 - `BETTER_AUTH_SECRET` — 认证密钥
 - `RESEND_API_KEY` — 邮件发送
 - `FROM_EMAIL` — 发件人地址
+- `STRIPE_SECRET_KEY` — Stripe 服务端密钥
+- `STRIPE_WEBHOOK_SECRET` — Stripe webhook 签名密钥
 
 ### Cloudflare Bindings
 
 两个 package 共享同一个 D1 数据库和 KV namespace。wrangler.jsonc 中的 binding name 必须保持一致。
+
+共享 D1 的 schema、migration 和迁移脚本统一由 `packages/shared-db` 维护。`packages/app` 和 `packages/dashboard` 只保留各自的运行时 binding，避免多个子项目各自产生一份 SQL 历史或各自维护迁移入口。
+
+本地开发时，`packages/shared-db db:migrate:local`、`packages/app dev` 与 `packages/dashboard dev` 都应指向仓库根目录下同一份 `.wrangler/state/v3`。同时显式关闭 remote bindings，避免本地代码误连远程 D1 / KV，导致“看起来在本地调试，实际上在修改远程数据”。

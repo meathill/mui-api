@@ -170,6 +170,21 @@
     "activeKeys": "Aktive API Keys",
     "apiStatus": "API-Status",
     "running": "Läuft",
+    "topUp": {
+      "title": "Guthaben aufladen",
+      "description": "Mit Stripe Checkout bezahlen und Ihr Wallet automatisch gutschreiben.",
+      "hint": "Nur feste Beträge: $10 / $20 / $50. Sie erhalten genau den bezahlten Betrag.",
+      "button": "${amount} $ aufladen",
+      "redirecting": "Weiter zu Stripe...",
+      "processingTitle": "Aufladung wird verarbeitet",
+      "processingDesc": "Die Zahlung ist abgeschlossen und wir bestätigen die Gutschrift. Das dauert meist nur wenige Sekunden.",
+      "successTitle": "Aufladung erfolgreich",
+      "successDesc": "${amount} wurden gutgeschrieben. Aktuelles Guthaben: ${balance}.",
+      "cancelledTitle": "Zahlung abgebrochen",
+      "cancelledDesc": "Es wurde nichts berechnet. Sie können einen Betrag wählen und es erneut versuchen.",
+      "failedTitle": "Aufladung konnte nicht verarbeitet werden",
+      "failedDesc": "Das Zahlungsergebnis konnte noch nicht bestätigt werden. Bitte später aktualisieren oder den Support kontaktieren."
+    },
     "quickStart": "Schnellstart",
     "curlComment": "# API mit curl aufrufen"
   },
@@ -412,6 +427,7 @@
     "requestFailed": "Anfrage fehlgeschlagen ({status})",
     "saveSuccess": "Erfolgreich gespeichert",
     "saveFailed": "Speichern fehlgeschlagen",
+    "topUpFailed": "Sitzung für die Aufladung konnte nicht erstellt werden",
     "confirm": "OK"
   },
   "common": {

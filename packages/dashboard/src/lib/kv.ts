@@ -15,6 +15,7 @@ export interface KVUserData {
 export interface KVUserMetadata {
   maxConcurrency?: number;
   rateMultiplier?: number; // 用户费率倍率，默认 1
+  stripeCustomerId?: string;
   email: string;
   createdAt: string;
 }

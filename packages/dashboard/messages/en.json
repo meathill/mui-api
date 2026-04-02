@@ -170,6 +170,21 @@
     "activeKeys": "Active API Keys",
     "apiStatus": "API Status",
     "running": "Running",
+    "topUp": {
+      "title": "Top Up Balance",
+      "description": "Pay with hosted Stripe Checkout and credit your wallet automatically.",
+      "hint": "Fixed amounts only: $10 / $20 / $50. Top up what you pay.",
+      "button": "Top Up ${amount}",
+      "redirecting": "Redirecting...",
+      "processingTitle": "Top-up in progress",
+      "processingDesc": "Payment is complete and we are confirming the credit. This usually takes a few seconds.",
+      "successTitle": "Top-up successful",
+      "successDesc": "${amount} has been credited. Current balance: ${balance}.",
+      "cancelledTitle": "Payment cancelled",
+      "cancelledDesc": "No charge was made. You can choose a package and try again.",
+      "failedTitle": "Top-up processing failed",
+      "failedDesc": "We could not confirm the payment result yet. Please refresh later or contact support."
+    },
     "quickStart": "Quick Start",
     "curlComment": "# Call API using curl"
   },
@@ -412,6 +427,7 @@
     "requestFailed": "Request failed ({status})",
     "saveSuccess": "Saved successfully",
     "saveFailed": "Failed to save",
+    "topUpFailed": "Failed to create top-up session",
     "confirm": "OK"
   },
   "common": {

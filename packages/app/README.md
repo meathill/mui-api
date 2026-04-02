@@ -55,8 +55,8 @@ wrangler d1 create mui-api
 # 创建 KV namespace
 wrangler kv namespace create KV
 
-# 应用数据库迁移
-pnpm db:migrate
+# 应用共享数据库迁移（SQL、schema 和迁移脚本统一由 packages/shared-db 维护）
+pnpm --dir ../shared-db run db:migrate:local
 ```
 
 ### 4. 启动开发服务器
@@ -121,12 +121,15 @@ curl http://localhost:5173/v1/chat/completions \
 # 运行测试
 pnpm test
 
-# 生成数据库迁移
-pnpm db:generate
+# 生成共享数据库迁移
+pnpm --dir ../shared-db run db:generate
 
 # 部署
 pnpm deploy
 ```
+
+本地开发时，`packages/app` 和 `packages/dashboard` 默认共用仓库根目录下的 `.wrangler/state/v3`。
+这样在两个服务之间联调时，会读写同一份本地 D1 / KV 状态；自动化测试仍使用各自隔离的测试环境，不共享这份状态。
 
 ## License
 

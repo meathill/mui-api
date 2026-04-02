@@ -170,6 +170,21 @@
     "activeKeys": "API Keys activas",
     "apiStatus": "Estado de la API",
     "running": "En ejecución",
+    "topUp": {
+      "title": "Recargar saldo",
+      "description": "Paga con Stripe Checkout alojado y acredita tu saldo automáticamente.",
+      "hint": "Solo importes fijos: $10 / $20 / $50. Recibes exactamente lo que pagas.",
+      "button": "Recargar ${amount} USD",
+      "redirecting": "Redirigiendo a Stripe...",
+      "processingTitle": "Recarga en proceso",
+      "processingDesc": "El pago se completó y estamos confirmando el saldo. Normalmente tarda unos segundos.",
+      "successTitle": "Recarga exitosa",
+      "successDesc": "Se acreditaron ${amount}. Saldo actual: ${balance}.",
+      "cancelledTitle": "Pago cancelado",
+      "cancelledDesc": "No se realizó ningún cargo. Puedes elegir un importe e intentarlo de nuevo.",
+      "failedTitle": "No se pudo procesar la recarga",
+      "failedDesc": "Todavía no pudimos confirmar el resultado del pago. Actualiza más tarde o contacta con soporte."
+    },
     "quickStart": "Inicio rápido",
     "curlComment": "# Llamar a la API usando curl"
   },
@@ -412,6 +427,7 @@
     "requestFailed": "Error en la solicitud ({status})",
     "saveSuccess": "Guardado correctamente",
     "saveFailed": "Error al guardar",
+    "topUpFailed": "No se pudo crear la sesión de recarga",
     "confirm": "OK"
   },
   "common": {

@@ -1,19 +1,31 @@
 import { getTableName } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
-import { models, usageLogs, usageStats, rechargeLogs, spendingLimits, users, wallets } from './schema';
+import {
+  models,
+  usageLogs,
+  usageStats,
+  rechargeLogs,
+  spendingLimits,
+  stripeTopupSessions,
+  users,
+  wallets,
+} from './schema';
 
 describe('Database Schema', () => {
-  describe('users table', () => {
+  describe('users alias table', () => {
     it('should have correct table name', () => {
-      expect(getTableName(users)).toBe('users');
+      expect(getTableName(users)).toBe('user');
     });
 
     it('should have required columns', () => {
       const columnNames = Object.keys(users);
       expect(columnNames).toContain('id');
+      expect(columnNames).toContain('name');
       expect(columnNames).toContain('email');
-      expect(columnNames).toContain('stripeCustomerId');
+      expect(columnNames).toContain('emailVerified');
+      expect(columnNames).toContain('image');
       expect(columnNames).toContain('createdAt');
+      expect(columnNames).toContain('updatedAt');
     });
   });
 
@@ -98,8 +110,33 @@ describe('Database Schema', () => {
       expect(columnNames).toContain('operatorId');
       expect(columnNames).toContain('amount');
       expect(columnNames).toContain('balanceAfter');
+      expect(columnNames).toContain('source');
+      expect(columnNames).toContain('sourceId');
       expect(columnNames).toContain('note');
       expect(columnNames).toContain('createdAt');
+    });
+  });
+
+  describe('stripeTopupSessions table', () => {
+    it('should have correct table name', () => {
+      expect(getTableName(stripeTopupSessions)).toBe('stripe_topup_sessions');
+    });
+
+    it('should have required columns', () => {
+      const columnNames = Object.keys(stripeTopupSessions);
+      expect(columnNames).toContain('checkoutSessionId');
+      expect(columnNames).toContain('userId');
+      expect(columnNames).toContain('amount');
+      expect(columnNames).toContain('currency');
+      expect(columnNames).toContain('status');
+      expect(columnNames).toContain('paymentStatus');
+      expect(columnNames).toContain('stripeCustomerId');
+      expect(columnNames).toContain('paymentIntentId');
+      expect(columnNames).toContain('balanceAfter');
+      expect(columnNames).toContain('lastError');
+      expect(columnNames).toContain('createdAt');
+      expect(columnNames).toContain('updatedAt');
+      expect(columnNames).toContain('completedAt');
     });
   });
 

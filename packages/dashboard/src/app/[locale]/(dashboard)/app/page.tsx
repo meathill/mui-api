@@ -1,19 +1,36 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useTranslations } from 'next-intl';
-import { userApi } from '@/lib/api';
+import { useEffect, useRef, useState } from 'react';
+import { useLocale, useTranslations } from 'next-intl';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { CreditCard, Wallet, Key, ChartBar } from '@phosphor-icons/react';
+import { type TopUpSessionResult, userApi } from '@/lib/api';
+import { TOP_UP_AMOUNTS } from '@/lib/top-up';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Wallet, Key, ChartBar } from '@phosphor-icons/react';
+
+interface TopUpNotice {
+  description: string;
+  title: string;
+  variant: 'error' | 'info' | 'success';
+}
 
 export default function DashboardHome() {
   const t = useTranslations('dashboard');
   const tc = useTranslations('common');
   const te = useTranslations('errors');
+  const locale = useLocale();
+  const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [balance, setBalance] = useState<number>(0);
   const [keyCount, setKeyCount] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [topUpAmountLoading, setTopUpAmountLoading] = useState<number | null>(null);
+  const [topUpNotice, setTopUpNotice] = useState<TopUpNotice | null>(null);
+  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     async function loadData() {
@@ -27,44 +44,185 @@ export default function DashboardHome() {
         setLoading(false);
       }
     }
+
     loadData();
   }, [te]);
+
+  useEffect(() => {
+    const topUp = searchParams.get('topUp');
+    const sessionId = searchParams.get('session_id');
+
+    if (topUp === 'cancelled') {
+      setTopUpNotice({
+        title: t('topUp.cancelledTitle'),
+        description: t('topUp.cancelledDesc'),
+        variant: 'info',
+      });
+      clearTopUpQuery(router, pathname);
+      return;
+    }
+
+    if (topUp !== 'success' || !sessionId) {
+      return;
+    }
+
+    const checkoutSessionId = sessionId;
+    let disposed = false;
+
+    async function handleReturnedCheckout() {
+      await pollTopUpSession(checkoutSessionId, disposed);
+    }
+
+    handleReturnedCheckout();
+
+    return () => {
+      disposed = true;
+      if (pollTimerRef.current) {
+        clearTimeout(pollTimerRef.current);
+        pollTimerRef.current = null;
+      }
+    };
+  }, [pathname, router, searchParams, t]);
+
+  function scheduleTopUpPoll(sessionId: string, disposed: boolean) {
+    if (disposed) {
+      return;
+    }
+
+    pollTimerRef.current = setTimeout(() => {
+      void pollTopUpSession(sessionId, disposed);
+    }, 2000);
+  }
+
+  function setProcessingNotice() {
+    setTopUpNotice({
+      title: t('topUp.processingTitle'),
+      description: t('topUp.processingDesc'),
+      variant: 'info',
+    });
+  }
+
+  function setSuccessNotice(result: TopUpSessionResult) {
+    setTopUpNotice({
+      title: t('topUp.successTitle'),
+      description: t('topUp.successDesc', {
+        amount: result.amount.toFixed(2),
+        balance: (result.balanceAfter ?? 0).toFixed(2),
+      }),
+      variant: 'success',
+    });
+  }
+
+  function setFailedNotice(message?: string) {
+    setTopUpNotice({
+      title: t('topUp.failedTitle'),
+      description: message || t('topUp.failedDesc'),
+      variant: 'error',
+    });
+  }
+
+  async function handleTopUp(amount: number) {
+    setTopUpAmountLoading(amount);
+    setTopUpNotice(null);
+
+    try {
+      const result = await userApi.createTopUpCheckout(amount, locale);
+      window.location.href = result.url;
+    } catch (e) {
+      setFailedNotice(e instanceof Error ? e.message : te('topUpFailed'));
+      setTopUpAmountLoading(null);
+    }
+  }
+
+  async function pollTopUpSession(sessionId: string, disposed: boolean) {
+    try {
+      setProcessingNotice();
+      const result = await userApi.getTopUpSession(sessionId);
+      if (disposed) {
+        return;
+      }
+
+      if (result.status === 'credited') {
+        setBalance(result.balanceAfter ?? balance);
+        setSuccessNotice(result);
+        setTopUpAmountLoading(null);
+        clearTopUpQuery(router, pathname);
+        return;
+      }
+
+      if (result.status === 'failed') {
+        setFailedNotice();
+        setTopUpAmountLoading(null);
+        clearTopUpQuery(router, pathname);
+        return;
+      }
+
+      if (result.status === 'cancelled') {
+        setTopUpNotice({
+          title: t('topUp.cancelledTitle'),
+          description: t('topUp.cancelledDesc'),
+          variant: 'info',
+        });
+        setTopUpAmountLoading(null);
+        clearTopUpQuery(router, pathname);
+        return;
+      }
+
+      scheduleTopUpPoll(sessionId, disposed);
+    } catch (e) {
+      if (disposed) {
+        return;
+      }
+
+      setFailedNotice(e instanceof Error ? e.message : t('topUp.failedDesc'));
+      setTopUpAmountLoading(null);
+      clearTopUpQuery(router, pathname);
+    }
+  }
 
   if (loading) {
     return <p className="text-muted-foreground">{tc('loading')}</p>;
   }
+
   if (error) {
     return <p className="text-destructive">{error}</p>;
   }
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-6">{t('title')}</h2>
+      <h2 className="mb-6 text-xl font-bold">{t('title')}</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {topUpNotice && (
+        <Alert className="mb-6" variant={topUpNotice.variant}>
+          <AlertTitle>{topUpNotice.title}</AlertTitle>
+          <AlertDescription>{topUpNotice.description}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <Card className="p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+          <div className="mb-2 flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
               <Wallet size={18} className="text-primary" weight="duotone" />
             </div>
             <span className="text-sm text-muted-foreground">{t('balance')}</span>
           </div>
-          <p className="text-3xl font-bold font-mono">${balance.toFixed(2)}</p>
+          <p className="font-mono text-3xl font-bold">${balance.toFixed(2)}</p>
         </Card>
 
         <Card className="p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+          <div className="mb-2 flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
               <Key size={18} className="text-primary" weight="duotone" />
             </div>
             <span className="text-sm text-muted-foreground">{t('activeKeys')}</span>
           </div>
-          <p className="text-3xl font-bold font-mono">{keyCount}</p>
+          <p className="font-mono text-3xl font-bold">{keyCount}</p>
         </Card>
 
         <Card className="p-6">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+          <div className="mb-2 flex items-center gap-3">
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
               <ChartBar size={18} className="text-primary" weight="duotone" />
             </div>
             <span className="text-sm text-muted-foreground">{t('apiStatus')}</span>
@@ -74,9 +232,40 @@ export default function DashboardHome() {
       </div>
 
       <Card className="mt-8 p-6">
-        <h3 className="font-semibold mb-3">{t('quickStart')}</h3>
-        <div className="bg-muted rounded-lg p-4 font-mono text-sm leading-relaxed">
-          <p className="text-muted-foreground mb-2">{t('curlComment')}</p>
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-2">
+            <div className="flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
+                <CreditCard size={18} className="text-primary" weight="duotone" />
+              </div>
+              <div>
+                <h3 className="font-semibold">{t('topUp.title')}</h3>
+                <p className="text-sm text-muted-foreground">{t('topUp.description')}</p>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground">{t('topUp.hint')}</p>
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {TOP_UP_AMOUNTS.map((amount) => (
+              <Button
+                key={amount}
+                onClick={() => handleTopUp(amount)}
+                disabled={topUpAmountLoading !== null}
+                size="lg"
+                variant={amount === 20 ? 'default' : 'outline'}
+              >
+                {topUpAmountLoading === amount ? t('topUp.redirecting') : t('topUp.button', { amount })}
+              </Button>
+            ))}
+          </div>
+        </div>
+      </Card>
+
+      <Card className="mt-8 p-6">
+        <h3 className="mb-3 font-semibold">{t('quickStart')}</h3>
+        <div className="rounded-lg bg-muted p-4 font-mono text-sm leading-relaxed">
+          <p className="mb-2 text-muted-foreground">{t('curlComment')}</p>
           <p>curl https://api.muirouter.com/v1/chat/completions \</p>
           <p className="pl-4">-H &quot;Authorization: Bearer YOUR_API_KEY&quot; \</p>
           <p className="pl-4">-H &quot;Content-Type: application/json&quot; \</p>
@@ -88,4 +277,8 @@ export default function DashboardHome() {
       </Card>
     </div>
   );
+}
+
+function clearTopUpQuery(router: ReturnType<typeof useRouter>, pathname: string) {
+  router.replace(pathname, { scroll: false });
 }

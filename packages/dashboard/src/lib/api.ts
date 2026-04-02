@@ -159,6 +159,15 @@ export const userApi = {
     }
     return request<{ logs: UsageLog[]; pagination: Pagination }>(`/api/user/usage?${query}`);
   },
+
+  createTopUpCheckout: (amount: number, locale?: string) =>
+    request<TopUpCheckoutResult>('/api/user/top-up/checkout', {
+      method: 'POST',
+      body: JSON.stringify({ amount, locale }),
+    }),
+
+  getTopUpSession: (sessionId: string) =>
+    request<TopUpSessionResult>(`/api/user/top-up/session?${new URLSearchParams({ sessionId })}`),
 };
 
 // 向后兼容，管理员页面使用
@@ -252,6 +261,19 @@ export interface SpendingStats {
   dailySpendingCap: number;
   monthlySpendingCap: number;
   isServicePaused: boolean;
+}
+
+export interface TopUpCheckoutResult {
+  sessionId: string;
+  url: string;
+}
+
+export interface TopUpSessionResult {
+  amount: number;
+  balanceAfter: number | null;
+  paymentStatus: string | null;
+  sessionId: string;
+  status: 'open' | 'processing' | 'credited' | 'failed' | 'cancelled';
 }
 
 export interface StatisticsParams {

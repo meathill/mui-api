@@ -170,6 +170,21 @@
     "activeKeys": "有効なAPI Key",
     "apiStatus": "APIステータス",
     "running": "稼働中",
+    "topUp": {
+      "title": "残高をチャージ",
+      "description": "Stripe Checkout で支払い、ウォレット残高へ自動反映します。",
+      "hint": "固定金額のみ: $10 / $20 / $50。支払った分だけそのまま反映されます。",
+      "button": "${amount} ドルをチャージ",
+      "redirecting": "Stripe に移動中...",
+      "processingTitle": "チャージ処理中",
+      "processingDesc": "支払いは完了しました。残高への反映を確認しています。通常は数秒で完了します。",
+      "successTitle": "チャージ成功",
+      "successDesc": "${amount} を反映しました。現在の残高: ${balance}。",
+      "cancelledTitle": "支払いをキャンセルしました",
+      "cancelledDesc": "請求は行われていません。金額を選んで再度お試しください。",
+      "failedTitle": "チャージ処理に失敗しました",
+      "failedDesc": "支払い結果をまだ確認できていません。しばらくしてから更新するか、サポートへお問い合わせください。"
+    },
     "quickStart": "クイックスタート",
     "curlComment": "# curlでAPIを呼び出す"
   },
@@ -412,6 +427,7 @@
     "requestFailed": "リクエストに失敗しました（{status}）",
     "saveSuccess": "保存しました",
     "saveFailed": "保存に失敗しました",
+    "topUpFailed": "チャージセッションの作成に失敗しました",
     "confirm": "OK"
   },
   "common": {
