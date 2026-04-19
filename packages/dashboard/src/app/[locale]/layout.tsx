@@ -3,18 +3,7 @@ import { notFound } from 'next/navigation';
 import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { GoogleAnalytics } from '@next/third-parties/google';
-import { Geist, Geist_Mono } from 'next/font/google';
 import { routing } from '@/i18n/routing';
-
-const geistSans = Geist({
-  variable: '--font-geist-sans',
-  subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
 
 const SITE_URL = 'https://muirouter.com';
 const SITE_NAME = 'MUI Router';
@@ -76,7 +65,7 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className="font-sans antialiased">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
       <GoogleAnalytics gaId="G-JLM9L0BTTV" />
