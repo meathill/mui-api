@@ -4,6 +4,14 @@
   "account_id": "fdc63eeea83ae8f5234357308b9a638b",
   "compatibility_date": "2026-03-08",
   "main": "./src/index.tsx",
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CONCURRENCY_LIMITER",
+        "class_name": "ConcurrencyLimiterDO"
+      }
+    ]
+  },
   "d1_databases": [
     {
       "binding": "DB",
@@ -24,6 +32,12 @@
   "placement": {
     "mode": "smart"
   },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": ["ConcurrencyLimiterDO"]
+    }
+  ],
   "triggers": {
     "crons": ["5 * * * *", "15 0 * * *", "30 0 * * 1", "45 0 1 * *"]
   },

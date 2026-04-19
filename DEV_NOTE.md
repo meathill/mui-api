@@ -14,13 +14,14 @@
 - 支持两种代理模式：`compat`（OpenAI 兼容）和 `native`（Provider 原生端点）
 - 认证头使用 `cf-aig-authorization: Bearer {CF_AIG_TOKEN}`
 
-### KV + D1 双存储
+### KV + D1 + Durable Object 分层存储
 
-**决策**：高频读写数据放 KV，持久化/可查询数据放 D1。
+**决策**：用户配置和展示镜像放 KV，并发准入放 Durable Object，持久化/可查询数据放 D1。
 
 | 存储 | 用途 | 原因 |
 |------|------|------|
-| KV | 用户余额、API Key hash 验证、并发计数、花费统计 | 每次请求都要读，需要亚 60ms 延迟 |
+| KV | 用户余额、API Key hash 验证、并发展示镜像、花费统计 | 每次请求都要读，需要亚 60ms 延迟 |
+| Durable Object | 每用户活跃 lease、并发准入、过期清理 | 同一用户状态天然串行，避免 KV 读改写竞争 |
 | D1 | 用户账户、使用日志、模型定价、花费限额、better-auth 表 | 需要 SQL 查询、聚合、关联 |
 
 **KV Key 命名约定**：
@@ -69,9 +70,10 @@
 
 ### 并发控制
 
-- KV 原子递增/递减实现
-- 60 秒 TTL 安全网，防止崩溃导致槽位泄漏
-- 在 `finally` 块中释放槽位
+- 权威状态在 `ConcurrencyLimiterDO`，按 `userId` 管理 lease
+- 默认 lease TTL 为 90 秒，每 30 秒心跳续租
+- `user:{userId}.concurrency` 仅为 dashboard 展示镜像，不参与准入判断
+- lease 在 response body 的 EOF / cancel / error 时释放，而不是在 middleware `finally` 中提前释放
 
 ### 花费限额与告警
 

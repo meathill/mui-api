@@ -18,7 +18,8 @@
 - **运行时**: Cloudflare Workers
 - **框架**: Hono
 - **存储**:
-  - Cloudflare KV（用户余额、API Key、并发）
+  - Cloudflare KV（用户余额、API Key、并发展示镜像）
+  - Durable Object（每用户并发 lease 权威状态）
   - Cloudflare D1（使用日志、领卡凭证）
 - **邮件**: Resend
 
@@ -114,6 +115,26 @@ curl http://localhost:5173/v1/chat/completions \
 
 支持的 Provider：`openai`、`anthropic`、`google-ai-studio`。
 所有请求通过 [CF AI Gateway](https://developers.cloudflare.com/ai-gateway/) 转发。
+
+## 并发限流实现
+
+- 并发准入由 `ConcurrencyLimiterDO` 负责，按 `userId` 串行化管理活跃 lease
+- 默认 lease TTL 为 90 秒，每 30 秒续租一次，覆盖长请求和流式响应
+- `user:{userId}` 中的 `concurrency` 仅是 Durable Object 回写的展示镜像，不参与限流判断
+- lease 会在响应 body 正常结束、客户端取消、或流读取报错时释放；不再依赖 middleware `finally` 直接减计数
+
+## 一次性维护
+
+从旧版 KV 并发计数迁移到 Durable Object 后，需要把历史 `user:*` 记录中的 `concurrency` 清零一次，避免 dashboard 继续显示旧脏值。
+
+在仓库根目录执行：
+
+```bash
+CF_ACCOUNT_ID=xxx CF_API_TOKEN=xxx KV_NAMESPACE_ID=xxx pnpm reset:concurrency-mirror -- --dry-run
+CF_ACCOUNT_ID=xxx CF_API_TOKEN=xxx KV_NAMESPACE_ID=xxx pnpm reset:concurrency-mirror
+```
+
+脚本会分页扫描 `user:*`，读取并保留原 metadata，只把 `concurrency` 重置为 `0`。
 
 ## 开发
 

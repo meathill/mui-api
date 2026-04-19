@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "format": "biome format --write",
-    "typecheck": "pnpm -r run typecheck"
+    "typecheck": "pnpm -r run typecheck",
+    "reset:concurrency-mirror": "node scripts/reset-concurrency-mirror.ts"
   },
   "keywords": [],
   "author": "",

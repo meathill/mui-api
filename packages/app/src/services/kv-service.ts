@@ -8,7 +8,6 @@ const APIKEY_PREFIX = 'apikey:';
 const GLOBAL_CONFIG_KEY = 'config:global';
 const GLOBAL_SPENDING_PREFIX = 'stats:';
 const USER_SPENDING_PREFIX = 'spending:user:';
-const CONCURRENCY_TTL = 60; // 60秒 TTL，防止程序崩溃导致计数器不归零
 
 export interface ApiKeyMetadata {
   keyPrefix: string;
@@ -133,33 +132,18 @@ export class KVService {
   }
 
   /**
-   * 尝试获取并发槽位
-   * 返回 true 表示成功，false 表示超限
+   * 更新并发展示镜像
    */
-  async acquireConcurrency(userId: string): Promise<boolean> {
+  async setConcurrencyMirror(userId: string, concurrency: number): Promise<void> {
     const { data, metadata } = await this.getUser(userId);
-    if (!data || !metadata) return false;
+    if (!data || !metadata) return;
 
-    const maxConcurrency = metadata.maxConcurrency ?? this.defaultMaxConcurrency;
-
-    if (data.concurrency >= maxConcurrency) {
-      return false;
+    if (data.concurrency === concurrency) {
+      return;
     }
 
-    data.concurrency++;
+    data.concurrency = Math.max(0, concurrency);
     await this.setUser(userId, data, metadata);
-    return true;
-  }
-
-  /**
-   * 释放并发槽位
-   */
-  async releaseConcurrency(userId: string): Promise<void> {
-    const { data, metadata } = await this.getUser(userId);
-    if (data && metadata) {
-      data.concurrency = Math.max(0, data.concurrency - 1);
-      await this.setUser(userId, data, metadata);
-    }
   }
 
   // ==================== API Key ====================

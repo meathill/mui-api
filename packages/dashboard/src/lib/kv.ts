@@ -8,7 +8,7 @@ import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 export interface KVUserData {
   balance: number;
-  concurrency: number;
+  concurrency: number; // Durable Object 同步回 KV 的并发展示镜像，仅用于展示
   isSuspended?: boolean;
 }
 

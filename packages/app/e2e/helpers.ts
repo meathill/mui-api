@@ -7,7 +7,13 @@ import { env } from 'cloudflare:test';
 /**
  * 在 KV 中注册 API Key，返回可用于 Authorization header 的 raw key
  */
-export async function seedApiKey(userId: string, balance: number = 10): Promise<string> {
+export async function seedApiKey(
+  userId: string,
+  balance: number = 10,
+  options: {
+    maxConcurrency?: number;
+  } = {},
+): Promise<string> {
   // 生成测试用 API Key
   const rawKey = `sk-gw-test-${userId}-${Date.now()}`;
   const keyHash = await hashKey(rawKey);
@@ -33,6 +39,7 @@ export async function seedApiKey(userId: string, balance: number = 10): Promise<
       metadata: {
         email: `${userId}@test.com`,
         createdAt: new Date().toISOString(),
+        maxConcurrency: options.maxConcurrency,
       },
     },
   );

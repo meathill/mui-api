@@ -2,6 +2,7 @@
 export interface CloudflareBindings {
   DB: D1Database;
   KV: KVNamespace;
+  CONCURRENCY_LIMITER: DurableObjectNamespace;
   CF_AIG_TOKEN: string;
   RESEND_API_KEY: string;
   ADMIN_SECRET: string;
@@ -18,7 +19,7 @@ export interface CloudflareBindings {
 // KV 用户数据结构
 export interface KVUserData {
   balance: number;
-  concurrency: number;
+  concurrency: number; // Durable Object 同步回 KV 的并发展示镜像，不参与准入判断
   isSuspended?: boolean;
 }
 
@@ -36,6 +37,7 @@ declare module 'hono' {
     apiKeyId: string;
     balance: number;
     rateMultiplier: number;
+    concurrencyLeaseId: string;
     db: import('./db').Database;
   }
 }

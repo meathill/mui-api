@@ -7,6 +7,7 @@ import admin from './routes/admin';
 import openai from './routes/openai';
 import providers from './routes/providers';
 import { createDb } from './db';
+import { ConcurrencyLimiterDO } from './durable-objects/concurrency-limiter';
 import { aggregateHourly, aggregateDaily, aggregateWeekly, aggregateMonthly } from './services/stats-aggregator';
 
 const app = new Hono<{ Bindings: CloudflareBindings }>();
@@ -57,3 +58,5 @@ export default {
     );
   },
 };
+
+export { ConcurrencyLimiterDO };

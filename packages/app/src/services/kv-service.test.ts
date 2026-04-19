@@ -100,48 +100,30 @@ describe('KVService', () => {
   });
 
   describe('Concurrency Control', () => {
-    it('should acquire concurrency slot', async () => {
+    it('should update concurrency mirror', async () => {
       const service = new KVService(mockKV as unknown as KVNamespace, 3);
       await service.createUser('user-1', 'test@example.com', 10);
 
-      const result = await service.acquireConcurrency('user-1');
-      expect(result).toBe(true);
+      await service.setConcurrencyMirror('user-1', 2);
 
       const { data } = await service.getUser('user-1');
-      expect(data?.concurrency).toBe(1);
+      expect(data?.concurrency).toBe(2);
     });
 
-    it('should reject when max concurrency reached', async () => {
-      const service = new KVService(mockKV as unknown as KVNamespace, 2);
-      await service.createUser('user-1', 'test@example.com', 10);
-
-      await service.acquireConcurrency('user-1');
-      await service.acquireConcurrency('user-1');
-      const result = await service.acquireConcurrency('user-1');
-
-      expect(result).toBe(false);
-    });
-
-    it('should release concurrency slot', async () => {
+    it('should keep mirror non-negative', async () => {
       const service = new KVService(mockKV as unknown as KVNamespace, 3);
       await service.createUser('user-1', 'test@example.com', 10);
 
-      await service.acquireConcurrency('user-1');
-      await service.releaseConcurrency('user-1');
+      await service.setConcurrencyMirror('user-1', -3);
 
       const { data } = await service.getUser('user-1');
       expect(data?.concurrency).toBe(0);
     });
 
-    it('should not go below 0 concurrency', async () => {
+    it('should no-op for missing user', async () => {
       const service = new KVService(mockKV as unknown as KVNamespace, 3);
-      await service.createUser('user-1', 'test@example.com', 10);
 
-      await service.releaseConcurrency('user-1');
-      await service.releaseConcurrency('user-1');
-
-      const { data } = await service.getUser('user-1');
-      expect(data?.concurrency).toBe(0);
+      await expect(service.setConcurrencyMirror('missing', 1)).resolves.toBeUndefined();
     });
   });
 

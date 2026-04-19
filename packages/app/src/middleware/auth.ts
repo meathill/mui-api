@@ -1,5 +1,12 @@
 import type { Context, Next } from 'hono';
 import type { CloudflareBindings } from '../types';
+import { createLeaseHeartbeat, wrapResponseBodyWithFinalizer } from '../lib/concurrency-response';
+import { generateId } from '../lib/crypto';
+import {
+  ConcurrencyService,
+  DEFAULT_CONCURRENCY_LEASE_TTL_MS,
+  DEFAULT_CONCURRENCY_REFRESH_INTERVAL_MS,
+} from '../services/concurrency-service';
 import { KVService } from '../services/kv-service';
 
 const MIN_BALANCE = 0.01;
@@ -22,6 +29,7 @@ export async function authMiddleware(c: Context<{ Bindings: CloudflareBindings }
 
   const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
   const kvService = new KVService(c.env.KV, defaultMaxConcurrency);
+  const concurrencyService = new ConcurrencyService(c.env);
 
   // 验证 API Key
   const keyResult = await kvService.validateApiKey(apiKey);
@@ -63,9 +71,14 @@ export async function authMiddleware(c: Context<{ Bindings: CloudflareBindings }
   }
 
   // 检查并发
-  const acquired = await kvService.acquireConcurrency(userId);
-  if (!acquired) {
-    const maxConcurrency = await kvService.getMaxConcurrency(userId);
+  const requestId = generateId();
+  const maxConcurrency = metadata?.maxConcurrency ?? defaultMaxConcurrency;
+  const concurrencyLease = await concurrencyService.acquire(userId, {
+    requestId,
+    maxConcurrency,
+    leaseTtlMs: DEFAULT_CONCURRENCY_LEASE_TTL_MS,
+  });
+  if (!concurrencyLease.ok || !concurrencyLease.leaseId) {
     return c.json(
       {
         error: {
@@ -82,11 +95,51 @@ export async function authMiddleware(c: Context<{ Bindings: CloudflareBindings }
   c.set('apiKeyId', apiKeyId);
   c.set('balance', data.balance);
   c.set('rateMultiplier', metadata?.rateMultiplier ?? 1);
+  c.set('concurrencyLeaseId', concurrencyLease.leaseId);
+
+  const heartbeat = createLeaseHeartbeat(
+    DEFAULT_CONCURRENCY_REFRESH_INTERVAL_MS,
+    async () => {
+      const result = await concurrencyService.refresh(userId, {
+        leaseId: concurrencyLease.leaseId!,
+        leaseTtlMs: DEFAULT_CONCURRENCY_LEASE_TTL_MS,
+      });
+      if (!result.ok) {
+        throw new Error(`续租失败: lease ${concurrencyLease.leaseId}`);
+      }
+    },
+    (error) => {
+      console.error('并发 lease 续租失败:', error);
+    },
+  );
+  c.executionCtx.waitUntil(heartbeat.done);
+
+  let finalized = false;
+
+  async function finalizeLease() {
+    if (finalized) {
+      return;
+    }
+    finalized = true;
+    heartbeat.stop();
+    try {
+      await concurrencyService.release(userId, {
+        leaseId: concurrencyLease.leaseId!,
+      });
+    } catch (error) {
+      console.error('并发 lease 释放失败:', error);
+    }
+  }
 
   try {
     await next();
-  } finally {
-    // 请求完成后释放并发槽位（使用 waitUntil 异步执行）
-    c.executionCtx.waitUntil(kvService.releaseConcurrency(userId));
+    if (c.error) {
+      await finalizeLease();
+      return;
+    }
+    c.res = wrapResponseBodyWithFinalizer(c.res, finalizeLease);
+  } catch (error) {
+    await finalizeLease();
+    throw error;
   }
 }
