@@ -24,17 +24,23 @@ export class GatewayService {
     accountId: string,
     gatewayId: string,
     private cfAigToken: string,
-    private workersAiToken: string,
+    private cfToken: string,
   ) {
     this.baseUrl = `https://gateway.ai.cloudflare.com/v1/${accountId}/${gatewayId}`;
   }
 
   /**
    * OpenAI 兼容模式（compat endpoint）
-   * 将请求代理到 CF AI Gateway 的 /compat/chat/completions 端点
-   * model 改写为 "provider/upstreamModelId" 格式
    *
-   * @see https://developers.cloudflare.com/ai-gateway/get-started/#2-send-your-first-request
+   * - openai / google-ai-studio：走 `/compat/chat/completions`，model 写成 "provider/upstream"，
+   *   上游 API key 存在 AI Gateway Stored Keys 中，网关自己注入
+   * - anthropic / workers-ai：走 Workers AI 的 OpenAI-compat 端点
+   *   `/workers-ai/v1/chat/completions`，由 CF 代付费（按 Workers AI 价目计）。
+   *   anthropic 模型名写成 "anthropic/claude-..."，workers-ai 直接写 "@cf/..."。
+   *   认证用 `Authorization: Bearer <CF_TOKEN>`（CF API Token，需 Workers AI Read）。
+   *
+   * @see https://developers.cloudflare.com/ai-gateway/usage/providers/workers-ai/
+   * @see https://developers.cloudflare.com/workers-ai/configuration/open-ai-compatibility/
    */
   async proxyCompat(
     body: Record<string, unknown>,
@@ -46,10 +52,14 @@ export class GatewayService {
       throw new Error(`不支持的 provider: ${provider}`);
     }
 
-    const url = `${this.baseUrl}/compat/chat/completions`;
+    const useWorkersAiChannel = provider === 'anthropic' || provider === 'workers-ai';
+    const url = useWorkersAiChannel
+      ? `${this.baseUrl}/workers-ai/v1/chat/completions`
+      : `${this.baseUrl}/compat/chat/completions`;
+    const modelField = provider === 'workers-ai' ? upstreamModel : `${provider}/${upstreamModel}`;
     const requestBody = {
       ...body,
-      model: `${provider}/${upstreamModel}`,
+      model: modelField,
       stream,
     };
 
@@ -57,9 +67,8 @@ export class GatewayService {
       'Content-Type': 'application/json',
       'cf-aig-authorization': `Bearer ${this.cfAigToken}`,
     };
-    // Workers AI 通过 CF AI Gateway compat 端点时，需要 BYOK 传入 Cloudflare API Token
-    if (provider === 'workers-ai') {
-      headers.Authorization = `Bearer ${this.workersAiToken}`;
+    if (useWorkersAiChannel) {
+      headers.Authorization = `Bearer ${this.cfToken}`;
     }
 
     const response = await fetch(url, {
@@ -100,9 +109,9 @@ export class GatewayService {
     headers.delete('x-goog-api-key');
     // Stored Keys 模式统一用 cf-aig-authorization 认证网关
     headers.set('cf-aig-authorization', `Bearer ${this.cfAigToken}`);
-    // Workers AI 以 BYOK 方式接入，额外带 Cloudflare API Token
-    if (provider === 'workers-ai') {
-      headers.set('Authorization', `Bearer ${this.workersAiToken}`);
+    // Workers AI / Anthropic（由 Workers AI 代付费）额外带 Cloudflare API Token
+    if (provider === 'workers-ai' || provider === 'anthropic') {
+      headers.set('Authorization', `Bearer ${this.cfToken}`);
     }
     // 添加 provider 特定的额外 headers（如 Anthropic 的 anthropic-version）
     const extras = PROVIDER_EXTRA_HEADERS[provider];
