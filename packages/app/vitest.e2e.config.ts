@@ -14,7 +14,7 @@ export default defineConfig({
           BASE_URL: 'http://localhost',
           CF_ACCOUNT_ID: 'test-account',
           CF_GATEWAY_ID: 'test-gateway',
-          CF_WORKERS_AI_TOKEN: 'test-workers-ai-token',
+          CF_TOKEN: 'test-cf-token',
         },
       },
     }),

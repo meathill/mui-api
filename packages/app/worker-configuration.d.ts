@@ -13,7 +13,7 @@ declare namespace Cloudflare {
     OPENAI_API_KEY: string;
     GOOGLE_API_KEY: string;
     ANTHROPIC_API_KEY: string;
-    CF_WORKERS_AI_TOKEN: string;
+    CF_TOKEN: string;
     RESEND_API_KEY: string;
     ADMIN_SECRET: string;
     ADMIN_EMAIL: string;

@@ -28,12 +28,7 @@ export function createProxyServices(env: CloudflareBindings): ProxyServices {
     fromEmail: env.FROM_EMAIL,
   });
   const alertService = new AlertService(kvService, db, emailService, env.ADMIN_EMAIL);
-  const gatewayService = new GatewayService(
-    env.CF_ACCOUNT_ID,
-    env.CF_GATEWAY_ID,
-    env.CF_AIG_TOKEN,
-    env.CF_WORKERS_AI_TOKEN,
-  );
+  const gatewayService = new GatewayService(env.CF_ACCOUNT_ID, env.CF_GATEWAY_ID, env.CF_AIG_TOKEN, env.CF_TOKEN);
 
   return { db, kvService, billingService, alertService, gatewayService };
 }
