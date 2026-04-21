@@ -92,11 +92,11 @@ export const SEED_MODELS: NewModel[] = [
     markupRate: 1.2,
   },
 
-  // Anthropic (Claude) — 通过 AWS Bedrock，使用跨区推理 ID
+  // Anthropic (Claude) — 通过 CF AI Gateway，使用 Anthropic 官方 model id
   {
     id: 'claude-opus-4-6',
     provider: 'anthropic',
-    upstreamModelId: 'us.anthropic.claude-opus-4-6-v1',
+    upstreamModelId: 'claude-opus-4-6',
     inputPrice: 5,
     outputPrice: 25,
     markupRate: 1.2,
@@ -104,7 +104,7 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-sonnet-4-6',
     provider: 'anthropic',
-    upstreamModelId: 'us.anthropic.claude-sonnet-4-6',
+    upstreamModelId: 'claude-sonnet-4-6',
     inputPrice: 3,
     outputPrice: 15,
     markupRate: 1.2,
@@ -112,7 +112,7 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-sonnet-4-5',
     provider: 'anthropic',
-    upstreamModelId: 'us.anthropic.claude-sonnet-4-5-20250929-v1:0',
+    upstreamModelId: 'claude-sonnet-4-5',
     inputPrice: 3,
     outputPrice: 15,
     markupRate: 1.2,
@@ -120,9 +120,35 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-haiku-4-5',
     provider: 'anthropic',
-    upstreamModelId: 'us.anthropic.claude-haiku-4-5-20251001-v1:0',
+    upstreamModelId: 'claude-haiku-4-5',
     inputPrice: 1,
     outputPrice: 5,
+    markupRate: 1.2,
+  },
+
+  // Cloudflare Workers AI
+  {
+    id: 'glm-4.7-flash',
+    provider: 'workers-ai',
+    upstreamModelId: '@cf/zai-org/glm-4.7-flash',
+    inputPrice: 0.06,
+    outputPrice: 0.4,
+    markupRate: 1.2,
+  },
+  {
+    id: 'qwen3-30b',
+    provider: 'workers-ai',
+    upstreamModelId: '@cf/qwen/qwen3-30b-a3b-fp8',
+    inputPrice: 0.051,
+    outputPrice: 0.335,
+    markupRate: 1.2,
+  },
+  {
+    id: 'kimi-k2.6',
+    provider: 'workers-ai',
+    upstreamModelId: '@cf/moonshotai/kimi-k2.6',
+    inputPrice: 0.95,
+    outputPrice: 4,
     markupRate: 1.2,
   },
 ];

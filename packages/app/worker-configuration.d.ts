@@ -10,11 +10,10 @@ declare namespace Cloudflare {
     KV: KVNamespace;
     DB: D1Database;
     DEFAULT_MAX_CONCURRENCY: 3;
-    AWS_BEDROCK_REGION: 'us-west-2';
     OPENAI_API_KEY: string;
     GOOGLE_API_KEY: string;
     ANTHROPIC_API_KEY: string;
-    AWS_BEDROCK_API_KEY: string;
+    CF_WORKERS_AI_TOKEN: string;
     RESEND_API_KEY: string;
     ADMIN_SECRET: string;
     ADMIN_EMAIL: string;

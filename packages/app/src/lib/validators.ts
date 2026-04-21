@@ -27,7 +27,7 @@ export type GetUserInput = z.infer<typeof GetUserSchema>;
 
 export const ModelCreateSchema = z.object({
   id: z.string().min(1, '模型 ID 不能为空'),
-  provider: z.enum(['openai', 'anthropic', 'google-ai-studio']),
+  provider: z.enum(['openai', 'anthropic', 'google-ai-studio', 'workers-ai']),
   upstreamModelId: z.string().optional(),
   inputPrice: z.number().min(0, '价格不能为负'),
   outputPrice: z.number().min(0, '价格不能为负'),

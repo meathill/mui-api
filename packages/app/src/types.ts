@@ -11,8 +11,7 @@ export interface CloudflareBindings {
   FROM_EMAIL?: string;
   CF_ACCOUNT_ID: string;
   CF_GATEWAY_ID: string;
-  AWS_BEDROCK_API_KEY: string;
-  AWS_BEDROCK_REGION?: string; // 默认 "us-east-1"
+  CF_WORKERS_AI_TOKEN: string;
   DEFAULT_MAX_CONCURRENCY?: string; // 默认 "3"
 }
 

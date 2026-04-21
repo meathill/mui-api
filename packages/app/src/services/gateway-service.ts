@@ -8,7 +8,7 @@
  * @see https://developers.cloudflare.com/ai-gateway/get-started/
  */
 
-const SUPPORTED_PROVIDERS = new Set(['openai', 'anthropic', 'google-ai-studio']);
+const SUPPORTED_PROVIDERS = new Set(['openai', 'anthropic', 'google-ai-studio', 'workers-ai']);
 
 // 原生代理模式下，某些 provider 需要额外的 header
 const PROVIDER_EXTRA_HEADERS: Record<string, Record<string, string>> = {
@@ -24,6 +24,7 @@ export class GatewayService {
     accountId: string,
     gatewayId: string,
     private cfAigToken: string,
+    private workersAiToken: string,
   ) {
     this.baseUrl = `https://gateway.ai.cloudflare.com/v1/${accountId}/${gatewayId}`;
   }
@@ -56,6 +57,10 @@ export class GatewayService {
       'Content-Type': 'application/json',
       'cf-aig-authorization': `Bearer ${this.cfAigToken}`,
     };
+    // Workers AI 通过 CF AI Gateway compat 端点时，需要 BYOK 传入 Cloudflare API Token
+    if (provider === 'workers-ai') {
+      headers.Authorization = `Bearer ${this.workersAiToken}`;
+    }
 
     const response = await fetch(url, {
       method: 'POST',
@@ -95,6 +100,10 @@ export class GatewayService {
     headers.delete('x-goog-api-key');
     // Stored Keys 模式统一用 cf-aig-authorization 认证网关
     headers.set('cf-aig-authorization', `Bearer ${this.cfAigToken}`);
+    // Workers AI 以 BYOK 方式接入，额外带 Cloudflare API Token
+    if (provider === 'workers-ai') {
+      headers.set('Authorization', `Bearer ${this.workersAiToken}`);
+    }
     // 添加 provider 特定的额外 headers（如 Anthropic 的 anthropic-version）
     const extras = PROVIDER_EXTRA_HEADERS[provider];
     if (extras) {

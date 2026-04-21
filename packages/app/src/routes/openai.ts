@@ -35,7 +35,7 @@ openai.post('/chat/completions', async (c) => {
 
   const modelId = body.model as string;
   const userRateMultiplier = c.get('rateMultiplier');
-  const { db, billingService, alertService, gatewayService, bedrockService } = createProxyServices(c.env);
+  const { db, billingService, alertService, gatewayService } = createProxyServices(c.env);
 
   // 查 DB 获取 model 配置
   const modelConfig = await db.select().from(models).where(eq(models.id, modelId)).get();
@@ -65,11 +65,8 @@ openai.post('/chat/completions', async (c) => {
   const isStream = body.stream === true;
 
   try {
-    // Anthropic 模型走 AWS Bedrock，其他走 CF AI Gateway
-    const upstreamResponse =
-      provider === 'anthropic'
-        ? await bedrockService.proxyCompat(body, upstreamModel, isStream)
-        : await gatewayService.proxyCompat(body, provider, upstreamModel, isStream);
+    // 所有 provider 统一走 CF AI Gateway 的 OpenAI-compat 端点
+    const upstreamResponse = await gatewayService.proxyCompat(body, provider, upstreamModel, isStream);
 
     if (isStream) {
       // 流式响应：tee stream，一路给客户端，一路用于提取 usage
