@@ -26,6 +26,9 @@
       "preview_id": "aeab02ed56cc4d2ca6e8558aa90b8663"
     }
   ],
+  "ai": {
+    "binding": "AI"
+  },
   "observability": {
     "enabled": true
   },

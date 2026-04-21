@@ -12,6 +12,7 @@ export interface CloudflareBindings {
   CF_ACCOUNT_ID: string;
   CF_GATEWAY_ID: string;
   CF_TOKEN: string;
+  AI: Ai;
   DEFAULT_MAX_CONCURRENCY?: string; // 默认 "3"
 }
 

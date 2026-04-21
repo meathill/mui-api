@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import type { CloudflareBindings } from '../types';
 import { authMiddleware } from '../middleware/auth';
 import { createProxyServices } from '../services/service-factory';
-import { extractNativeUsage, extractNativeStreamUsage } from '../services/usage-extractor';
+import { extractStreamUsage, extractUsage } from '../services/usage-extractor';
 
 const providers = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -45,7 +45,7 @@ providers.all('/:provider{.+}/*', async (c) => {
       c.executionCtx.waitUntil(
         (async () => {
           try {
-            const usage = await extractNativeStreamUsage(provider, new Response(billingStream));
+            const usage = await extractStreamUsage(provider, new Response(billingStream));
             if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
               const cost = await billingService.processUsage(
                 userId,
@@ -79,7 +79,7 @@ providers.all('/:provider{.+}/*', async (c) => {
       (async () => {
         try {
           const data = (await billingResponse.json()) as Record<string, unknown>;
-          const usage = extractNativeUsage(provider, data);
+          const usage = extractUsage(provider, data);
           if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
             const cost = await billingService.processUsage(
               userId,

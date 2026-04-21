@@ -22,6 +22,7 @@ declare namespace Cloudflare {
     CF_ACCOUNT_ID: string;
     CF_GATEWAY_ID: string;
     CF_TOKEN: string;
+    AI: Ai;
     CONCURRENCY_LIMITER: DurableObjectNamespace<import('./src/index').ConcurrencyLimiterDO>;
   }
 }
