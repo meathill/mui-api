@@ -10,6 +10,9 @@
 
 const SUPPORTED_PROVIDERS = new Set(['openai', 'anthropic', 'google-ai-studio', 'workers-ai']);
 
+// 走自有账号 + AI Gateway Stored Keys 付费的 provider；其余统一走 Workers AI 代付费通路
+const SELF_PAID_PROVIDERS = new Set(['openai', 'google-ai-studio']);
+
 // 原生代理模式下，某些 provider 需要额外的 header
 const PROVIDER_EXTRA_HEADERS: Record<string, Record<string, string>> = {
   anthropic: {
@@ -32,12 +35,11 @@ export class GatewayService {
   /**
    * OpenAI 兼容模式（compat endpoint）
    *
-   * - openai / google-ai-studio：走 `/compat/chat/completions`，model 写成 "provider/upstream"，
-   *   上游 API key 存在 AI Gateway Stored Keys 中，网关自己注入
-   * - anthropic / workers-ai：走 Workers AI 的 OpenAI-compat 端点
-   *   `/workers-ai/v1/chat/completions`，由 CF 代付费（按 Workers AI 价目计）。
-   *   anthropic 模型名写成 "anthropic/claude-..."，workers-ai 直接写 "@cf/..."。
-   *   认证用 `Authorization: Bearer <CF_TOKEN>`（CF API Token，需 Workers AI Read）。
+   * - openai / google-ai-studio：自有账号付费，走 AI Gateway 的 `/compat/chat/completions`，
+   *   model 写成 "provider/upstream"，上游 API key 存在 Stored Keys 里由网关注入
+   * - 其它 provider（anthropic / workers-ai / 将来新增）：统一由 CF 代付费，走 Workers AI 的
+   *   OpenAI-compat 端点 `/workers-ai/v1/chat/completions`，按 Workers AI 价目计费
+   *   model 形如 "anthropic/claude-..." 或 "@cf/..."；认证只要 `Authorization: Bearer <CF_TOKEN>`
    *
    * @see https://developers.cloudflare.com/ai-gateway/usage/providers/workers-ai/
    * @see https://developers.cloudflare.com/workers-ai/configuration/open-ai-compatibility/
@@ -52,10 +54,10 @@ export class GatewayService {
       throw new Error(`不支持的 provider: ${provider}`);
     }
 
-    const useWorkersAiChannel = provider === 'anthropic' || provider === 'workers-ai';
-    const url = useWorkersAiChannel
-      ? `${this.baseUrl}/workers-ai/v1/chat/completions`
-      : `${this.baseUrl}/compat/chat/completions`;
+    const useSelfPaid = SELF_PAID_PROVIDERS.has(provider);
+    const url = useSelfPaid
+      ? `${this.baseUrl}/compat/chat/completions`
+      : `${this.baseUrl}/workers-ai/v1/chat/completions`;
     const modelField = provider === 'workers-ai' ? upstreamModel : `${provider}/${upstreamModel}`;
     const requestBody = {
       ...body,
@@ -67,7 +69,7 @@ export class GatewayService {
       'Content-Type': 'application/json',
       'cf-aig-authorization': `Bearer ${this.cfAigToken}`,
     };
-    if (useWorkersAiChannel) {
+    if (!useSelfPaid) {
       headers.Authorization = `Bearer ${this.cfToken}`;
     }
 
@@ -109,8 +111,8 @@ export class GatewayService {
     headers.delete('x-goog-api-key');
     // Stored Keys 模式统一用 cf-aig-authorization 认证网关
     headers.set('cf-aig-authorization', `Bearer ${this.cfAigToken}`);
-    // Workers AI / Anthropic（由 Workers AI 代付费）额外带 Cloudflare API Token
-    if (provider === 'workers-ai' || provider === 'anthropic') {
+    // 非自有账号付费的 provider 统一由 CF 代付费，带 CF API Token
+    if (!SELF_PAID_PROVIDERS.has(provider)) {
       headers.set('Authorization', `Bearer ${this.cfToken}`);
     }
     // 添加 provider 特定的额外 headers（如 Anthropic 的 anthropic-version）
