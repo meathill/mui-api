@@ -92,11 +92,19 @@ export const SEED_MODELS: NewModel[] = [
     markupRate: 1.2,
   },
 
-  // Anthropic (Claude) — 通过 CF AI Gateway，使用 Anthropic 官方 model id
+  // Anthropic (Claude) — 通过 CF Workers AI 代付费，upstream 使用 CF 的点号命名
+  {
+    id: 'claude-opus-4-7',
+    provider: 'anthropic',
+    upstreamModelId: 'claude-opus-4.7',
+    inputPrice: 5,
+    outputPrice: 25,
+    markupRate: 1.2,
+  },
   {
     id: 'claude-opus-4-6',
     provider: 'anthropic',
-    upstreamModelId: 'claude-opus-4-6',
+    upstreamModelId: 'claude-opus-4.6',
     inputPrice: 5,
     outputPrice: 25,
     markupRate: 1.2,
@@ -104,15 +112,7 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-sonnet-4-6',
     provider: 'anthropic',
-    upstreamModelId: 'claude-sonnet-4-6',
-    inputPrice: 3,
-    outputPrice: 15,
-    markupRate: 1.2,
-  },
-  {
-    id: 'claude-sonnet-4-5',
-    provider: 'anthropic',
-    upstreamModelId: 'claude-sonnet-4-5',
+    upstreamModelId: 'claude-sonnet-4.6',
     inputPrice: 3,
     outputPrice: 15,
     markupRate: 1.2,
@@ -120,7 +120,7 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-haiku-4-5',
     provider: 'anthropic',
-    upstreamModelId: 'claude-haiku-4-5',
+    upstreamModelId: 'claude-haiku-4.5',
     inputPrice: 1,
     outputPrice: 5,
     markupRate: 1.2,

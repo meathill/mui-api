@@ -30,7 +30,7 @@
     "enabled": true
   },
   "placement": {
-    "mode": "smart"
+    "region": "azure:japanwest"
   },
   "migrations": [
     {

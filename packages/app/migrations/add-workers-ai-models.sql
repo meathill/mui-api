@@ -1,11 +1,17 @@
--- Workers AI 首批 text 模型 + Claude upstream id 迁移（Bedrock → AI Gateway）
+-- Workers AI 首批 text 模型 + Claude upstream id 迁移
 -- 执行：wrangler d1 execute <DB_NAME> --remote --file=packages/app/migrations/add-workers-ai-models.sql
 
--- Claude：upstream_model_id 从 Bedrock 跨区推理 ID 改为 Anthropic 官方 id
-UPDATE models SET upstream_model_id = 'claude-opus-4-6'   WHERE id = 'claude-opus-4-6';
-UPDATE models SET upstream_model_id = 'claude-sonnet-4-6' WHERE id = 'claude-sonnet-4-6';
-UPDATE models SET upstream_model_id = 'claude-sonnet-4-5' WHERE id = 'claude-sonnet-4-5';
-UPDATE models SET upstream_model_id = 'claude-haiku-4-5' WHERE id = 'claude-haiku-4-5';
+-- Claude：upstream_model_id 使用 CF Workers AI 的点号命名
+UPDATE models SET upstream_model_id = 'claude-opus-4.6'   WHERE id = 'claude-opus-4-6';
+UPDATE models SET upstream_model_id = 'claude-sonnet-4.6' WHERE id = 'claude-sonnet-4-6';
+UPDATE models SET upstream_model_id = 'claude-haiku-4.5' WHERE id = 'claude-haiku-4-5';
+
+-- 清理已过时的 claude-sonnet-4-5（不在 CF Workers AI 目录）
+DELETE FROM models WHERE id = 'claude-sonnet-4-5';
+
+-- 新增 claude-opus-4-7
+INSERT OR REPLACE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES
+  ('claude-opus-4-7', 'anthropic', 'claude-opus-4.7', 5, 25, 1.2);
 
 -- Workers AI 新增
 INSERT OR REPLACE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES
