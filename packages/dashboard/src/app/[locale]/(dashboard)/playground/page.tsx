@@ -1,6 +1,6 @@
 'use client';
 
-import { ImageIcon, MessageSquareIcon, SaveIcon, XIcon } from 'lucide-react';
+import { ImageIcon, LoaderCircleIcon, MessageSquareIcon, SaveIcon, XIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { adminApi, type ModelInfo } from '@/lib/api';
@@ -350,6 +350,12 @@ export default function PlaygroundPage() {
                 <Button onClick={handleRunClick} disabled={!prompt.trim() || !apiKey.trim() || !selectedModel}>
                   {mode === 'chat' ? t('send') : t('generateImage')}
                 </Button>
+              )}
+              {loading && mode === 'image' && (
+                <span className="inline-flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
+                  <LoaderCircleIcon className="size-4 animate-spin" />
+                  {t('generating')}
+                </span>
               )}
               {mode === 'image' && uploadedImages.length > 0 && (
                 <Button variant="outline" onClick={() => setUploadedImages([])}>

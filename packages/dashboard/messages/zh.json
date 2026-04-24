@@ -270,6 +270,7 @@
     "imagePrompt": "图片 Prompt",
     "imagePromptPlaceholder": "描述你想生成的图片，或说明如何编辑已上传图片...",
     "generateImage": "生成图片",
+    "generating": "Generating",
     "uploadImages": "上传参考图片",
     "uploadHint": "支持 PNG、JPEG、WebP。上传图片后会自动调用图片编辑接口。",
     "clearUploads": "清空上传",

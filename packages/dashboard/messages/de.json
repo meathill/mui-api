@@ -270,6 +270,7 @@
     "imagePrompt": "Image prompt",
     "imagePromptPlaceholder": "Describe the image you want to generate or how to edit the uploaded image...",
     "generateImage": "Generate image",
+    "generating": "Generating",
     "uploadImages": "Upload reference images",
     "uploadHint": "PNG, JPEG, or WebP. Uploading images switches the request to image edit.",
     "clearUploads": "Clear uploads",
