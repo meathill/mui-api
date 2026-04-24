@@ -7,6 +7,7 @@
   "header": {
     "login": "ログイン",
     "register": "新規登録",
+    "blog": "ブログ",
     "pricing": "価格",
     "dashboard": "ダッシュボード"
   },
@@ -116,6 +117,25 @@
       "gemini31ProPreview": "Preview モデルです。200k tokens を超える prompt は $4.00 / $0.40 / $18.00 になります。",
       "geminiPreview": "Preview モデルのため、正式版前に価格や制限が変わる可能性があります。"
     }
+  },
+  "blog": {
+    "metadata": {
+      "title": "ブログ",
+      "description": "AIモデルの更新、実用的なリリースノート、MUI Routerのプロダクトガイド。"
+    },
+    "eyebrow": "MUI Router ブログ",
+    "title": "ノイズの少ないAIモデル更新",
+    "subtitle": "新しい frontier モデル、API の提供状況、安定した統合を望むビルダーにとって各リリースが何を意味するかを明確に整理します。",
+    "readingTime": "{minutes}分で読めます",
+    "readArticle": "記事を読む",
+    "ctaTitle": "モデルの変化に1つの統合で対応しますか？",
+    "ctaDescription": "MUI Router アカウントを作成し、モデルエコシステムが変化してもアプリの統合を安定させましょう。",
+    "ctaButton": "新規登録",
+    "backToBlog": "ブログへ戻る",
+    "sourcesTitle": "公式ソース",
+    "sourcePublished": "OpenAI 公式ソースの公開日: {date}",
+    "articleCtaTitle": "次のモデルロールアウトに備える",
+    "articleCtaDescription": "1つの API Key から始め、upstream の提供開始後に将来のモデルアクセスをより明確に route できるようにします。"
   },
   "login": {
     "title": "MUI Routerにログイン",

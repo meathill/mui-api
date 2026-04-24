@@ -7,6 +7,7 @@
   "header": {
     "login": "Anmelden",
     "register": "Registrieren",
+    "blog": "Blog",
     "pricing": "Preise",
     "dashboard": "Dashboard"
   },
@@ -116,6 +117,25 @@
       "gemini31ProPreview": "Vorschaumodell. Prompts über 200k Tokens wechseln zu $4.00 / $0.40 / $18.00.",
       "geminiPreview": "Vorschaumodell. Preise und Limits können sich vor der stabilen Veröffentlichung ändern."
     }
+  },
+  "blog": {
+    "metadata": {
+      "title": "Blog",
+      "description": "KI-Modellupdates, praktische Launch-Notizen und MUI Router Produktleitfäden."
+    },
+    "eyebrow": "MUI Router Blog",
+    "title": "KI-Modellupdates ohne Rauschen",
+    "subtitle": "Klare Notizen zu neuen Frontier-Modellen, API-Verfügbarkeit und der Bedeutung jedes Launches für Builder, die eine stabile Integration wollen.",
+    "readingTime": "{minutes} Min. Lesezeit",
+    "readArticle": "Artikel lesen",
+    "ctaTitle": "Eine Integration für jeden Modellwechsel?",
+    "ctaDescription": "Erstellen Sie ein MUI Router Konto und halten Sie Ihre App-Integration stabil, während sich das Modell-Ökosystem weiter verändert.",
+    "ctaButton": "Registrieren",
+    "backToBlog": "Zurück zum Blog",
+    "sourcesTitle": "Offizielle Quellen",
+    "sourcePublished": "OpenAI-Quelle veröffentlicht am {date}.",
+    "articleCtaTitle": "Bereiten Sie den nächsten Modell-Rollout vor",
+    "articleCtaDescription": "Starten Sie mit einer API Key und einem klareren Weg, zukünftigen Modellzugang zu routen, sobald Upstream-Verfügbarkeit besteht."
   },
   "login": {
     "title": "Bei MUI Router anmelden",

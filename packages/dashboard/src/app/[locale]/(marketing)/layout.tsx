@@ -10,22 +10,28 @@ export default async function MarketingLayout({ children }: { children: React.Re
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="mx-auto flex h-14 max-w-5xl items-center justify-between px-6">
-          <Link href="/" className="text-lg font-bold tracking-tight">
+        <div className="mx-auto flex min-h-14 max-w-5xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6">
+          <Link href="/" className="mr-auto text-lg font-bold tracking-tight">
             MUI Router
           </Link>
-          <nav className="flex items-center gap-3">
+          <nav className="flex flex-wrap items-center justify-end gap-2 sm:gap-3">
             <LanguageSwitcher />
             <Link
+              href="/blog"
+              className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors sm:px-4"
+            >
+              {t('blog')}
+            </Link>
+            <Link
               href="/pricing"
-              className="inline-flex h-9 items-center rounded-lg px-4 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors sm:px-4"
             >
               {t('pricing')}
             </Link>
             {user ? (
               <Link
                 href="/app"
-                className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors sm:px-4"
               >
                 {t('dashboard')}
               </Link>
@@ -33,13 +39,13 @@ export default async function MarketingLayout({ children }: { children: React.Re
               <>
                 <Link
                   href="/login"
-                  className="inline-flex h-9 items-center rounded-lg px-4 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors sm:px-4"
                 >
                   {t('login')}
                 </Link>
                 <Link
                   href="/register"
-                  className="inline-flex h-9 items-center rounded-lg bg-primary px-4 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                  className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors sm:px-4"
                 >
                   {t('register')}
                 </Link>

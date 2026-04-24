@@ -7,6 +7,7 @@
   "header": {
     "login": "登录",
     "register": "注册",
+    "blog": "博客",
     "pricing": "价格",
     "dashboard": "进入控制台"
   },
@@ -116,6 +117,25 @@
       "gemini31ProPreview": "预览版模型。超过 200k tokens 的 prompt 按 $4.00 / $0.40 / $18.00 计。",
       "geminiPreview": "预览版模型，价格和限制在正式发布前仍可能调整。"
     }
+  },
+  "blog": {
+    "metadata": {
+      "title": "博客",
+      "description": "AI 模型更新、实用发布解读与 MUI Router 产品指南。"
+    },
+    "eyebrow": "MUI Router 博客",
+    "title": "少点噪音，多点有用的 AI 模型更新",
+    "subtitle": "清晰记录前沿模型、API 可用性，以及每次发布对希望保持稳定接入的开发者意味着什么。",
+    "readingTime": "{minutes} 分钟阅读",
+    "readArticle": "阅读文章",
+    "ctaTitle": "想用一次接入应对每次模型变化？",
+    "ctaDescription": "创建 MUI Router 账户，让应用集成保持稳定，把模型生态的变化留给路由和配置处理。",
+    "ctaButton": "注册",
+    "backToBlog": "返回博客",
+    "sourcesTitle": "官方来源",
+    "sourcePublished": "OpenAI 官方来源发布于 {date}。",
+    "articleCtaTitle": "为下一次模型发布做好准备",
+    "articleCtaDescription": "从一个 API Key 开始，在上游模型开放后，用更清晰的路径接入未来模型。"
   },
   "login": {
     "title": "登录 MUI Router",

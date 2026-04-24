@@ -4,6 +4,7 @@ import { defaultMessages } from './test-messages';
 test.describe('营销页面', () => {
   const registerLink = { name: defaultMessages.header.register, exact: true } as const;
   const loginLink = { name: defaultMessages.header.login, exact: true } as const;
+  const blogLink = { name: defaultMessages.header.blog, exact: true } as const;
   const pricingLink = { name: defaultMessages.header.pricing, exact: true } as const;
 
   test('首页可访问且包含标题', async ({ page }) => {
@@ -39,6 +40,13 @@ test.describe('营销页面', () => {
     await expect(page.getByRole('heading', { level: 1, name: defaultMessages.pricing.title })).toBeVisible();
   });
 
+  test('首页导航包含博客入口并可跳转', async ({ page }) => {
+    await page.goto('/');
+    await page.getByRole('navigation').getByRole('link', blogLink).click();
+    await expect(page).toHaveURL('/blog');
+    await expect(page.getByRole('heading', { level: 1, name: defaultMessages.blog.title })).toBeVisible();
+  });
+
   test('点击查看定价按钮跳转到价格页', async ({ page }) => {
     await page.goto('/');
     await page.getByRole('link', { name: defaultMessages.hero.ctaSecondary, exact: true }).click();
@@ -52,5 +60,35 @@ test.describe('营销页面', () => {
     await expect(page.getByText('Gemini').first()).toBeVisible();
     await expect(page.getByRole('cell', { name: 'GPT-5.4', exact: true }).first()).toBeVisible();
     await expect(page.getByRole('cell', { name: 'gemini-3.1-pro-preview', exact: true }).first()).toBeVisible();
+  });
+
+  test('博客列表展示 GPT-5.5 文章并可进入详情', async ({ page }) => {
+    await page.goto('/blog');
+    await expect(page.getByRole('heading', { level: 2, name: /GPT-5\.5 Is Here/ })).toBeVisible();
+
+    await page.getByRole('link', { name: defaultMessages.blog.readArticle, exact: true }).click();
+    await expect(page).toHaveURL('/blog/gpt-5-5');
+    await expect(page.getByRole('heading', { level: 1, name: /GPT-5\.5 Is Here/ })).toBeVisible();
+  });
+
+  test('GPT-5.5 文章展示官方来源和 API coming soon 说明', async ({ page }) => {
+    await page.goto('/blog/gpt-5-5');
+
+    await expect(page.getByRole('heading', { level: 1, name: /GPT-5\.5 Is Here/ })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: defaultMessages.blog.sourcesTitle })).toBeVisible();
+    await expect(page.getByRole('link', { name: 'OpenAI GPT-5.5 announcement' })).toBeVisible();
+    await expect(page.getByText('coming to the API very soon')).toBeVisible();
+  });
+
+  test('GPT-5.5 文章注册 CTA 跳转注册页', async ({ page }) => {
+    await page.goto('/blog/gpt-5-5');
+    await page.getByRole('link', { name: defaultMessages.blog.ctaButton, exact: true }).last().click();
+    await expect(page).toHaveURL('/register');
+  });
+
+  test('非英文路径可访问英文博客正文', async ({ page }) => {
+    await page.goto('/zh/blog/gpt-5-5');
+    await expect(page.getByRole('heading', { level: 1, name: /GPT-5\.5 Is Here/ })).toBeVisible();
+    await expect(page.getByText('On April 23, 2026, OpenAI released GPT-5.5')).toBeVisible();
   });
 });
