@@ -7,7 +7,7 @@ export function ModelsSection() {
     {
       name: 'OpenAI',
       color: 'bg-emerald-500/10 text-emerald-600',
-      models: ['GPT-5.4', 'GPT-5.3-codex', 'GPT-5.4-mini'],
+      models: ['GPT-5.4', 'GPT-5.3-codex', 'GPT-5.4-mini', 'GPT Image 2'],
       description: t('openaiDesc'),
     },
     {
