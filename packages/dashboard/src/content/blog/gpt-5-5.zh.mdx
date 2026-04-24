@@ -1,0 +1,80 @@
+2026 年 4 月 23 日，OpenAI 发布了 GPT-5.5，并把它描述为面向真实工作的全新智能类别。这不是又一次简单的 benchmark 提升。真正的重点是，GPT-5.5 被设计成能自己承担更多任务：规划、使用工具、检查结果，并在信息不完整时继续推进。
+
+对 AI 爱好者来说，这会改变使用模型时的体感。你不再需要把每一步都拆成细碎提示词，GPT-5.5 更接近一个能跨代码、研究、文档、表格和软件界面协作的工作伙伴。实际问题也不再只是“模型有多聪明”，而是“我可以把多少工作流安全地交给它”。
+
+## OpenAI 实际发布了什么
+
+根据 OpenAI 的 [GPT-5.5 官方公告](https://openai.com/index/introducing-gpt-5-5/)，GPT-5.5 正在向 ChatGPT 和 Codex 中的 Plus、Pro、Business、Enterprise 用户 rollout。GPT-5.5 Pro 正在向 ChatGPT 中的 Pro、Business、Enterprise 用户 rollout。
+
+API 情况不同。OpenAI 表示 GPT-5.5 和 GPT-5.5 Pro 将 “coming to the API very soon”，但它们并没有在发布当天面向通用 API 使用上线。如果你正在构建产品，这一点很重要：今天可以开始研究这次发布，但生产环境 API 接入仍取决于上游可用性、安全要求和最终模型权限。
+
+## 重要的能力变化
+
+GPT-5.5 最值得关注的地方不是某个单点能力，而是更强推理、工具使用和长周期任务坚持度的组合。
+
+| 领域 | OpenAI 强调的变化 | 为什么重要 |
+| --- | --- | --- |
+| Agentic coding | 在 Codex、Terminal-Bench 2.0、SWE-Bench Pro 和长周期内部编码任务中表现更强 | 更适合多步骤实现、调试、重构和验证 |
+| Computer use | OSWorld-Verified 表现更高，工具协调能力更好 | 更接近真实的软件工作流交互，而不只是文本回答 |
+| 知识工作 | 文档、表格、分析和运营研究工作流更强 | 适合把混乱输入整理成可交付成果 |
+| 科学研究 | 在遗传学、生物信息学、数学和研究型评估任务上表现更好 | 更接近能协助证据收集、代码、解释和迭代的模型 |
+
+OpenAI 还表示，GPT-5.5 在真实服务中的 per-token latency 与 GPT-5.4 匹配，同时智能水平更高。在 Codex 任务中，OpenAI 表示它完成同样工作所需 token 明显更少。这是一个细微但重要的点：模型单 token 价格高于 GPT-5.4，但 token efficiency 会改变完成一个任务的真实成本。
+
+## 可用性：ChatGPT 和 Codex 先行，API 随后
+
+目前，GPT-5.5 主要是 ChatGPT 和 Codex 的 rollout：
+
+- ChatGPT：GPT-5.5 Thinking 会随着 rollout 到达 Plus、Pro、Business、Enterprise 账户。
+- ChatGPT Pro 档位：GPT-5.5 Pro 正在为更困难、更高准确率的工作 rollout。
+- Codex：GPT-5.5 面向 Plus、Pro、Business、Enterprise、Edu、Go 计划开放，context window 为 400K。
+- API：OpenAI 表示 `gpt-5.5` 和 `gpt-5.5-pro` 将很快进入 Responses API 和 Chat Completions API。
+
+[ChatGPT Help Center 文章](https://help.openai.com/en/articles/11909943-gpt-53-and-gpt-54-in-chatgpt)也说明 rollout 可能是逐步进行的。如果你没有立刻看到它，并不一定意味着你的计划不支持。
+
+## 可以提前规划的 API 价格
+
+OpenAI 的发布内容和 [API pricing 页面](https://openai.com/api/pricing/)使用未来式描述了计划中的 API 价格：
+
+| 模型 | 输入 | 缓存输入 | 输出 |
+| --- | ---: | ---: | ---: |
+| `gpt-5.5` | $5 / 1M tokens | $0.50 / 1M tokens | $30 / 1M tokens |
+| `gpt-5.5-pro` | $30 / 1M tokens | - | $180 / 1M tokens |
+
+OpenAI 还表示 `gpt-5.5` 在 API 中将拥有 1M context window。Batch 和 Flex pricing 预计为标准 API 价格的一半，Priority processing 预计为标准价格的 2.5 倍。
+
+正确的解读方式是：可以开始规划，但不要在生产环境中硬编码假设，直到你的账户真正获得 API 权限，并且你自己的 billing dashboard 中已经确认 provider pricing。
+
+## 安全是这次发布的一部分
+
+[GPT-5.5 System Card](https://openai.com/index/gpt-5-5-system-card/)把这个模型定位为面向复杂真实工作的发布，包括编码、在线研究、信息分析、文档、表格和软件操作。它还说明 OpenAI 做了预部署安全评估、Preparedness Framework 审查，以及针对高级网络安全和生物能力的定向 red-teaming。
+
+这个背景很重要。GPT-5.5 更擅长在更长时间跨度内采取行动，而行动能力更强的模型需要更强控制。OpenAI 表示 API 部署需要不同的安全防护，这也是 API 可用性与 ChatGPT、Codex 访问采用不同节奏的原因。
+
+## 这对 AI 爱好者意味着什么
+
+GPT-5.5 指向了一种不同的 AI 使用方式。最好的模型正在从 autocomplete 变成更像 operator 的系统，能把混乱任务推进到可用结果。
+
+这意味着爱好者应该用不同方式测试 prompts 和 workflows：
+
+- 给模型完整结果目标，而不只是小指令。
+- 要求它在行动前检查假设。
+- 允许它使用工具，然后验证最终输出。
+- 衡量已完成任务的质量，而不只是回答风格。
+- 跟踪每个完成工作流的成本，而不只是每 token 成本。
+
+这就是模型跃迁变得具体的地方。更快的回答当然有价值，但能协调多步骤工作流、减少返工并交付结果的模型，会改变你能构建什么。
+
+## 这对 MUI Router 用户意味着什么
+
+MUI Router 围绕一个简单想法构建：一个 API key、一种集成模式，以及更清晰的方式来路由访问主流 AI 模型。GPT-5.5 再次说明了这件事为什么重要。
+
+当前沿模型到来时，难点通常不只是模型名称。团队需要理解可用性、价格、provider-specific limits、rollout timing，以及哪些工作负载应该先迁移。统一网关可以让这个过程更平稳：应用层集成保持稳定，模型路由和价格配置可以在后面演进。
+
+需要明确的是，OpenAI 仍把 GPT-5.5 API access 描述为 coming soon。在上游 API access 存在并且模型完成配置之前，不应该把 MUI Router 视为已经可用的 GPT-5.5 API 路径。但这正是统一模型网关有价值的发布场景：模型生态变化越快，稳定集成就越重要。
+
+## 结论
+
+GPT-5.5 是一次重要发布，因为它把 AI 推向更长、更有用的工作。最强信号不只是 benchmark 分数提升，而是 OpenAI 对这个模型的定位：编码、computer use、知识工作、研究和跨工具执行。
+
+如果你使用 ChatGPT 或 Codex，现在就值得测试。如果你通过 API 构建产品，请在 API 可用前准备评估用例、成本预期和路由策略。这个模型很快会来到开发者面前，准备好的团队会在那一刻移动得更快。

@@ -80,6 +80,10 @@ test.describe('SEO', () => {
       expect(response?.status()).toBe(200);
       const text = await response?.text();
       expect(text).toContain('/pricing');
+      expect(text).toContain('<loc>https://muirouter.com/blog</loc>');
+      expect(text).toContain('<loc>https://muirouter.com/blog/gpt-5-5</loc>');
+      expect(text).toContain('<loc>https://muirouter.com/zh/blog/gpt-5-5</loc>');
+      expect(text).toContain('hreflang="x-default" href="https://muirouter.com/blog/gpt-5-5"');
     });
   });
 
@@ -104,6 +108,20 @@ test.describe('SEO', () => {
         'content',
         defaultMessages.pricing.metadata.description,
       );
+    });
+
+    test('博客文章有文章类型 meta 和可访问的 Open Graph 图片', async ({ page, request }) => {
+      await page.goto('/blog/gpt-5-5');
+      await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article');
+      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /GPT-5\.5/);
+
+      const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content');
+      expect(ogImage).toBeTruthy();
+
+      const ogImageUrl = new URL(ogImage!, page.url());
+      const response = await request.get(`${ogImageUrl.pathname}${ogImageUrl.search}`);
+      expect(response.status()).toBe(200);
+      expect(response.headers()['content-type']).toContain('image/png');
     });
   });
 });

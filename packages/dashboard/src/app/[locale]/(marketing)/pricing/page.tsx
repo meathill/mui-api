@@ -10,6 +10,7 @@ import {
   type PricingProvider,
   type ProviderPricingSection,
 } from '@/lib/pricing-catalog';
+import { getMarketingOgImage } from '@/lib/seo';
 
 const providerStyles: Record<
   PricingProvider,
@@ -41,6 +42,7 @@ const priceFormatter = new Intl.NumberFormat('en-US', {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'pricing.metadata' });
+  const ogImage = getMarketingOgImage(locale);
 
   return {
     title: t('title'),
@@ -52,6 +54,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       title: t('title'),
       description: t('description'),
       url: '/pricing',
+      images: [ogImage],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('title'),
+      description: t('description'),
+      images: [ogImage.url],
     },
   };
 }

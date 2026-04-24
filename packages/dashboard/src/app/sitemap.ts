@@ -25,22 +25,42 @@ const pages: SitemapPage[] = [
   { path: '/login', changeFrequency: 'monthly' as const, priority: 0.5 },
 ];
 
+function getLocalizedPath(path: string, locale: (typeof locales)[number]) {
+  if (locale === defaultLocale) {
+    return path;
+  }
+
+  return path === '/' ? `/${locale}/` : `/${locale}${path}`;
+}
+
+function getAbsoluteUrl(path: string) {
+  return `${SITE_URL}${path}`;
+}
+
+function getLanguageAlternates(path: string) {
+  const languages = Object.fromEntries(
+    locales.map((locale) => [locale, getAbsoluteUrl(getLocalizedPath(path, locale))]),
+  );
+  return {
+    ...languages,
+    'x-default': getAbsoluteUrl(getLocalizedPath(path, defaultLocale)),
+  };
+}
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [];
 
   for (const page of pages) {
-    const languages: Record<string, string> = {};
+    const languages = getLanguageAlternates(page.path);
     for (const locale of locales) {
-      languages[locale] = locale === defaultLocale ? `${SITE_URL}${page.path}` : `${SITE_URL}/${locale}${page.path}`;
+      entries.push({
+        url: getAbsoluteUrl(getLocalizedPath(page.path, locale)),
+        lastModified: page.lastModified ?? new Date(),
+        changeFrequency: page.changeFrequency,
+        priority: page.priority,
+        alternates: { languages },
+      });
     }
-
-    entries.push({
-      url: `${SITE_URL}${page.path}`,
-      lastModified: page.lastModified ?? new Date(),
-      changeFrequency: page.changeFrequency,
-      priority: page.priority,
-      alternates: { languages },
-    });
   }
 
   return entries;

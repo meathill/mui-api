@@ -4,8 +4,8 @@ import { NextIntlClientProvider, hasLocale } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { GoogleAnalytics } from '@next/third-parties/google';
 import { routing } from '@/i18n/routing';
+import { getMarketingOgImage, SITE_URL } from '@/lib/seo';
 
-const SITE_URL = 'https://muirouter.com';
 const SITE_NAME = 'MUI Router';
 
 export function generateStaticParams() {
@@ -15,6 +15,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'metadata' });
+  const ogImage = getMarketingOgImage(locale);
 
   return {
     metadataBase: new URL(SITE_URL),
@@ -31,11 +32,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description: t('description'),
       url: SITE_URL,
       locale,
+      images: [ogImage],
     },
     twitter: {
       card: 'summary_large_image',
       title: `${SITE_NAME} - ${t('ogTitle')}`,
       description: t('description'),
+      images: [ogImage.url],
     },
     robots: {
       index: true,

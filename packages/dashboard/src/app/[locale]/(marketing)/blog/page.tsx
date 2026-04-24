@@ -1,9 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { BLOG_POSTS } from '@/lib/blog';
-
-const SITE_URL = 'https://muirouter.com';
+import { getLanguageAlternates, getLocalizedBlogPosts, getLocalizedPath, getResolvedLocale } from '@/lib/blog';
+import { getMarketingOgImage, SITE_URL } from '@/lib/seo';
 
 function formatDate(locale: string, date: string) {
   return new Intl.DateTimeFormat(locale, {
@@ -16,33 +15,51 @@ function formatDate(locale: string, date: string) {
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'blog.metadata' });
+  const resolvedLocale = getResolvedLocale(locale);
+  const t = await getTranslations({ locale: resolvedLocale, namespace: 'blog.metadata' });
+  const ogImage = getMarketingOgImage(resolvedLocale);
 
   return {
     title: `MUI Router - ${t('title')}`,
     description: t('description'),
     alternates: {
-      canonical: '/blog',
+      canonical: getLocalizedPath('/blog', resolvedLocale),
+      languages: getLanguageAlternates('/blog'),
+    },
+    openGraph: {
+      title: t('title'),
+      description: t('description'),
+      type: 'website',
+      url: getLocalizedPath('/blog', resolvedLocale),
+      images: [ogImage],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: t('title'),
+      description: t('description'),
+      images: [ogImage.url],
     },
   };
 }
 
 export default async function BlogPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'blog' });
+  const resolvedLocale = getResolvedLocale(locale);
+  const t = await getTranslations({ locale: resolvedLocale, namespace: 'blog' });
+  const posts = getLocalizedBlogPosts(resolvedLocale);
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Blog',
     name: 'MUI Router Blog',
-    url: `${SITE_URL}/blog`,
-    blogPost: BLOG_POSTS.map((post) => ({
+    url: `${SITE_URL}${getLocalizedPath('/blog', resolvedLocale)}`,
+    blogPost: posts.map((post) => ({
       '@type': 'BlogPosting',
       headline: post.title,
       description: post.description,
       datePublished: post.publishedAt,
       dateModified: post.publishedAt,
-      url: `${SITE_URL}${post.href}`,
+      url: `${SITE_URL}${getLocalizedPath(post.href, resolvedLocale)}`,
       author: {
         '@type': 'Organization',
         name: 'MUI Router',
@@ -69,10 +86,10 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
         </div>
 
         <div className="grid gap-5">
-          {BLOG_POSTS.map((post) => (
+          {posts.map((post) => (
             <article key={post.slug} className="rounded-lg border border-border bg-card p-6 sm:p-8">
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
-                <time dateTime={post.publishedAt}>{formatDate(locale, post.publishedAt)}</time>
+                <time dateTime={post.publishedAt}>{formatDate(resolvedLocale, post.publishedAt)}</time>
                 <span>{t('readingTime', { minutes: post.readingMinutes })}</span>
               </div>
               <h2 className="mt-4 text-2xl font-semibold tracking-tight text-card-foreground sm:text-3xl">

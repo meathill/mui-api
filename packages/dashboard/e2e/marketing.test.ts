@@ -113,9 +113,13 @@ test.describe('营销页面', () => {
     await expect(page).toHaveURL('/register');
   });
 
-  test('非英文路径可访问英文博客正文', async ({ page }) => {
+  test('非英文路径展示本地化博客正文', async ({ page }) => {
+    await page.goto('/zh/blog');
+    await expect(page.getByRole('heading', { level: 2, name: /GPT-5\.5 已发布/ })).toBeVisible();
+
     await page.goto('/zh/blog/gpt-5-5');
-    await expect(page.getByRole('heading', { level: 1, name: /GPT-5\.5 Is Here/ })).toBeVisible();
-    await expect(page.getByText('On April 23, 2026, OpenAI released GPT-5.5')).toBeVisible();
+    await expect(page.getByRole('heading', { level: 1, name: /GPT-5\.5 已发布/ })).toBeVisible();
+    await expect(page.getByText('2026 年 4 月 23 日，OpenAI 发布了 GPT-5.5')).toBeVisible();
+    await expect(page.getByRole('link', { name: 'OpenAI GPT-5.5 发布公告' })).toBeVisible();
   });
 });
