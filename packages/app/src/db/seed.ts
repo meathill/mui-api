@@ -57,6 +57,14 @@ export const SEED_MODELS: NewModel[] = [
     outputPrice: 0.6,
     markupRate: 1.2,
   },
+  {
+    id: 'gpt-image-2',
+    provider: 'openai',
+    upstreamModelId: 'gpt-image-2',
+    inputPrice: 8,
+    outputPrice: 30,
+    markupRate: 1.2,
+  },
 
   // Google AI Studio (Gemini)
   {

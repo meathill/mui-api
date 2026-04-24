@@ -53,6 +53,9 @@ await db.batch([
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('gpt-4o', 'openai', 'gpt-4o', 0.0025, 0.01, 1.2)",
   ),
   db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('gpt-image-2', 'openai', 'gpt-image-2', 8, 30, 1.2)",
+  ),
+  db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('claude-sonnet-4-20250514', 'anthropic', 'claude-sonnet-4-20250514', 0.003, 0.015, 1.2)",
   ),
 ]);

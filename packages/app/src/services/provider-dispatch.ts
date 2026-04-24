@@ -15,14 +15,35 @@ function aiGatewayBase(env: CloudflareBindings, provider: string): string {
   return `https://gateway.ai.cloudflare.com/v1/${env.CF_ACCOUNT_ID}/${env.CF_GATEWAY_ID}/${provider}`;
 }
 
+export function openAIGatewayBase(env: CloudflareBindings): string {
+  return aiGatewayBase(env, 'openai');
+}
+
 /** OpenAI SDK 调用，AI Gateway BYOK 注入真实 key，cf-aig-authorization 鉴权网关 */
 export async function callOpenAI(env: CloudflareBindings, body: AnyBody): Promise<Response> {
   const client = new OpenAI({
     apiKey: 'ai-gateway-byok',
-    baseURL: aiGatewayBase(env, 'openai'),
+    baseURL: openAIGatewayBase(env),
     defaultHeaders: { 'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}` },
   });
   return client.chat.completions.create(body as never).asResponse();
+}
+
+/** OpenAI 非 Chat 端点原样转发，用于 Images / Responses 等 SDK 不方便统一抽象的 API。 */
+export async function callOpenAIEndpoint(
+  env: CloudflareBindings,
+  path: string,
+  body: BodyInit,
+  headers: Record<string, string> = {},
+): Promise<Response> {
+  return fetch(`${openAIGatewayBase(env)}${path}`, {
+    method: 'POST',
+    headers: {
+      ...headers,
+      'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}`,
+    },
+    body,
+  });
 }
 
 /**

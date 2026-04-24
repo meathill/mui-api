@@ -33,8 +33,8 @@ function extractOpenAIUsage(data: Record<string, unknown>): UsageResult | null {
   const model = (data.model as string | undefined) ?? 'unknown';
   if (!usage) return null;
   return {
-    inputTokens: usage.prompt_tokens ?? 0,
-    outputTokens: usage.completion_tokens ?? 0,
+    inputTokens: usage.prompt_tokens ?? usage.input_tokens ?? 0,
+    outputTokens: usage.completion_tokens ?? usage.output_tokens ?? 0,
     model,
   };
 }

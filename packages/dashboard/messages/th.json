@@ -263,7 +263,25 @@
     "response": "คำตอบ",
     "responsePlaceholder": "คำตอบจะปรากฏที่นี่...",
     "inputTokens": "อินพุต: {count} โทเค็น",
-    "outputTokens": "เอาต์พุต: {count} โทเค็น"
+    "outputTokens": "เอาต์พุต: {count} โทเค็น",
+    "subtitle": "Test chat and image calls with your own API key. Recent runs are saved locally in this browser.",
+    "chatMode": "Chat",
+    "imageMode": "Image",
+    "imagePrompt": "Image prompt",
+    "imagePromptPlaceholder": "Describe the image you want to generate or how to edit the uploaded image...",
+    "generateImage": "Generate image",
+    "uploadImages": "Upload reference images",
+    "uploadHint": "PNG, JPEG, or WebP. Uploading images switches the request to image edit.",
+    "clearUploads": "Clear uploads",
+    "imageResult": "Image result",
+    "imagePlaceholder": "Generated images will appear here...",
+    "saveImage": "Save",
+    "imageSaveHint": "Save results before links or base64 data are lost.",
+    "history": "Local history",
+    "historyHint": "Saved in this browser only. Image binaries are not stored to avoid filling local storage.",
+    "clearHistory": "Clear history",
+    "emptyHistory": "No saved runs yet.",
+    "imageCount": "{count} image(s)"
   },
   "adminModels": {
     "title": "จัดการโมเดล",
@@ -459,5 +477,16 @@
     "confirm": "ยืนยัน",
     "search": "ค้นหา",
     "reset": "รีเซ็ต"
+  },
+  "image": {
+    "eyebrow": "Image API",
+    "title": "Text-to-image and image editing are on the same gateway",
+    "subtitle": "Call GPT Image models through the same API key and billing pipeline. Generate new assets from prompts, or upload reference images for edits without a separate integration.",
+    "generateTitle": "Generate from prompt",
+    "generateDesc": "Use /v1/images/generations for product shots, diagrams, social assets, and visual drafts.",
+    "editTitle": "Edit uploaded images",
+    "editDesc": "Use /v1/images/edits with multipart uploads to transform, combine, or refine existing images.",
+    "workflowTitle": "One account, one bill",
+    "workflowDesc": "Image requests share the same model registry, wallet balance, usage logs, and API key flow as chat models."
   }
 }

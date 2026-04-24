@@ -7,6 +7,11 @@ describe('extractUsage', () => {
     expect(extractUsage('openai', data)).toEqual({ model: 'gpt-4o', inputTokens: 10, outputTokens: 20 });
   });
 
+  it('openai 图片接口提取 input_tokens/output_tokens', () => {
+    const data = { model: 'gpt-image-2', usage: { input_tokens: 35, output_tokens: 1056 } };
+    expect(extractUsage('openai', data)).toEqual({ model: 'gpt-image-2', inputTokens: 35, outputTokens: 1056 });
+  });
+
   it('anthropic 提取 input_tokens/output_tokens', () => {
     const data = { model: 'claude-opus-4.6', usage: { input_tokens: 30, output_tokens: 40 } };
     expect(extractUsage('anthropic', data)).toEqual({

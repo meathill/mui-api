@@ -19,6 +19,7 @@ describe('GET /v1/models', () => {
     expect(body.data.length).toBeGreaterThanOrEqual(2);
     const modelIds = body.data.map((m) => m.id);
     expect(modelIds).toContain('gpt-4o');
+    expect(modelIds).toContain('gpt-image-2');
     expect(modelIds).toContain('claude-sonnet-4-20250514');
   });
 });

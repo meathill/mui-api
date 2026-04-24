@@ -42,6 +42,14 @@
 
 **注意**：计费崩溃不影响已发送的响应。需要依赖告警系统发现计费异常。
 
+### 图片模型计费粒度
+
+**现状**：`models` 表目前只有一组 `inputPrice` / `outputPrice`，但 OpenAI 图片模型可能区分文本输入 token 与图片输入 token 的单价。
+
+**当前决策**：`gpt-image-2` 种子数据使用图片输入价作为 `inputPrice`，避免编辑图片时低估成本；纯文本生成场景会略高估输入成本，但图片输出通常占主要成本。
+
+**后续优化**：如果图片调用量增加，需要把模型定价扩展为按 token 类型计费，例如 text input、image input、cached input、output 分列。
+
 ### better-auth 统一用户体系
 
 **决策**：Dashboard 使用 better-auth 管理用户认证，`user` 表同时作为业务用户表。

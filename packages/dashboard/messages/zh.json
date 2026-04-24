@@ -263,7 +263,25 @@
     "response": "响应",
     "responsePlaceholder": "响应将显示在这里...",
     "inputTokens": "输入: {count} tokens",
-    "outputTokens": "输出: {count} tokens"
+    "outputTokens": "输出: {count} tokens",
+    "subtitle": "用自己的 API Key 测试聊天和生图调用，最近记录会保存在当前浏览器。",
+    "chatMode": "聊天",
+    "imageMode": "生图",
+    "imagePrompt": "图片 Prompt",
+    "imagePromptPlaceholder": "描述你想生成的图片，或说明如何编辑已上传图片...",
+    "generateImage": "生成图片",
+    "uploadImages": "上传参考图片",
+    "uploadHint": "支持 PNG、JPEG、WebP。上传图片后会自动调用图片编辑接口。",
+    "clearUploads": "清空上传",
+    "imageResult": "图片结果",
+    "imagePlaceholder": "生成的图片会显示在这里...",
+    "saveImage": "保存",
+    "imageSaveHint": "请及时保存结果，避免链接或临时数据失效。",
+    "history": "本地记录",
+    "historyHint": "仅保存在当前浏览器。为避免占满本地存储，图片二进制不会写入记录。",
+    "clearHistory": "清空记录",
+    "emptyHistory": "暂无保存记录。",
+    "imageCount": "{count} 张图片"
   },
   "adminModels": {
     "title": "模型管理",
@@ -459,5 +477,16 @@
     "confirm": "确定",
     "search": "查询",
     "reset": "重置"
+  },
+  "image": {
+    "eyebrow": "Image API",
+    "title": "生图和图片编辑，也走同一个网关",
+    "subtitle": "通过同一个 API Key 和计费链路调用 GPT Image 模型。既可以用 prompt 生成新图，也可以上传参考图做编辑，不需要再接一套独立服务。",
+    "generateTitle": "Prompt 生图",
+    "generateDesc": "通过 /v1/images/generations 生成商品图、示意图、社媒素材和视觉草稿。",
+    "editTitle": "上传图片编辑",
+    "editDesc": "通过 /v1/images/edits 使用 multipart 上传图片，完成改图、合成和细节优化。",
+    "workflowTitle": "一个账户，一套账单",
+    "workflowDesc": "图片请求复用同一套模型配置、钱包余额、用量记录和 API Key 流程。"
   }
 }
