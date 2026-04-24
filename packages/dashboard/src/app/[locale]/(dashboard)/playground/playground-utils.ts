@@ -86,6 +86,7 @@ export function sendImageGenerationRequest(params: {
       prompt: params.prompt,
       size: '1024x1024',
       quality: 'auto',
+      moderation: 'low',
     }),
     signal: params.signal,
   });
@@ -101,6 +102,7 @@ export function sendImageEditRequest(params: {
   const form = new FormData();
   form.append('model', params.model);
   form.append('prompt', params.prompt);
+  form.append('moderation', 'low');
   for (const file of params.images) {
     form.append('image[]', file, file.name);
   }

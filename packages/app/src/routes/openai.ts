@@ -277,7 +277,7 @@ openai.post('/images/generations', async (c) => {
     const upstream = await callOpenAIEndpoint(
       c.env,
       '/images/generations',
-      JSON.stringify({ ...body, model: upstreamModel }),
+      JSON.stringify({ moderation: 'low', ...body, model: upstreamModel }),
       { 'content-type': 'application/json' },
     );
     return proxyOpenAIImageResponse(c, services, upstream, modelId, modelPricing);
@@ -326,6 +326,9 @@ openai.post('/images/edits', async (c) => {
   const upstreamForm = new FormData();
   for (const [key, value] of form.entries()) {
     appendFormEntry(upstreamForm, key, key === 'model' ? upstreamModel : value);
+  }
+  if (!upstreamForm.has('moderation')) {
+    upstreamForm.append('moderation', 'low');
   }
 
   try {
