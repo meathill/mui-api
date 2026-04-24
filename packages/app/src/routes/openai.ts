@@ -164,6 +164,9 @@ openai.post('/chat/completions', async (c) => {
   if (!body.model) {
     return c.json({ error: { message: '缺少 model 参数', type: 'invalid_request_error' } }, 400);
   }
+  if (!Array.isArray(body.messages)) {
+    return c.json({ error: { message: '缺少 messages 参数', type: 'invalid_request_error' } }, 400);
+  }
 
   const modelId = body.model as string;
   const services = createProxyServices(c.env);
