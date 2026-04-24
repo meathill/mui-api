@@ -6,6 +6,7 @@
   },
   "header": {
     "login": "ログイン",
+    "signIn": "ログイン",
     "register": "新規登録",
     "blog": "ブログ",
     "pricing": "価格",

@@ -3,7 +3,7 @@ import { defaultMessages } from './test-messages';
 
 test.describe('营销页面', () => {
   const registerLink = { name: defaultMessages.header.register, exact: true } as const;
-  const loginLink = { name: defaultMessages.header.login, exact: true } as const;
+  const signInLink = { name: defaultMessages.header.signIn, exact: true } as const;
   const blogLink = { name: defaultMessages.header.blog, exact: true } as const;
   const pricingLink = { name: defaultMessages.header.pricing, exact: true } as const;
 
@@ -14,22 +14,49 @@ test.describe('营销页面', () => {
     await expect(title).toContainText(defaultMessages.hero.titleHighlight);
   });
 
-  test('首页包含注册和登录链接', async ({ page }) => {
+  test('首页 Header 按指定顺序展示入口', async ({ page }) => {
     await page.goto('/');
+    const logo = page.getByRole('link', { name: 'MUI Router', exact: true });
     const navigation = page.getByRole('navigation');
-    await expect(navigation.getByRole('link', registerLink)).toBeVisible();
-    await expect(navigation.getByRole('link', loginLink)).toBeVisible();
+    const pricing = navigation.getByRole('link', pricingLink);
+    const blog = navigation.getByRole('link', blogLink);
+    const language = navigation.getByRole('combobox');
+    const signIn = navigation.getByRole('link', signInLink);
+
+    await expect(logo).toBeVisible();
+    await expect(pricing).toBeVisible();
+    await expect(blog).toBeVisible();
+    await expect(language).toBeVisible();
+    await expect(signIn).toBeVisible();
+    await expect(navigation.getByRole('link', registerLink)).toHaveCount(0);
+
+    const [logoBox, pricingBox, blogBox, languageBox, signInBox] = await Promise.all([
+      logo.boundingBox(),
+      pricing.boundingBox(),
+      blog.boundingBox(),
+      language.boundingBox(),
+      signIn.boundingBox(),
+    ]);
+
+    if (!logoBox || !pricingBox || !blogBox || !languageBox || !signInBox) {
+      throw new Error('Header items must be visible before checking order.');
+    }
+
+    expect(logoBox.x).toBeLessThan(pricingBox.x);
+    expect(pricingBox.x).toBeLessThan(blogBox.x);
+    expect(blogBox.x).toBeLessThan(languageBox.x);
+    expect(languageBox.x).toBeLessThan(signInBox.x);
   });
 
-  test('点击注册链接跳转到注册页', async ({ page }) => {
+  test('点击首页主 CTA 跳转到注册页', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('navigation').getByRole('link', registerLink).click();
+    await page.getByRole('link', { name: defaultMessages.hero.ctaPrimary, exact: true }).first().click();
     await expect(page).toHaveURL('/register');
   });
 
   test('点击登录链接跳转到登录页', async ({ page }) => {
     await page.goto('/');
-    await page.getByRole('navigation').getByRole('link', loginLink).click();
+    await page.getByRole('navigation').getByRole('link', signInLink).click();
     await expect(page).toHaveURL('/login');
   });
 

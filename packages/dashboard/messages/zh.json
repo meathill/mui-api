@@ -6,6 +6,7 @@
   },
   "header": {
     "login": "登录",
+    "signIn": "登录",
     "register": "注册",
     "blog": "博客",
     "pricing": "价格",

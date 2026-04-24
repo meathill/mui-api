@@ -6,6 +6,7 @@
   },
   "header": {
     "login": "Anmelden",
+    "signIn": "Anmelden",
     "register": "Registrieren",
     "blog": "Blog",
     "pricing": "Preise",
