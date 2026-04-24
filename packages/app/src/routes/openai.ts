@@ -22,6 +22,17 @@ type ModelLookup = {
   };
 };
 
+const BUILT_IN_MODELS: Model[] = [
+  {
+    id: 'gpt-image-2',
+    provider: 'openai',
+    upstreamModelId: 'gpt-image-2',
+    inputPrice: 8,
+    outputPrice: 30,
+    markupRate: 1.2,
+  },
+];
+
 // 应用认证中间件（包含并发控制）
 openai.use('/*', authMiddleware);
 
@@ -45,7 +56,19 @@ async function lookupModel(
   const modelConfig = await services.db.select().from(models).where(eq(models.id, modelId)).get();
 
   if (!modelConfig) {
-    return c.json({ error: { message: `未知模型: ${modelId}`, type: 'invalid_request_error' } }, 404);
+    const builtInModel = BUILT_IN_MODELS.find((model) => model.id === modelId);
+    if (!builtInModel) {
+      return c.json({ error: { message: `未知模型: ${modelId}`, type: 'invalid_request_error' } }, 404);
+    }
+    return {
+      modelConfig: builtInModel,
+      upstreamModel: builtInModel.upstreamModelId ?? modelId,
+      modelPricing: {
+        inputPrice: builtInModel.inputPrice ?? 0,
+        outputPrice: builtInModel.outputPrice ?? 0,
+        markupRate: builtInModel.markupRate ?? 1.2,
+      },
+    };
   }
 
   return {
@@ -319,10 +342,16 @@ openai.post('/images/edits', async (c) => {
 openai.get('/models', async (c) => {
   const db = createDb(c.env.DB);
   const modelList = await db.query.models.findMany();
+  const mergedModels = [...modelList];
+  for (const model of BUILT_IN_MODELS) {
+    if (!mergedModels.some((item) => item.id === model.id)) {
+      mergedModels.push(model);
+    }
+  }
 
   return c.json({
     object: 'list',
-    data: modelList.map((m) => ({
+    data: mergedModels.map((m) => ({
       id: m.id,
       object: 'model',
       created: 0,

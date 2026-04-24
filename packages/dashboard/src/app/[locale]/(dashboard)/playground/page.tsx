@@ -11,6 +11,7 @@ import { Tabs, TabsList, TabsPanel, TabsTab } from '@/components/ui/tabs';
 import { Field, HistoryList, ImageResults, ImageUpload, PromptField } from './playground-components';
 import type { HistoryItem, ImageApiItem, ImageResult, PlaygroundMode } from './playground-types';
 import {
+  appendBuiltInImageModels,
   getApiBase,
   isImageModel,
   MAX_HISTORY_ITEMS,
@@ -54,10 +55,11 @@ export default function PlaygroundPage() {
     async function loadModels() {
       try {
         const modelsRes = await adminApi.getModels();
-        setModels(modelsRes.models);
+        const availableModels = appendBuiltInImageModels(modelsRes.models);
+        setModels(availableModels);
         const imageDefault =
-          modelsRes.models.find((model) => model.id === 'gpt-image-2') ?? modelsRes.models.find(isImageModel);
-        const chatDefault = modelsRes.models.find((model) => !isImageModel(model)) ?? modelsRes.models[0];
+          availableModels.find((model) => model.id === 'gpt-image-2') ?? availableModels.find(isImageModel);
+        const chatDefault = availableModels.find((model) => !isImageModel(model)) ?? availableModels[0];
         if (chatDefault) setChatModel(chatDefault.id);
         if (imageDefault) setImageModel(imageDefault.id);
       } catch {

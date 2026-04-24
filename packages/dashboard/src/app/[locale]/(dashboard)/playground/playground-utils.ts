@@ -2,6 +2,16 @@ import type { ModelInfo } from '@/lib/api';
 import type { HistoryItem, ImageApiItem, ImageResult } from './playground-types';
 
 export const MAX_HISTORY_ITEMS = 30;
+export const BUILT_IN_IMAGE_MODELS: ModelInfo[] = [
+  {
+    id: 'gpt-image-2',
+    provider: 'openai',
+    upstreamModelId: 'gpt-image-2',
+    inputPrice: 8,
+    outputPrice: 30,
+    markupRate: 1.2,
+  },
+];
 
 export function getApiBase() {
   return process.env.NEXT_PUBLIC_API_BASE || '';
@@ -9,6 +19,16 @@ export function getApiBase() {
 
 export function isImageModel(model: ModelInfo) {
   return model.id.includes('image') || Boolean(model.upstreamModelId?.includes('image'));
+}
+
+export function appendBuiltInImageModels(models: ModelInfo[]) {
+  const mergedModels = [...models];
+  for (const model of BUILT_IN_IMAGE_MODELS) {
+    if (!mergedModels.some((item) => item.id === model.id)) {
+      mergedModels.push(model);
+    }
+  }
+  return mergedModels;
 }
 
 export function parseHistory(raw: string): HistoryItem[] {
