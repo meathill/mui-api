@@ -1,9 +1,9 @@
 import { eq } from 'drizzle-orm';
-import { NextRequest, NextResponse } from 'next/server';
-import { requireAdmin } from '@/lib/admin';
-import { getKV, getUserData } from '@/lib/kv';
-import { getDb } from '@/lib/db';
+import { type NextRequest, NextResponse } from 'next/server';
 import { user as userTable } from '@/db/schema';
+import { requireAdmin } from '@/lib/admin';
+import { getDb } from '@/lib/db';
+import { getKV, getUserData } from '@/lib/kv';
 
 /**
  * GET /api/admin/user — 查询单个用户信息

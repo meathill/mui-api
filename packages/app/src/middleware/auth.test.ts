@@ -74,7 +74,7 @@ function createMockLimiterNamespace() {
         const userState = getUserState(userId);
 
         return {
-          async fetch(input: RequestInfo | URL, init?: RequestInit) {
+          async fetch(input: RequestInfo | URL, _init?: RequestInit) {
             const url = new URL(typeof input === 'string' ? input : input.toString());
             const body = Object.fromEntries(url.searchParams.entries());
 
@@ -134,7 +134,7 @@ async function seedAuthState(kv: ReturnType<typeof createMockKV>, userId: string
 
   await kv.put(`apikey:${keyHash}`, userId, {
     metadata: {
-      keyPrefix: rawKey.slice(0, 12) + '...',
+      keyPrefix: `${rawKey.slice(0, 12)}...`,
       isActive: true,
       userId,
     },
@@ -311,7 +311,7 @@ describe('authMiddleware', () => {
       executionContext,
     );
 
-    const reader = response.body!.getReader();
+    const reader = response.body?.getReader();
     await reader.read();
     await reader.cancel('done');
     await Promise.resolve();

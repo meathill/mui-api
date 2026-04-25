@@ -1,4 +1,4 @@
-import { SELF, env } from 'cloudflare:test';
+import { env, SELF } from 'cloudflare:test';
 import { describe, expect, it } from 'vitest';
 import { seedApiKey } from './helpers';
 
@@ -92,7 +92,7 @@ describe('GET /v1/usage', () => {
     const body = (await res.json()) as { items: Array<{ id: string; cost_cents: number }> };
     const found = body.items.find((it) => it.id === 'uu1');
     expect(found).toBeDefined();
-    expect(found!.cost_cents).toBe(50);
+    expect(found?.cost_cents).toBe(50);
   });
 });
 

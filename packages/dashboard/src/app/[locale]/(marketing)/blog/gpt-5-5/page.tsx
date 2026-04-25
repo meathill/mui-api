@@ -1,7 +1,16 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
 import { notFound } from 'next/navigation';
+import { getTranslations } from 'next-intl/server';
 import type { ComponentType } from 'react';
+import GermanArticleContent from '@/content/blog/gpt-5-5.de.mdx';
+import SpanishArticleContent from '@/content/blog/gpt-5-5.es.mdx';
+import FrenchArticleContent from '@/content/blog/gpt-5-5.fr.mdx';
+import JapaneseArticleContent from '@/content/blog/gpt-5-5.ja.mdx';
+import EnglishArticleContent from '@/content/blog/gpt-5-5.mdx';
+import PortugueseArticleContent from '@/content/blog/gpt-5-5.pt.mdx';
+import ThaiArticleContent from '@/content/blog/gpt-5-5.th.mdx';
+import ChineseArticleContent from '@/content/blog/gpt-5-5.zh.mdx';
+import type { Locale } from '@/i18n/config';
 import { Link } from '@/i18n/navigation';
 import {
   getBlogPost,
@@ -11,15 +20,6 @@ import {
   getResolvedLocale,
 } from '@/lib/blog';
 import { getMarketingOgImage, SITE_URL } from '@/lib/seo';
-import GermanArticleContent from '@/content/blog/gpt-5-5.de.mdx';
-import EnglishArticleContent from '@/content/blog/gpt-5-5.mdx';
-import SpanishArticleContent from '@/content/blog/gpt-5-5.es.mdx';
-import FrenchArticleContent from '@/content/blog/gpt-5-5.fr.mdx';
-import JapaneseArticleContent from '@/content/blog/gpt-5-5.ja.mdx';
-import PortugueseArticleContent from '@/content/blog/gpt-5-5.pt.mdx';
-import ThaiArticleContent from '@/content/blog/gpt-5-5.th.mdx';
-import ChineseArticleContent from '@/content/blog/gpt-5-5.zh.mdx';
-import type { Locale } from '@/i18n/config';
 
 const POST_SLUG = 'gpt-5-5';
 

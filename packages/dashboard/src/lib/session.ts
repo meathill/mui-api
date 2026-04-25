@@ -1,5 +1,5 @@
-import { headers } from 'next/headers';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
+import { headers } from 'next/headers';
 import { getAuth } from './auth';
 
 interface SessionUser {

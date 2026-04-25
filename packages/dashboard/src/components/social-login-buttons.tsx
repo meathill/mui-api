@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { useTranslations } from 'next-intl';
 import { GithubIcon } from 'lucide-react';
-import { signIn } from '@/lib/auth-client';
+import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { signIn } from '@/lib/auth-client';
 
 function GoogleIcon({ className }: { className?: string }) {
   return (

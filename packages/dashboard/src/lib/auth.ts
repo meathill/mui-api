@@ -1,9 +1,9 @@
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
 import { nextCookies } from 'better-auth/next-js';
-import { getCloudflareContext } from '@opennextjs/cloudflare';
-import { getDb } from './db';
 import * as schema from '@/db/schema';
+import { getDb } from './db';
 
 /**
  * 创建 better-auth 实例

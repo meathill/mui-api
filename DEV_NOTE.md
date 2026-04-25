@@ -50,6 +50,23 @@
 
 **后续优化**：如果图片调用量增加，需要把模型定价扩展为按 token 类型计费，例如 text input、image input、cached input、output 分列。
 
+### AI Provider 路由分发 (Gateway vs. env.AI)
+
+**决策**：根据不同 Provider 的特性采取不同的调用方式，不再一刀切地全部走 AI Gateway Stored Keys。
+
+**实现**：
+- **OpenAI / Google AI Studio**：继续走 CF AI Gateway，由其 Stored Keys 注入真实的 API Key。
+- **Anthropic / Workers AI (等免 Key 渠道)**：不再维护它们在 Gateway 中的 Key 映射，而是直接走 `env.AI.run`（利用 Workers AI 的原生 binding 及内置兼容端点）。这允许项目无缝调用 `claude-3-5-sonnet-latest` 和 `@cf/meta/llama-3.1-8b-instruct` 而不需要自己付费买 Key，只需为 Workers AI 使用量计费。通过配置 `gateway: { id: env.CF_GATEWAY_ID }`，依然可以保留对这些请求的 Gateway 监控面板统计。
+
+### 多语言与国际化 (i18n)
+
+**决策**：Dashboard 全面采用 `next-intl` 提供多语言支持。
+
+**要点**：
+- 支持包括中文、英文在内的 8 种语言。
+- 语言配置文件和翻译文本由 `next-intl` 标准结构维护。
+- SEO 适配多语言，`sitemap.xml` 和 `robots.txt`、JSON-LD 都考虑了多语言版本的动态生成。
+
 ### better-auth 统一用户体系
 
 **决策**：Dashboard 使用 better-auth 管理用户认证，`user` 表同时作为业务用户表。

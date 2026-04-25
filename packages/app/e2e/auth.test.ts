@@ -1,5 +1,5 @@
 import { SELF } from 'cloudflare:test';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 describe('认证中间件', () => {
   it('缺少 Authorization header 返回 401', async () => {

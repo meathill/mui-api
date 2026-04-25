@@ -1,4 +1,4 @@
-import { defaultLocale, locales, type Locale } from '@/i18n/config';
+import { defaultLocale, type Locale, locales } from '@/i18n/config';
 
 export type BlogSource = {
   label: string;

@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
-import type { CloudflareBindings } from '../types';
 import { createDb } from '../db';
 import { handleStripeWebhook } from '../services/stripe-service';
+import type { CloudflareBindings } from '../types';
 
 const webhooks = new Hono<{ Bindings: CloudflareBindings }>();
 

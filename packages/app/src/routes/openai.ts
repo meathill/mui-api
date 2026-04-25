@@ -1,12 +1,12 @@
 import { eq } from 'drizzle-orm';
-import { Hono, type Context } from 'hono';
-import type { CloudflareBindings } from '../types';
-import { authMiddleware } from '../middleware/auth';
+import { type Context, Hono } from 'hono';
 import { createDb } from '../db';
-import { models, type Model } from '../db/schema';
-import { createProxyServices, type ProxyServices } from '../services/service-factory';
+import { type Model, models } from '../db/schema';
+import { authMiddleware } from '../middleware/auth';
 import { callAiBinding, callGemini, callOpenAI, callOpenAIEndpoint } from '../services/provider-dispatch';
+import { createProxyServices, type ProxyServices } from '../services/service-factory';
 import { extractStreamUsage, extractUsage } from '../services/usage-extractor';
+import type { CloudflareBindings } from '../types';
 
 const openai = new Hono<{ Bindings: CloudflareBindings }>();
 type OpenAIContext = Context<{ Bindings: CloudflareBindings }>;

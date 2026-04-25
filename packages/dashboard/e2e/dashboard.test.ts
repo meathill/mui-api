@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 
 test.describe('Dashboard 路由保护', () => {
   test('未登录访问 /app 重定向到 /login', async ({ page }) => {

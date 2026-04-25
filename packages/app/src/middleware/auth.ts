@@ -1,5 +1,4 @@
 import type { Context, Next } from 'hono';
-import type { CloudflareBindings } from '../types';
 import { createLeaseHeartbeat, wrapResponseBodyWithFinalizer } from '../lib/concurrency-response';
 import { generateId } from '../lib/crypto';
 import {
@@ -8,6 +7,7 @@ import {
   DEFAULT_CONCURRENCY_REFRESH_INTERVAL_MS,
 } from '../services/concurrency-service';
 import { KVService } from '../services/kv-service';
+import type { CloudflareBindings } from '../types';
 
 const MIN_BALANCE = 0.01;
 

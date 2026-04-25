@@ -1,5 +1,5 @@
-import type { KVUserData, KVUserMetadata } from '../types';
 import { hashApiKey } from '../lib/crypto';
+import type { KVUserData, KVUserMetadata } from '../types';
 
 import type { GlobalConfig } from './alert-service';
 

@@ -1,55 +1,35 @@
-import { and, eq } from 'drizzle-orm';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
-import type Stripe from 'stripe';
+import { and, eq } from 'drizzle-orm';
 import { rechargeLogs, stripeTopupSessions } from '@/db/app-schema';
-import { defaultLocale, locales, type Locale } from '@/i18n/config';
 import { getDb } from '@/lib/db';
-import { createEmailService } from '@/lib/email';
-import {
-  addBalance,
-  createUser,
-  getKV,
-  getUserData,
-  setUserData,
-  type KVUserData,
-  type KVUserMetadata,
-} from '@/lib/kv';
+import { addBalance, getKV } from '@/lib/kv';
 import { getStripeClient } from '@/lib/stripe';
 import {
   deriveTopUpStatus,
   parseTopUpAmount,
   STRIPE_TOP_UP_SOURCE,
   TOP_UP_CURRENCY,
-  toStripeUnitAmount,
-  type TopUpAmount,
-  type TopUpSessionState,
   type TopUpStatus,
+  toStripeUnitAmount,
 } from '@/lib/top-up';
+import {
+  claimTopUpProcessing,
+  ensureStripeCustomerId,
+  ensureUserRecord,
+  syncTopUpSessionRecord,
+  updateTopUpSessionState,
+} from './db';
+import type { CreateTopUpCheckoutResult, SessionUser, TopUpSessionStatusResult } from './types';
+import {
+  buildReturnUrl,
+  buildStripeMetadata,
+  getStripeObjectId,
+  readStripeMetadata,
+  resolveLocale,
+  sendRechargeEmailIfConfigured,
+} from './utils';
 
-interface SessionUser {
-  id: string;
-  email: string;
-  name: string;
-}
-
-interface StripeTopUpMetadata {
-  amount: TopUpAmount;
-  userEmail: string;
-  userId: string;
-}
-
-export interface CreateTopUpCheckoutResult {
-  sessionId: string;
-  url: string;
-}
-
-export interface TopUpSessionStatusResult {
-  amount: number;
-  balanceAfter: number | null;
-  paymentStatus: string | null;
-  sessionId: string;
-  status: TopUpStatus;
-}
+export * from './types';
 
 export async function createTopUpCheckoutSession(params: {
   amount: number;
@@ -292,223 +272,4 @@ export async function fulfillTopUpCheckoutSession(checkoutSessionId: string): Pr
     });
     throw error;
   }
-}
-
-function buildStripeMetadata(params: { amount: TopUpAmount; user: SessionUser }): Record<string, string> {
-  return {
-    topUpAmount: String(params.amount),
-    type: 'wallet_top_up',
-    userEmail: params.user.email,
-    userId: params.user.id,
-  };
-}
-
-function buildReturnUrl(origin: string, locale: Locale, pathname: string, params?: Record<string, string>): string {
-  const url = new URL(getLocalizedPath(locale, pathname), origin);
-  if (params) {
-    for (const [key, value] of Object.entries(params)) {
-      url.searchParams.set(key, value);
-    }
-  }
-  return url.toString();
-}
-
-async function claimTopUpProcessing(checkoutSessionId: string, paymentStatus: string | null): Promise<boolean> {
-  const { env } = await getCloudflareContext({ async: true });
-  const result = await env.DB.prepare(
-    `
-      UPDATE stripe_topup_sessions
-      SET status = 'processing',
-          payment_status = ?,
-          updated_at = unixepoch(),
-          last_error = NULL
-      WHERE checkout_session_id = ?
-        AND status IN ('created', 'failed')
-    `,
-  )
-    .bind(paymentStatus, checkoutSessionId)
-    .run();
-
-  return (result.meta?.changes ?? 0) > 0;
-}
-
-async function ensureStripeCustomerId(stripe: Stripe, kv: KVNamespace, user: SessionUser): Promise<string> {
-  const existing = await ensureUserRecord(kv, user.id, user.email);
-  if (existing.metadata.stripeCustomerId) {
-    return existing.metadata.stripeCustomerId;
-  }
-
-  const customer = await stripe.customers.create({
-    email: user.email,
-    metadata: {
-      userId: user.id,
-    },
-    name: user.name,
-  });
-
-  await setUserData(kv, user.id, existing.data, {
-    ...existing.metadata,
-    stripeCustomerId: customer.id,
-  });
-
-  return customer.id;
-}
-
-async function ensureUserRecord(
-  kv: KVNamespace,
-  userId: string,
-  email: string,
-): Promise<{ data: KVUserData; metadata: KVUserMetadata }> {
-  const existing = await getUserData(kv, userId);
-  if (existing.data && existing.metadata) {
-    return {
-      data: existing.data,
-      metadata: existing.metadata,
-    };
-  }
-
-  await createUser(kv, userId, email);
-  const created = await getUserData(kv, userId);
-  if (!created.data || !created.metadata) {
-    throw new Error('初始化用户余额记录失败');
-  }
-
-  return {
-    data: created.data,
-    metadata: created.metadata,
-  };
-}
-
-function getLocalizedPath(locale: Locale, pathname: string): string {
-  if (locale === defaultLocale) {
-    return pathname;
-  }
-
-  return `/${locale}${pathname}`;
-}
-
-function getStripeObjectId(value: string | { id: string } | null): string | null {
-  if (!value) {
-    return null;
-  }
-
-  return typeof value === 'string' ? value : value.id;
-}
-
-function readStripeMetadata(checkoutSession: Stripe.Checkout.Session): StripeTopUpMetadata {
-  const userId = checkoutSession.metadata?.userId;
-  const userEmail =
-    checkoutSession.metadata?.userEmail ?? checkoutSession.customer_details?.email ?? checkoutSession.customer_email;
-  const amount = parseTopUpAmount(Number(checkoutSession.metadata?.topUpAmount));
-
-  if (!userId || !userEmail || !amount) {
-    throw new Error('Stripe Checkout metadata 不完整');
-  }
-
-  if (checkoutSession.amount_total !== toStripeUnitAmount(amount)) {
-    throw new Error('Stripe Checkout 金额校验失败');
-  }
-
-  if ((checkoutSession.currency ?? '').toUpperCase() !== TOP_UP_CURRENCY) {
-    throw new Error('Stripe Checkout 币种校验失败');
-  }
-
-  return {
-    amount,
-    userEmail,
-    userId,
-  };
-}
-
-function resolveLocale(locale?: string): Locale {
-  if (locale && locales.includes(locale as Locale)) {
-    return locale as Locale;
-  }
-
-  return defaultLocale;
-}
-
-async function sendRechargeEmailIfConfigured(email: string, amount: number, newBalance: number): Promise<void> {
-  const { env } = await getCloudflareContext({ async: true });
-  if (!env.RESEND_API_KEY) {
-    return;
-  }
-
-  const emailService = createEmailService({
-    apiKey: env.RESEND_API_KEY,
-    fromEmail: env.FROM_EMAIL,
-  });
-
-  await emailService.sendRechargeSuccessEmail(email, amount, newBalance);
-}
-
-async function syncTopUpSessionRecord(
-  checkoutSession: Stripe.Checkout.Session,
-  metadata: StripeTopUpMetadata,
-): Promise<void> {
-  const { env } = await getCloudflareContext({ async: true });
-  const paymentIntentId = getStripeObjectId(checkoutSession.payment_intent);
-  const stripeCustomerId = getStripeObjectId(checkoutSession.customer);
-
-  await env.DB.prepare(
-    `
-      INSERT OR IGNORE INTO stripe_topup_sessions (
-        checkout_session_id,
-        user_id,
-        amount,
-        currency,
-        status,
-        payment_status,
-        stripe_customer_id,
-        payment_intent_id,
-        created_at,
-        updated_at
-      )
-      VALUES (?, ?, ?, ?, 'created', ?, ?, ?, unixepoch(), unixepoch())
-    `,
-  )
-    .bind(
-      checkoutSession.id,
-      metadata.userId,
-      metadata.amount,
-      TOP_UP_CURRENCY,
-      checkoutSession.payment_status ?? null,
-      stripeCustomerId,
-      paymentIntentId,
-    )
-    .run();
-
-  await updateTopUpSessionState({
-    checkoutSessionId: checkoutSession.id,
-    paymentIntentId,
-    paymentStatus: checkoutSession.payment_status ?? null,
-    stripeCustomerId,
-  });
-}
-
-async function updateTopUpSessionState(params: {
-  balanceAfter?: number | null;
-  checkoutSessionId: string;
-  completedAt?: Date | null;
-  lastError?: string | null;
-  paymentIntentId?: string | null;
-  paymentStatus?: string | null;
-  status?: TopUpSessionState;
-  stripeCustomerId?: string | null;
-}): Promise<void> {
-  const db = await getDb();
-
-  await db
-    .update(stripeTopupSessions)
-    .set({
-      balanceAfter: params.balanceAfter,
-      completedAt: params.completedAt ?? undefined,
-      lastError: params.lastError,
-      paymentIntentId: params.paymentIntentId,
-      paymentStatus: params.paymentStatus,
-      status: params.status,
-      stripeCustomerId: params.stripeCustomerId,
-      updatedAt: new Date(),
-    })
-    .where(eq(stripeTopupSessions.checkoutSessionId, params.checkoutSessionId));
 }

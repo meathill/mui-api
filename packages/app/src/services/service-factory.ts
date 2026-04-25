@@ -1,10 +1,10 @@
-import type { CloudflareBindings } from '../types';
 import { createDb, type Database } from '../db';
-import { KVService } from './kv-service';
-import { BillingService } from './billing-service';
+import type { CloudflareBindings } from '../types';
 import { AlertService } from './alert-service';
+import { BillingService } from './billing-service';
 import { EmailService } from './email-service';
 import { GatewayService } from './gateway-service';
+import { KVService } from './kv-service';
 
 export interface ProxyServices {
   db: Database;

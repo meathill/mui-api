@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { api, type UserInfo, type RechargeLogItem, type Pagination } from '@/lib/api';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { api, type Pagination, type RechargeLogItem, type UserInfo } from '@/lib/api';
 
 export default function RechargeLogsPage() {
   const t = useTranslations('adminRecharge');
@@ -60,7 +60,7 @@ export default function RechargeLogsPage() {
 
   useEffect(() => {
     loadLogs(filters);
-  }, [filters]);
+  }, [filters, loadLogs]);
 
   useEffect(() => {
     api

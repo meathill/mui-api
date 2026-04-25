@@ -1,5 +1,5 @@
+import { generateApiKey, generateId, getKeyPrefix } from '../lib/crypto';
 import type { KVService } from './kv-service';
-import { generateId, generateApiKey, getKeyPrefix } from '../lib/crypto';
 
 export interface GenerateKeyResult {
   rawKey: string;

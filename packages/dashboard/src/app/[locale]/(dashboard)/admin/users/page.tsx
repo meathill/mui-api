@@ -1,34 +1,34 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon, SearchIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { Link } from '@/i18n/navigation';
-import { ArrowDownIcon, ArrowUpIcon, ArrowUpDownIcon, SearchIcon } from 'lucide-react';
-import { api, type UserInfo } from '@/lib/api';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogPopup,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import {
   Dialog,
   DialogBackdrop,
   DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
   DialogPopup,
   DialogTitle,
-  DialogDescription,
-  DialogHeader,
-  DialogFooter,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogPopup,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogClose,
-} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Link } from '@/i18n/navigation';
+import { api, type UserInfo } from '@/lib/api';
 
 const PAGE_SIZE = 20;
 
@@ -102,7 +102,7 @@ export default function UsersPage() {
   const [errorMessage, setErrorMessage] = useState('');
 
   // userId -> email 映射
-  const userMap = useMemo(() => {
+  const _userMap = useMemo(() => {
     const map = new Map<string, string>();
     for (const u of users) {
       map.set(u.userId, u.email);
@@ -146,7 +146,7 @@ export default function UsersPage() {
   // 搜索变化时回到第 1 页
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, []);
 
   async function loadUsers() {
     try {
@@ -162,7 +162,7 @@ export default function UsersPage() {
 
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [loadUsers]);
 
   function handleSort(field: SortField) {
     if (sortField === field) {

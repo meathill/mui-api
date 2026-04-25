@@ -1,14 +1,14 @@
 'use client';
 
-import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { signUp } from '@/lib/auth-client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
+import { useState } from 'react';
 import { SocialLoginButtons } from '@/components/social-login-buttons';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Separator } from '@/components/ui/separator';
 import { Link, useRouter } from '@/i18n/navigation';
+import { signUp } from '@/lib/auth-client';
 
 export default function RegisterPage() {
   const router = useRouter();

@@ -3,11 +3,11 @@
 import { ImageIcon, LoaderCircleIcon, MessageSquareIcon, SaveIcon, XIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { adminApi, type ModelInfo } from '@/lib/api';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@/components/ui/tabs';
+import { adminApi, type ModelInfo } from '@/lib/api';
 import { Field, HistoryList, ImageResults, ImageUpload, PromptField } from './playground-components';
 import type { HistoryItem, ImageApiItem, ImageResult, PlaygroundMode } from './playground-types';
 import {

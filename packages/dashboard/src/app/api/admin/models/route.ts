@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
+import { models } from '@/db/app-schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
-import { models } from '@/db/app-schema';
 
 /**
  * GET /api/admin/models — 列出所有模型

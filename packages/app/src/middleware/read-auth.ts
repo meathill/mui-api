@@ -1,6 +1,6 @@
 import type { Context, Next } from 'hono';
-import type { CloudflareBindings } from '../types';
 import { KVService } from '../services/kv-service';
+import type { CloudflareBindings } from '../types';
 
 // spec §2 规定的错误体格式
 function spec401(c: Context, message = 'API key 无效或已被撤销') {

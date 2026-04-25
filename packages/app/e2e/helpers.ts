@@ -21,7 +21,7 @@ export async function seedApiKey(
   // 存储 API Key 到 KV
   await env.KV.put(`apikey:${keyHash}`, userId, {
     metadata: {
-      keyPrefix: rawKey.substring(0, 12) + '...',
+      keyPrefix: `${rawKey.substring(0, 12)}...`,
       isActive: true,
       userId,
     },

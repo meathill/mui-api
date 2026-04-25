@@ -1,9 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { and, eq, gte, lt, lte, isNull, sql, desc } from 'drizzle-orm';
-import { requireAdmin } from '@/lib/admin';
-import { getDb } from '@/lib/db';
+import { and, desc, eq, gte, isNull, lte, sql } from 'drizzle-orm';
+import { type NextRequest, NextResponse } from 'next/server';
 import { usageLogs, usageStats } from '@/db/app-schema';
 import { user } from '@/db/schema';
+import { requireAdmin } from '@/lib/admin';
+import { getDb } from '@/lib/db';
 
 type Granularity = 'hourly' | 'daily' | 'weekly' | 'monthly';
 
@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     const startDate = new Date(startDateStr);
-    const endDate = new Date(endDateStr + 'T23:59:59');
+    const endDate = new Date(`${endDateStr}T23:59:59`);
     const granularity = granularityParam || autoGranularity(startDate, endDate);
 
     const db = await getDb();

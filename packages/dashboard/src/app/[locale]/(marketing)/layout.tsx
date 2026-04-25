@@ -1,7 +1,7 @@
 import { getTranslations } from 'next-intl/server';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { Link } from '@/i18n/navigation';
 import { getSession } from '@/lib/session';
-import { LanguageSwitcher } from '@/components/language-switcher';
 
 // 依赖 cookie/header 的会话读取，禁用静态优化
 export const dynamic = 'force-dynamic';
@@ -46,14 +46,12 @@ export default async function MarketingLayout({ children }: { children: React.Re
                 {t('dashboard')}
               </Link>
             ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors sm:px-4"
-                >
-                  {t('signIn')}
-                </Link>
-              </>
+              <Link
+                href="/login"
+                className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors sm:px-4"
+              >
+                {t('signIn')}
+              </Link>
             )}
           </nav>
         </div>

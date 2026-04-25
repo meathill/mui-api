@@ -11,7 +11,7 @@ export async function loggerMiddleware(c: Context, next: Next) {
   // 请求信息
   const method = c.req.method;
   const path = c.req.path;
-  const userAgent = c.req.header('User-Agent') || '-';
+  const _userAgent = c.req.header('User-Agent') || '-';
 
   console.log(`[${requestId}] --> ${method} ${path}`);
 

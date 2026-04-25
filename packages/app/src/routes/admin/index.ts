@@ -1,9 +1,9 @@
 import { Hono } from 'hono';
-import type { CloudflareBindings } from '../../types';
 import { unauthorized } from '../../lib/errors';
-import users from './users';
+import type { CloudflareBindings } from '../../types';
 import modelRoutes from './models';
 import spending from './spending';
+import users from './users';
 
 const admin = new Hono<{ Bindings: CloudflareBindings }>();
 

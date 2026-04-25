@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
-import { getKV, getGlobalConfig, setGlobalConfig, type GlobalConfig } from '@/lib/kv';
+import { type GlobalConfig, getGlobalConfig, getKV, setGlobalConfig } from '@/lib/kv';
 
 /**
  * GET /api/admin/global-config — 获取全局配置

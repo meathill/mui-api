@@ -1,12 +1,7 @@
+import { type NewAuthUser as NewUser, type AuthUser as User, user } from '@muirouter/shared-db/auth';
 import {
-  models,
-  rechargeLogs,
-  spendingLimits,
-  stripeTopupSessions,
-  usageLogs,
-  usageStats,
-  wallets,
   type Model,
+  models,
   type NewModel,
   type NewRechargeLog,
   type NewSpendingLimit,
@@ -15,13 +10,18 @@ import {
   type NewUsageStat,
   type NewWallet,
   type RechargeLog,
+  rechargeLogs,
   type SpendingLimit,
   type StripeTopupSession,
+  spendingLimits,
+  stripeTopupSessions,
   type UsageLog,
   type UsageStat,
+  usageLogs,
+  usageStats,
   type Wallet,
+  wallets,
 } from '@muirouter/shared-db/business';
-import { user, type AuthUser as User, type NewAuthUser as NewUser } from '@muirouter/shared-db/auth';
 
 // 向后兼容 app 侧既有命名；底层已切到 better-auth 的 user 表。
 export const users = user;

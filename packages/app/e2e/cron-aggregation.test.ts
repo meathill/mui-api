@@ -1,9 +1,9 @@
 import { env } from 'cloudflare:test';
-import { describe, it, expect, beforeAll } from 'vitest';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/d1';
+import { beforeAll, describe, expect, it } from 'vitest';
 import * as schema from '../src/db/schema';
-import { aggregateHourly, aggregateDaily } from '../src/services/stats-aggregator';
+import { aggregateDaily, aggregateHourly } from '../src/services/stats-aggregator';
 
 describe('Cron 聚合 E2E', () => {
   const db = drizzle(env.DB, { schema });
@@ -65,29 +65,29 @@ describe('Cron 聚合 E2E', () => {
       // 检查全局行
       const globalRow = stats.find((s) => s.userId === null && s.modelId === null);
       expect(globalRow).toBeDefined();
-      expect(globalRow!.totalCost).toBeCloseTo(0.035, 5);
-      expect(globalRow!.totalInputTokens).toBe(3500);
-      expect(globalRow!.totalOutputTokens).toBe(1700);
-      expect(globalRow!.requestCount).toBe(3);
+      expect(globalRow?.totalCost).toBeCloseTo(0.035, 5);
+      expect(globalRow?.totalInputTokens).toBe(3500);
+      expect(globalRow?.totalOutputTokens).toBe(1700);
+      expect(globalRow?.requestCount).toBe(3);
 
       // 检查用户行
       const user1Row = stats.find((s) => s.userId === 'test-user-1' && s.modelId === null);
       expect(user1Row).toBeDefined();
-      expect(user1Row!.requestCount).toBe(2);
-      expect(user1Row!.totalCost).toBeCloseTo(0.03, 5);
+      expect(user1Row?.requestCount).toBe(2);
+      expect(user1Row?.totalCost).toBeCloseTo(0.03, 5);
 
       const user2Row = stats.find((s) => s.userId === 'test-user-broke' && s.modelId === null);
       expect(user2Row).toBeDefined();
-      expect(user2Row!.requestCount).toBe(1);
+      expect(user2Row?.requestCount).toBe(1);
 
       // 检查模型行
       const gpt4oRow = stats.find((s) => s.userId === null && s.modelId === 'gpt-4o');
       expect(gpt4oRow).toBeDefined();
-      expect(gpt4oRow!.requestCount).toBe(2);
+      expect(gpt4oRow?.requestCount).toBe(2);
 
       const claudeRow = stats.find((s) => s.userId === null && s.modelId === 'claude-sonnet-4-20250514');
       expect(claudeRow).toBeDefined();
-      expect(claudeRow!.requestCount).toBe(1);
+      expect(claudeRow?.requestCount).toBe(1);
     });
 
     it('重复执行应幂等（更新而非重复插入）', async () => {

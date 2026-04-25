@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
+import { spendingLimits } from '@/db/app-schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
-import { spendingLimits } from '@/db/app-schema';
 
 /**
  * POST /api/admin/set-spending-limit — 设置用户月度消费限额

@@ -1,5 +1,5 @@
 import { SELF } from 'cloudflare:test';
-import { describe, it, expect, beforeAll } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { seedApiKey } from './helpers';
 
 describe('GET /v1/models', () => {

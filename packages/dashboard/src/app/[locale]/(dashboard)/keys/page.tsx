@@ -1,31 +1,31 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { userApi } from '@/lib/api';
+import { useEffect, useRef, useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogPopup,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
   Dialog,
   DialogBackdrop,
   DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
   DialogPopup,
   DialogTitle,
-  DialogDescription,
-  DialogHeader,
-  DialogFooter,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogPopup,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogClose,
-} from '@/components/ui/alert-dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { userApi } from '@/lib/api';
 
 interface ApiKey {
   id: string;
@@ -68,7 +68,7 @@ export default function KeysPage() {
 
   useEffect(() => {
     loadKeys();
-  }, []);
+  }, [loadKeys]);
 
   async function handleCreateKey() {
     setCreating(true);

@@ -1,8 +1,8 @@
-import { eq, sql } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import type { Database } from '../db';
-import { spendingLimits, usageLogs } from '../db/schema';
-import type { KVService } from './kv-service';
+import { spendingLimits } from '../db/schema';
 import type { EmailService } from './email-service';
+import type { KVService } from './kv-service';
 
 // 告警冷却时间：24 小时内不重复发送
 const ALERT_COOLDOWN_MS = 24 * 60 * 60 * 1000;

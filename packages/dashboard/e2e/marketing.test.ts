@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { defaultMessages } from './test-messages';
 
 test.describe('营销页面', () => {

@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
-import { getSession } from '@/lib/session';
 import { AppSidebar } from '@/components/app-sidebar';
+import { getSession } from '@/lib/session';
 
 // 依赖 cookie/header 的会话读取，禁用静态优化
 export const dynamic = 'force-dynamic';

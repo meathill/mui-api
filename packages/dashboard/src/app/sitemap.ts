@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { locales, defaultLocale } from '@/i18n/config';
+import { defaultLocale, locales } from '@/i18n/config';
 import { BLOG_POSTS } from '@/lib/blog';
 
 const SITE_URL = 'https://muirouter.com';

@@ -1,8 +1,8 @@
 'use client';
 
 import { useLocale } from 'next-intl';
-import { usePathname, useRouter } from '@/i18n/navigation';
 import type { Locale } from '@/i18n/config';
+import { usePathname, useRouter } from '@/i18n/navigation';
 
 const LOCALE_LABELS: Record<Locale, string> = {
   en: 'English',

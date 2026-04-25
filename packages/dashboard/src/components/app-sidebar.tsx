@@ -1,25 +1,25 @@
 'use client';
 
-import { useTranslations } from 'next-intl';
 import {
+  ChartBar,
+  ChartLineUp,
+  ChartPie,
+  Cube,
+  GearSix,
   House,
   Key,
-  ChartBar,
+  Receipt,
+  SignOut,
   Terminal,
   UsersThree,
-  Cube,
-  ChartLineUp,
-  GearSix,
-  SignOut,
-  Receipt,
-  ChartPie,
 } from '@phosphor-icons/react';
-import { cn } from '@/lib/utils';
-import { signOut } from '@/lib/auth-client';
+import { useTranslations } from 'next-intl';
+import { LanguageSwitcher } from '@/components/language-switcher';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { LanguageSwitcher } from '@/components/language-switcher';
 import { Link, usePathname } from '@/i18n/navigation';
+import { signOut } from '@/lib/auth-client';
+import { cn } from '@/lib/utils';
 
 interface NavItem {
   href: string;
@@ -57,7 +57,7 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
   const t = useTranslations('sidebar');
 
   function isActive(href: string) {
-    return pathname === href || pathname.startsWith(href + '/');
+    return pathname === href || pathname.startsWith(`${href}/`);
   }
 
   async function handleSignOut() {

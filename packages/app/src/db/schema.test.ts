@@ -2,11 +2,11 @@ import { getTableName } from 'drizzle-orm';
 import { describe, expect, it } from 'vitest';
 import {
   models,
-  usageLogs,
-  usageStats,
   rechargeLogs,
   spendingLimits,
   stripeTopupSessions,
+  usageLogs,
+  usageStats,
   users,
   wallets,
 } from './schema';

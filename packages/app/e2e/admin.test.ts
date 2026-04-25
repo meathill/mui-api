@@ -1,5 +1,5 @@
 import { SELF } from 'cloudflare:test';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 const ADMIN_SECRET = 'test-admin-secret';
 

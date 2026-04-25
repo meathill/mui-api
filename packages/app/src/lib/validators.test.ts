@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import {
-  RechargeSchema,
-  SetConcurrencySchema,
+  ChatCompletionSchema,
   GetUserSchema,
+  GlobalConfigSchema,
   ModelCreateSchema,
   ModelUpdateSchema,
+  RechargeSchema,
+  SetConcurrencySchema,
   SpendingLimitSchema,
-  GlobalConfigSchema,
   UsageQuerySchema,
-  ChatCompletionSchema,
 } from './validators';
 
 describe('RechargeSchema', () => {

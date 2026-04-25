@@ -1,10 +1,10 @@
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
-import type { CloudflareBindings } from '../../types';
 import { createDb } from '../../db';
 import { models } from '../../db/schema';
-import { ModelCreateSchema, ModelUpdateSchema } from '../../lib/validators';
 import { badRequest, notFound, zodErrorToApiError } from '../../lib/errors';
+import { ModelCreateSchema, ModelUpdateSchema } from '../../lib/validators';
+import type { CloudflareBindings } from '../../types';
 
 const modelRoutes = new Hono<{ Bindings: CloudflareBindings }>();
 

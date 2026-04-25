@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
-import { getKV, getGlobalConfig, getSpendingStats } from '@/lib/kv';
+import { getGlobalConfig, getKV, getSpendingStats } from '@/lib/kv';
 
 /**
  * GET /api/admin/spending-stats — 消费统计

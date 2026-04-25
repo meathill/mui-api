@@ -1,13 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { api, type StatisticsResponse } from '@/lib/api';
+import { useEffect, useState } from 'react';
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { api, type StatisticsResponse } from '@/lib/api';
 
 interface TimeRange {
   key: string;
@@ -18,7 +18,7 @@ function formatDate(d: Date): string {
   return d.toISOString().slice(0, 10);
 }
 
-const TIME_RANGE_KEYS = ['today', 'yesterday', 'last7days', 'last30days', 'thisMonth', 'lastMonth'] as const;
+const _TIME_RANGE_KEYS = ['today', 'yesterday', 'last7days', 'last30days', 'thisMonth', 'lastMonth'] as const;
 
 const TIME_RANGES: TimeRange[] = [
   {
@@ -114,7 +114,7 @@ export default function StatisticsPage() {
 
   useEffect(() => {
     loadStatistics(startDate, endDate, userId);
-  }, []);
+  }, [endDate, loadStatistics, startDate, userId]);
 
   function handleRangeClick(range: TimeRange) {
     const { startDate: s, endDate: e } = range.getDates();

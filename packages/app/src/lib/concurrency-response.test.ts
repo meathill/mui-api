@@ -29,7 +29,7 @@ describe('concurrency-response', () => {
       finalize,
     );
 
-    const reader = response.body!.getReader();
+    const reader = response.body?.getReader();
     const firstChunk = await reader.read();
     expect(firstChunk.done).toBe(false);
 

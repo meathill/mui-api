@@ -1,22 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { api, type GlobalConfig, type SpendingStats } from '@/lib/api';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { Progress } from '@/components/ui/progress';
-import { Badge } from '@/components/ui/badge';
+import { useEffect, useState } from 'react';
 import {
   AlertDialog,
-  AlertDialogPopup,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
   AlertDialogClose,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogPopup,
+  AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Progress } from '@/components/ui/progress';
+import { api, type GlobalConfig, type SpendingStats } from '@/lib/api';
 
 export default function SettingsPage() {
   const t = useTranslations('adminSettings');
@@ -58,7 +58,7 @@ export default function SettingsPage() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();

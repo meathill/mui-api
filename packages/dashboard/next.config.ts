@@ -1,5 +1,5 @@
-import type { NextConfig } from 'next';
 import createMDX from '@next/mdx';
+import type { NextConfig } from 'next';
 import createNextIntlPlugin from 'next-intl/plugin';
 import { sharedCloudflareStateV3Path } from '../shared-db/dev-config';
 
@@ -23,6 +23,7 @@ export default withNextIntl(withMDX(nextConfig));
 // Enable calling `getCloudflareContext()` in `next dev`.
 // See https://opennext.js.org/cloudflare/bindings#local-access-to-bindings.
 import { initOpenNextCloudflareForDev } from '@opennextjs/cloudflare';
+
 initOpenNextCloudflareForDev({
   configPath: './wrangler.jsonc',
   persist: {

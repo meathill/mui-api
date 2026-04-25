@@ -1,5 +1,5 @@
 import type { Database } from '../db';
-import { usageLogs, type NewUsageLog } from '../db/schema';
+import { type NewUsageLog, usageLogs } from '../db/schema';
 import { generateId } from '../lib/crypto';
 import type { KVService } from './kv-service';
 

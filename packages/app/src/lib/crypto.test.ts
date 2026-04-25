@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { generateId, generateApiKey, hashApiKey, getKeyPrefix } from './crypto';
+import { generateApiKey, generateId, getKeyPrefix, hashApiKey } from './crypto';
 
 describe('Crypto Utilities', () => {
   describe('generateId', () => {

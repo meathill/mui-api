@@ -1,14 +1,14 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
-import { useLocale, useTranslations } from 'next-intl';
+import { ChartBar, CreditCard, Key, Wallet } from '@phosphor-icons/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { CreditCard, Wallet, Key, ChartBar } from '@phosphor-icons/react';
-import { type TopUpSessionResult, userApi } from '@/lib/api';
-import { TOP_UP_AMOUNTS } from '@/lib/top-up';
+import { useLocale, useTranslations } from 'next-intl';
+import { useEffect, useRef, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { type TopUpSessionResult, userApi } from '@/lib/api';
+import { TOP_UP_AMOUNTS } from '@/lib/top-up';
 
 interface TopUpNotice {
   description: string;
@@ -82,7 +82,7 @@ export default function DashboardHome() {
         pollTimerRef.current = null;
       }
     };
-  }, [pathname, router, searchParams, t]);
+  }, [pathname, router, searchParams, t, pollTopUpSession]);
 
   function scheduleTopUpPoll(sessionId: string, disposed: boolean) {
     if (disposed) {

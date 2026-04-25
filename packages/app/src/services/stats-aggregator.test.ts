@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { aggregateHourly, aggregateDaily, aggregateWeekly, aggregateMonthly } from './stats-aggregator';
+import { aggregateDaily, aggregateHourly, aggregateMonthly, aggregateWeekly } from './stats-aggregator';
 
 /**
  * 创建 mock DB，模拟 drizzle ORM 的链式调用
@@ -199,10 +199,10 @@ describe('StatsAggregator', () => {
       const logCall = consoleSpy.mock.calls.find((c) => String(c[0]).includes('周聚合:'));
       expect(logCall).toBeDefined();
 
-      const dates = String(logCall![0]).match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)/g);
+      const dates = String(logCall?.[0]).match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)/g);
       expect(dates).toHaveLength(2);
 
-      const diffDays = (new Date(dates![1]).getTime() - new Date(dates![0]).getTime()) / (86400 * 1000);
+      const diffDays = (new Date(dates?.[1]).getTime() - new Date(dates?.[0]).getTime()) / (86400 * 1000);
       expect(diffDays).toBe(7);
 
       consoleSpy.mockRestore();
@@ -225,11 +225,11 @@ describe('StatsAggregator', () => {
       const logCall = consoleSpy.mock.calls.find((c) => String(c[0]).includes('月聚合:'));
       expect(logCall).toBeDefined();
 
-      const dates = String(logCall![0]).match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)/g);
+      const dates = String(logCall?.[0]).match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)/g);
       expect(dates).toHaveLength(2);
 
-      const start = new Date(dates![0]);
-      const end = new Date(dates![1]);
+      const start = new Date(dates?.[0]);
+      const end = new Date(dates?.[1]);
 
       // 都应是某月1号
       expect(start.getUTCDate()).toBe(1);

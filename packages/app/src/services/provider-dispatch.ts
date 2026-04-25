@@ -5,8 +5,8 @@
  * - 其余 (anthropic / workers-ai / 将来新增) → env.AI.run + gateway option
  */
 
-import OpenAI from 'openai';
 import { GoogleGenAI } from '@google/genai';
+import OpenAI from 'openai';
 import type { CloudflareBindings } from '../types';
 
 type AnyBody = Record<string, unknown>;
@@ -105,7 +105,7 @@ export async function callGemini(env: CloudflareBindings, upstreamModel: string,
  * - @cf/*：Workers AI 各模型自己的 input schema
  */
 export async function callAiBinding(env: CloudflareBindings, upstreamModel: string, body: AnyBody): Promise<Response> {
-  const isStream = body.stream === true;
+  const _isStream = body.stream === true;
   // biome-ignore lint/suspicious/noExplicitAny: env.AI.run 多态签名，TS 类型对 model 字段强约束
   const result = await (env.AI as any).run(upstreamModel, body, {
     gateway: { id: env.CF_GATEWAY_ID },

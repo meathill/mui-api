@@ -1,19 +1,19 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
+import { useEffect, useMemo, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   api,
-  type UserInfo,
+  type Pagination,
   type UsageLog,
   type UsageQueryParams,
   type UsageSummary,
-  type Pagination,
+  type UserInfo,
 } from '@/lib/api';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default function UsagePage() {
   const t = useTranslations('adminUsage');
@@ -64,7 +64,7 @@ export default function UsagePage() {
 
   useEffect(() => {
     loadUsage(filters);
-  }, [filters]);
+  }, [filters, loadUsage]);
 
   useEffect(() => {
     api

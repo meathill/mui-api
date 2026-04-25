@@ -1,6 +1,6 @@
 import { eq, sql } from 'drizzle-orm';
 import type { Database } from '../db';
-import { users, wallets, type NewUser } from '../db/schema';
+import { type NewUser, users, wallets } from '../db/schema';
 import { generateId } from '../lib/crypto';
 
 export interface RechargeResult {

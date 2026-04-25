@@ -1,4 +1,4 @@
-import { and, desc, eq, gte, lte, lt, sql } from 'drizzle-orm';
+import { and, desc, eq, gte, lt, lte, sql } from 'drizzle-orm';
 import type { Database } from '../db';
 import { rechargeLogs, usageLogs, wallets } from '../db';
 import { formatBalance, toCents } from '../lib/money';
@@ -152,7 +152,7 @@ export async function listUsage(
     created_at: toIso(r.createdAt),
   }));
 
-  const nextCursor = hasMore ? encodeCursor(slice[slice.length - 1]!.createdAt!, slice[slice.length - 1]!.id) : null;
+  const nextCursor = hasMore ? encodeCursor(slice[slice.length - 1]?.createdAt!, slice[slice.length - 1]?.id) : null;
   return { items, next_cursor: nextCursor };
 }
 
@@ -191,6 +191,6 @@ export async function listRecharges(
     created_at: toIso(r.createdAt),
   }));
 
-  const nextCursor = hasMore ? encodeCursor(slice[slice.length - 1]!.createdAt!, slice[slice.length - 1]!.id) : null;
+  const nextCursor = hasMore ? encodeCursor(slice[slice.length - 1]?.createdAt!, slice[slice.length - 1]?.id) : null;
   return { items, next_cursor: nextCursor };
 }

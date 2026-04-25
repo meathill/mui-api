@@ -1,5 +1,5 @@
+import { ArrowLeftRightIcon, CodeIcon, GlobeIcon, WalletIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { GlobeIcon, WalletIcon, CodeIcon, ArrowLeftRightIcon } from 'lucide-react';
 
 export function AdvantagesSection() {
   const t = useTranslations('advantages');

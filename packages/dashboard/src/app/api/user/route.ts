@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { getSession } from '@/lib/session';
 import { getKV, getUserData } from '@/lib/kv';
+import { getSession } from '@/lib/session';
 
 /**
  * GET /api/user — 获取当前登录用户的信息（余额、并发等）

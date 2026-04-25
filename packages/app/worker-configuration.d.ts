@@ -470,7 +470,7 @@ declare const performance: Performance;
 declare const Cloudflare: Cloudflare;
 declare const origin: string;
 declare const navigator: Navigator;
-interface TestController {}
+type TestController = {};
 interface ExecutionContext<Props = unknown> {
   waitUntil(promise: Promise<any>): void;
   passThroughOnException(): void;
@@ -576,7 +576,7 @@ interface DurableObjectNamespaceGetDurableObjectOptions {
   locationHint?: DurableObjectLocationHint;
   routingMode?: DurableObjectRoutingMode;
 }
-interface DurableObjectClass<_T extends Rpc.DurableObjectBranded | undefined = undefined> {}
+type DurableObjectClass<_T extends Rpc.DurableObjectBranded | undefined = undefined> = {};
 interface DurableObjectState<Props = unknown> {
   waitUntil(promise: Promise<any>): void;
   readonly exports: Cloudflare.Exports;
@@ -2888,7 +2888,7 @@ interface TraceItem {
 interface TraceItemAlarmEventInfo {
   readonly scheduledTime: Date;
 }
-interface TraceItemCustomEventInfo {}
+type TraceItemCustomEventInfo = {};
 interface TraceItemScheduledEventInfo {
   readonly scheduledTime: number;
   readonly cron: string;
@@ -10684,7 +10684,7 @@ declare abstract class D1PreparedStatement {
 // but this will ensure type checking on older versions still passes.
 // TypeScript's interface merging will ensure our empty interface is effectively
 // ignored when `Disposable` is included in the standard lib.
-interface Disposable {}
+type Disposable = {};
 /**
  * The returned data after sending an email
  */
@@ -11393,7 +11393,7 @@ declare namespace Rpc {
   export type Stub<T extends Stubable> = Provider<T> & StubBase<T>;
   // This represents all the types that can be sent as-is over an RPC boundary
   type BaseType =
-    | void
+    | undefined
     | undefined
     | null
     | boolean
@@ -11505,7 +11505,7 @@ declare namespace Cloudflare {
   // will merge all declarations.
   //
   // You can use `wrangler types` to generate the `Env` type automatically.
-  interface Env {}
+  type Env = {};
   // Project-specific parameters used to inform types.
   //
   // This interface is, again, intended to be declared in project-specific files, and then that
@@ -11524,7 +11524,7 @@ declare namespace Cloudflare {
   //     }
   //
   // You can use `wrangler types` to generate `GlobalProps` automatically.
-  interface GlobalProps {}
+  type GlobalProps = {};
   // Evaluates to the type of a property in GlobalProps, defaulting to `Default` if it is not
   // present.
   type GlobalProp<K extends string, Default> = K extends keyof GlobalProps ? GlobalProps[K] : Default;

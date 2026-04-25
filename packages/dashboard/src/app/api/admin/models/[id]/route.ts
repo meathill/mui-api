@@ -1,8 +1,8 @@
-import { NextResponse } from 'next/server';
 import { eq } from 'drizzle-orm';
+import { NextResponse } from 'next/server';
+import { models } from '@/db/app-schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
-import { models } from '@/db/app-schema';
 
 /**
  * PUT /api/admin/models/:id — 更新模型

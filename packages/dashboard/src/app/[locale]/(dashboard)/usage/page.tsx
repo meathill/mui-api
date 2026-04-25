@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { userApi, type UsageLog, type UsageQueryParams, type Pagination } from '@/lib/api';
+import { useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { type Pagination, type UsageLog, type UsageQueryParams, userApi } from '@/lib/api';
 
 export default function UserUsagePage() {
   const t = useTranslations('usage');
@@ -45,7 +45,7 @@ export default function UserUsagePage() {
 
   useEffect(() => {
     loadUsage(filters);
-  }, [filters]);
+  }, [filters, loadUsage]);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();

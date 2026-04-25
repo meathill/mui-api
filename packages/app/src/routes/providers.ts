@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
-import type { CloudflareBindings } from '../types';
 import { authMiddleware } from '../middleware/auth';
 import { createProxyServices } from '../services/service-factory';
 import { extractStreamUsage, extractUsage } from '../services/usage-extractor';
+import type { CloudflareBindings } from '../types';
 
 const providers = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -40,7 +40,7 @@ providers.all('/:provider{.+}/*', async (c) => {
 
     if (isStream) {
       // 流式：tee stream，一路给客户端，一路用于提取 usage
-      const [clientStream, billingStream] = response.body!.tee();
+      const [clientStream, billingStream] = response.body?.tee();
 
       c.executionCtx.waitUntil(
         (async () => {

@@ -30,5 +30,5 @@ export async function hashApiKey(key: string): Promise<string> {
  * 获取 API Key 前缀（用于展示）
  */
 export function getKeyPrefix(key: string): string {
-  return key.substring(0, 12) + '...';
+  return `${key.substring(0, 12)}...`;
 }

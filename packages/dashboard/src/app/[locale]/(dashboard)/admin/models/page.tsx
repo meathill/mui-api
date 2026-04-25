@@ -1,33 +1,33 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon, SearchIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { ArrowDownIcon, ArrowUpIcon, ArrowUpDownIcon, SearchIcon } from 'lucide-react';
-import { api, type ModelInfo, type ModelCreateInput } from '@/lib/api';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card } from '@/components/ui/card';
+import { useEffect, useMemo, useState } from 'react';
+import {
+  AlertDialog,
+  AlertDialogClose,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogPopup,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
 import {
   Dialog,
   DialogBackdrop,
   DialogClose,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
   DialogPopup,
   DialogTitle,
-  DialogDescription,
-  DialogHeader,
-  DialogFooter,
 } from '@/components/ui/dialog';
-import {
-  AlertDialog,
-  AlertDialogPopup,
-  AlertDialogHeader,
-  AlertDialogFooter,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogClose,
-} from '@/components/ui/alert-dialog';
+import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { api, type ModelCreateInput, type ModelInfo } from '@/lib/api';
 
 const PROVIDERS = ['openai', 'anthropic', 'google-ai-studio'];
 const PAGE_SIZE = 20;
@@ -143,7 +143,7 @@ export default function ModelsPage() {
   // 搜索变化时回到第 1 页
   useEffect(() => {
     setPage(1);
-  }, [search]);
+  }, []);
 
   async function loadModels() {
     try {
@@ -159,7 +159,7 @@ export default function ModelsPage() {
 
   useEffect(() => {
     loadModels();
-  }, []);
+  }, [loadModels]);
 
   function handleSort(field: SortField) {
     if (sortField === field) {

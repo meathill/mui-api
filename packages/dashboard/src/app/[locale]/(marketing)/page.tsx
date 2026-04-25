@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
-import { HeroSection } from './_components/hero-section';
-import { ModelsSection } from './_components/models-section';
-import { ImageSection } from './_components/image-section';
 import { AdvantagesSection } from './_components/advantages-section';
-import { StepsSection } from './_components/steps-section';
 import { CodeSection } from './_components/code-section';
 import { CtaSection } from './_components/cta-section';
+import { HeroSection } from './_components/hero-section';
+import { ImageSection } from './_components/image-section';
+import { ModelsSection } from './_components/models-section';
+import { StepsSection } from './_components/steps-section';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;

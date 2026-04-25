@@ -1,5 +1,5 @@
+import { CreditCardIcon, RocketIcon, UserPlusIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { UserPlusIcon, CreditCardIcon, RocketIcon } from 'lucide-react';
 
 export function StepsSection() {
   const t = useTranslations('steps');

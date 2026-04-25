@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { eq, and, gte, lte, sql, desc } from 'drizzle-orm';
+import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
+import { type NextRequest, NextResponse } from 'next/server';
+import { rechargeLogs } from '@/db/app-schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
-import { rechargeLogs } from '@/db/app-schema';
 
 /**
  * GET /api/admin/recharge-logs — 查询充值记录
@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
       conditions.push(gte(rechargeLogs.createdAt, start));
     }
     if (endDate) {
-      const end = new Date(endDate + 'T23:59:59');
+      const end = new Date(`${endDate}T23:59:59`);
       conditions.push(lte(rechargeLogs.createdAt, end));
     }
 
