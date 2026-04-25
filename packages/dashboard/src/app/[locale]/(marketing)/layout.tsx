@@ -3,6 +3,9 @@ import { Link } from '@/i18n/navigation';
 import { getSession } from '@/lib/session';
 import { LanguageSwitcher } from '@/components/language-switcher';
 
+// 依赖 cookie/header 的会话读取，禁用静态优化
+export const dynamic = 'force-dynamic';
+
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
   const { user } = await getSession();
   const t = await getTranslations('header');

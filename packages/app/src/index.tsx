@@ -6,6 +6,9 @@ import { loggerMiddleware } from './middleware/logger';
 import admin from './routes/admin';
 import openai from './routes/openai';
 import providers from './routes/providers';
+import v1User from './routes/v1-user';
+import webhooks from './routes/webhooks';
+import mcp from './routes/mcp';
 import { createDb } from './db';
 import { ConcurrencyLimiterDO } from './durable-objects/concurrency-limiter';
 import { aggregateHourly, aggregateDaily, aggregateWeekly, aggregateMonthly } from './services/stats-aggregator';
@@ -26,8 +29,13 @@ app.use(renderer);
 
 // 挂载路由
 app.route('/admin', admin);
+// v1User 提供用户自助查询/充值端点（balance, usage, recharges, models, topup-sessions）
+// 必须在 OpenAI 兼容路由之前挂载，否则 openai 上的 `/*` authMiddleware 会拦截
+app.route('/v1', v1User);
 app.route('/v1', openai);
 app.route('/providers', providers);
+app.route('/webhooks', webhooks);
+app.route('/mcp', mcp);
 // 首页
 app.get('/', (c) => {
   return c.render(<h1>Uni-Gateway - AI API 统一网关</h1>);

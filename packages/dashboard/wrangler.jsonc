@@ -1,6 +1,6 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "mui-dashboard",
+  "name": "mui-api-dashboard",
   "account_id": "fdc63eeea83ae8f5234357308b9a638b",
   "main": ".open-next/worker.js",
   "compatibility_date": "2026-03-05",
@@ -60,7 +60,7 @@
   "services": [
     {
       "binding": "WORKER_SELF_REFERENCE",
-      "service": "mui-dashboard"
+      "service": "mui-api-dashboard"
     }
   ],
   "vars": {

@@ -14,6 +14,11 @@ export interface CloudflareBindings {
   CF_TOKEN: string;
   AI: Ai;
   DEFAULT_MAX_CONCURRENCY?: string; // 默认 "3"
+  // Stripe 充值
+  STRIPE_SECRET_KEY?: string;
+  STRIPE_WEBHOOK_SECRET?: string;
+  STRIPE_DEFAULT_SUCCESS_URL?: string;
+  STRIPE_DEFAULT_CANCEL_URL?: string;
 }
 
 // KV 用户数据结构

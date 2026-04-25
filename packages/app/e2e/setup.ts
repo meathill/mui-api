@@ -31,6 +31,9 @@ await db.batch([
     "CREATE TABLE IF NOT EXISTS recharge_logs (id TEXT PRIMARY KEY NOT NULL, user_id TEXT NOT NULL, operator_id TEXT, amount REAL NOT NULL, balance_after REAL, source TEXT DEFAULT 'admin', source_id TEXT, note TEXT, created_at INTEGER DEFAULT (unixepoch()))",
   ),
   db.prepare(
+    "CREATE TABLE IF NOT EXISTS stripe_topup_sessions (checkout_session_id TEXT PRIMARY KEY NOT NULL, user_id TEXT NOT NULL, amount REAL NOT NULL, currency TEXT NOT NULL DEFAULT 'USD', status TEXT NOT NULL DEFAULT 'created', payment_status TEXT, stripe_customer_id TEXT, payment_intent_id TEXT, balance_after REAL, last_error TEXT, created_at INTEGER DEFAULT (unixepoch()), updated_at INTEGER DEFAULT (unixepoch()), completed_at INTEGER)",
+  ),
+  db.prepare(
     'CREATE TABLE IF NOT EXISTS usage_stats (id TEXT PRIMARY KEY NOT NULL, granularity TEXT NOT NULL, period_start INTEGER NOT NULL, period_end INTEGER NOT NULL, user_id TEXT, model_id TEXT, total_cost REAL DEFAULT 0, total_input_tokens INTEGER DEFAULT 0, total_output_tokens INTEGER DEFAULT 0, request_count INTEGER DEFAULT 0, created_at INTEGER DEFAULT (unixepoch()), updated_at INTEGER DEFAULT (unixepoch()))',
   ),
   db.prepare(
