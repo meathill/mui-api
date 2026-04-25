@@ -30,6 +30,12 @@ export default async function MarketingLayout({ children }: { children: React.Re
             >
               {t('blog')}
             </Link>
+            <Link
+              href="/mcp"
+              className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors sm:px-4"
+            >
+              {t('mcp')}
+            </Link>
             <span className="min-w-4 flex-1" aria-hidden="true" />
             <LanguageSwitcher />
             {user ? (
