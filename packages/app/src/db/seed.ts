@@ -160,7 +160,7 @@ export const SEED_MODELS: NewModel[] = [
     markupRate: 1.2,
   },
 
-  // Xiaomi MiMo — 直连 OpenAI 兼容接口，价格取官方海外价的 cache miss、≤256K 档位
+  // Xiaomi MiMo — 直连 OpenAI 兼容接口，文本价格取官方海外价的 cache miss、≤256K 档位
   {
     id: 'mimo-v2.5-pro',
     provider: 'xiaomi-mimo',
@@ -199,6 +199,39 @@ export const SEED_MODELS: NewModel[] = [
     upstreamModelId: 'mimo-v2.5-flash',
     inputPrice: 0.1,
     outputPrice: 0.3,
+    markupRate: 1.2,
+  },
+  // MiMo TTS 系列官方当前为限时免费；保留 0 价格，待官方收费后再更新。
+  {
+    id: 'mimo-v2.5-tts',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2.5-tts',
+    inputPrice: 0,
+    outputPrice: 0,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2.5-tts-voiceclone',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2.5-tts-voiceclone',
+    inputPrice: 0,
+    outputPrice: 0,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2.5-tts-voicedesign',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2.5-tts-voicedesign',
+    inputPrice: 0,
+    outputPrice: 0,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2-tts',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2-tts',
+    inputPrice: 0,
+    outputPrice: 0,
     markupRate: 1.2,
   },
 ];

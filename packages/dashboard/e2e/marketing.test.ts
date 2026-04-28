@@ -14,6 +14,15 @@ test.describe('营销页面', () => {
     await expect(title).toContainText(defaultMessages.hero.titleHighlight);
   });
 
+  test('首页模型区展示新增 Provider 和模型', async ({ page }) => {
+    await page.goto('/');
+
+    await expect(page.getByText('Workers AI', { exact: true })).toBeVisible();
+    await expect(page.getByText('Xiaomi MiMo', { exact: true })).toBeVisible();
+    await expect(page.getByText('GLM-4.7 Flash', { exact: true })).toBeVisible();
+    await expect(page.getByText('MiMo TTS', { exact: true })).toBeVisible();
+  });
+
   test('首页 Header 按指定顺序展示入口', async ({ page }) => {
     await page.goto('/');
     const logo = page.getByRole('link', { name: 'MUI Router', exact: true });

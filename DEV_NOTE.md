@@ -61,12 +61,13 @@
 
 ### Xiaomi MiMo 定价记录
 
-**决策**：种子数据中 `xiaomi-mimo` 模型定价使用官方海外价格的 cache miss、`Input ≤ 256K` 档位。
+**决策**：种子数据中 `xiaomi-mimo` 文本/多模态模型定价使用官方海外价格的 cache miss、`Input ≤ 256K` 档位；TTS 系列当前官方标记为限时免费，因此暂记为 `0 / 0`。
 
 **原因**：
 - 当前 `models` 表只有一组 `inputPrice` / `outputPrice`，不能表达 cache hit、长上下文分档或夜间折扣
 - 选择 cache miss 基础档位能避免缓存命中假设带来的低估
 - `mimo-v2.5-pro` / `mimo-v2-pro` 在 256K-1M 输入区间存在更高档位，如果长上下文使用量明显增加，需要把模型计价扩展为上下文分段计费
+- `mimo-v2.5-tts`、`mimo-v2.5-tts-voiceclone`、`mimo-v2.5-tts-voicedesign`、`mimo-v2-tts` 的免费状态不是长期价格承诺，需要在官方结束免费后同步更新生产库模型价格
 
 ### 多语言与国际化 (i18n)
 

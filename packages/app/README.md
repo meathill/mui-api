@@ -88,7 +88,7 @@ curl -X POST http://localhost:5173/admin/recharge \
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| POST | `/v1/chat/completions` | Chat Completions（支持流式） |
+| POST | `/v1/chat/completions` | Chat Completions（支持流式；MiMo TTS 也通过此接口透传 `audio` 参数） |
 | GET | `/v1/models` | 列出可用模型 |
 
 **调用示例**：
@@ -116,6 +116,7 @@ curl http://localhost:5173/v1/chat/completions \
 
 支持的 Provider：`openai`、`anthropic`、`google-ai-studio`、`workers-ai`、`xiaomi-mimo`。
 其中 `openai` / `google-ai-studio` 通过 [CF AI Gateway](https://developers.cloudflare.com/ai-gateway/) 转发，`xiaomi-mimo` 直连 Xiaomi MiMo OpenAI 兼容接口，`anthropic` / `workers-ai` 通过 Workers AI binding 调用。
+MiMo TTS 系列当前按官方限时免费记录为 `0 / 0`，后续官方价格变化时需要同步更新 `models` 表。
 
 ## 并发限流实现
 

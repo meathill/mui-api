@@ -1,28 +1,46 @@
 'use client';
 
-import { ImageIcon, LoaderCircleIcon, MessageSquareIcon, SaveIcon, XIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Tabs, TabsList, TabsPanel, TabsTab } from '@/components/ui/tabs';
 import { adminApi, type ModelInfo } from '@/lib/api';
-import { Field, HistoryList, ImageResults, ImageUpload, PromptField } from './playground-components';
-import type { HistoryItem, ImageApiItem, ImageResult, PlaygroundMode } from './playground-types';
+import type {
+  AudioResult,
+  HistoryItem,
+  ImageApiItem,
+  ImageResult,
+  PlaygroundMode,
+  TokenInfo,
+  TokenUsagePayload,
+  TtsApiResponse,
+} from './playground-types';
+import { PlaygroundView } from './playground-view';
 import {
   appendBuiltInImageModels,
-  getApiBase,
+  buildTtsRequestBody,
+  fileToTtsVoiceDataUrl,
+  getDefaultTtsVoice,
+  getTtsVoiceOptions,
+  getTtsVoiceSampleMimeType,
   isImageModel,
+  isTtsModel,
+  isTtsVoiceCloneModel,
+  isTtsVoiceDesignModel,
   MAX_HISTORY_ITEMS,
+  MAX_TTS_VOICE_SAMPLE_BYTES,
   parseHistory,
+  readChatStream,
+  sendChatRequest,
   sendImageEditRequest,
   sendImageGenerationRequest,
+  sendTtsRequest,
+  toAudioResult,
   toImageResult,
+  toTokenInfo,
 } from './playground-utils';
 
 const API_KEY_STORAGE_KEY = 'playground_api_key';
 const HISTORY_STORAGE_KEY = 'playground_history';
+const DEFAULT_TTS_VOICE = 'mimo_default';
 
 export default function PlaygroundPage() {
   const t = useTranslations('playground');
@@ -31,20 +49,27 @@ export default function PlaygroundPage() {
   const [mode, setMode] = useState<PlaygroundMode>('chat');
   const [chatModel, setChatModel] = useState('');
   const [imageModel, setImageModel] = useState('');
+  const [ttsModel, setTtsModel] = useState('');
   const [apiKey, setApiKey] = useState('');
   const [prompt, setPrompt] = useState('');
+  const [ttsStylePrompt, setTtsStylePrompt] = useState('');
+  const [ttsVoice, setTtsVoice] = useState(DEFAULT_TTS_VOICE);
+  const [voiceSample, setVoiceSample] = useState<File | null>(null);
   const [response, setResponse] = useState('');
   const [imageResults, setImageResults] = useState<ImageResult[]>([]);
+  const [audioResult, setAudioResult] = useState<AudioResult | null>(null);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
-  const [tokenInfo, setTokenInfo] = useState<{ inputTokens: number; outputTokens: number } | null>(null);
+  const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const abortRef = useRef<AbortController | null>(null);
 
-  const chatModels = useMemo(() => models.filter((model) => !isImageModel(model)), [models]);
+  const chatModels = useMemo(() => models.filter((model) => !isImageModel(model) && !isTtsModel(model)), [models]);
   const imageModels = useMemo(() => models.filter(isImageModel), [models]);
-  const selectedModel = mode === 'chat' ? chatModel : imageModel;
+  const ttsModels = useMemo(() => models.filter(isTtsModel), [models]);
+  const selectedModel = mode === 'chat' ? chatModel : mode === 'image' ? imageModel : ttsModel;
+  const visibleModels = mode === 'chat' ? chatModels : mode === 'image' ? imageModels : ttsModels;
 
   useEffect(() => {
     const savedKey = localStorage.getItem(API_KEY_STORAGE_KEY);
@@ -59,15 +84,29 @@ export default function PlaygroundPage() {
         setModels(availableModels);
         const imageDefault =
           availableModels.find((model) => model.id === 'gpt-image-2') ?? availableModels.find(isImageModel);
-        const chatDefault = availableModels.find((model) => !isImageModel(model)) ?? availableModels[0];
+        const chatDefault = availableModels.find((model) => !isImageModel(model) && !isTtsModel(model));
+        const ttsDefault =
+          availableModels.find((model) => model.id === 'mimo-v2.5-tts') ?? availableModels.find(isTtsModel);
         if (chatDefault) setChatModel(chatDefault.id);
         if (imageDefault) setImageModel(imageDefault.id);
+        if (ttsDefault) {
+          setTtsModel(ttsDefault.id);
+          setTtsVoice(getDefaultTtsVoice(ttsDefault.id) || DEFAULT_TTS_VOICE);
+        }
       } catch {
         // 管理接口不可用时保持空列表，用户仍可手动刷新后重试。
       }
     }
     loadModels();
   }, []);
+
+  useEffect(() => {
+    if (!ttsModel) return;
+    const voiceOptions = getTtsVoiceOptions(ttsModel);
+    if (voiceOptions.length > 0 && !voiceOptions.some((option) => option.id === ttsVoice)) {
+      setTtsVoice(voiceOptions[0].id);
+    }
+  }, [ttsModel, ttsVoice]);
 
   function handleApiKeyChange(value: string) {
     setApiKey(value);
@@ -79,13 +118,16 @@ export default function PlaygroundPage() {
   }
 
   function handleModeChange(value: string) {
-    if (value === 'chat' || value === 'image') {
+    if (value === 'chat' || value === 'image' || value === 'tts') {
       setMode(value);
-      setError('');
-      setResponse('');
-      setImageResults([]);
-      setTokenInfo(null);
+      resetOutput();
     }
+  }
+
+  function handleModelChange(value: string) {
+    if (mode === 'chat') setChatModel(value);
+    if (mode === 'image') setImageModel(value);
+    if (mode === 'tts') setTtsModel(value);
   }
 
   function handleFilesChange(files: FileList | null) {
@@ -102,42 +144,48 @@ export default function PlaygroundPage() {
       setError(t('noKeyError'));
       return;
     }
-    if (mode === 'chat') {
-      doSendChat(apiKey.trim());
-    } else {
-      doGenerateImage(apiKey.trim());
+    if (mode === 'tts' && !validateTtsInput()) return;
+    if (mode === 'chat') doSendChat(apiKey.trim());
+    if (mode === 'image') doGenerateImage(apiKey.trim());
+    if (mode === 'tts') doGenerateSpeech(apiKey.trim());
+  }
+
+  function validateTtsInput() {
+    if (isTtsVoiceDesignModel(ttsModel) && !ttsStylePrompt.trim()) {
+      setError(t('ttsStyleRequired'));
+      return false;
     }
+    if (!isTtsVoiceCloneModel(ttsModel)) return true;
+    if (!voiceSample) {
+      setError(t('ttsVoiceSampleRequired'));
+      return false;
+    }
+    if (voiceSample.size > MAX_TTS_VOICE_SAMPLE_BYTES) {
+      setError(t('ttsVoiceSampleTooLarge'));
+      return false;
+    }
+    if (!getTtsVoiceSampleMimeType(voiceSample)) {
+      setError(t('ttsVoiceSampleInvalid'));
+      return false;
+    }
+    return true;
   }
 
   async function doSendChat(key: string) {
-    setLoading(true);
-    setResponse('');
-    setImageResults([]);
-    setError('');
-    setTokenInfo(null);
-    abortRef.current = new AbortController();
-
+    const signal = startRequest();
     try {
-      const res = await fetch(`${getApiBase()}/v1/chat/completions`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${key}`,
-        },
-        body: JSON.stringify({
-          model: chatModel,
-          messages: [{ role: 'user', content: prompt }],
-          stream: true,
-        }),
-        signal: abortRef.current.signal,
+      const res = await sendChatRequest({
+        apiKey: key,
+        model: chatModel,
+        prompt,
+        signal,
       });
-
       if (!res.ok) {
         await setRequestError(res);
         return;
       }
 
-      const fullResponse = await readChatStream(res);
+      const fullResponse = await readChatStream(res, { onContent: setResponse, onUsage: setTokenInfo });
       saveHistoryItem({ mode: 'chat', model: chatModel, prompt, response: fullResponse });
     } catch (e) {
       if ((e as Error).name !== 'AbortError') setError(e instanceof Error ? e.message : te('operationFailed'));
@@ -147,13 +195,7 @@ export default function PlaygroundPage() {
   }
 
   async function doGenerateImage(key: string) {
-    setLoading(true);
-    setResponse('');
-    setImageResults([]);
-    setError('');
-    setTokenInfo(null);
-    abortRef.current = new AbortController();
-
+    const signal = startRequest();
     try {
       const res =
         uploadedImages.length > 0
@@ -162,13 +204,13 @@ export default function PlaygroundPage() {
               model: imageModel,
               prompt,
               images: uploadedImages,
-              signal: abortRef.current.signal,
+              signal,
             })
           : await sendImageGenerationRequest({
               apiKey: key,
               model: imageModel,
               prompt,
-              signal: abortRef.current.signal,
+              signal,
             });
 
       if (!res.ok) {
@@ -176,15 +218,11 @@ export default function PlaygroundPage() {
         return;
       }
 
-      const data = (await res.json()) as { data?: ImageApiItem[]; usage?: Record<string, number> };
+      const data = (await res.json()) as { data?: ImageApiItem[]; usage?: TokenUsagePayload };
       const results = (data.data ?? []).flatMap(toImageResult);
       setImageResults(results);
-      if (data.usage) {
-        setTokenInfo({
-          inputTokens: data.usage.input_tokens ?? data.usage.prompt_tokens ?? 0,
-          outputTokens: data.usage.output_tokens ?? data.usage.completion_tokens ?? 0,
-        });
-      }
+      const tokens = toTokenInfo(data.usage);
+      if (tokens) setTokenInfo(tokens);
       saveHistoryItem({ mode: 'image', model: imageModel, prompt, imageCount: results.length });
     } catch (e) {
       if ((e as Error).name !== 'AbortError') setError(e instanceof Error ? e.message : te('operationFailed'));
@@ -193,48 +231,61 @@ export default function PlaygroundPage() {
     }
   }
 
+  async function doGenerateSpeech(key: string) {
+    const signal = startRequest();
+    try {
+      const voiceSampleDataUrl = voiceSample ? await fileToTtsVoiceDataUrl(voiceSample) : undefined;
+      const body = buildTtsRequestBody({
+        model: ttsModel,
+        text: prompt,
+        stylePrompt: ttsStylePrompt,
+        voice: ttsVoice,
+        voiceSampleDataUrl,
+      });
+      const res = await sendTtsRequest({ apiKey: key, body, signal });
+      if (!res.ok) {
+        await setRequestError(res);
+        return;
+      }
+
+      const data = (await res.json()) as TtsApiResponse;
+      const result = toAudioResult(data, ttsModel);
+      if (!result) {
+        setError(t('ttsNoAudioError'));
+        return;
+      }
+      setAudioResult(result);
+      const tokens = toTokenInfo(data.usage);
+      if (tokens) setTokenInfo(tokens);
+      saveHistoryItem({ mode: 'tts', model: ttsModel, prompt, ttsStylePrompt, audioFilename: result.filename });
+    } catch (e) {
+      if ((e as Error).name !== 'AbortError') setError(e instanceof Error ? e.message : te('operationFailed'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function startRequest(): AbortSignal {
+    setLoading(true);
+    resetOutput();
+    const controller = new AbortController();
+    abortRef.current = controller;
+    return controller.signal;
+  }
+
+  function resetOutput() {
+    setResponse('');
+    setImageResults([]);
+    setAudioResult(null);
+    setError('');
+    setTokenInfo(null);
+  }
+
   async function setRequestError(res: Response) {
     const data = (await res.json()) as Record<string, unknown>;
     const errObj = data.error as Record<string, string> | undefined;
     setError(errObj?.message || te('requestFailed', { status: String(res.status) }));
     setLoading(false);
-  }
-
-  async function readChatStream(res: Response) {
-    const reader = res.body?.getReader();
-    const decoder = new TextDecoder();
-    let fullResponse = '';
-
-    if (!reader) return fullResponse;
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n').filter((line) => line.startsWith('data: '));
-      for (const line of lines) {
-        const data = line.slice(6);
-        if (data === '[DONE]') continue;
-        try {
-          const parsed = JSON.parse(data);
-          const content = parsed.choices?.[0]?.delta?.content;
-          if (content) {
-            fullResponse += content;
-            setResponse(fullResponse);
-          }
-          if (parsed.usage) {
-            setTokenInfo({
-              inputTokens: parsed.usage.prompt_tokens || 0,
-              outputTokens: parsed.usage.completion_tokens || 0,
-            });
-          }
-        } catch {
-          // ignore parse errors
-        }
-      }
-    }
-    return fullResponse;
   }
 
   function handleStop() {
@@ -261,145 +312,49 @@ export default function PlaygroundPage() {
     setPrompt(item.prompt);
     setResponse(item.response ?? '');
     setImageResults([]);
+    setAudioResult(null);
     setTokenInfo(null);
-    if (item.mode === 'chat') {
-      setChatModel(item.model);
-    } else {
-      setImageModel(item.model);
+    if (item.mode === 'chat') setChatModel(item.model);
+    if (item.mode === 'image') setImageModel(item.model);
+    if (item.mode === 'tts') {
+      setTtsModel(item.model);
+      setTtsStylePrompt(item.ttsStylePrompt ?? '');
     }
   }
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-xl font-bold">{t('title')}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{t('subtitle')}</p>
-        </div>
-        <Tabs value={mode} onValueChange={handleModeChange}>
-          <TabsList>
-            <TabsTab value="chat">
-              <MessageSquareIcon />
-              {t('chatMode')}
-            </TabsTab>
-            <TabsTab value="image">
-              <ImageIcon />
-              {t('imageMode')}
-            </TabsTab>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
-        <Card className="p-4">
-          <div className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <Field label={t('model')}>
-                <select
-                  value={selectedModel}
-                  onChange={(e) => (mode === 'chat' ? setChatModel(e.target.value) : setImageModel(e.target.value))}
-                  className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors"
-                >
-                  {(mode === 'chat' ? chatModels : imageModels).map((model) => (
-                    <option key={model.id} value={model.id}>
-                      {model.id} ({model.provider})
-                    </option>
-                  ))}
-                </select>
-              </Field>
-
-              <Field label={t('apiKey')}>
-                <Input
-                  nativeInput
-                  type="password"
-                  value={apiKey}
-                  onChange={(e) => handleApiKeyChange(e.target.value)}
-                  placeholder={t('apiKeyPlaceholder')}
-                  className="font-mono"
-                />
-                <p className="mt-1 text-xs text-muted-foreground">{t('apiKeyHint')}</p>
-              </Field>
-            </div>
-
-            <Tabs value={mode} onValueChange={handleModeChange}>
-              <TabsPanel value="chat">
-                <PromptField
-                  value={prompt}
-                  onChange={setPrompt}
-                  label={t('prompt')}
-                  placeholder={t('promptPlaceholder')}
-                />
-              </TabsPanel>
-              <TabsPanel value="image" className="space-y-4">
-                <PromptField
-                  value={prompt}
-                  onChange={setPrompt}
-                  label={t('imagePrompt')}
-                  placeholder={t('imagePromptPlaceholder')}
-                />
-                <ImageUpload files={uploadedImages} onChange={handleFilesChange} onRemove={removeUpload} />
-              </TabsPanel>
-            </Tabs>
-
-            <div className="flex flex-wrap gap-2">
-              {loading ? (
-                <Button variant="destructive" onClick={handleStop}>
-                  {t('stop')}
-                </Button>
-              ) : (
-                <Button onClick={handleRunClick} disabled={!prompt.trim() || !apiKey.trim() || !selectedModel}>
-                  {mode === 'chat' ? t('send') : t('generateImage')}
-                </Button>
-              )}
-              {loading && mode === 'image' && (
-                <span className="inline-flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
-                  <LoaderCircleIcon className="size-4 animate-spin" />
-                  {t('generating')}
-                </span>
-              )}
-              {mode === 'image' && uploadedImages.length > 0 && (
-                <Button variant="outline" onClick={() => setUploadedImages([])}>
-                  <XIcon />
-                  {t('clearUploads')}
-                </Button>
-              )}
-            </div>
-          </div>
-        </Card>
-
-        <Card className="p-4">
-          <div className="mb-3 flex items-center justify-between gap-3">
-            <label className="text-sm font-medium">{mode === 'chat' ? t('response') : t('imageResult')}</label>
-            {mode === 'image' && imageResults.length > 0 && (
-              <span className="text-xs text-muted-foreground">
-                <SaveIcon className="mr-1 inline size-3.5" />
-                {t('imageSaveHint')}
-              </span>
-            )}
-          </div>
-
-          {error && <p className="mb-3 text-sm text-destructive">{error}</p>}
-
-          {mode === 'chat' ? (
-            <div className="min-h-72 rounded-lg bg-muted p-3 font-mono text-sm whitespace-pre-wrap">
-              {response || <span className="text-muted-foreground">{t('responsePlaceholder')}</span>}
-            </div>
-          ) : (
-            <ImageResults results={imageResults} emptyLabel={t('imagePlaceholder')} saveLabel={t('saveImage')} />
-          )}
-
-          {tokenInfo && (
-            <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
-              <span>{t('inputTokens', { count: tokenInfo.inputTokens })}</span>
-              <span>{t('outputTokens', { count: tokenInfo.outputTokens })}</span>
-            </div>
-          )}
-        </Card>
-      </div>
-
-      <Card className="p-4">
-        <HistoryList history={history} onClear={clearHistory} onRestore={restoreHistoryItem} />
-      </Card>
-    </div>
+    <PlaygroundView
+      mode={mode}
+      visibleModels={visibleModels}
+      selectedModel={selectedModel}
+      apiKey={apiKey}
+      prompt={prompt}
+      ttsModel={ttsModel}
+      ttsStylePrompt={ttsStylePrompt}
+      ttsVoice={ttsVoice}
+      voiceSample={voiceSample}
+      uploadedImages={uploadedImages}
+      loading={loading}
+      error={error}
+      response={response}
+      imageResults={imageResults}
+      audioResult={audioResult}
+      tokenInfo={tokenInfo}
+      history={history}
+      onModeChange={handleModeChange}
+      onModelChange={handleModelChange}
+      onApiKeyChange={handleApiKeyChange}
+      onPromptChange={setPrompt}
+      onTtsStylePromptChange={setTtsStylePrompt}
+      onTtsVoiceChange={setTtsVoice}
+      onVoiceSampleChange={setVoiceSample}
+      onFilesChange={handleFilesChange}
+      onRemoveUpload={removeUpload}
+      onClearUploads={() => setUploadedImages([])}
+      onRun={handleRunClick}
+      onStop={handleStop}
+      onClearHistory={clearHistory}
+      onRestoreHistory={restoreHistoryItem}
+    />
   );
 }

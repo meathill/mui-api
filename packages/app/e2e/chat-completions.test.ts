@@ -95,12 +95,57 @@ describe('POST /v1/chat/completions', () => {
     await res.json();
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [input, init] = fetchMock.mock.calls[0];
-    expect(input).toBe('https://api.xiaomimimo.com/v1/chat/completions');
+    expect(input).toBe('https://token-plan-sgp.xiaomimimo.com/v1/chat/completions');
     const headers = new Headers(init?.headers);
     expect(headers.get('authorization')).toBe('Bearer test-mimo-key');
     expect(JSON.parse(String(init?.body))).toMatchObject({
       model: 'mimo-v2.5-pro',
       messages: [{ role: 'user', content: 'hello' }],
+    });
+  });
+
+  it('xiaomi-mimo TTS 模型透传 audio 参数并返回音频数据', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => {
+      return Response.json({
+        id: 'chatcmpl-mimo-tts-test',
+        object: 'chat.completion',
+        created: 1,
+        model: 'mimo-v2.5-tts',
+        usage: { prompt_tokens: 0, completion_tokens: 0 },
+        choices: [
+          {
+            index: 0,
+            message: { role: 'assistant', content: null, audio: { id: 'audio-1', data: 'UklGRg==' } },
+            finish_reason: 'stop',
+          },
+        ],
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await SELF.fetch('http://localhost/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'mimo-v2.5-tts',
+        messages: [{ role: 'assistant', content: '你好，欢迎回来。' }],
+        audio: { format: 'wav', voice: 'mimo_default' },
+        stream: false,
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    const body = await res.json<{ choices: Array<{ message: { audio: { data: string } } }> }>();
+    expect(body.choices[0].message.audio.data).toBe('UklGRg==');
+    const [, init] = fetchMock.mock.calls[0];
+    expect(JSON.parse(String(init?.body))).toMatchObject({
+      model: 'mimo-v2.5-tts',
+      messages: [{ role: 'assistant', content: '你好，欢迎回来。' }],
+      audio: { format: 'wav', voice: 'mimo_default' },
+      stream: false,
     });
   });
 });

@@ -64,4 +64,7 @@ await db.batch([
   db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('mimo-v2.5-pro', 'xiaomi-mimo', 'mimo-v2.5-pro', 1, 3, 1.2)",
   ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('mimo-v2.5-tts', 'xiaomi-mimo', 'mimo-v2.5-tts', 0, 0, 1.2)",
+  ),
 ]);

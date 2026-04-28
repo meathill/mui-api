@@ -5,8 +5,8 @@ import { useTranslations } from 'next-intl';
 import type React from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import type { HistoryItem, ImageResult, PlaygroundMode } from './playground-types';
-import { downloadImage } from './playground-utils';
+import type { AudioResult, HistoryItem, ImageResult, PlaygroundMode } from './playground-types';
+import { downloadAudio, downloadImage, getTtsVoiceOptions, isTtsVoiceCloneModel } from './playground-utils';
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -79,6 +79,84 @@ export function ImageUpload({
   );
 }
 
+export function TtsControls({
+  model,
+  stylePrompt,
+  onStylePromptChange,
+  voice,
+  onVoiceChange,
+  voiceSample,
+  onVoiceSampleChange,
+}: {
+  model: string;
+  stylePrompt: string;
+  onStylePromptChange: (value: string) => void;
+  voice: string;
+  onVoiceChange: (value: string) => void;
+  voiceSample: File | null;
+  onVoiceSampleChange: (file: File | null) => void;
+}) {
+  const t = useTranslations('playground');
+  const voiceOptions = getTtsVoiceOptions(model);
+  const needsVoiceSample = isTtsVoiceCloneModel(model);
+
+  return (
+    <div className="space-y-4">
+      <Field label={t('ttsStylePrompt')}>
+        <Textarea
+          value={stylePrompt}
+          onChange={(event) => onStylePromptChange(event.target.value)}
+          rows={3}
+          placeholder={t('ttsStylePlaceholder')}
+        />
+        <p className="mt-1 text-xs text-muted-foreground">{t('ttsStyleHint')}</p>
+      </Field>
+
+      {voiceOptions.length > 0 && (
+        <Field label={t('ttsVoice')}>
+          <select
+            value={voice}
+            onChange={(event) => onVoiceChange(event.target.value)}
+            className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors"
+          >
+            {voiceOptions.map((option) => (
+              <option key={option.id} value={option.id}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
+
+      {needsVoiceSample && (
+        <div className="rounded-lg border border-dashed border-border bg-muted/30 p-4">
+          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 text-center">
+            <UploadIcon className="size-5 text-muted-foreground" />
+            <span className="text-sm font-medium">{t('ttsVoiceSampleUpload')}</span>
+            <span className="text-xs text-muted-foreground">{t('ttsVoiceSampleHint')}</span>
+            <input
+              type="file"
+              accept="audio/mpeg,audio/mp3,audio/wav,.mp3,.wav"
+              className="sr-only"
+              onChange={(event) => onVoiceSampleChange(event.target.files?.[0] ?? null)}
+            />
+          </label>
+          {voiceSample && (
+            <button
+              type="button"
+              onClick={() => onVoiceSampleChange(null)}
+              className="mt-3 inline-flex items-center gap-1 rounded-md bg-background px-2 py-1 text-xs text-muted-foreground"
+            >
+              {voiceSample.name}
+              <XIcon className="size-3" />
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function ImageResults({
   results,
   emptyLabel,
@@ -110,6 +188,37 @@ export function ImageResults({
           </div>
         </div>
       ))}
+    </div>
+  );
+}
+
+export function AudioResultView({
+  result,
+  emptyLabel,
+  saveLabel,
+}: {
+  result: AudioResult | null;
+  emptyLabel: string;
+  saveLabel: string;
+}) {
+  if (!result) {
+    return (
+      <div className="flex min-h-72 items-center justify-center rounded-lg bg-muted text-sm text-muted-foreground">
+        {emptyLabel}
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-lg border border-border bg-muted p-4">
+      <audio controls src={result.src} className="w-full" />
+      <div className="mt-3 flex items-center justify-between gap-2">
+        <span className="truncate text-xs text-muted-foreground">{result.filename}</span>
+        <Button size="sm" variant="outline" onClick={() => downloadAudio(result)}>
+          <DownloadIcon />
+          {saveLabel}
+        </Button>
+      </div>
     </div>
   );
 }
@@ -156,6 +265,7 @@ function HistoryButton({ item, onRestore }: { item: HistoryItem; onRestore: (ite
   const modeLabel: Record<PlaygroundMode, string> = {
     chat: t('chatMode'),
     image: t('imageMode'),
+    tts: t('ttsMode'),
   };
 
   return (
@@ -172,6 +282,7 @@ function HistoryButton({ item, onRestore }: { item: HistoryItem; onRestore: (ite
       <p className="mt-2 text-xs text-muted-foreground">
         {item.model}
         {item.imageCount ? ` · ${t('imageCount', { count: item.imageCount })}` : ''}
+        {item.audioFilename ? ` · ${item.audioFilename}` : ''}
       </p>
     </button>
   );
