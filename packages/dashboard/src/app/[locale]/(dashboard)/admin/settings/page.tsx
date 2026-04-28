@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogClose,
@@ -40,7 +40,7 @@ export default function SettingsPage() {
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  async function loadData() {
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       const [configRes, statsRes] = await Promise.all([api.getGlobalConfig(), api.getSpendingStats()]);
@@ -54,7 +54,7 @@ export default function SettingsPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [te]);
 
   useEffect(() => {
     loadData();

@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogClose,
@@ -54,7 +54,7 @@ export default function KeysPage() {
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
   const [revokeKeyId, setRevokeKeyId] = useState('');
 
-  async function loadKeys() {
+  const loadKeys = useCallback(async () => {
     try {
       setLoading(true);
       const data = await userApi.getKeys();
@@ -64,7 +64,7 @@ export default function KeysPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [te]);
 
   useEffect(() => {
     loadKeys();

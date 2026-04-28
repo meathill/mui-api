@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -45,18 +45,21 @@ export default function RechargeLogsPage() {
     pageSize: number;
   }>({ page: 1, pageSize: 20 });
 
-  async function loadLogs(params: typeof filters) {
-    try {
-      setLoading(true);
-      const data = await api.getRechargeLogs(params);
-      setLogs(data.logs);
-      setPagination(data.pagination);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : te('loadFailed'));
-    } finally {
-      setLoading(false);
-    }
-  }
+  const loadLogs = useCallback(
+    async (params: typeof filters) => {
+      try {
+        setLoading(true);
+        const data = await api.getRechargeLogs(params);
+        setLogs(data.logs);
+        setPagination(data.pagination);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : te('loadFailed'));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [te],
+  );
 
   useEffect(() => {
     loadLogs(filters);

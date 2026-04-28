@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -95,22 +95,25 @@ export default function StatisticsPage() {
   const [userId, setUserId] = useState('');
   const [activeRange, setActiveRange] = useState('last7days');
 
-  async function loadStatistics(start: string, end: string, uid?: string) {
-    try {
-      setLoading(true);
-      setError('');
-      const result = await api.getStatistics({
-        startDate: start,
-        endDate: end,
-        userId: uid || undefined,
-      });
-      setData(result);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : te('loadFailed'));
-    } finally {
-      setLoading(false);
-    }
-  }
+  const loadStatistics = useCallback(
+    async (start: string, end: string, uid?: string) => {
+      try {
+        setLoading(true);
+        setError('');
+        const result = await api.getStatistics({
+          startDate: start,
+          endDate: end,
+          userId: uid || undefined,
+        });
+        setData(result);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : te('loadFailed'));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [te],
+  );
 
   useEffect(() => {
     loadStatistics(startDate, endDate, userId);

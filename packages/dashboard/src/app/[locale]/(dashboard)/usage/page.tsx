@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -30,18 +30,21 @@ export default function UserUsagePage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  async function loadUsage(params: Omit<UsageQueryParams, 'userId'>) {
-    try {
-      setLoading(true);
-      const data = await userApi.getUsage(params);
-      setLogs(data.logs);
-      setPagination(data.pagination);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : te('loadFailed'));
-    } finally {
-      setLoading(false);
-    }
-  }
+  const loadUsage = useCallback(
+    async (params: Omit<UsageQueryParams, 'userId'>) => {
+      try {
+        setLoading(true);
+        const data = await userApi.getUsage(params);
+        setLogs(data.logs);
+        setPagination(data.pagination);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : te('loadFailed'));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [te],
+  );
 
   useEffect(() => {
     loadUsage(filters);

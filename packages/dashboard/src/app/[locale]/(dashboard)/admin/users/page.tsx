@@ -2,7 +2,7 @@
 
 import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon, SearchIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogClose,
@@ -146,9 +146,9 @@ export default function UsersPage() {
   // 搜索变化时回到第 1 页
   useEffect(() => {
     setPage(1);
-  }, []);
+  }, [search]);
 
-  async function loadUsers() {
+  const loadUsers = useCallback(async () => {
     try {
       setLoading(true);
       const data = await api.getUsers();
@@ -158,7 +158,7 @@ export default function UsersPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [te]);
 
   useEffect(() => {
     loadUsers();
