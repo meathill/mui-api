@@ -25,9 +25,12 @@ export type GetUserInput = z.infer<typeof GetUserSchema>;
 
 // ==================== 模型管理 ====================
 
+export const ProviderSchema = z.enum(['openai', 'anthropic', 'google-ai-studio', 'workers-ai', 'xiaomi-mimo']);
+export type ProviderInput = z.infer<typeof ProviderSchema>;
+
 export const ModelCreateSchema = z.object({
   id: z.string().min(1, '模型 ID 不能为空'),
-  provider: z.enum(['openai', 'anthropic', 'google-ai-studio', 'workers-ai']),
+  provider: ProviderSchema,
   upstreamModelId: z.string().optional(),
   inputPrice: z.number().min(0, '价格不能为负'),
   outputPrice: z.number().min(0, '价格不能为负'),

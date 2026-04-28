@@ -21,5 +21,6 @@ describe('GET /v1/models', () => {
     expect(modelIds).toContain('gpt-4o');
     expect(modelIds).toContain('gpt-image-2');
     expect(modelIds).toContain('claude-sonnet-4-20250514');
+    expect(modelIds).toContain('mimo-v2.5-pro');
   });
 });

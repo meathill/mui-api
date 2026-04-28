@@ -1,5 +1,5 @@
 import { SELF } from 'cloudflare:test';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { seedApiKey } from './helpers';
 
 describe('POST /v1/chat/completions', () => {
@@ -9,6 +9,10 @@ describe('POST /v1/chat/completions', () => {
   beforeAll(async () => {
     apiKey = await seedApiKey('test-user-1');
     brokeApiKey = await seedApiKey('test-user-broke', 0);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('缺少 model 参数返回 400', async () => {
@@ -54,5 +58,49 @@ describe('POST /v1/chat/completions', () => {
     expect(res.status).toBe(402);
     const body = await res.json<{ error: { type: string } }>();
     expect(body.error.type).toBe('insufficient_quota');
+  });
+
+  it('xiaomi-mimo 模型直连 OpenAI 兼容接口并使用 MIMO_API_KEY', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => {
+      return Response.json({
+        id: 'chatcmpl-mimo-test',
+        object: 'chat.completion',
+        created: 1,
+        model: 'mimo-v2.5-pro',
+        usage: { prompt_tokens: 9, completion_tokens: 4 },
+        choices: [
+          {
+            index: 0,
+            message: { role: 'assistant', content: 'ok' },
+            finish_reason: 'stop',
+          },
+        ],
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await SELF.fetch('http://localhost/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'mimo-v2.5-pro',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    await res.json();
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [input, init] = fetchMock.mock.calls[0];
+    expect(input).toBe('https://api.xiaomimimo.com/v1/chat/completions');
+    const headers = new Headers(init?.headers);
+    expect(headers.get('authorization')).toBe('Bearer test-mimo-key');
+    expect(JSON.parse(String(init?.body))).toMatchObject({
+      model: 'mimo-v2.5-pro',
+      messages: [{ role: 'user', content: 'hello' }],
+    });
   });
 });

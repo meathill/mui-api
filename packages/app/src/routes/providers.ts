@@ -38,9 +38,9 @@ providers.all('/:provider{.+}/*', async (c) => {
     const contentType = response.headers.get('content-type') ?? '';
     const isStream = contentType.includes('text/event-stream') || contentType.includes('stream');
 
-    if (isStream) {
+    if (isStream && response.body) {
       // 流式：tee stream，一路给客户端，一路用于提取 usage
-      const [clientStream, billingStream] = response.body?.tee();
+      const [clientStream, billingStream] = response.body.tee();
 
       c.executionCtx.waitUntil(
         (async () => {

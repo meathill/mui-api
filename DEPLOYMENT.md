@@ -56,6 +56,8 @@ pnpm --dir packages/shared-db run db:migrate:prod
 ### 可选 secrets
 
 - `RESEND_API_KEY`
+- `MIMO_API_KEY` — 启用 `xiaomi-mimo` provider 时必需，直连 Xiaomi MiMo OpenAI 兼容接口
+- `MIMO_BASE_URL` — Xiaomi MiMo OpenAI 兼容接口地址，默认 `https://api.xiaomimimo.com/v1`
 
 ### 构建与部署
 

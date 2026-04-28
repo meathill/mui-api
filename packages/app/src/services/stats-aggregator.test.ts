@@ -201,8 +201,12 @@ describe('StatsAggregator', () => {
 
       const dates = String(logCall?.[0]).match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)/g);
       expect(dates).toHaveLength(2);
+      const [startIso, endIso] = dates ?? [];
+      if (!startIso || !endIso) {
+        throw new Error('周聚合日志缺少时间范围');
+      }
 
-      const diffDays = (new Date(dates?.[1]).getTime() - new Date(dates?.[0]).getTime()) / (86400 * 1000);
+      const diffDays = (new Date(endIso).getTime() - new Date(startIso).getTime()) / (86400 * 1000);
       expect(diffDays).toBe(7);
 
       consoleSpy.mockRestore();
@@ -227,9 +231,13 @@ describe('StatsAggregator', () => {
 
       const dates = String(logCall?.[0]).match(/(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z)/g);
       expect(dates).toHaveLength(2);
+      const [startIso, endIso] = dates ?? [];
+      if (!startIso || !endIso) {
+        throw new Error('月聚合日志缺少时间范围');
+      }
 
-      const start = new Date(dates?.[0]);
-      const end = new Date(dates?.[1]);
+      const start = new Date(startIso);
+      const end = new Date(endIso);
 
       // 都应是某月1号
       expect(start.getUTCDate()).toBe(1);

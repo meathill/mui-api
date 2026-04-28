@@ -2,6 +2,7 @@
  * Provider 分发：按 provider 选 SDK 调上游，返回原始 Response 透传给客户端
  * - openai          → openai SDK + AI Gateway (baseURL)
  * - google-ai-studio → @google/genai SDK + AI Gateway (httpOptions.baseUrl)
+ * - xiaomi-mimo     → fetch + Xiaomi MiMo OpenAI 兼容接口（直连，不走 AI Gateway）
  * - 其余 (anthropic / workers-ai / 将来新增) → env.AI.run + gateway option
  */
 
@@ -10,6 +11,7 @@ import OpenAI from 'openai';
 import type { CloudflareBindings } from '../types';
 
 type AnyBody = Record<string, unknown>;
+const XIAOMI_MIMO_DEFAULT_BASE_URL = 'https://api.xiaomimimo.com/v1';
 
 function aiGatewayBase(env: CloudflareBindings, provider: string): string {
   return `https://gateway.ai.cloudflare.com/v1/${env.CF_ACCOUNT_ID}/${env.CF_GATEWAY_ID}/${provider}`;
@@ -17,6 +19,14 @@ function aiGatewayBase(env: CloudflareBindings, provider: string): string {
 
 export function openAIGatewayBase(env: CloudflareBindings): string {
   return aiGatewayBase(env, 'openai');
+}
+
+function trimTrailingSlashes(value: string): string {
+  return value.replace(/\/+$/, '');
+}
+
+export function xiaomiMiMoBaseURL(env: CloudflareBindings): string {
+  return trimTrailingSlashes(env.MIMO_BASE_URL ?? XIAOMI_MIMO_DEFAULT_BASE_URL);
 }
 
 /** OpenAI SDK 调用，AI Gateway BYOK 注入真实 key，cf-aig-authorization 鉴权网关 */
@@ -43,6 +53,22 @@ export async function callOpenAIEndpoint(
       'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}`,
     },
     body,
+  });
+}
+
+/** Xiaomi MiMo 直连 OpenAI 兼容 Chat Completions 接口，不经过 Cloudflare AI Gateway。 */
+export async function callXiaomiMiMo(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  if (!env.MIMO_API_KEY) {
+    throw new Error('缺少 MIMO_API_KEY，无法调用 Xiaomi MiMo');
+  }
+
+  return fetch(`${xiaomiMiMoBaseURL(env)}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.MIMO_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
   });
 }
 

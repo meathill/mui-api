@@ -1,6 +1,6 @@
 /**
  * 从各 Provider 上游响应中提取 token usage，用于计费
- * 四路 shape：openai-compat、anthropic messages、gemini generateContent、workers-ai 原生
+ * shape：openai-compat、anthropic messages、gemini generateContent、workers-ai 原生
  */
 
 export interface UsageResult {
@@ -9,13 +9,14 @@ export interface UsageResult {
   model: string;
 }
 
-type ProviderKey = 'openai' | 'anthropic' | 'google-ai-studio' | 'workers-ai';
+type ProviderKey = 'openai' | 'anthropic' | 'google-ai-studio' | 'workers-ai' | 'xiaomi-mimo';
 
 // ==================== 非流式 ====================
 
 export function extractUsage(provider: string, data: Record<string, unknown>): UsageResult | null {
   switch (provider as ProviderKey) {
     case 'openai':
+    case 'xiaomi-mimo':
       return extractOpenAIUsage(data);
     case 'anthropic':
       return extractAnthropicUsage(data);
@@ -126,7 +127,7 @@ export async function extractStreamUsage(provider: string, response: Response): 
  * - openai：最后 chunk 的 data.usage 带 prompt/completion_tokens
  * - anthropic：message_start.message.usage.input_tokens、message_delta.usage.output_tokens
  * - gemini：每个 chunk 都带 usageMetadata（最后 chunk 的最新）
- * - workers-ai：最后 chunk 的 usage
+ * - workers-ai / xiaomi-mimo：OpenAI 兼容 usage
  */
 function extractChunkUsage(provider: string, data: Record<string, unknown>): UsageResult | null {
   if (provider === 'anthropic') {

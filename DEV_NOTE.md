@@ -56,7 +56,17 @@
 
 **实现**：
 - **OpenAI / Google AI Studio**：继续走 CF AI Gateway，由其 Stored Keys 注入真实的 API Key。
+- **Xiaomi MiMo**：不走 CF AI Gateway，直接用 `MIMO_API_KEY` 请求 OpenAI 兼容接口，默认 base URL 为 `https://api.xiaomimimo.com/v1`，可通过 `MIMO_BASE_URL` 覆盖。Provider 标识为 `xiaomi-mimo`，计费 usage 按 OpenAI 兼容响应解析。
 - **Anthropic / Workers AI (等免 Key 渠道)**：不再维护它们在 Gateway 中的 Key 映射，而是直接走 `env.AI.run`（利用 Workers AI 的原生 binding 及内置兼容端点）。这允许项目无缝调用 `claude-3-5-sonnet-latest` 和 `@cf/meta/llama-3.1-8b-instruct` 而不需要自己付费买 Key，只需为 Workers AI 使用量计费。通过配置 `gateway: { id: env.CF_GATEWAY_ID }`，依然可以保留对这些请求的 Gateway 监控面板统计。
+
+### Xiaomi MiMo 定价记录
+
+**决策**：种子数据中 `xiaomi-mimo` 模型定价使用官方海外价格的 cache miss、`Input ≤ 256K` 档位。
+
+**原因**：
+- 当前 `models` 表只有一组 `inputPrice` / `outputPrice`，不能表达 cache hit、长上下文分档或夜间折扣
+- 选择 cache miss 基础档位能避免缓存命中假设带来的低估
+- `mimo-v2.5-pro` / `mimo-v2-pro` 在 256K-1M 输入区间存在更高档位，如果长上下文使用量明显增加，需要把模型计价扩展为上下文分段计费
 
 ### 多语言与国际化 (i18n)
 
@@ -116,6 +126,7 @@ API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0）
 
 **App (packages/app)**：
 - `CF_AIG_TOKEN` — CF AI Gateway 认证 token
+- `MIMO_API_KEY` — Xiaomi MiMo API Key，仅启用 `xiaomi-mimo` 模型时需要
 - `ADMIN_SECRET` — 管理接口认证
 - `ADMIN_EMAIL` — 告警接收邮箱
 - `RESEND_API_KEY` — 邮件发送（可选，未配置则跳过）

@@ -159,6 +159,48 @@ export const SEED_MODELS: NewModel[] = [
     outputPrice: 4,
     markupRate: 1.2,
   },
+
+  // Xiaomi MiMo — 直连 OpenAI 兼容接口，价格取官方海外价的 cache miss、≤256K 档位
+  {
+    id: 'mimo-v2.5-pro',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2.5-pro',
+    inputPrice: 1,
+    outputPrice: 3,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2-pro',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2-pro',
+    inputPrice: 1,
+    outputPrice: 3,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2.5',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2.5',
+    inputPrice: 0.4,
+    outputPrice: 2,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2-omni',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2-omni',
+    inputPrice: 0.4,
+    outputPrice: 2,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2.5-flash',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2.5-flash',
+    inputPrice: 0.1,
+    outputPrice: 0.3,
+    markupRate: 1.2,
+  },
 ];
 
 /**

@@ -38,6 +38,7 @@ pnpm install
 
 ```bash
 CF_AIG_TOKEN=your-cf-ai-gateway-token
+MIMO_API_KEY=your-xiaomi-mimo-api-key
 RESEND_API_KEY=re_xxx
 ADMIN_SECRET=your-admin-secret
 ADMIN_EMAIL=admin@example.com
@@ -45,7 +46,7 @@ BASE_URL=http://localhost:5173
 FROM_EMAIL=noreply@yourdomain.com
 ```
 
-> **说明**：各 AI Provider 的 API Key 在 [CF AI Gateway 控制台](https://dash.cloudflare.com/?to=/:account/ai/ai-gateway) 配置（Stored Keys / Unified Billing），本服务只需 `CF_AIG_TOKEN` 认证网关。
+> **说明**：OpenAI / Google AI Studio 的 API Key 在 [CF AI Gateway 控制台](https://dash.cloudflare.com/?to=/:account/ai/ai-gateway) 配置（Stored Keys / Unified Billing），本服务使用 `CF_AIG_TOKEN` 认证网关。Xiaomi MiMo 不走 AI Gateway，直接使用 `MIMO_API_KEY` 调用 OpenAI 兼容接口；如需覆盖端点，可配置 `MIMO_BASE_URL`，默认值为 `https://api.xiaomimimo.com/v1`。
 
 ### 3. 配置 D1 和 KV
 
@@ -113,8 +114,8 @@ curl http://localhost:5173/v1/chat/completions \
 模型定价通过 Dashboard 管理后台的「模型管理」页面配置，存储在 D1 `models` 表中。
 每条模型记录包含：输入价格、输出价格（$/1M tokens）、加价倍率（最低 0.01x）。
 
-支持的 Provider：`openai`、`anthropic`、`google-ai-studio`。
-所有请求通过 [CF AI Gateway](https://developers.cloudflare.com/ai-gateway/) 转发。
+支持的 Provider：`openai`、`anthropic`、`google-ai-studio`、`workers-ai`、`xiaomi-mimo`。
+其中 `openai` / `google-ai-studio` 通过 [CF AI Gateway](https://developers.cloudflare.com/ai-gateway/) 转发，`xiaomi-mimo` 直连 Xiaomi MiMo OpenAI 兼容接口，`anthropic` / `workers-ai` 通过 Workers AI binding 调用。
 
 ## 并发限流实现
 

@@ -13,6 +13,8 @@ export interface CloudflareBindings {
   CF_GATEWAY_ID: string;
   CF_TOKEN: string;
   AI: Ai;
+  MIMO_API_KEY?: string;
+  MIMO_BASE_URL?: string;
   DEFAULT_MAX_CONCURRENCY?: string; // 默认 "3"
   // Stripe 充值
   STRIPE_SECRET_KEY?: string;

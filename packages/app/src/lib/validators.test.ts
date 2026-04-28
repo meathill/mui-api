@@ -75,6 +75,11 @@ describe('ModelCreateSchema', () => {
     }
   });
 
+  it('接受 xiaomi-mimo provider', () => {
+    const result = ModelCreateSchema.safeParse({ ...validModel, id: 'mimo-v2.5-pro', provider: 'xiaomi-mimo' });
+    expect(result.success).toBe(true);
+  });
+
   it('拒绝空模型 ID', () => {
     expect(ModelCreateSchema.safeParse({ ...validModel, id: '' }).success).toBe(false);
   });
@@ -92,6 +97,7 @@ describe('ModelUpdateSchema', () => {
   it('接受部分更新', () => {
     expect(ModelUpdateSchema.safeParse({ inputPrice: 3 }).success).toBe(true);
     expect(ModelUpdateSchema.safeParse({ provider: 'anthropic' }).success).toBe(true);
+    expect(ModelUpdateSchema.safeParse({ provider: 'xiaomi-mimo' }).success).toBe(true);
   });
 
   it('接受空对象', () => {

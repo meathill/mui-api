@@ -311,7 +311,8 @@ describe('authMiddleware', () => {
       executionContext,
     );
 
-    const reader = response.body?.getReader();
+    expect(response.body).not.toBeNull();
+    const reader = response.body!.getReader();
     await reader.read();
     await reader.cancel('done');
     await Promise.resolve();

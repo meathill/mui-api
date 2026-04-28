@@ -3,7 +3,13 @@ import { type Context, Hono } from 'hono';
 import { createDb } from '../db';
 import { type Model, models } from '../db/schema';
 import { authMiddleware } from '../middleware/auth';
-import { callAiBinding, callGemini, callOpenAI, callOpenAIEndpoint } from '../services/provider-dispatch';
+import {
+  callAiBinding,
+  callGemini,
+  callOpenAI,
+  callOpenAIEndpoint,
+  callXiaomiMiMo,
+} from '../services/provider-dispatch';
 import { createProxyServices, type ProxyServices } from '../services/service-factory';
 import { extractStreamUsage, extractUsage } from '../services/usage-extractor';
 import type { CloudflareBindings } from '../types';
@@ -152,7 +158,7 @@ function appendFormEntry(form: FormData, key: string, value: MultipartValue) {
 /**
  * POST /v1/chat/completions
  * 按 DB 记录的 provider 分发到对应 SDK / binding，响应原样透传
- * 调用方需按目标 provider 原生 shape 构造请求体（OpenAI / Anthropic Messages / Gemini generateContent / Workers AI）
+ * 调用方需按目标 provider 原生 shape 构造请求体（OpenAI / Xiaomi MiMo / Anthropic Messages / Gemini generateContent / Workers AI）
  */
 openai.post('/chat/completions', async (c) => {
   const userId = c.get('userId');
@@ -183,6 +189,8 @@ openai.post('/chat/completions', async (c) => {
     let upstream: Response;
     if (provider === 'openai') {
       upstream = await callOpenAI(c.env, upstreamBody);
+    } else if (provider === 'xiaomi-mimo') {
+      upstream = await callXiaomiMiMo(c.env, upstreamBody);
     } else if (provider === 'google-ai-studio') {
       upstream = await callGemini(c.env, upstreamModel, upstreamBody);
     } else {

@@ -42,6 +42,15 @@ describe('extractUsage', () => {
     });
   });
 
+  it('xiaomi-mimo 兼容 openai 风格 usage', () => {
+    const data = { model: 'mimo-v2.5-pro', usage: { prompt_tokens: 11, completion_tokens: 13 } };
+    expect(extractUsage('xiaomi-mimo', data)).toEqual({
+      model: 'mimo-v2.5-pro',
+      inputTokens: 11,
+      outputTokens: 13,
+    });
+  });
+
   it('缺 usage 返回 null', () => {
     expect(extractUsage('openai', { model: 'gpt-4o' })).toBeNull();
   });
@@ -94,6 +103,16 @@ describe('extractStreamUsage', () => {
     ]);
     const result = await extractStreamUsage('google-ai-studio', response);
     expect(result).toEqual({ model: 'gemini-2.5-flash', inputTokens: 8, outputTokens: 15 });
+  });
+
+  it('xiaomi-mimo：按 openai SSE usage 提取', async () => {
+    const response = createSSEResponse([
+      'data: {"model":"mimo-v2.5-pro","choices":[{"delta":{"content":"Hi"}}]}\n\n',
+      'data: {"model":"mimo-v2.5-pro","choices":[],"usage":{"prompt_tokens":21,"completion_tokens":34}}\n\n',
+      'data: [DONE]\n\n',
+    ]);
+    const result = await extractStreamUsage('xiaomi-mimo', response);
+    expect(result).toEqual({ model: 'mimo-v2.5-pro', inputTokens: 21, outputTokens: 34 });
   });
 
   it('无 body 返回 null', async () => {
