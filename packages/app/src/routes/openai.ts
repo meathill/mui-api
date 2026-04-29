@@ -37,6 +37,38 @@ const BUILT_IN_MODELS: Model[] = [
     outputPrice: 30,
     markupRate: 1.2,
   },
+  {
+    id: 'mimo-v2.5-tts',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2.5-tts',
+    inputPrice: 0,
+    outputPrice: 0,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2.5-tts-voiceclone',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2.5-tts-voiceclone',
+    inputPrice: 0,
+    outputPrice: 0,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2.5-tts-voicedesign',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2.5-tts-voicedesign',
+    inputPrice: 0,
+    outputPrice: 0,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2-tts',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2-tts',
+    inputPrice: 0,
+    outputPrice: 0,
+    markupRate: 1.2,
+  },
 ];
 
 // 应用认证中间件（包含并发控制）

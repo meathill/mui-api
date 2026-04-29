@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import type { ModelInfo } from '@/lib/api';
 import {
+  appendBuiltInPlaygroundModels,
   buildTtsRequestBody,
   getTtsVoiceSampleMimeType,
   isImageModel,
@@ -20,6 +21,15 @@ function createModel(id: string, upstreamModelId: string | null = id): ModelInfo
 }
 
 describe('playground TTS helpers', () => {
+  it('补齐内置图片和 MiMo TTS 模型且不重复添加', () => {
+    const models = appendBuiltInPlaygroundModels([createModel('mimo-v2.5-tts')]);
+
+    expect(models.filter((model) => model.id === 'mimo-v2.5-tts')).toHaveLength(1);
+    expect(models.some((model) => model.id === 'gpt-image-2')).toBe(true);
+    expect(models.some((model) => model.id === 'mimo-v2.5-tts-voiceclone')).toBe(true);
+    expect(models.some((model) => model.id === 'mimo-v2.5-tts-voicedesign')).toBe(true);
+  });
+
   it('识别 TTS 模型且不会把 TTS 归入图片模型', () => {
     const model = createModel('mimo-v2.5-tts');
 

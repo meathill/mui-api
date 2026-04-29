@@ -148,4 +148,48 @@ describe('POST /v1/chat/completions', () => {
       stream: false,
     });
   });
+
+  it('内置 xiaomi-mimo TTS 模型未入库时仍可透传', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => {
+      return Response.json({
+        id: 'chatcmpl-mimo-tts-clone-test',
+        object: 'chat.completion',
+        created: 1,
+        model: 'mimo-v2.5-tts-voiceclone',
+        usage: { prompt_tokens: 0, completion_tokens: 0 },
+        choices: [
+          {
+            index: 0,
+            message: { role: 'assistant', content: null, audio: { id: 'audio-2', data: 'UklGRg==' } },
+            finish_reason: 'stop',
+          },
+        ],
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await SELF.fetch('http://localhost/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'mimo-v2.5-tts-voiceclone',
+        messages: [
+          { role: 'user', content: '' },
+          { role: 'assistant', content: '你好，欢迎回来。' },
+        ],
+        audio: { format: 'wav', voice: 'data:audio/mpeg;base64,AAAA' },
+        stream: false,
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    const [, init] = fetchMock.mock.calls[0];
+    expect(JSON.parse(String(init?.body))).toMatchObject({
+      model: 'mimo-v2.5-tts-voiceclone',
+      audio: { format: 'wav', voice: 'data:audio/mpeg;base64,AAAA' },
+    });
+  });
 });

@@ -15,7 +15,7 @@ import type {
 } from './playground-types';
 import { PlaygroundView } from './playground-view';
 import {
-  appendBuiltInImageModels,
+  appendBuiltInPlaygroundModels,
   buildTtsRequestBody,
   fileToTtsVoiceDataUrl,
   getDefaultTtsVoice,
@@ -80,25 +80,29 @@ export default function PlaygroundPage() {
     async function loadModels() {
       try {
         const modelsRes = await adminApi.getModels();
-        const availableModels = appendBuiltInImageModels(modelsRes.models);
-        setModels(availableModels);
-        const imageDefault =
-          availableModels.find((model) => model.id === 'gpt-image-2') ?? availableModels.find(isImageModel);
-        const chatDefault = availableModels.find((model) => !isImageModel(model) && !isTtsModel(model));
-        const ttsDefault =
-          availableModels.find((model) => model.id === 'mimo-v2.5-tts') ?? availableModels.find(isTtsModel);
-        if (chatDefault) setChatModel(chatDefault.id);
-        if (imageDefault) setImageModel(imageDefault.id);
-        if (ttsDefault) {
-          setTtsModel(ttsDefault.id);
-          setTtsVoice(getDefaultTtsVoice(ttsDefault.id) || DEFAULT_TTS_VOICE);
-        }
+        setAvailableModels(appendBuiltInPlaygroundModels(modelsRes.models));
       } catch {
-        // 管理接口不可用时保持空列表，用户仍可手动刷新后重试。
+        setAvailableModels(appendBuiltInPlaygroundModels([]));
       }
     }
     loadModels();
   }, []);
+
+  function setAvailableModels(availableModels: ModelInfo[]) {
+    setModels(availableModels);
+    const imageDefault =
+      availableModels.find((model) => model.id === 'gpt-image-2') ?? availableModels.find(isImageModel);
+    const chatDefault = availableModels.find((model) => !isImageModel(model) && !isTtsModel(model));
+    const ttsDefault =
+      availableModels.find((model) => model.id === 'mimo-v2.5-tts') ?? availableModels.find(isTtsModel);
+
+    if (chatDefault) setChatModel(chatDefault.id);
+    if (imageDefault) setImageModel(imageDefault.id);
+    if (ttsDefault) {
+      setTtsModel(ttsDefault.id);
+      setTtsVoice(getDefaultTtsVoice(ttsDefault.id) || DEFAULT_TTS_VOICE);
+    }
+  }
 
   useEffect(() => {
     if (!ttsModel) return;

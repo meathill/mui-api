@@ -102,16 +102,6 @@ export function TtsControls({
 
   return (
     <div className="space-y-4">
-      <Field label={t('ttsStylePrompt')}>
-        <Textarea
-          value={stylePrompt}
-          onChange={(event) => onStylePromptChange(event.target.value)}
-          rows={3}
-          placeholder={t('ttsStylePlaceholder')}
-        />
-        <p className="mt-1 text-xs text-muted-foreground">{t('ttsStyleHint')}</p>
-      </Field>
-
       {voiceOptions.length > 0 && (
         <Field label={t('ttsVoice')}>
           <select
@@ -153,6 +143,16 @@ export function TtsControls({
           )}
         </div>
       )}
+
+      <Field label={t('ttsStylePrompt')}>
+        <Textarea
+          value={stylePrompt}
+          onChange={(event) => onStylePromptChange(event.target.value)}
+          rows={3}
+          placeholder={t('ttsStylePlaceholder')}
+        />
+        <p className="mt-1 text-xs text-muted-foreground">{t('ttsStyleHint')}</p>
+      </Field>
     </div>
   );
 }

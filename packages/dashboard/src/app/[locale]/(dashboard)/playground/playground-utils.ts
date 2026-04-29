@@ -30,6 +30,43 @@ export const BUILT_IN_IMAGE_MODELS: ModelInfo[] = [
   },
 ];
 
+export const BUILT_IN_TTS_MODELS: ModelInfo[] = [
+  {
+    id: 'mimo-v2.5-tts',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2.5-tts',
+    inputPrice: 0,
+    outputPrice: 0,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2.5-tts-voiceclone',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2.5-tts-voiceclone',
+    inputPrice: 0,
+    outputPrice: 0,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2.5-tts-voicedesign',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2.5-tts-voicedesign',
+    inputPrice: 0,
+    outputPrice: 0,
+    markupRate: 1.2,
+  },
+  {
+    id: 'mimo-v2-tts',
+    provider: 'xiaomi-mimo',
+    upstreamModelId: 'mimo-v2-tts',
+    inputPrice: 0,
+    outputPrice: 0,
+    markupRate: 1.2,
+  },
+];
+
+const BUILT_IN_PLAYGROUND_MODELS = [...BUILT_IN_IMAGE_MODELS, ...BUILT_IN_TTS_MODELS];
+
 const MIMO_V2_5_TTS_VOICES: TtsVoiceOption[] = [
   { id: 'mimo_default', label: 'MiMo 默认' },
   { id: '冰糖', label: '冰糖 / 中文女声' },
@@ -91,9 +128,9 @@ export function getDefaultTtsVoice(modelId: string) {
   return getTtsVoiceOptions(modelId)[0]?.id ?? '';
 }
 
-export function appendBuiltInImageModels(models: ModelInfo[]) {
+export function appendBuiltInPlaygroundModels(models: ModelInfo[]) {
   const mergedModels = [...models];
-  for (const model of BUILT_IN_IMAGE_MODELS) {
+  for (const model of BUILT_IN_PLAYGROUND_MODELS) {
     if (!mergedModels.some((item) => item.id === model.id)) {
       mergedModels.push(model);
     }

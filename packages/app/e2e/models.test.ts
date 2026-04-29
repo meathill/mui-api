@@ -23,5 +23,7 @@ describe('GET /v1/models', () => {
     expect(modelIds).toContain('claude-sonnet-4-20250514');
     expect(modelIds).toContain('mimo-v2.5-pro');
     expect(modelIds).toContain('mimo-v2.5-tts');
+    expect(modelIds).toContain('mimo-v2.5-tts-voiceclone');
+    expect(modelIds).toContain('mimo-v2.5-tts-voicedesign');
   });
 });

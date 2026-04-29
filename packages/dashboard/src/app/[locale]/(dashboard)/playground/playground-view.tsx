@@ -138,20 +138,22 @@ export function PlaygroundView(props: PlaygroundViewProps) {
                 />
               </TabsPanel>
               <TabsPanel value="tts" className="space-y-4">
+                {props.ttsModel && (
+                  <TtsControls
+                    model={props.ttsModel}
+                    stylePrompt={props.ttsStylePrompt}
+                    onStylePromptChange={props.onTtsStylePromptChange}
+                    voice={props.ttsVoice}
+                    onVoiceChange={props.onTtsVoiceChange}
+                    voiceSample={props.voiceSample}
+                    onVoiceSampleChange={props.onVoiceSampleChange}
+                  />
+                )}
                 <PromptField
                   value={props.prompt}
                   onChange={props.onPromptChange}
                   label={t('ttsPrompt')}
                   placeholder={t('ttsPromptPlaceholder')}
-                />
-                <TtsControls
-                  model={props.ttsModel}
-                  stylePrompt={props.ttsStylePrompt}
-                  onStylePromptChange={props.onTtsStylePromptChange}
-                  voice={props.ttsVoice}
-                  onVoiceChange={props.onTtsVoiceChange}
-                  voiceSample={props.voiceSample}
-                  onVoiceSampleChange={props.onVoiceSampleChange}
                 />
               </TabsPanel>
             </Tabs>
