@@ -9,6 +9,7 @@ import { getCloudflareContext } from '@opennextjs/cloudflare';
 export interface KVUserData {
   balance: number;
   concurrency: number; // Durable Object 同步回 KV 的并发展示镜像，仅用于展示
+  freeQuotaUsed?: number;
   isSuspended?: boolean;
 }
 
@@ -25,6 +26,18 @@ export interface GlobalConfig {
   monthlySpendingCap: number;
   adminEmail: string;
   isServicePaused: boolean;
+  freeQuota?: FreeQuotaConfig;
+}
+
+export interface FreeQuotaConfig {
+  enabled: boolean;
+  amount: number;
+  modelIds: string[];
+}
+
+export interface FreeQuotaStatus extends FreeQuotaConfig {
+  used: number;
+  remaining: number;
 }
 
 export interface ApiKeyMetadata {
@@ -40,6 +53,11 @@ const USER_KEY_PREFIX = 'user:';
 const APIKEY_PREFIX = 'apikey:';
 const GLOBAL_CONFIG_KEY = 'config:global';
 const GLOBAL_SPENDING_PREFIX = 'stats:';
+const DEFAULT_FREE_QUOTA_CONFIG: FreeQuotaConfig = {
+  enabled: false,
+  amount: 0,
+  modelIds: [],
+};
 
 // ==================== 基础工具 ====================
 
@@ -144,6 +162,32 @@ export async function getGlobalConfig(kv: KVNamespace): Promise<GlobalConfig | n
 
 export async function setGlobalConfig(kv: KVNamespace, config: GlobalConfig): Promise<void> {
   await kv.put(GLOBAL_CONFIG_KEY, JSON.stringify(config));
+}
+
+export function normalizeFreeQuotaConfig(config: Partial<FreeQuotaConfig> | null | undefined): FreeQuotaConfig {
+  if (!config) {
+    return DEFAULT_FREE_QUOTA_CONFIG;
+  }
+
+  return {
+    enabled: config.enabled === true,
+    amount: Math.max(0, Number(config.amount) || 0),
+    modelIds: Array.from(
+      new Set((Array.isArray(config.modelIds) ? config.modelIds : []).map((id) => id.trim()).filter(Boolean)),
+    ),
+  };
+}
+
+export function getFreeQuotaStatus(config: GlobalConfig | null, data: KVUserData | null): FreeQuotaStatus {
+  const freeQuota = normalizeFreeQuotaConfig(config?.freeQuota);
+  const used = Math.max(0, data?.freeQuotaUsed ?? 0);
+  const remaining = freeQuota.enabled ? Math.max(0, freeQuota.amount - used) : 0;
+
+  return {
+    ...freeQuota,
+    used,
+    remaining,
+  };
 }
 
 // ==================== 消费统计 ====================

@@ -29,7 +29,7 @@ import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { api, type ModelCreateInput, type ModelInfo } from '@/lib/api';
 
-const PROVIDERS = ['openai', 'anthropic', 'google-ai-studio'];
+const PROVIDERS = ['openai', 'anthropic', 'google-ai-studio', 'workers-ai', 'xiaomi-mimo'];
 const PAGE_SIZE = 20;
 
 type SortField = 'id' | 'provider' | 'inputPrice' | 'outputPrice' | 'markupRate';

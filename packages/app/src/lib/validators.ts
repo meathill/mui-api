@@ -50,11 +50,30 @@ export const SpendingLimitSchema = z.object({
 });
 export type SpendingLimitInput = z.infer<typeof SpendingLimitSchema>;
 
+const DEFAULT_FREE_QUOTA = {
+  enabled: false,
+  amount: 0,
+  modelIds: [] as string[],
+};
+
+export const FreeQuotaConfigSchema = z
+  .object({
+    enabled: z.boolean().default(false),
+    amount: z.number().min(0, '免费额度不能为负').default(0),
+    modelIds: z
+      .array(z.string())
+      .default([])
+      .transform((modelIds) => Array.from(new Set(modelIds.map((id) => id.trim()).filter(Boolean)))),
+  })
+  .default(DEFAULT_FREE_QUOTA);
+export type FreeQuotaConfigInput = z.infer<typeof FreeQuotaConfigSchema>;
+
 export const GlobalConfigSchema = z.object({
   dailySpendingCap: z.number().min(0).default(0),
   monthlySpendingCap: z.number().min(0).default(0),
   adminEmail: z.string().email().optional(),
   isServicePaused: z.boolean().default(false),
+  freeQuota: FreeQuotaConfigSchema,
 });
 export type GlobalConfigInput = z.infer<typeof GlobalConfigSchema>;
 

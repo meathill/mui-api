@@ -1,6 +1,7 @@
 import { eq } from 'drizzle-orm';
 import type { Database } from '../db';
 import { spendingLimits } from '../db/schema';
+import type { FreeQuotaConfig } from '../types';
 import type { EmailService } from './email-service';
 import type { KVService } from './kv-service';
 
@@ -12,6 +13,7 @@ export interface GlobalConfig {
   monthlySpendingCap: number;
   adminEmail: string;
   isServicePaused: boolean;
+  freeQuota?: FreeQuotaConfig;
 }
 
 /**

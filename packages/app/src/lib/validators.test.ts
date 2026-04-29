@@ -126,6 +126,26 @@ describe('GlobalConfigSchema', () => {
     if (result.success) {
       expect(result.data.dailySpendingCap).toBe(0);
       expect(result.data.isServicePaused).toBe(false);
+      expect(result.data.freeQuota).toEqual({ enabled: false, amount: 0, modelIds: [] });
+    }
+  });
+
+  it('接受免费额度配置并清理空模型 ID', () => {
+    const result = GlobalConfigSchema.safeParse({
+      freeQuota: {
+        enabled: true,
+        amount: 1,
+        modelIds: ['mimo-v2.5-pro', ' ', 'mimo-v2.5-tts'],
+      },
+    });
+
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.freeQuota).toEqual({
+        enabled: true,
+        amount: 1,
+        modelIds: ['mimo-v2.5-pro', 'mimo-v2.5-tts'],
+      });
     }
   });
 });

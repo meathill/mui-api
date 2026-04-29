@@ -14,14 +14,14 @@
     "dashboard": "Dashboard"
   },
   "hero": {
-    "badge": "OpenAI / Claude (coming soon) / Gemini all supported",
+    "badge": "OpenAI / Gemini / Workers AI / MiMo all supported",
     "title": "One Key, Access",
     "titleHighlight": "All AI Models",
-    "description": "No VPN needed, no overseas account required. Top up and start using, pay per token with no monthly fees.",
+    "description": "No VPN needed, no overseas account required. Try MiMo models with free quota first, then top up for more models.",
     "descriptionLine2": "Compatible with OpenAI SDK — just change the Base URL.",
     "ctaPrimary": "Sign Up Free",
     "ctaSecondary": "View Pricing",
-    "stat1Value": "3",
+    "stat1Value": "5",
     "stat1Label": "Major AI Providers",
     "stat2Value": "100%",
     "stat2Label": "OpenAI Compatible",
@@ -37,7 +37,7 @@
     "anthropicDesc": "Ultra-long context, excellent coding and analysis",
     "googleDesc": "Multimodal native, ultra-large context window",
     "workersDesc": "Cloudflare-native models for low-cost, high-throughput calls",
-    "mimoDesc": "Xiaomi models covering long context, multimodal, and speech synthesis",
+    "mimoDesc": "Xiaomi models covering long context, multimodal, and speech synthesis, with free trial quota available",
     "comingSoon": "(coming soon)",
     "footnote": "Supports both OpenAI-compatible mode and native API passthrough — no features lost"
   },
@@ -58,8 +58,8 @@
     "subtitle": "From sign-up to API call in as fast as 1 minute",
     "step1Title": "Create Account",
     "step1Desc": "Email registration, done in 30 seconds. Get your personal API Key instantly.",
-    "step2Title": "Top Up Balance",
-    "step2Desc": "Top up as needed, starting from $1. Supports various payment methods.",
+    "step2Title": "Try First, Then Top Up",
+    "step2Desc": "Use free MiMo quota to test immediately, then top up when you need more models or higher usage.",
     "step3Title": "Start Calling",
     "step3Desc": "Replace the Base URL — no other code changes needed."
   },
@@ -74,8 +74,8 @@
   },
   "cta": {
     "title": "Stop struggling with VPNs and overseas credit cards",
-    "description": "Sign up to get your API Key, top up and start calling instantly.",
-    "descriptionLine2": "Supports all major AI models, pay per use.",
+    "description": "Sign up to get your API Key and run your first call with free MiMo quota.",
+    "descriptionLine2": "Top up only when you need more models or higher usage. Pay per use.",
     "button": "Sign Up Free"
   },
   "pricing": {
@@ -191,6 +191,8 @@
   "dashboard": {
     "title": "Overview",
     "balance": "Current Balance",
+    "freeQuota": "Free Trial Quota",
+    "freeQuotaHint": "Applies to {count} models, total ${amount}",
     "activeKeys": "Active API Keys",
     "apiStatus": "API Status",
     "running": "Running",
@@ -447,6 +449,15 @@
     "running": "Running",
     "resumeService": "Resume Service",
     "pauseService": "Pause Service",
+    "freeQuotaConfig": "Free Quota Config",
+    "freeQuotaConfigDesc": "Grant every user a model-limited trial quota.",
+    "freeQuotaEnabled": "Enable free quota",
+    "freeQuotaAmount": "Free quota per user (USD)",
+    "freeQuotaAmountHint": "Deducts by billable cost and keeps usage logs at real cost.",
+    "freeQuotaModels": "Models eligible for free quota",
+    "freeQuotaModelCount": "{count} selected",
+    "freeQuotaNoModels": "No models available",
+    "freeQuotaModelsHint": "Prefer controlled-cost models you want to promote, such as MiMo.",
     "spendingConfig": "Spending Limit Config",
     "dailyCap": "Daily Spending Cap (USD)",
     "monthlyCap": "Monthly Spending Cap (USD)",

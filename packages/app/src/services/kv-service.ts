@@ -107,6 +107,18 @@ export class KVService {
   }
 
   /**
+   * 累加用户已使用的免费额度，单位 USD
+   */
+  async consumeFreeQuota(userId: string, amount: number): Promise<number> {
+    const { data, metadata } = await this.getUser(userId);
+    if (!data || !metadata || amount <= 0) return data?.freeQuotaUsed ?? 0;
+
+    data.freeQuotaUsed = Math.max(0, (data.freeQuotaUsed ?? 0) + amount);
+    await this.setUser(userId, data, metadata);
+    return data.freeQuotaUsed;
+  }
+
+  /**
    * 根据邮箱查找用户（需遍历，效率较低，仅用于充值等低频操作）
    * 返回 userId 或 null
    */

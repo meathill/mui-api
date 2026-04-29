@@ -14,14 +14,14 @@
     "dashboard": "Painel"
   },
   "hero": {
-    "badge": "OpenAI / Claude (em breve) / Gemini todos suportados",
+    "badge": "OpenAI / Gemini / Workers AI / MiMo todos suportados",
     "title": "Uma chave, acesse",
     "titleHighlight": "todos os modelos de IA",
-    "description": "Sem VPN, sem conta no exterior. Recarregue e comece a usar, pagamento por token sem mensalidades.",
+    "description": "Sem VPN, sem conta no exterior. Teste MiMo primeiro com cota gratuita e recarregue depois para mais modelos.",
     "descriptionLine2": "Compatível com o SDK OpenAI — basta alterar o Base URL.",
     "ctaPrimary": "Cadastro gratuito",
     "ctaSecondary": "Ver preços",
-    "stat1Value": "3",
+    "stat1Value": "5",
     "stat1Label": "Principais provedores de IA",
     "stat2Value": "100%",
     "stat2Label": "Compatível com OpenAI",
@@ -37,7 +37,7 @@
     "anthropicDesc": "Contexto ultra longo, excelente em programação e análise",
     "googleDesc": "Multimodal nativo, janela de contexto ultra grande",
     "workersDesc": "Modelos nativos da Cloudflare para baixo custo e alta vazão",
-    "mimoDesc": "Modelos Xiaomi para contexto longo, multimodalidade e síntese de voz",
+    "mimoDesc": "Modelos Xiaomi para contexto longo, multimodalidade e síntese de voz, com cota de teste gratuita",
     "comingSoon": "(em breve)",
     "footnote": "Suporta modo compatível com OpenAI e passagem nativa de API — sem perda de funcionalidades"
   },
@@ -58,8 +58,8 @@
     "subtitle": "Do cadastro à chamada de API em apenas 1 minuto",
     "step1Title": "Criar conta",
     "step1Desc": "Cadastro por email, pronto em 30 segundos. Obtenha sua API Key pessoal instantaneamente.",
-    "step2Title": "Recarregar saldo",
-    "step2Desc": "Recarregue conforme necessário, a partir de $1. Suporta vários métodos de pagamento.",
+    "step2Title": "Teste primeiro, recarregue depois",
+    "step2Desc": "Use a cota gratuita do MiMo para testar imediatamente e recarregue quando precisar de mais modelos ou mais uso.",
     "step3Title": "Começar a chamar",
     "step3Desc": "Substitua o Base URL — nenhuma outra alteração de código necessária."
   },
@@ -74,8 +74,8 @@
   },
   "cta": {
     "title": "Pare de lutar com VPNs e cartões de crédito internacionais",
-    "description": "Cadastre-se para obter sua API Key, recarregue e comece a chamar instantaneamente.",
-    "descriptionLine2": "Compatível com todos os principais modelos de IA, pagamento por uso.",
+    "description": "Cadastre-se para obter sua API Key e faça a primeira chamada com cota gratuita do MiMo.",
+    "descriptionLine2": "Recarregue só quando precisar de mais modelos ou mais uso. Pagamento por uso.",
     "button": "Cadastro gratuito"
   },
   "pricing": {
@@ -191,6 +191,8 @@
   "dashboard": {
     "title": "Visão geral",
     "balance": "Saldo atual",
+    "freeQuota": "Cota gratuita",
+    "freeQuotaHint": "Válida para {count} modelos, total ${amount}",
     "activeKeys": "API Keys ativas",
     "apiStatus": "Status da API",
     "running": "Em execução",
@@ -447,6 +449,15 @@
     "running": "Em execução",
     "resumeService": "Retomar serviço",
     "pauseService": "Pausar serviço",
+    "freeQuotaConfig": "Configuração da cota gratuita",
+    "freeQuotaConfigDesc": "Conceda a cada usuário uma cota de teste limitada a modelos específicos.",
+    "freeQuotaEnabled": "Ativar cota gratuita",
+    "freeQuotaAmount": "Cota gratuita por usuário (USD)",
+    "freeQuotaAmountHint": "Desconta pelo custo faturável e mantém os logs com o custo real.",
+    "freeQuotaModels": "Modelos elegíveis para cota gratuita",
+    "freeQuotaModelCount": "{count} selecionados",
+    "freeQuotaNoModels": "Nenhum modelo disponível",
+    "freeQuotaModelsHint": "Prefira modelos de custo controlado que você queira promover, como MiMo.",
     "spendingConfig": "Configuração de limites de gasto",
     "dailyCap": "Limite de gasto diário (USD)",
     "monthlyCap": "Limite de gasto mensal (USD)",

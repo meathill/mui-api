@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { hashApiKey } from '../lib/crypto';
-import { authMiddleware } from './auth';
+import { authMiddleware, paidAuthMiddleware } from './auth';
 
 interface StoredValue {
   value: string;
@@ -129,7 +129,12 @@ function createMockLimiterNamespace() {
   };
 }
 
-async function seedAuthState(kv: ReturnType<typeof createMockKV>, userId: string, rawKey: string): Promise<void> {
+async function seedAuthState(
+  kv: ReturnType<typeof createMockKV>,
+  userId: string,
+  rawKey: string,
+  options: { balance?: number; freeQuotaUsed?: number } = {},
+): Promise<void> {
   const keyHash = await hashApiKey(rawKey);
 
   await kv.put(`apikey:${keyHash}`, userId, {
@@ -143,8 +148,9 @@ async function seedAuthState(kv: ReturnType<typeof createMockKV>, userId: string
   await kv.put(
     `user:${userId}`,
     JSON.stringify({
-      balance: 10,
+      balance: options.balance ?? 10,
       concurrency: 0,
+      freeQuotaUsed: options.freeQuotaUsed,
       isSuspended: false,
     }),
     {
@@ -153,6 +159,23 @@ async function seedAuthState(kv: ReturnType<typeof createMockKV>, userId: string
         createdAt: '2026-04-19T00:00:00.000Z',
       },
     },
+  );
+}
+
+async function seedFreeQuotaConfig(kv: ReturnType<typeof createMockKV>): Promise<void> {
+  await kv.put(
+    'config:global',
+    JSON.stringify({
+      dailySpendingCap: 0,
+      monthlySpendingCap: 0,
+      adminEmail: 'admin@example.com',
+      isServicePaused: false,
+      freeQuota: {
+        enabled: true,
+        amount: 1,
+        modelIds: ['mimo-v2.5-pro'],
+      },
+    }),
   );
 }
 
@@ -320,5 +343,61 @@ describe('authMiddleware', () => {
     const userState = limiter.stateByUser.get('user-1')!;
     expect(userState.activeLeases.size).toBe(0);
     expect(userState.releases).toHaveLength(1);
+  });
+
+  it('余额不足但还有免费额度时允许 /v1 请求进入后续处理', async () => {
+    const kv = createMockKV();
+    const limiter = createMockLimiterNamespace();
+    await seedAuthState(kv, 'user-free', 'sk-gw-test-free', { balance: 0, freeQuotaUsed: 0 });
+    await seedFreeQuotaConfig(kv);
+
+    const app = new Hono();
+    app.use('*', authMiddleware);
+    app.get('/v1/test', (c) => c.json({ ok: true }));
+
+    const { executionContext } = createExecutionContext();
+    const response = await app.fetch(
+      new Request('http://localhost/v1/test', {
+        headers: { Authorization: 'Bearer sk-gw-test-free' },
+      }),
+      {
+        KV: kv,
+        CONCURRENCY_LIMITER: limiter.namespace,
+        DEFAULT_MAX_CONCURRENCY: '3',
+      } as never,
+      executionContext,
+    );
+
+    expect(response.status).toBe(200);
+    await response.json();
+  });
+
+  it('余额不足时不允许 native provider 路由借用免费额度', async () => {
+    const kv = createMockKV();
+    const limiter = createMockLimiterNamespace();
+    await seedAuthState(kv, 'user-provider', 'sk-gw-test-provider-free', { balance: 0, freeQuotaUsed: 0 });
+    await seedFreeQuotaConfig(kv);
+
+    const app = new Hono();
+    app.use('*', paidAuthMiddleware);
+    app.post('/providers/openai/chat/completions', (c) => c.json({ ok: true }));
+
+    const { executionContext } = createExecutionContext();
+    const response = await app.fetch(
+      new Request('http://localhost/providers/openai/chat/completions', {
+        method: 'POST',
+        headers: { Authorization: 'Bearer sk-gw-test-provider-free' },
+      }),
+      {
+        KV: kv,
+        CONCURRENCY_LIMITER: limiter.namespace,
+        DEFAULT_MAX_CONCURRENCY: '3',
+      } as never,
+      executionContext,
+    );
+
+    expect(response.status).toBe(402);
+    const body = await response.json<{ error: { type: string } }>();
+    expect(body.error.type).toBe('insufficient_quota');
   });
 });

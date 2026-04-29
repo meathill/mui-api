@@ -1,4 +1,4 @@
-import { SELF } from 'cloudflare:test';
+import { env, SELF } from 'cloudflare:test';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { seedApiKey } from './helpers';
 
@@ -11,8 +11,9 @@ describe('POST /v1/chat/completions', () => {
     brokeApiKey = await seedApiKey('test-user-broke', 0);
   });
 
-  afterEach(() => {
+  afterEach(async () => {
     vi.unstubAllGlobals();
+    await env.KV.delete('config:global');
   });
 
   it('缺少 model 参数返回 400', async () => {
@@ -58,6 +59,101 @@ describe('POST /v1/chat/completions', () => {
     expect(res.status).toBe(402);
     const body = await res.json<{ error: { type: string } }>();
     expect(body.error.type).toBe('insufficient_quota');
+  });
+
+  it('余额不足但免费额度适用时允许调用 MiMo 模型', async () => {
+    const userId = `test-free-user-${Date.now()}`;
+    const freeApiKey = await seedApiKey(userId, 0, { freeQuotaUsed: 0 });
+    await env.KV.put(
+      'config:global',
+      JSON.stringify({
+        dailySpendingCap: 0,
+        monthlySpendingCap: 0,
+        adminEmail: 'admin@example.com',
+        isServicePaused: false,
+        freeQuota: {
+          enabled: true,
+          amount: 1,
+          modelIds: ['mimo-v2.5-pro'],
+        },
+      }),
+    );
+
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => {
+      return Response.json({
+        id: 'chatcmpl-mimo-free-test',
+        object: 'chat.completion',
+        created: 1,
+        model: 'mimo-v2.5-pro',
+        usage: { prompt_tokens: 9, completion_tokens: 4 },
+        choices: [
+          {
+            index: 0,
+            message: { role: 'assistant', content: 'ok' },
+            finish_reason: 'stop',
+          },
+        ],
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await SELF.fetch('http://localhost/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${freeApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'mimo-v2.5-pro',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    await res.json();
+    await vi.waitFor(async () => {
+      const userData = await env.KV.get<{ balance: number; freeQuotaUsed?: number }>(`user:${userId}`, 'json');
+      expect(userData?.balance).toBe(0);
+      expect(userData?.freeQuotaUsed ?? 0).toBeGreaterThan(0);
+    });
+  });
+
+  it('余额不足且模型不在免费额度范围内返回 402', async () => {
+    const freeApiKey = await seedApiKey(`test-free-denied-${Date.now()}`, 0, { freeQuotaUsed: 0 });
+    await env.KV.put(
+      'config:global',
+      JSON.stringify({
+        dailySpendingCap: 0,
+        monthlySpendingCap: 0,
+        adminEmail: 'admin@example.com',
+        isServicePaused: false,
+        freeQuota: {
+          enabled: true,
+          amount: 1,
+          modelIds: ['mimo-v2.5-pro'],
+        },
+      }),
+    );
+
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await SELF.fetch('http://localhost/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${freeApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    });
+
+    expect(res.status).toBe(402);
+    const body = await res.json<{ error: { type: string } }>();
+    expect(body.error.type).toBe('insufficient_quota');
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it('xiaomi-mimo 模型直连 OpenAI 兼容接口并使用 MIMO_API_KEY', async () => {

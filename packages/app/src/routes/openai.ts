@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm';
 import { type Context, Hono } from 'hono';
 import { createDb } from '../db';
 import { type Model, models } from '../db/schema';
-import { authMiddleware } from '../middleware/auth';
+import { authMiddleware, MIN_BALANCE } from '../middleware/auth';
 import {
   callAiBinding,
   callGemini,
@@ -140,18 +140,47 @@ async function processBilling(
     const data = (await response.json()) as JsonBody;
     const usage = extractUsage(provider, data);
     if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
-      const cost = await services.billingService.processUsage(
+      const billing = await services.billingService.processUsage(
         userId,
         apiKeyId,
         { model: modelId, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens },
         modelPricing,
         userRateMultiplier,
+        { useFreeQuota: true },
       );
-      await services.alertService.checkAfterBilling(userId, cost);
+      await services.alertService.checkAfterBilling(userId, billing.totalCost);
     }
   } catch (error) {
     console.error('非流式计费失败:', error);
   }
+}
+
+async function assertBillableAccess(
+  c: OpenAIContext,
+  services: ProxyServices,
+  modelId: string,
+): Promise<Response | null> {
+  const balance = c.get('balance');
+  if (balance >= MIN_BALANCE) {
+    return null;
+  }
+
+  const freeQuota = await services.billingService.getFreeQuotaState(c.get('userId'), modelId);
+  if (freeQuota.eligible && freeQuota.remaining > 0) {
+    return null;
+  }
+
+  const freeQuotaMessage = freeQuota.enabled && !freeQuota.eligible ? `，模型 ${modelId} 不在免费额度范围内` : '';
+
+  return c.json(
+    {
+      error: {
+        message: `余额不足，当前余额: $${balance.toFixed(4)}${freeQuotaMessage}`,
+        type: 'insufficient_quota',
+      },
+    },
+    402,
+  );
 }
 
 async function proxyOpenAIImageResponse(
@@ -211,6 +240,8 @@ openai.post('/chat/completions', async (c) => {
   const lookup = await lookupModel(c, modelId, services);
   if (isResponse(lookup)) return lookup;
   const { modelConfig, upstreamModel, modelPricing } = lookup;
+  const accessError = await assertBillableAccess(c, services, modelId);
+  if (accessError) return accessError;
   const provider = modelConfig.provider;
   const isStream = body.stream === true;
 
@@ -253,14 +284,15 @@ openai.post('/chat/completions', async (c) => {
           try {
             const usage = await extractStreamUsage(provider, new Response(billingStream));
             if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
-              const cost = await services.billingService.processUsage(
+              const billing = await services.billingService.processUsage(
                 userId,
                 apiKeyId,
                 { model: modelId, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens },
                 modelPricing,
                 userRateMultiplier,
+                { useFreeQuota: true },
               );
-              await services.alertService.checkAfterBilling(userId, cost);
+              await services.alertService.checkAfterBilling(userId, billing.totalCost);
             }
           } catch (error) {
             console.error('流式计费失败:', error);
@@ -308,6 +340,8 @@ openai.post('/images/generations', async (c) => {
   const lookup = await lookupModel(c, modelId, services);
   if (isResponse(lookup)) return lookup;
   const { modelConfig, upstreamModel, modelPricing } = lookup;
+  const accessError = await assertBillableAccess(c, services, modelId);
+  if (accessError) return accessError;
 
   if (modelConfig.provider !== 'openai') {
     return invalidRequest(c, '图片生成接口目前仅支持 openai provider');
@@ -365,6 +399,8 @@ openai.post('/images/edits', async (c) => {
   const lookup = await lookupModel(c, modelValue, services);
   if (isResponse(lookup)) return lookup;
   const { modelConfig, upstreamModel, modelPricing } = lookup;
+  const accessError = await assertBillableAccess(c, services, modelValue);
+  if (accessError) return accessError;
 
   if (modelConfig.provider !== 'openai') {
     return invalidRequest(c, '图片编辑接口目前仅支持 openai provider');

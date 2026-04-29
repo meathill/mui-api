@@ -14,14 +14,14 @@
     "dashboard": "Tableau de bord"
   },
   "hero": {
-    "badge": "OpenAI / Claude (bientôt disponible) / Gemini tous supportés",
+    "badge": "OpenAI / Gemini / Workers AI / MiMo tous supportés",
     "title": "Une clé, accédez à",
     "titleHighlight": "tous les modèles IA",
-    "description": "Pas de VPN nécessaire, pas de compte étranger requis. Rechargez et commencez à utiliser, paiement par token sans frais mensuels.",
+    "description": "Pas de VPN nécessaire, pas de compte étranger requis. Essayez MiMo avec un quota gratuit, puis rechargez pour plus de modèles.",
     "descriptionLine2": "Compatible avec le SDK OpenAI — changez simplement le Base URL.",
     "ctaPrimary": "Inscription gratuite",
     "ctaSecondary": "Voir les tarifs",
-    "stat1Value": "3",
+    "stat1Value": "5",
     "stat1Label": "Fournisseurs IA majeurs",
     "stat2Value": "100%",
     "stat2Label": "Compatible OpenAI",
@@ -37,7 +37,7 @@
     "anthropicDesc": "Contexte ultra-long, excellent en programmation et analyse",
     "googleDesc": "Multimodal natif, fenêtre de contexte ultra-large",
     "workersDesc": "Modèles natifs Cloudflare pour des appels peu coûteux et à haut débit",
-    "mimoDesc": "Modèles Xiaomi couvrant long contexte, multimodal et synthèse vocale",
+    "mimoDesc": "Modèles Xiaomi couvrant long contexte, multimodal et synthèse vocale, avec quota d'essai gratuit",
     "comingSoon": "(bientôt disponible)",
     "footnote": "Prend en charge le mode compatible OpenAI et le passage natif API — aucune fonctionnalité perdue"
   },
@@ -58,8 +58,8 @@
     "subtitle": "De l'inscription à l'appel API en seulement 1 minute",
     "step1Title": "Créer un compte",
     "step1Desc": "Inscription par email, terminée en 30 secondes. Obtenez votre API Key personnelle instantanément.",
-    "step2Title": "Recharger le solde",
-    "step2Desc": "Rechargez selon vos besoins, à partir de 1$. Plusieurs méthodes de paiement acceptées.",
+    "step2Title": "Essayez d'abord, rechargez ensuite",
+    "step2Desc": "Utilisez le quota gratuit MiMo pour tester immédiatement, puis rechargez pour plus de modèles ou de volume.",
     "step3Title": "Commencer les appels",
     "step3Desc": "Remplacez le Base URL — aucune autre modification de code nécessaire."
   },
@@ -74,8 +74,8 @@
   },
   "cta": {
     "title": "Arrêtez de lutter avec les VPN et les cartes bancaires étrangères",
-    "description": "Inscrivez-vous pour obtenir votre API Key, rechargez et commencez à appeler instantanément.",
-    "descriptionLine2": "Compatible avec tous les modèles IA majeurs, paiement à l'utilisation.",
+    "description": "Inscrivez-vous pour obtenir votre API Key et lancez votre premier appel avec le quota gratuit MiMo.",
+    "descriptionLine2": "Rechargez seulement quand vous avez besoin de plus de modèles ou de volume. Paiement à l'utilisation.",
     "button": "Inscription gratuite"
   },
   "pricing": {
@@ -191,6 +191,8 @@
   "dashboard": {
     "title": "Aperçu",
     "balance": "Solde actuel",
+    "freeQuota": "Quota d'essai gratuit",
+    "freeQuotaHint": "Valable pour {count} modèles, total ${amount}",
     "activeKeys": "API Keys actives",
     "apiStatus": "Statut API",
     "running": "En cours",
@@ -447,6 +449,15 @@
     "running": "En cours",
     "resumeService": "Reprendre le service",
     "pauseService": "Mettre en pause le service",
+    "freeQuotaConfig": "Configuration du quota gratuit",
+    "freeQuotaConfigDesc": "Accordez à chaque utilisateur un quota d'essai limité à certains modèles.",
+    "freeQuotaEnabled": "Activer le quota gratuit",
+    "freeQuotaAmount": "Quota gratuit par utilisateur (USD)",
+    "freeQuotaAmountHint": "Déduit le coût facturable et conserve les journaux au coût réel.",
+    "freeQuotaModels": "Modèles éligibles au quota gratuit",
+    "freeQuotaModelCount": "{count} sélectionnés",
+    "freeQuotaNoModels": "Aucun modèle disponible",
+    "freeQuotaModelsHint": "Privilégiez les modèles à coût contrôlé que vous voulez promouvoir, comme MiMo.",
     "spendingConfig": "Configuration des limites de dépenses",
     "dailyCap": "Plafond de dépenses journalier (USD)",
     "monthlyCap": "Plafond de dépenses mensuel (USD)",

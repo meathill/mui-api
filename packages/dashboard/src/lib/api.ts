@@ -180,6 +180,7 @@ export interface UserInfo {
   email: string;
   balance: number;
   concurrency: number;
+  freeQuota?: FreeQuotaStatus;
   isSuspended: boolean;
   maxConcurrency: number;
   rateMultiplier: number;
@@ -236,6 +237,18 @@ export interface GlobalConfig {
   monthlySpendingCap: number;
   adminEmail: string;
   isServicePaused: boolean;
+  freeQuota?: FreeQuotaConfig;
+}
+
+export interface FreeQuotaConfig {
+  enabled: boolean;
+  amount: number;
+  modelIds: string[];
+}
+
+export interface FreeQuotaStatus extends FreeQuotaConfig {
+  used: number;
+  remaining: number;
 }
 
 export interface RechargeLogItem {

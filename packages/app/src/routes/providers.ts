@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { authMiddleware } from '../middleware/auth';
+import { paidAuthMiddleware } from '../middleware/auth';
 import { createProxyServices } from '../services/service-factory';
 import { extractStreamUsage, extractUsage } from '../services/usage-extractor';
 import type { CloudflareBindings } from '../types';
@@ -10,7 +10,7 @@ const providers = new Hono<{ Bindings: CloudflareBindings }>();
 const SUPPORTED_PROVIDERS = new Set(['openai', 'anthropic', 'google-ai-studio', 'workers-ai']);
 
 // 应用认证中间件
-providers.use('/*', authMiddleware);
+providers.use('/*', paidAuthMiddleware);
 
 /**
  * 原生 Provider API 透传代理
@@ -47,7 +47,7 @@ providers.all('/:provider{.+}/*', async (c) => {
           try {
             const usage = await extractStreamUsage(provider, new Response(billingStream));
             if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
-              const cost = await billingService.processUsage(
+              const billing = await billingService.processUsage(
                 userId,
                 apiKeyId,
                 {
@@ -58,7 +58,7 @@ providers.all('/:provider{.+}/*', async (c) => {
                 null,
                 userRateMultiplier,
               );
-              await alertService.checkAfterBilling(userId, cost);
+              await alertService.checkAfterBilling(userId, billing.totalCost);
             }
           } catch (error) {
             console.error('原生代理流式计费失败:', error);
@@ -81,7 +81,7 @@ providers.all('/:provider{.+}/*', async (c) => {
           const data = (await billingResponse.json()) as Record<string, unknown>;
           const usage = extractUsage(provider, data);
           if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
-            const cost = await billingService.processUsage(
+            const billing = await billingService.processUsage(
               userId,
               apiKeyId,
               {
@@ -92,7 +92,7 @@ providers.all('/:provider{.+}/*', async (c) => {
               null,
               userRateMultiplier,
             );
-            await alertService.checkAfterBilling(userId, cost);
+            await alertService.checkAfterBilling(userId, billing.totalCost);
           }
         } catch {
           console.warn('原生代理 usage 提取失败，跳过计费');

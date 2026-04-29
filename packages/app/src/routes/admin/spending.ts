@@ -87,6 +87,11 @@ spending.get('/global-config', async (c) => {
       monthlySpendingCap: 0,
       adminEmail: c.env.ADMIN_EMAIL ?? '',
       isServicePaused: false,
+      freeQuota: {
+        enabled: false,
+        amount: 0,
+        modelIds: [],
+      },
     },
   });
 });

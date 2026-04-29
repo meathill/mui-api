@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import type { GlobalConfig } from './alert-service';
 import { BillingService } from './billing-service';
+import type { KVService } from './kv-service';
 
 // Mock Database
 const mockDb = {
@@ -17,6 +19,56 @@ const mockDb = {
     values: async () => {},
   }),
 };
+
+function createMockKV(
+  initialData: { balance: number; concurrency: number; freeQuotaUsed?: number },
+  globalConfig: GlobalConfig | null,
+) {
+  let data = { ...initialData };
+
+  return {
+    data: () => data,
+    service: {
+      async deductBalance(_userId: string, amount: number) {
+        data = { ...data, balance: Math.max(0, data.balance - amount) };
+        return true;
+      },
+      async getGlobalConfig() {
+        return globalConfig;
+      },
+      async getUser() {
+        return {
+          data,
+          metadata: {
+            email: 'test@example.com',
+            createdAt: '2026-04-29T00:00:00.000Z',
+          },
+        };
+      },
+      async consumeFreeQuota(_userId: string, amount: number) {
+        data = { ...data, freeQuotaUsed: Math.max(0, (data.freeQuotaUsed ?? 0) + amount) };
+        return data.freeQuotaUsed;
+      },
+      async setUser(_userId: string, nextData: typeof data) {
+        data = { ...nextData };
+      },
+    } as unknown as KVService,
+  };
+}
+
+function createGlobalConfig(modelIds: string[]): GlobalConfig {
+  return {
+    dailySpendingCap: 0,
+    monthlySpendingCap: 0,
+    adminEmail: 'admin@example.com',
+    isServicePaused: false,
+    freeQuota: {
+      enabled: true,
+      amount: 1,
+      modelIds,
+    },
+  };
+}
 
 describe('BillingService', () => {
   describe('calculateCost', () => {
@@ -48,6 +100,72 @@ describe('BillingService', () => {
 
       // Falls back to gpt-4o-mini pricing
       expect(cost).toBeGreaterThan(0);
+    });
+  });
+
+  describe('processUsage free quota', () => {
+    it('白名单模型先抵扣免费额度，不扣余额', async () => {
+      const kv = createMockKV(
+        { balance: 1, concurrency: 0, freeQuotaUsed: 0.25 },
+        createGlobalConfig(['mimo-v2.5-pro']),
+      );
+      const service = new BillingService(kv.service, mockDb as never);
+
+      const result = await service.processUsage(
+        'user-1',
+        'key-1',
+        { model: 'mimo-v2.5-pro', inputTokens: 500_000, outputTokens: 0 },
+        { inputPrice: 1, outputPrice: 0, markupRate: 1 },
+        1,
+        { useFreeQuota: true },
+      );
+
+      expect(result.totalCost).toBeCloseTo(0.5, 5);
+      expect(result.freeQuotaDeducted).toBeCloseTo(0.5, 5);
+      expect(result.chargedCost).toBe(0);
+      expect(kv.data().balance).toBe(1);
+      expect(kv.data().freeQuotaUsed).toBeCloseTo(0.75, 5);
+    });
+
+    it('免费额度不足时只扣除剩余部分', async () => {
+      const kv = createMockKV(
+        { balance: 1, concurrency: 0, freeQuotaUsed: 0.9 },
+        createGlobalConfig(['mimo-v2.5-pro']),
+      );
+      const service = new BillingService(kv.service, mockDb as never);
+
+      const result = await service.processUsage(
+        'user-1',
+        'key-1',
+        { model: 'mimo-v2.5-pro', inputTokens: 500_000, outputTokens: 0 },
+        { inputPrice: 1, outputPrice: 0, markupRate: 1 },
+        1,
+        { useFreeQuota: true },
+      );
+
+      expect(result.freeQuotaDeducted).toBeCloseTo(0.1, 5);
+      expect(result.chargedCost).toBeCloseTo(0.4, 5);
+      expect(kv.data().balance).toBeCloseTo(0.6, 5);
+      expect(kv.data().freeQuotaUsed).toBe(1);
+    });
+
+    it('非白名单模型不使用免费额度', async () => {
+      const kv = createMockKV({ balance: 1, concurrency: 0, freeQuotaUsed: 0 }, createGlobalConfig(['mimo-v2.5-pro']));
+      const service = new BillingService(kv.service, mockDb as never);
+
+      const result = await service.processUsage(
+        'user-1',
+        'key-1',
+        { model: 'gpt-4o', inputTokens: 500_000, outputTokens: 0 },
+        { inputPrice: 1, outputPrice: 0, markupRate: 1 },
+        1,
+        { useFreeQuota: true },
+      );
+
+      expect(result.freeQuotaDeducted).toBe(0);
+      expect(result.chargedCost).toBeCloseTo(0.5, 5);
+      expect(kv.data().balance).toBeCloseTo(0.5, 5);
+      expect(kv.data().freeQuotaUsed).toBe(0);
     });
   });
 });

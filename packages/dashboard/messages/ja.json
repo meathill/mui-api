@@ -14,14 +14,14 @@
     "dashboard": "ダッシュボード"
   },
   "hero": {
-    "badge": "OpenAI / Claude（近日対応）/ Gemini すべて対応",
+    "badge": "OpenAI / Gemini / Workers AI / MiMo すべて対応",
     "title": "1つのキーで、",
     "titleHighlight": "すべてのAIモデル",
-    "description": "VPN不要、海外アカウント不要。チャージしてすぐ使える、トークン単位の従量課金で月額料金なし。",
+    "description": "VPN不要、海外アカウント不要。まず無料枠でMiMoを試し、さらに多くのモデルが必要になったらチャージできます。",
     "descriptionLine2": "OpenAI SDK互換 — Base URLを変えるだけ。",
     "ctaPrimary": "無料で登録",
     "ctaSecondary": "料金を見る",
-    "stat1Value": "3",
+    "stat1Value": "5",
     "stat1Label": "主要AIプロバイダー",
     "stat2Value": "100%",
     "stat2Label": "OpenAI互換",
@@ -37,7 +37,7 @@
     "anthropicDesc": "超長コンテキスト、優れたコーディングと分析能力",
     "googleDesc": "ネイティブマルチモーダル、超大型コンテキストウィンドウ",
     "workersDesc": "低コストで高スループットなCloudflareネイティブモデル",
-    "mimoDesc": "長文脈、マルチモーダル、音声合成に対応するXiaomiモデル",
+    "mimoDesc": "長文脈、マルチモーダル、音声合成に対応するXiaomiモデル。無料試用枠にも対応",
     "comingSoon": "（近日対応）",
     "footnote": "OpenAI互換モードとネイティブAPIパススルーの両方に対応 — 機能の損失なし"
   },
@@ -58,8 +58,8 @@
     "subtitle": "登録からAPI呼び出しまで最短1分",
     "step1Title": "アカウント作成",
     "step1Desc": "メール登録、30秒で完了。個人用API Keyを即座に取得。",
-    "step2Title": "残高チャージ",
-    "step2Desc": "必要に応じてチャージ、$1から。さまざまな支払い方法に対応。",
+    "step2Title": "まず試して、あとでチャージ",
+    "step2Desc": "無料のMiMo枠ですぐ試し、より多くのモデルや利用量が必要になったらチャージできます。",
     "step3Title": "呼び出し開始",
     "step3Desc": "Base URLを置き換えるだけ — 他のコード変更は不要。"
   },
@@ -74,8 +74,8 @@
   },
   "cta": {
     "title": "VPNや海外クレジットカードに悩むのはもうやめましょう",
-    "description": "登録してAPI Keyを取得、チャージしてすぐに呼び出し開始。",
-    "descriptionLine2": "すべての主要AIモデルに対応、従量課金。",
+    "description": "登録してAPI Keyを取得し、無料のMiMo枠で最初の呼び出しを実行できます。",
+    "descriptionLine2": "より多くのモデルや利用量が必要になった時だけチャージ。従量課金です。",
     "button": "無料で登録"
   },
   "pricing": {
@@ -191,6 +191,8 @@
   "dashboard": {
     "title": "概要",
     "balance": "現在の残高",
+    "freeQuota": "無料試用枠",
+    "freeQuotaHint": "{count}個のモデルに適用、合計${amount}",
     "activeKeys": "有効なAPI Key",
     "apiStatus": "APIステータス",
     "running": "稼働中",
@@ -447,6 +449,15 @@
     "running": "稼働中",
     "resumeService": "サービスを再開",
     "pauseService": "サービスを一時停止",
+    "freeQuotaConfig": "無料枠設定",
+    "freeQuotaConfigDesc": "すべてのユーザーに、指定モデル限定の試用枠を付与します。",
+    "freeQuotaEnabled": "無料枠を有効化",
+    "freeQuotaAmount": "ユーザーごとの無料枠 (USD)",
+    "freeQuotaAmountHint": "課金対象コストから差し引き、利用ログには実コストを保持します。",
+    "freeQuotaModels": "無料枠を使えるモデル",
+    "freeQuotaModelCount": "{count}件選択済み",
+    "freeQuotaNoModels": "設定可能なモデルがありません",
+    "freeQuotaModelsHint": "MiMoのように、宣伝したい低コストで管理しやすいモデルを選ぶのが適しています。",
     "spendingConfig": "支出制限設定",
     "dailyCap": "日次支出上限（USD）",
     "monthlyCap": "月次支出上限（USD）",

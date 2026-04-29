@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getKV, getUserData } from '@/lib/kv';
+import { getFreeQuotaStatus, getGlobalConfig, getKV, getUserData } from '@/lib/kv';
 import { getSession } from '@/lib/session';
 
 /**
@@ -13,7 +13,7 @@ export async function GET() {
     }
 
     const kv = await getKV();
-    const { data, metadata } = await getUserData(kv, user.id);
+    const [{ data, metadata }, globalConfig] = await Promise.all([getUserData(kv, user.id), getGlobalConfig(kv)]);
 
     return NextResponse.json({
       user: {
@@ -21,6 +21,7 @@ export async function GET() {
         email: user.email,
         balance: data?.balance ?? 0,
         concurrency: data?.concurrency ?? 0,
+        freeQuota: getFreeQuotaStatus(globalConfig, data),
         isSuspended: data?.isSuspended ?? false,
         maxConcurrency: metadata?.maxConcurrency ?? 3,
         createdAt: metadata?.createdAt ?? null,

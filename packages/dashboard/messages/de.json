@@ -14,14 +14,14 @@
     "dashboard": "Dashboard"
   },
   "hero": {
-    "badge": "OpenAI / Claude (demnächst verfügbar) / Gemini alle unterstützt",
+    "badge": "OpenAI / Gemini / Workers AI / MiMo alle unterstützt",
     "title": "Ein Schlüssel, Zugang zu",
     "titleHighlight": "allen KI-Modellen",
-    "description": "Kein VPN nötig, kein ausländisches Konto erforderlich. Aufladen und sofort nutzen, Bezahlung pro Token ohne monatliche Gebühren.",
+    "description": "Kein VPN nötig, kein ausländisches Konto erforderlich. Testen Sie MiMo zuerst mit kostenlosem Kontingent und laden Sie dann für weitere Modelle auf.",
     "descriptionLine2": "Kompatibel mit dem OpenAI SDK — einfach die Base URL ändern.",
     "ctaPrimary": "Kostenlos registrieren",
     "ctaSecondary": "Preise ansehen",
-    "stat1Value": "3",
+    "stat1Value": "5",
     "stat1Label": "Große KI-Anbieter",
     "stat2Value": "100%",
     "stat2Label": "OpenAI-kompatibel",
@@ -37,7 +37,7 @@
     "anthropicDesc": "Ultra-langer Kontext, hervorragend beim Programmieren und Analysieren",
     "googleDesc": "Nativ multimodal, ultra-großes Kontextfenster",
     "workersDesc": "Cloudflare-native Modelle für günstige Aufrufe mit hohem Durchsatz",
-    "mimoDesc": "Xiaomi-Modelle für langen Kontext, Multimodalität und Sprachsynthese",
+    "mimoDesc": "Xiaomi-Modelle für langen Kontext, Multimodalität und Sprachsynthese, mit kostenlosem Testkontingent",
     "comingSoon": "(demnächst verfügbar)",
     "footnote": "Unterstützt sowohl den OpenAI-kompatiblen Modus als auch natives API-Passthrough — keine Funktionen gehen verloren"
   },
@@ -58,8 +58,8 @@
     "subtitle": "Von der Registrierung zum API-Aufruf in nur 1 Minute",
     "step1Title": "Konto erstellen",
     "step1Desc": "E-Mail-Registrierung, in 30 Sekunden erledigt. Erhalten Sie sofort Ihren persönlichen API Key.",
-    "step2Title": "Guthaben aufladen",
-    "step2Desc": "Laden Sie nach Bedarf auf, ab $1. Verschiedene Zahlungsmethoden unterstützt.",
+    "step2Title": "Erst testen, dann aufladen",
+    "step2Desc": "Nutzen Sie kostenloses MiMo-Kontingent sofort zum Testen und laden Sie bei mehr Modellen oder höherer Nutzung auf.",
     "step3Title": "Aufrufe starten",
     "step3Desc": "Ersetzen Sie die Base URL — keine weiteren Codeänderungen nötig."
   },
@@ -74,8 +74,8 @@
   },
   "cta": {
     "title": "Schluss mit dem Kampf gegen VPNs und ausländische Kreditkarten",
-    "description": "Registrieren Sie sich für Ihren API Key, laden Sie auf und starten Sie sofort.",
-    "descriptionLine2": "Unterstützt alle großen KI-Modelle, Bezahlung nach Verbrauch.",
+    "description": "Registrieren Sie sich für Ihren API Key und starten Sie den ersten Aufruf mit kostenlosem MiMo-Kontingent.",
+    "descriptionLine2": "Laden Sie erst auf, wenn Sie mehr Modelle oder höhere Nutzung brauchen. Bezahlung nach Verbrauch.",
     "button": "Kostenlos registrieren"
   },
   "pricing": {
@@ -191,6 +191,8 @@
   "dashboard": {
     "title": "Übersicht",
     "balance": "Aktuelles Guthaben",
+    "freeQuota": "Kostenloses Testkontingent",
+    "freeQuotaHint": "Gilt für {count} Modelle, insgesamt ${amount}",
     "activeKeys": "Aktive API Keys",
     "apiStatus": "API-Status",
     "running": "Läuft",
@@ -447,6 +449,15 @@
     "running": "Läuft",
     "resumeService": "Dienst fortsetzen",
     "pauseService": "Dienst pausieren",
+    "freeQuotaConfig": "Kostenloses Kontingent",
+    "freeQuotaConfigDesc": "Gewähren Sie jedem Benutzer ein auf bestimmte Modelle begrenztes Testkontingent.",
+    "freeQuotaEnabled": "Kostenloses Kontingent aktivieren",
+    "freeQuotaAmount": "Kostenloses Kontingent pro Benutzer (USD)",
+    "freeQuotaAmountHint": "Wird nach abrechenbaren Kosten verrechnet; Nutzungslogs behalten die echten Kosten.",
+    "freeQuotaModels": "Modelle mit kostenlosem Kontingent",
+    "freeQuotaModelCount": "{count} ausgewählt",
+    "freeQuotaNoModels": "Keine Modelle verfügbar",
+    "freeQuotaModelsHint": "Wählen Sie bevorzugt kostenkontrollierte Modelle, die Sie bewerben möchten, z. B. MiMo.",
     "spendingConfig": "Ausgabenlimit-Konfiguration",
     "dailyCap": "Tägliches Ausgabenlimit (USD)",
     "monthlyCap": "Monatliches Ausgabenlimit (USD)",

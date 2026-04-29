@@ -14,14 +14,14 @@
     "dashboard": "进入控制台"
   },
   "hero": {
-    "badge": "OpenAI / Claude（即将支持）/ Gemini 全部支持",
+    "badge": "OpenAI / Gemini / Workers AI / MiMo 全部支持",
     "title": "一个 Key，调用",
     "titleHighlight": "所有 AI 模型",
-    "description": "无需翻墙，无需注册海外账号。充值即用，按 token 计费，没有月费和订阅。",
+    "description": "无需翻墙，无需注册海外账号。MiMo 模型可先免费体验，更多模型充值即用。",
     "descriptionLine2": "兼容 OpenAI SDK，换个 Base URL 就能用。",
     "ctaPrimary": "免费注册，立即开始",
     "ctaSecondary": "查看定价",
-    "stat1Value": "3",
+    "stat1Value": "5",
     "stat1Label": "主流 AI 厂商",
     "stat2Value": "100%",
     "stat2Label": "OpenAI 兼容",
@@ -37,7 +37,7 @@
     "anthropicDesc": "超长上下文，编程与分析能力出众",
     "googleDesc": "多模态原生，超大上下文窗口",
     "workersDesc": "Cloudflare 原生模型，低成本高吞吐",
-    "mimoDesc": "小米自研模型，覆盖长上下文、多模态与语音合成",
+    "mimoDesc": "小米自研模型，覆盖长上下文、多模态与语音合成，支持免费体验额度",
     "comingSoon": "（即将支持）",
     "footnote": "同时支持 OpenAI 兼容模式和各厂商原生 API 透传，不丢失任何功能"
   },
@@ -58,8 +58,8 @@
     "subtitle": "从注册到调用，最快 1 分钟",
     "step1Title": "注册账号",
     "step1Desc": "邮箱注册，30 秒完成。立即获得专属 API Key。",
-    "step2Title": "充值余额",
-    "step2Desc": "按需充值，最低 ¥10 起。支持微信、支付宝。",
+    "step2Title": "先试用，再充值",
+    "step2Desc": "免费 MiMo 额度可直接体验，更多模型和更高用量再按需充值。",
     "step3Title": "开始调用",
     "step3Desc": "替换 Base URL，现有代码无需任何修改。"
   },
@@ -74,8 +74,8 @@
   },
   "cta": {
     "title": "别再折腾 VPN 和海外信用卡了",
-    "description": "注册即可获取 API Key，充值后立即开始调用。",
-    "descriptionLine2": "支持所有主流 AI 模型，按量计费，用多少花多少。",
+    "description": "注册即可获取 API Key，先用免费 MiMo 额度跑通调用。",
+    "descriptionLine2": "需要更多模型和更高用量时再充值，按量计费，用多少花多少。",
     "button": "免费注册"
   },
   "pricing": {
@@ -191,6 +191,8 @@
   "dashboard": {
     "title": "数据概览",
     "balance": "当前余额",
+    "freeQuota": "免费体验额度",
+    "freeQuotaHint": "适用于 {count} 个模型，总额度 ${amount}",
     "activeKeys": "活跃 API Key",
     "apiStatus": "API 状态",
     "running": "正常运行",
@@ -447,6 +449,15 @@
     "running": "运行中",
     "resumeService": "恢复服务",
     "pauseService": "暂停服务",
+    "freeQuotaConfig": "免费额度配置",
+    "freeQuotaConfigDesc": "给所有用户发放一份仅限指定模型使用的免费体验额度。",
+    "freeQuotaEnabled": "启用免费额度",
+    "freeQuotaAmount": "每位用户免费额度 (USD)",
+    "freeQuotaAmountHint": "按计费金额抵扣，不影响消费日志中的真实成本。",
+    "freeQuotaModels": "可使用免费额度的模型",
+    "freeQuotaModelCount": "已选 {count} 个",
+    "freeQuotaNoModels": "暂无可配置模型",
+    "freeQuotaModelsHint": "只建议选择成本可控、希望推广的新模型，例如 MiMo。",
     "spendingConfig": "消费上限配置",
     "dailyCap": "日消费上限 (USD)",
     "monthlyCap": "月消费上限 (USD)",

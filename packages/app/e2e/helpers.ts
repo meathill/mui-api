@@ -11,6 +11,7 @@ export async function seedApiKey(
   userId: string,
   balance: number = 10,
   options: {
+    freeQuotaUsed?: number;
     maxConcurrency?: number;
   } = {},
 ): Promise<string> {
@@ -33,6 +34,7 @@ export async function seedApiKey(
     JSON.stringify({
       balance,
       concurrency: 0,
+      freeQuotaUsed: options.freeQuotaUsed,
       isSuspended: false,
     }),
     {

@@ -1,6 +1,7 @@
 import type { Database } from '../db';
 import { type NewUsageLog, usageLogs } from '../db/schema';
 import { generateId } from '../lib/crypto';
+import type { FreeQuotaConfig } from '../types';
 import type { KVService } from './kv-service';
 
 // 默认加价倍率
@@ -22,6 +23,25 @@ export interface ModelPricing {
   inputPrice: number;
   outputPrice: number;
   markupRate: number;
+}
+
+export interface FreeQuotaState {
+  enabled: boolean;
+  eligible: boolean;
+  amount: number;
+  used: number;
+  remaining: number;
+  modelIds: string[];
+}
+
+export interface BillingOptions {
+  useFreeQuota?: boolean;
+}
+
+export interface BillingResult {
+  totalCost: number;
+  chargedCost: number;
+  freeQuotaDeducted: number;
 }
 
 /**
@@ -78,6 +98,26 @@ export class BillingService {
   }
 
   /**
+   * 查询用户对某个模型可用的免费额度状态
+   */
+  async getFreeQuotaState(userId: string, modelId: string): Promise<FreeQuotaState> {
+    const [config, user] = await Promise.all([this.kvService.getGlobalConfig(), this.kvService.getUser(userId)]);
+    const freeQuota = normalizeFreeQuotaConfig(config?.freeQuota);
+    const used = Math.max(0, user.data?.freeQuotaUsed ?? 0);
+    const remaining = freeQuota.enabled ? Math.max(0, freeQuota.amount - used) : 0;
+    const eligible = freeQuota.enabled && freeQuota.amount > 0 && freeQuota.modelIds.includes(modelId);
+
+    return {
+      enabled: freeQuota.enabled,
+      eligible,
+      amount: freeQuota.amount,
+      used,
+      remaining,
+      modelIds: freeQuota.modelIds,
+    };
+  }
+
+  /**
    * 记录使用日志（写入 D1）
    */
   async logUsage(
@@ -110,7 +150,8 @@ export class BillingService {
     usage: UsageInfo,
     modelPricing?: ModelPricing | null,
     userRateMultiplier: number = 1,
-  ): Promise<number> {
+    options: BillingOptions = {},
+  ): Promise<BillingResult> {
     const cost = this.calculateCost(
       usage.model,
       usage.inputTokens,
@@ -119,12 +160,43 @@ export class BillingService {
       userRateMultiplier,
     );
 
+    let freeQuotaDeducted = 0;
+    if (options.useFreeQuota) {
+      const freeQuota = await this.getFreeQuotaState(userId, usage.model);
+      if (freeQuota.eligible && freeQuota.remaining > 0) {
+        freeQuotaDeducted = Math.min(cost, freeQuota.remaining);
+        await this.kvService.consumeFreeQuota(userId, freeQuotaDeducted);
+      }
+    }
+
+    const chargedCost = Math.max(0, cost - freeQuotaDeducted);
+
     // KV 扣款
-    await this.deductBalance(userId, cost);
+    if (chargedCost > 0) {
+      await this.deductBalance(userId, chargedCost);
+    }
 
     // D1 记录日志
     await this.logUsage(userId, apiKeyId, usage.model, usage.inputTokens, usage.outputTokens, cost);
 
-    return cost;
+    return {
+      totalCost: cost,
+      chargedCost,
+      freeQuotaDeducted,
+    };
   }
+}
+
+function normalizeFreeQuotaConfig(config: FreeQuotaConfig | undefined): FreeQuotaConfig {
+  if (!config) {
+    return { enabled: false, amount: 0, modelIds: [] };
+  }
+
+  return {
+    enabled: config.enabled === true,
+    amount: Math.max(0, Number(config.amount) || 0),
+    modelIds: Array.from(
+      new Set((Array.isArray(config.modelIds) ? config.modelIds : []).map((id) => id.trim()).filter(Boolean)),
+    ),
+  };
 }

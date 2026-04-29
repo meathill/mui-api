@@ -14,9 +14,17 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
-import { api, type GlobalConfig, type SpendingStats } from '@/lib/api';
+import { Switch } from '@/components/ui/switch';
+import { api, type GlobalConfig, type ModelInfo, type SpendingStats } from '@/lib/api';
+
+const DEFAULT_FREE_QUOTA = {
+  enabled: false,
+  amount: 0,
+  modelIds: [] as string[],
+};
 
 export default function SettingsPage() {
   const t = useTranslations('adminSettings');
@@ -25,6 +33,7 @@ export default function SettingsPage() {
 
   const [config, setConfig] = useState<GlobalConfig | null>(null);
   const [stats, setStats] = useState<SpendingStats | null>(null);
+  const [models, setModels] = useState<ModelInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [msg, setMsg] = useState('');
@@ -32,6 +41,9 @@ export default function SettingsPage() {
   const [dailyCap, setDailyCap] = useState('');
   const [monthlyCap, setMonthlyCap] = useState('');
   const [adminEmail, setAdminEmail] = useState('');
+  const [freeQuotaEnabled, setFreeQuotaEnabled] = useState(false);
+  const [freeQuotaAmount, setFreeQuotaAmount] = useState('');
+  const [freeQuotaModelIds, setFreeQuotaModelIds] = useState<string[]>([]);
 
   // 暂停/恢复确认弹窗
   const [pauseDialogOpen, setPauseDialogOpen] = useState(false);
@@ -43,12 +55,21 @@ export default function SettingsPage() {
   const loadData = useCallback(async () => {
     try {
       setLoading(true);
-      const [configRes, statsRes] = await Promise.all([api.getGlobalConfig(), api.getSpendingStats()]);
+      const [configRes, statsRes, modelsRes] = await Promise.all([
+        api.getGlobalConfig(),
+        api.getSpendingStats(),
+        api.getModels(),
+      ]);
+      const freeQuota = configRes.config.freeQuota ?? DEFAULT_FREE_QUOTA;
       setConfig(configRes.config);
       setStats(statsRes.stats);
+      setModels(modelsRes.models);
       setDailyCap(String(configRes.config.dailySpendingCap || ''));
       setMonthlyCap(String(configRes.config.monthlySpendingCap || ''));
       setAdminEmail(configRes.config.adminEmail || '');
+      setFreeQuotaEnabled(freeQuota.enabled);
+      setFreeQuotaAmount(String(freeQuota.amount || ''));
+      setFreeQuotaModelIds(freeQuota.modelIds);
     } catch (e) {
       setError(e instanceof Error ? e.message : te('loadFailed'));
     } finally {
@@ -68,6 +89,11 @@ export default function SettingsPage() {
         dailySpendingCap: Number(dailyCap) || 0,
         monthlySpendingCap: Number(monthlyCap) || 0,
         adminEmail: adminEmail || undefined,
+        freeQuota: {
+          enabled: freeQuotaEnabled,
+          amount: Number(freeQuotaAmount) || 0,
+          modelIds: freeQuotaModelIds,
+        },
       } as GlobalConfig);
       setMsg(te('saveSuccess'));
       loadData();
@@ -79,6 +105,15 @@ export default function SettingsPage() {
   function handleTogglePauseClick() {
     if (!config) return;
     setPauseDialogOpen(true);
+  }
+
+  function toggleFreeQuotaModel(modelId: string, checked: boolean | 'indeterminate') {
+    setFreeQuotaModelIds((prev) => {
+      if (checked === true) {
+        return prev.includes(modelId) ? prev : [...prev, modelId];
+      }
+      return prev.filter((id) => id !== modelId);
+    });
   }
 
   async function handleConfirmTogglePause() {
@@ -190,6 +225,64 @@ export default function SettingsPage() {
           </div>
         </Card>
       )}
+
+      {/* 免费额度配置 */}
+      <Card className="p-4 mb-6">
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="font-medium">{t('freeQuotaConfig')}</h3>
+            <p className="text-sm text-muted-foreground">{t('freeQuotaConfigDesc')}</p>
+          </div>
+          <Switch
+            checked={freeQuotaEnabled}
+            onCheckedChange={(checked) => setFreeQuotaEnabled(checked === true)}
+            aria-label={t('freeQuotaEnabled')}
+          />
+        </div>
+
+        <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[16rem_1fr]">
+          <div>
+            <label className="block text-xs text-muted-foreground mb-1">{t('freeQuotaAmount')}</label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              value={freeQuotaAmount}
+              onChange={(e) => setFreeQuotaAmount(e.target.value)}
+              placeholder="0.00"
+              disabled={!freeQuotaEnabled}
+            />
+            <p className="mt-2 text-xs text-muted-foreground">{t('freeQuotaAmountHint')}</p>
+          </div>
+
+          <div>
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <label className="block text-xs text-muted-foreground">{t('freeQuotaModels')}</label>
+              <Badge variant={freeQuotaModelIds.length > 0 ? 'secondary' : 'outline'}>
+                {t('freeQuotaModelCount', { count: freeQuotaModelIds.length })}
+              </Badge>
+            </div>
+            <div className="grid max-h-56 grid-cols-1 gap-2 overflow-y-auto rounded-lg border border-border p-3 md:grid-cols-2">
+              {models.map((model) => (
+                <label
+                  key={model.id}
+                  className="flex min-h-9 cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-sm hover:bg-muted"
+                >
+                  <Checkbox
+                    checked={freeQuotaModelIds.includes(model.id)}
+                    onCheckedChange={(checked) => toggleFreeQuotaModel(model.id, checked)}
+                    disabled={!freeQuotaEnabled}
+                  />
+                  <span className="min-w-0 flex-1 truncate font-mono text-xs">{model.id}</span>
+                  <span className="shrink-0 text-xs text-muted-foreground">{model.provider}</span>
+                </label>
+              ))}
+              {models.length === 0 && <p className="text-sm text-muted-foreground">{t('freeQuotaNoModels')}</p>}
+            </div>
+            <p className="mt-2 text-xs text-muted-foreground">{t('freeQuotaModelsHint')}</p>
+          </div>
+        </div>
+      </Card>
 
       {/* 配置表单 */}
       <Card className="p-4">

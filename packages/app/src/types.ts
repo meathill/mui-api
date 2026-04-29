@@ -27,6 +27,7 @@ export interface CloudflareBindings {
 export interface KVUserData {
   balance: number;
   concurrency: number; // Durable Object 同步回 KV 的并发展示镜像，不参与准入判断
+  freeQuotaUsed?: number; // 已消耗的全局免费额度，单位 USD
   isSuspended?: boolean;
 }
 
@@ -35,6 +36,12 @@ export interface KVUserMetadata {
   rateMultiplier?: number; // 用户费率倍率，默认 1
   email: string;
   createdAt: string;
+}
+
+export interface FreeQuotaConfig {
+  enabled: boolean;
+  amount: number;
+  modelIds: string[];
 }
 
 // Hono 类型扩展

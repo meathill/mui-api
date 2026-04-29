@@ -1,13 +1,13 @@
 'use client';
 
-import { ChartBar, CreditCard, Key, Wallet } from '@phosphor-icons/react';
+import { ChartBar, CreditCard, Gift, Key, Wallet } from '@phosphor-icons/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import { type TopUpSessionResult, userApi } from '@/lib/api';
+import { type FreeQuotaStatus, type TopUpSessionResult, userApi } from '@/lib/api';
 import { TOP_UP_AMOUNTS } from '@/lib/top-up';
 
 interface TopUpNotice {
@@ -26,6 +26,7 @@ export default function DashboardHome() {
   const searchParams = useSearchParams();
   const [balance, setBalance] = useState<number>(0);
   const [keyCount, setKeyCount] = useState<number>(0);
+  const [freeQuota, setFreeQuota] = useState<FreeQuotaStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [topUpAmountLoading, setTopUpAmountLoading] = useState<number | null>(null);
@@ -37,6 +38,7 @@ export default function DashboardHome() {
       try {
         const [profileRes, keysRes] = await Promise.all([userApi.getProfile(), userApi.getKeys()]);
         setBalance(profileRes.user.balance);
+        setFreeQuota(profileRes.user.freeQuota ?? null);
         setKeyCount(keysRes.keys.filter((k) => k.isActive).length);
       } catch (e) {
         setError(e instanceof Error ? e.message : te('loadFailed'));
@@ -188,6 +190,8 @@ export default function DashboardHome() {
     return <p className="text-destructive">{error}</p>;
   }
 
+  const hasFreeQuota = freeQuota?.enabled === true && freeQuota.amount > 0;
+
   return (
     <div>
       <h2 className="mb-6 text-xl font-bold">{t('title')}</h2>
@@ -199,7 +203,7 @@ export default function DashboardHome() {
         </Alert>
       )}
 
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-4">
         <Card className="p-6">
           <div className="mb-2 flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
@@ -229,6 +233,24 @@ export default function DashboardHome() {
           </div>
           <p className="text-lg font-medium text-green-600">{t('running')}</p>
         </Card>
+
+        {hasFreeQuota && (
+          <Card className="p-6">
+            <div className="mb-2 flex items-center gap-3">
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10">
+                <Gift size={18} className="text-emerald-600" weight="duotone" />
+              </div>
+              <span className="text-sm text-muted-foreground">{t('freeQuota')}</span>
+            </div>
+            <p className="font-mono text-3xl font-bold">${freeQuota.remaining.toFixed(2)}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t('freeQuotaHint', {
+                amount: freeQuota.amount.toFixed(2),
+                count: freeQuota.modelIds.length,
+              })}
+            </p>
+          </Card>
+        )}
       </div>
 
       <Card className="mt-8 p-6">
