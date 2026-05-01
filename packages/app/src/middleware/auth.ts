@@ -1,4 +1,5 @@
 import type { Context, Next } from 'hono';
+import { validateBearer } from '../lib/bearer-validator';
 import { createLeaseHeartbeat, wrapResponseBodyWithFinalizer } from '../lib/concurrency-response';
 import { generateId } from '../lib/crypto';
 import {
@@ -30,20 +31,16 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
 
     const apiKey = authHeader.substring(7);
 
-    if (!apiKey.startsWith('sk-gw-')) {
-      return c.json({ error: { message: '无效的 API Key 格式', type: 'invalid_request_error' } }, 401);
-    }
-
     const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
     const kvService = new KVService(c.env.KV, defaultMaxConcurrency);
     const concurrencyService = new ConcurrencyService(c.env);
 
-    // 验证 API Key
-    const keyResult = await kvService.validateApiKey(apiKey);
-    if (!keyResult) {
-      return c.json({ error: { message: '无效的 API Key', type: 'invalid_api_key' } }, 401);
+    // 同时支持 PAT (sk-gw-*) 与 OAuth access_token (mr_at_*)。详见 bearer-validator.ts。
+    const validation = await validateBearer(c.env, apiKey);
+    if (!validation) {
+      return c.json({ error: { message: '无效的 API Key 或 access_token', type: 'invalid_api_key' } }, 401);
     }
-    const { userId, keyHash: apiKeyId } = keyResult;
+    const { userId, keyHash: apiKeyId } = validation;
 
     // 获取用户数据，如果 KV 中不存在则自动初始化（余额为 0）
     let { data, metadata } = await kvService.getUser(userId);

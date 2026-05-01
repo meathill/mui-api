@@ -105,3 +105,68 @@ export type NewUsageStat = typeof usageStats.$inferInsert;
 
 export type SpendingLimit = typeof spendingLimits.$inferSelect;
 export type NewSpendingLimit = typeof spendingLimits.$inferInsert;
+
+/**
+ * OAuth 2.0 三件套：clients / codes / tokens。
+ *
+ * - **oauthClients**：注册过的第三方应用（client_id + secret 哈希 + 允许的 redirect_uri /
+ *   scope 白名单）。给 muicv 之类的客户端发 token 前先走这里校验。secret 只存 SHA-256。
+ * - **oauthCodes**：authorization_code 流程里的一次性 code，5 分钟过期，单次消费（used=1
+ *   再来不接受），跟 client_id + redirect_uri 绑死防转售。
+ * - **oauthTokens**：颁发的 access / refresh token，存 SHA-256 哈希。`kind` 区分两种；
+ *   `pairId` 把同一对 access+refresh 关联起来，refresh 时整对替换。
+ */
+export const oauthClients = sqliteTable('oauth_clients', {
+  clientId: text('client_id').primaryKey(),
+  clientSecretHash: text('client_secret_hash').notNull(),
+  name: text('name').notNull(),
+  ownerEmail: text('owner_email'),
+  /** JSON array string，例如 `["https://muicv.com/api/muirouter/oauth/callback"]`。 */
+  allowedRedirectUris: text('allowed_redirect_uris').notNull(),
+  /** 逗号分隔，例如 `"balance,llm"`。 */
+  allowedScopes: text('allowed_scopes').notNull().default('balance,llm'),
+  isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+});
+
+export const oauthCodes = sqliteTable('oauth_codes', {
+  codeHash: text('code_hash').primaryKey(),
+  clientId: text('client_id')
+    .notNull()
+    .references(() => oauthClients.clientId, { onDelete: 'cascade' }),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  redirectUri: text('redirect_uri').notNull(),
+  scope: text('scope').notNull(),
+  /** code 过期 unix 时间戳（秒）。 */
+  expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+  /** 单次消费——被换过 token 就置 1，第二次再来 400 invalid_grant。 */
+  used: integer('used', { mode: 'boolean' }).notNull().default(false),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+});
+
+export const oauthTokens = sqliteTable('oauth_tokens', {
+  tokenHash: text('token_hash').primaryKey(),
+  /** `'access'` 或 `'refresh'`。 */
+  kind: text('kind').notNull(),
+  /** access + refresh 同一对共享一个 pairId，refresh 时把同 pairId 的两条整对替换/删除。 */
+  pairId: text('pair_id').notNull(),
+  clientId: text('client_id')
+    .notNull()
+    .references(() => oauthClients.clientId, { onDelete: 'cascade' }),
+  userId: text('user_id')
+    .notNull()
+    .references(() => user.id, { onDelete: 'cascade' }),
+  scope: text('scope').notNull(),
+  expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+});
+
+export type OauthClient = typeof oauthClients.$inferSelect;
+export type NewOauthClient = typeof oauthClients.$inferInsert;
+export type OauthCode = typeof oauthCodes.$inferSelect;
+export type NewOauthCode = typeof oauthCodes.$inferInsert;
+export type OauthToken = typeof oauthTokens.$inferSelect;
+export type NewOauthToken = typeof oauthTokens.$inferInsert;

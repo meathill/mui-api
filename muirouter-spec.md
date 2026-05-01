@@ -1,12 +1,18 @@
-# muirouter integration spec — 最小可用版
+# muirouter integration spec
 
 这份 spec 给 [muirouter](https://muirouter.com) 的服务端实现做参考，让
-muicv（以及未来其他第三方）能用 BYOK 的方式集成 muirouter 余额查询。
+muicv（以及未来其他第三方）能用 BYOK / OAuth 的方式集成 muirouter 余额与 LLM 调用。
 
-**目标**：muicv 用户在 muirouter 生成自己的 API key，贴到 muicv dashboard，
-muicv 服务端用这个 key 调 muirouter 拿余额展示。
+**两条接入通道**：
 
-不做 OAuth，不做跨站会话。第三方完全靠用户自己粘贴的 API key 调用。
+1. **PAT（personal access token，sk-gw-）**：用户在 muirouter 自己生成 API key，
+   贴到第三方应用——这是历史路径，不会废弃。详见 §1–§5。
+2. **OAuth 2.0（2026-05 新增）**：第三方应用跳转 muirouter 授权页，用户登录授权后
+   muirouter 颁发 access_token + refresh_token，第三方再调 LLM / 余额端点——这是
+   muicv 当前的默认接入方式，详见 §7。
+
+两种 token（`sk-gw-` PAT 与 `mr_at_` OAuth access_token）在受保护端点上**等价**，
+按 Bearer 前缀走不同验证路径。
 
 ---
 
@@ -163,9 +169,115 @@ curl -H "Authorization: Bearer mr_invalid" \
 muicv 实现见：
 
 - `packages/website/lib/muirouter.ts` —— client
-- `packages/website/app/api/muirouter/*` —— routes
-- `packages/website/migrations/0004_muirouter_link.sql` —— schema
+- `packages/website/app/api/muirouter/*` —— routes（OAuth 改造后入口在 `oauth/start` + `oauth/callback`）
+- `packages/website/migrations/0010_muirouter_oauth.sql` —— schema
 - `packages/website/app/(dashboard)/dashboard/muirouter-section.tsx` —— UI
+- `packages/shared/src/muirouter-oauth.ts` —— OAuth 客户端纯逻辑
 
 如果 muirouter API 还没上，muicv 这边能 graceful degrade：保存 key 后显示
 "已绑定，余额查询待 muirouter API 上线"，不报错。
+
+---
+
+## 7. OAuth 2.0（2026-05 新增）
+
+为了让 muicv 端不再走「让用户自己粘贴 API key」流程，muirouter 提供标准 authorization_code
++ refresh_token OAuth 流程。muicv 端实现的 OAuth 客户端纯逻辑见
+`packages/shared/src/muirouter-oauth.ts`，本节定义服务端契约，**两端协同演进**。
+
+### 7.1 端点
+
+| 端点 | 方法 | 用途 |
+|---|---|---|
+| `https://muirouter.com/oauth/authorize` | GET | 用户登录后的授权页（dashboard 渲染，consent UI） |
+| `https://api.muirouter.com/oauth/token` | POST | 用 authorization_code 换 token / refresh_token 续期 |
+| `https://api.muirouter.com/oauth/revoke` | POST | 撤销整对 access+refresh |
+
+### 7.2 Authorize
+
+```
+GET /oauth/authorize
+  ?client_id=muicv
+  &redirect_uri=https://muicv.com/api/muirouter/oauth/callback
+  &state=<csrf-token>
+  &scope=balance,llm
+  &response_type=code
+```
+
+未登录 → 引导登录后回此页；已登录 → 展示 consent。
+- **同意** → 生成一次性 `code`（5 min 过期），302：`{redirect_uri}?code=<code>&state=<state>`
+- **拒绝** → 302：`{redirect_uri}?error=access_denied&state=<state>`
+
+`redirect_uri` 必须命中 `oauth_clients.allowed_redirect_uris` 白名单（防 redirect_uri 劫持）。
+
+### 7.3 Token endpoint
+
+`POST /oauth/token`，`Content-Type: application/json`：
+
+```json
+// authorization_code
+{ "grant_type": "authorization_code", "code": "...", "redirect_uri": "...",
+  "client_id": "muicv", "client_secret": "cs_..." }
+
+// refresh_token
+{ "grant_type": "refresh_token", "refresh_token": "mr_rt_...",
+  "client_id": "muicv", "client_secret": "cs_..." }
+```
+
+成功响应：
+
+```json
+{
+  "access_token": "mr_at_...",   // 1 h 过期
+  "refresh_token": "mr_rt_...",  // 30 d 过期，刷新时整对替换
+  "token_type": "Bearer",
+  "expires_in": 3600,
+  "scope": "balance,llm",
+  "user": { "id": "<userId>", "email": "...", "username": "..." }
+}
+```
+
+错误：HTTP 4xx + body `{ "error": "<oauth_error_code>", "error_description": "..." }`。
+错误码沿用 RFC 6749：`invalid_request` / `invalid_client` / `invalid_grant` /
+`unsupported_grant_type`。
+
+### 7.4 Revoke
+
+`POST /oauth/revoke` body `{ token, client_id, client_secret }` → 200 `{ "ok": true }`。
+按 RFC 6749 §2.1，**未知 token 也返回 200**（防探测）。本端实现按 `pair_id` 把同一对
+access+refresh 整对删除。
+
+### 7.5 access_token 在受保护资源上的使用
+
+OAuth access_token 与历史的 sk-gw PAT **同等接受**。受保护端点（`/v1/chat/completions`、
+`/v1/balance`、`/v1/models`、MCP 等）的 Bearer 鉴权按前缀分发：
+
+- `sk-gw-...` → KV `apikey:<sha256>` → userId（PAT 路径，存量）
+- `mr_at_...` → D1 `oauth_tokens` → userId（OAuth 路径，新）
+
+详见 `packages/app/src/lib/bearer-validator.ts`。
+
+### 7.6 数据表（D1）
+
+| 表 | 主键 | 说明 |
+|---|---|---|
+| `oauth_clients` | `client_id` | 注册客户端，secret 仅存 SHA-256 |
+| `oauth_codes` | `code_hash` | authorization_code，5 min 过期，单次消费 |
+| `oauth_tokens` | `token_hash` | access + refresh，按 `pair_id` 整对管理 |
+
+迁移：`packages/shared-db/drizzle/0011_add_oauth_tables.sql`。
+
+### 7.7 注册一个新 client
+
+```bash
+pnpm exec node scripts/register-oauth-client.ts \
+  --client-id muicv \
+  --name "muicv simple resume" \
+  --redirect-uri https://muicv.com/api/muirouter/oauth/callback \
+  --redirect-uri http://localhost:3070/api/muirouter/oauth/callback \
+  --scopes balance,llm \
+  --remote
+```
+
+脚本会生成 client_secret 并仅显示一次，把它发给客户端去配在他们的 secret 管理里
+（muicv 在 wrangler 里 `MUIROUTER_OAUTH_CLIENT_SECRET`）。

@@ -6,6 +6,7 @@ import { loggerMiddleware } from './middleware/logger';
 import { renderer } from './renderer';
 import admin from './routes/admin';
 import mcp from './routes/mcp';
+import oauth from './routes/oauth';
 import openai from './routes/openai';
 import providers from './routes/providers';
 import v1User from './routes/v1-user';
@@ -36,6 +37,7 @@ app.route('/v1', openai);
 app.route('/providers', providers);
 app.route('/webhooks', webhooks);
 app.route('/mcp', mcp);
+app.route('/oauth', oauth);
 // 首页
 app.get('/', (c) => {
   return c.render(<h1>Uni-Gateway - AI API 统一网关</h1>);

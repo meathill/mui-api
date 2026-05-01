@@ -1,5 +1,5 @@
 import type { Context, Next } from 'hono';
-import { KVService } from '../services/kv-service';
+import { validateBearer } from '../lib/bearer-validator';
 import type { CloudflareBindings } from '../types';
 
 // spec §2 规定的错误体格式
@@ -9,7 +9,7 @@ function spec401(c: Context, message = 'API key 无效或已被撤销') {
 
 /**
  * 只读鉴权中间件：
- * - 仅校验 API Key 合法性，注入 userId
+ * - 校验 Bearer token（PAT sk-gw-* 或 OAuth access_token mr_at_*），注入 userId
  * - 不抢并发 lease、不做最小余额拦截
  * - 错误体严格按 muirouter-spec.md §2
  *
@@ -22,11 +22,7 @@ export async function readAuthMiddleware(c: Context<{ Bindings: CloudflareBindin
     return spec401(c, '缺少 Authorization header');
   }
   const apiKey = authHeader.substring(7).trim();
-  if (!apiKey.startsWith('sk-gw-')) {
-    return spec401(c);
-  }
-  const kv = new KVService(c.env.KV);
-  const result = await kv.validateApiKey(apiKey);
+  const result = await validateBearer(c.env, apiKey);
   if (!result) {
     return spec401(c);
   }
