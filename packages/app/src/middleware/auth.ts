@@ -31,6 +31,12 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
 
     const apiKey = authHeader.substring(7);
 
+    // 前缀校验：保留 spec 行为——格式不对返回 invalid_request_error，
+    // 反之（前缀对但 KV/DB 查不到）算 invalid_api_key。两类区分对客户端友好。
+    if (!apiKey.startsWith('sk-gw-') && !apiKey.startsWith('mr_at_')) {
+      return c.json({ error: { message: '无效的 API Key 格式', type: 'invalid_request_error' } }, 401);
+    }
+
     const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
     const kvService = new KVService(c.env.KV, defaultMaxConcurrency);
     const concurrencyService = new ConcurrencyService(c.env);
@@ -38,7 +44,7 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
     // 同时支持 PAT (sk-gw-*) 与 OAuth access_token (mr_at_*)。详见 bearer-validator.ts。
     const validation = await validateBearer(c.env, apiKey);
     if (!validation) {
-      return c.json({ error: { message: '无效的 API Key 或 access_token', type: 'invalid_api_key' } }, 401);
+      return c.json({ error: { message: '无效的 API Key', type: 'invalid_api_key' } }, 401);
     }
     const { userId, keyHash: apiKeyId } = validation;
 
