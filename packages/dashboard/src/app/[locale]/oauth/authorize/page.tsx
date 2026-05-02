@@ -105,10 +105,7 @@ export default async function AuthorizePage({ searchParams }: { searchParams: Pr
             {grantedScopes.includes('balance') && <li>查看你的钱包余额</li>}
             {grantedScopes.includes('llm') && <li>用你的 muirouter 余额代你调用 LLM</li>}
           </ul>
-          <p className="text-xs text-muted-foreground">
-            授权后，<code className="rounded bg-muted px-1 py-0.5 font-mono">{redirectUri}</code> 会拿到一次性
-            authorization_code 用来换 token。你可以随时在「Keys」页面里撤销。
-          </p>
+          <p className="text-xs text-muted-foreground">你可以随时在「Keys」页面里撤销。</p>
         </div>
 
         <form method="POST" action="/api/oauth/decision" className="mt-6 flex gap-3">

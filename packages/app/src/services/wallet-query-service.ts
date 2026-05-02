@@ -85,11 +85,7 @@ function toIso(value: Date | number | null | undefined): string {
  *
  * KV 没有 currency 字段，全局假设 USD（与 wallets.currency 默认一致）。
  */
-export async function getBalanceSnapshot(
-  db: Database,
-  userId: string,
-  kv?: KVNamespace,
-): Promise<BalanceSnapshot> {
+export async function getBalanceSnapshot(db: Database, userId: string, kv?: KVNamespace): Promise<BalanceSnapshot> {
   const [wallet, kvData, topupAgg, spendAgg] = await Promise.all([
     db.query.wallets.findFirst({ where: eq(wallets.userId, userId) }),
     kv ? new KVService(kv).getUser(userId) : Promise.resolve({ data: null, metadata: null }),
