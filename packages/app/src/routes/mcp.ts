@@ -32,7 +32,7 @@ const tools: ToolDef[] = [
     name: 'get_balance',
     description: '查询当前 API key 所属用户的钱包余额、累计充值与累计消费。',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
-    handler: async (env, userId) => getBalanceSnapshot(createDb(env.DB), userId),
+    handler: async (env, userId) => getBalanceSnapshot(createDb(env.DB), userId, env.KV),
   },
   {
     name: 'get_usage',

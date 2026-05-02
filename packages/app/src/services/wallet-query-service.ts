@@ -2,6 +2,7 @@ import { and, desc, eq, gte, lt, lte, sql } from 'drizzle-orm';
 import type { Database } from '../db';
 import { rechargeLogs, usageLogs, wallets } from '../db';
 import { formatBalance, toCents } from '../lib/money';
+import { KVService } from './kv-service';
 
 export interface BalanceSnapshot {
   currency: string;
@@ -74,9 +75,24 @@ function toIso(value: Date | number | null | undefined): string {
   return new Date(value * 1000).toISOString();
 }
 
-export async function getBalanceSnapshot(db: Database, userId: string): Promise<BalanceSnapshot> {
-  const [wallet, topupAgg, spendAgg] = await Promise.all([
+/**
+ * 余额快照。**balance 真账本在 KV**（auth middleware 在那里扣账），D1 wallets 表只是
+ * 早期方案残留的非同步副本。以前 MCP / `/v1/balance` 直接读 D1 副本会拿到 0 + 1970-01-01
+ * （副本从没被写入），跟 dashboard 显示对不上。
+ *
+ * 现行做法：balance 从 KV 读，单位 USD；lifetime_topped_up / spent 仍按 D1 logs aggregate
+ * （这些是审计记录，写入双写比较稳）。updated_at fallback 到 wallets.updatedAt 或当前时间。
+ *
+ * KV 没有 currency 字段，全局假设 USD（与 wallets.currency 默认一致）。
+ */
+export async function getBalanceSnapshot(
+  db: Database,
+  userId: string,
+  kv?: KVNamespace,
+): Promise<BalanceSnapshot> {
+  const [wallet, kvData, topupAgg, spendAgg] = await Promise.all([
     db.query.wallets.findFirst({ where: eq(wallets.userId, userId) }),
+    kv ? new KVService(kv).getUser(userId) : Promise.resolve({ data: null, metadata: null }),
     db
       .select({ total: sql<number>`COALESCE(SUM(${rechargeLogs.amount}), 0)` })
       .from(rechargeLogs)
@@ -87,9 +103,10 @@ export async function getBalanceSnapshot(db: Database, userId: string): Promise<
       .where(eq(usageLogs.userId, userId)),
   ]);
 
-  const balance = wallet?.balance ?? 0;
   const currency = wallet?.currency ?? 'USD';
-  const updatedAt = wallet?.updatedAt ?? null;
+  // KV 优先；KV 没值（极少：还没初始化）才 fallback 到 wallets 副本
+  const balance = kvData.data?.balance ?? wallet?.balance ?? 0;
+  const updatedAt = kvData.data ? new Date() : (wallet?.updatedAt ?? null);
   const toppedUp = Number(topupAgg[0]?.total ?? 0);
   const spent = Number(spendAgg[0]?.total ?? 0);
 

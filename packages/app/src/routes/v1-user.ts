@@ -18,7 +18,7 @@ function specError(c: any, status: number, error: string, message: string) {
 v1User.get('/balance', readAuthMiddleware, async (c) => {
   const userId = c.get('userId');
   const db = createDb(c.env.DB);
-  const snapshot = await getBalanceSnapshot(db, userId);
+  const snapshot = await getBalanceSnapshot(db, userId, c.env.KV);
   return c.json(snapshot);
 });
 
