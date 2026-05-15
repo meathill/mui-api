@@ -13,29 +13,22 @@ export function HeroSection() {
   ];
 
   return (
-    <section className="relative overflow-hidden py-24 px-6 sm:py-32">
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-24 left-1/2 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-primary/5 blur-3xl" />
-      </div>
-
+    <section className="bg-sun relative overflow-hidden px-6 py-16 sm:py-20">
       <div className="mx-auto max-w-4xl text-center">
-        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5 text-sm text-muted-foreground">
-          <span className="inline-block h-2 w-2 rounded-full bg-success animate-pulse" />
-          {t('badge')}
-        </div>
+        <p className="eyebrow mb-3">{t('badge')}</p>
 
         <h1 className="text-4xl font-bold tracking-tight sm:text-6xl leading-tight">
           {t('title')}
-          <span className="text-primary">{t('titleHighlight')}</span>
+          <span className="highlight">{t('titleHighlight')}</span>
         </h1>
 
-        <p className="mt-6 text-lg text-muted-foreground leading-relaxed sm:text-xl max-w-2xl mx-auto">
+        <p className="mt-4 text-lg text-muted-foreground leading-relaxed sm:text-xl max-w-2xl mx-auto">
           {t('description')}
           <br className="hidden sm:block" />
           {t('descriptionLine2')}
         </p>
 
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/register"
             className="press inline-flex h-12 items-center gap-2 rounded-lg border-2 border-[#3a2e23] bg-[var(--brand-yellow)] px-8 text-base font-semibold text-[#3a2e23] shadow-[0_3px_0_0_#3a2e23] hover:shadow-[0_4px_0_0_#3a2e23] active:shadow-[0_1px_0_0_#3a2e23]"
@@ -51,10 +44,10 @@ export function HeroSection() {
           </Link>
         </div>
 
-        <div className="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-8">
+        <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-6">
           {stats.map((stat) => (
             <div key={stat.label}>
-              <div className="text-3xl font-bold tracking-tight">{stat.value}</div>
+              <div className="text-3xl font-bold tracking-tight text-[var(--brand-yellow-deep)]">{stat.value}</div>
               <div className="mt-1 text-sm text-muted-foreground">{stat.label}</div>
             </div>
           ))}

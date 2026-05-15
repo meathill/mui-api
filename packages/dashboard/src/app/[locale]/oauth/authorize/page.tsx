@@ -113,7 +113,7 @@ export default async function AuthorizePage({ searchParams }: { searchParams: Pr
           <input type="hidden" name="redirect_uri" value={redirectUri} />
           <input type="hidden" name="state" value={state} />
           <input type="hidden" name="scope" value={grantedScopes.join(',')} />
-          <Button type="submit" name="decision" value="approve" className="flex-1">
+          <Button type="submit" name="decision" value="approve" variant="press" className="flex-1">
             同意授权
           </Button>
           <Button type="submit" name="decision" value="deny" variant="outline" className="flex-1">

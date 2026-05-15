@@ -14,7 +14,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="mx-auto flex min-h-14 max-w-5xl flex-wrap items-center gap-2 px-4 py-3 sm:gap-3 sm:px-6">
-          <Link href="/" className="text-lg font-bold tracking-tight">
+          <Link href="/" className="font-heading text-xl font-bold tracking-tight">
             MUI Router
           </Link>
           <nav className="flex flex-1 flex-wrap items-center gap-2 sm:gap-3">
@@ -59,6 +59,10 @@ export default async function MarketingLayout({ children }: { children: React.Re
       <main className="flex-1">{children}</main>
       <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
         &copy; {new Date().getFullYear()} MUI Router. All rights reserved.
+        <span className="mx-2 text-muted-foreground/50">·</span>
+        <span className="font-mono text-xs uppercase tracking-[0.18em] text-[var(--brand-yellow-deep)]">
+          supervised by Mui 🐾
+        </span>
         <span className="ml-2 text-muted-foreground/50">v{process.env.NEXT_PUBLIC_APP_VERSION}</span>
       </footer>
     </div>

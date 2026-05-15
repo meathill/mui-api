@@ -69,7 +69,7 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
     <aside className="w-56 border-r border-border bg-card flex flex-col">
       <div className="p-4 border-b border-border">
         <h1 className="text-lg font-bold text-foreground">MUI Router</h1>
-        <p className="text-xs text-muted-foreground">{t('console')}</p>
+        <p className="eyebrow mt-1">{t('console')}</p>
       </div>
 
       <nav className="flex-1 p-2 overflow-auto">
@@ -83,7 +83,7 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
               className={cn(
                 'flex items-center gap-2 px-3 py-2 rounded-lg text-sm mb-1 transition-colors',
                 active
-                  ? 'bg-primary/10 text-primary font-medium'
+                  ? 'bg-[var(--brand-fluff)] text-[var(--brand-yellow-deep)] font-semibold'
                   : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
               )}
             >

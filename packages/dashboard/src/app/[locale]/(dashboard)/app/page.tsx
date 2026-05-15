@@ -231,14 +231,14 @@ export default function DashboardHome() {
             </div>
             <span className="text-sm text-muted-foreground">{t('apiStatus')}</span>
           </div>
-          <p className="text-lg font-medium text-green-600">{t('running')}</p>
+          <p className="text-lg font-medium text-[var(--success)]">{t('running')}</p>
         </Card>
 
         {hasFreeQuota && (
           <Card className="p-6">
             <div className="mb-2 flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-emerald-500/10">
-                <Gift size={18} className="text-emerald-600" weight="duotone" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[var(--brand-fluff)]">
+                <Gift size={18} className="text-[var(--brand-yellow-deep)]" weight="duotone" />
               </div>
               <span className="text-sm text-muted-foreground">{t('freeQuota')}</span>
             </div>
