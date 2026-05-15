@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { PawIcon } from '@/components/brand/paw-icon';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Link } from '@/i18n/navigation';
 import { getSession } from '@/lib/session';
 
@@ -48,6 +49,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
               {t('mcp')}
             </Link>
             <span className="min-w-4 flex-1" aria-hidden="true" />
+            <ThemeToggle />
             <LanguageSwitcher />
             {user ? (
               <Link

@@ -16,6 +16,7 @@ import {
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Link, usePathname } from '@/i18n/navigation';
@@ -132,8 +133,9 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
       </nav>
 
       <div className="p-3 border-t border-border">
-        <div className="mb-2">
+        <div className="mb-2 flex items-center gap-2">
           <LanguageSwitcher />
+          <ThemeToggle />
         </div>
         <div className="flex items-center justify-between">
           <div className="min-w-0">
