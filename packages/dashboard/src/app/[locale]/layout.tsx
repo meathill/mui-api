@@ -60,6 +60,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       description: t('description'),
       images: [ogImage.url],
     },
+    icons: {
+      icon: [{ url: '/favicon.svg', type: 'image/svg+xml' }],
+      apple: [{ url: '/brand/mui-mark.png', sizes: '256x256' }],
+    },
     robots: {
       index: true,
       follow: true,

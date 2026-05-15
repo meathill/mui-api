@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { SocialLoginButtons } from '@/components/social-login-buttons';
@@ -58,7 +59,16 @@ export default function RegisterPage() {
   return (
     <div className="flex min-h-[calc(100vh-8rem)] items-center justify-center px-6">
       <Card className="w-full max-w-sm p-6">
-        <h2 className="text-xl font-bold text-center mb-6">{t('title')}</h2>
+        <Image
+          src="/brand/mui-mark.png"
+          alt=""
+          width={56}
+          height={56}
+          className="mx-auto mb-3 rounded-lg border-2 border-[var(--brand-ink)] shadow-[0_3px_0_0_var(--brand-ink)]"
+          aria-hidden
+          priority
+        />
+        <h2 className="text-xl font-bold text-center mb-5">{t('title')}</h2>
 
         <SocialLoginButtons />
 

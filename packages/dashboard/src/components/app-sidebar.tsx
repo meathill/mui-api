@@ -13,6 +13,7 @@ import {
   Terminal,
   UsersThree,
 } from '@phosphor-icons/react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { Button } from '@/components/ui/button';
@@ -68,8 +69,18 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
   return (
     <aside className="w-56 border-r border-border bg-card flex flex-col">
       <div className="p-4 border-b border-border">
-        <h1 className="text-lg font-bold text-foreground">MUI Router</h1>
-        <p className="eyebrow mt-1">{t('console')}</p>
+        <div className="flex items-center gap-2">
+          <Image
+            src="/brand/mui-mark.png"
+            alt=""
+            width={28}
+            height={28}
+            className="shrink-0 rounded-md border border-[var(--brand-rule-strong)]"
+            aria-hidden
+          />
+          <h1 className="font-heading text-lg font-bold text-foreground">MUI Router</h1>
+        </div>
+        <p className="eyebrow mt-1.5">{t('console')}</p>
       </div>
 
       <nav className="flex-1 p-2 overflow-auto">
