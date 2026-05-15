@@ -1,3 +1,60 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700;9..144,800&family=Nunito:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap");
+
+:root {
+  --brand-cream: #fdfaf2;
+  --brand-paper: #f6efde;
+  --brand-ink: #3a2e23;
+  --brand-ink-soft: #5a4938;
+  --brand-yellow: #e6c34a;
+  --brand-yellow-deep: #b3851c;
+  --brand-rule-strong: #c9b790;
+}
+
+html,
+body {
+  margin: 0;
+  background: var(--brand-cream);
+  color: var(--brand-ink);
+  font-family: "Nunito", -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+
+body {
+  display: grid;
+  place-items: center;
+  min-height: 100vh;
+  padding: 24px;
+}
+
+main {
+  text-align: center;
+  max-width: 560px;
+}
+
+.eyebrow {
+  display: inline-block;
+  font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--brand-yellow-deep);
+  margin-bottom: 12px;
+}
+
 h1 {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: "Fraunces", "Iowan Old Style", "Hoefler Text", Cambria, serif;
+  font-weight: 800;
+  font-size: 36px;
+  letter-spacing: -0.018em;
+  line-height: 1.15;
+  margin: 0 0 16px;
+  color: var(--brand-ink);
+}
+
+p {
+  margin: 0;
+  color: var(--brand-ink-soft);
+  line-height: 1.7;
 }

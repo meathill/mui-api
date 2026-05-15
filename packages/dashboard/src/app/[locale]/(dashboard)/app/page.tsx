@@ -275,7 +275,7 @@ export default function DashboardHome() {
                 onClick={() => handleTopUp(amount)}
                 disabled={topUpAmountLoading !== null}
                 size="lg"
-                variant={amount === 20 ? 'default' : 'outline'}
+                variant={amount === 20 ? 'press' : 'outline'}
               >
                 {topUpAmountLoading === amount ? t('topUp.redirecting') : t('topUp.button', { amount })}
               </Button>

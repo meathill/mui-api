@@ -1,5 +1,6 @@
 import { GoogleAnalytics } from '@next/third-parties/google';
 import type { Metadata } from 'next';
+import { Fraunces, JetBrains_Mono, Nunito } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
@@ -7,6 +8,25 @@ import { routing } from '@/i18n/routing';
 import { getMarketingOgImage, SITE_URL } from '@/lib/seo';
 
 const SITE_NAME = 'MUI Router';
+
+const fontSans = Nunito({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-nunito',
+  display: 'swap',
+});
+const fontHeading = Fraunces({
+  subsets: ['latin'],
+  weight: ['500', '600', '700', '800'],
+  variable: '--font-fraunces',
+  display: 'swap',
+});
+const fontMono = JetBrains_Mono({
+  subsets: ['latin'],
+  weight: ['400', '500', '600'],
+  variable: '--font-jetbrains-mono',
+  display: 'swap',
+});
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
@@ -67,7 +87,7 @@ export default async function LocaleLayout({
   setRequestLocale(locale);
 
   return (
-    <html lang={locale}>
+    <html lang={locale} className={`${fontSans.variable} ${fontHeading.variable} ${fontMono.variable}`}>
       <body className="font-sans antialiased">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>

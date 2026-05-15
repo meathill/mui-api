@@ -48,13 +48,37 @@
   --color-info-foreground: var(--info-foreground);
   --color-info: var(--info);
   --color-destructive-foreground: var(--destructive-foreground);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+
+  /* —— 紧凑圆角档（Meathill Studio: 3 / 4 / 6 / 8 / 10 / 14） —— */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 10px;
+  --radius-xl: 14px;
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
+  --radius-4xl: 24px;
+
+  /* —— 品牌专属：press 立体阴影 + glow + focus ring —— */
+  --shadow-press-yellow: var(--shadow-press-yellow);
+  --shadow-press-ink: var(--shadow-press-ink);
+  --shadow-glow-yellow: var(--glow-yellow);
+
+  /* —— 直接暴露品牌色到 utility 命名空间 —— */
+  --color-brand-fluff: var(--brand-fluff);
+  --color-brand-corgi: var(--brand-corgi);
+  --color-brand-yellow: var(--brand-yellow);
+  --color-brand-yellow-warm: var(--brand-yellow-warm);
+  --color-brand-yellow-deep: var(--brand-yellow-deep);
+  --color-brand-tongue: var(--brand-tongue);
+  --color-brand-cream: var(--brand-cream);
+  --color-brand-paper: var(--brand-paper);
+  --color-brand-paper-deep: var(--brand-paper-deep);
+  --color-brand-ink: var(--brand-ink);
+  --color-brand-ink-soft: var(--brand-ink-soft);
+  --color-brand-mute: var(--brand-mute);
+  --color-brand-rule: var(--brand-rule);
+  --color-brand-rule-strong: var(--brand-rule-strong);
+
   @keyframes skeleton {
     to {
       background-position: -200% 0;
@@ -63,95 +87,153 @@
 }
 
 :root {
-  --font-sans: "Avenir Next", "Segoe UI", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "SFMono-Regular", "JetBrains Mono", "Cascadia Code", "Fira Code", ui-monospace, monospace;
-  --font-heading: var(--font-sans);
-  --destructive-foreground: var(--color-red-700);
-  --info: var(--color-blue-500);
-  --info-foreground: var(--color-blue-700);
-  --success: var(--color-emerald-500);
-  --success-foreground: var(--color-emerald-700);
-  --warning: var(--color-amber-500);
-  --warning-foreground: var(--color-amber-700);
-  --accent: --alpha(var(--color-black) / 4%);
-  --accent-foreground: var(--color-neutral-800);
-  --background: var(--color-white);
-  --border: --alpha(var(--color-black) / 8%);
-  --card: var(--color-white);
-  --card-foreground: var(--color-neutral-800);
-  --destructive: var(--color-red-500);
-  --foreground: var(--color-neutral-800);
-  --input: --alpha(var(--color-black) / 10%);
-  --muted: --alpha(var(--color-black) / 4%);
-  --muted-foreground: color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-black));
-  --popover: var(--color-white);
-  --popover-foreground: var(--color-neutral-800);
-  --primary: var(--color-neutral-800);
-  --primary-foreground: var(--color-neutral-50);
-  --ring: var(--color-neutral-400);
-  --secondary: --alpha(var(--color-black) / 4%);
-  --secondary-foreground: var(--color-neutral-800);
-  --chart-1: var(--color-orange-600);
-  --chart-2: var(--color-teal-600);
-  --chart-3: var(--color-cyan-900);
-  --chart-4: var(--color-amber-400);
-  --chart-5: var(--color-amber-500);
-  --code: var(--color-white);
-  --code-foreground: var(--foreground);
-  --code-highlight: --alpha(var(--color-black) / 4%);
-  --radius: 0.625rem;
-  --sidebar: var(--color-neutral-50);
-  --sidebar-accent: --alpha(var(--color-black) / 4%);
-  --sidebar-accent-foreground: var(--color-neutral-800);
-  --sidebar-border: --alpha(var(--color-black) / 6%);
-  --sidebar-foreground: color-mix(in srgb, var(--color-neutral-800) 64%, var(--sidebar));
-  --sidebar-primary: var(--color-neutral-800);
-  --sidebar-primary-foreground: var(--color-neutral-50);
-  --sidebar-ring: var(--color-neutral-400);
+  /* —— Meathill Studio brand palette: 柯基黄家族 —— */
+  --brand-fluff: #fbf1d8; /* 柯基胸口奶油白 / 淡 yellow surface */
+  --brand-corgi: #f3c574; /* 柯基背毛 / accent */
+  --brand-yellow: #e6c34a; /* 主色 */
+  --brand-yellow-warm: #e6a23a; /* mascot / wordmark */
+  --brand-yellow-deep: #b3851c; /* 深 accent / press 阴影 / 链接 */
+  --brand-tongue: #d8694e; /* 柯基舌头粉橘 / danger */
+
+  --brand-cream: #fdfaf2; /* 页面底色（不要纯白） */
+  --brand-paper: #f6efde; /* 二级表面 / 卡片 */
+  --brand-paper-deep: #ede2c5; /* 三级表面 / 选中行 */
+  --brand-ink: #3a2e23; /* 主字色（不要纯黑） */
+  --brand-ink-soft: #5a4938; /* 正文 */
+  --brand-mute: #8a7660; /* 元信息 / placeholder */
+  --brand-rule: #e0d3b8; /* 细分隔 */
+  --brand-rule-strong: #c9b790; /* 卡片描边 */
+
+  /* —— shadcn 语义 token 重映射到 brand —— */
+  --background: var(--brand-cream);
+  --foreground: var(--brand-ink);
+  --card: var(--brand-paper);
+  --card-foreground: var(--brand-ink);
+  --popover: var(--brand-cream);
+  --popover-foreground: var(--brand-ink);
+  --primary: var(--brand-yellow);
+  --primary-foreground: var(--brand-ink);
+  --secondary: var(--brand-fluff);
+  --secondary-foreground: var(--brand-ink);
+  --muted: var(--brand-paper);
+  --muted-foreground: var(--brand-mute);
+  --accent: var(--brand-fluff);
+  --accent-foreground: var(--brand-ink);
+  --destructive: var(--brand-tongue);
+  --destructive-foreground: #c44a32;
+  --warning: #c9892b;
+  --warning-foreground: #c9892b;
+  --success: #4f8a3a;
+  --success-foreground: #4f8a3a;
+  --info: #3b6f9a;
+  --info-foreground: #3b6f9a;
+  --border: var(--brand-rule-strong);
+  --input: var(--brand-rule);
+  --ring: var(--brand-yellow);
+
+  --chart-1: var(--brand-yellow);
+  --chart-2: var(--brand-yellow-warm);
+  --chart-3: var(--brand-yellow-deep);
+  --chart-4: var(--brand-corgi);
+  --chart-5: var(--brand-tongue);
+
+  --code: var(--brand-paper);
+  --code-foreground: var(--brand-yellow-deep);
+  --code-highlight: var(--brand-fluff);
+
+  --sidebar: var(--brand-paper);
+  --sidebar-foreground: var(--brand-ink-soft);
+  --sidebar-accent: var(--brand-fluff);
+  --sidebar-accent-foreground: var(--brand-ink);
+  --sidebar-border: var(--brand-rule-strong);
+  --sidebar-primary: var(--brand-yellow);
+  --sidebar-primary-foreground: var(--brand-ink);
+  --sidebar-ring: var(--brand-yellow);
+
+  /* —— 紧凑圆角，默认 6px —— */
+  --radius: 0.375rem;
+
+  /* —— "press" 立体阴影 + glow —— */
+  --shadow-press-yellow: 0 3px 0 0 var(--brand-yellow-deep);
+  --shadow-press-ink: 0 3px 0 0 var(--brand-ink);
+  --glow-yellow: 0 0 24px rgb(230 195 74 / 0.35);
+  --focus-ring: 0 0 0 3px rgb(230 195 74 / 0.4);
+
+  /* —— 字体（next/font 注入的 --font-* 变量在 layout.tsx 挂上） —— */
+  --font-sans:
+    var(--font-nunito), "Nunito", -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB",
+    "Microsoft YaHei", system-ui, sans-serif;
+  --font-heading:
+    var(--font-fraunces), "Fraunces", "Iowan Old Style", "Hoefler Text", Cambria, "Times New Roman", serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
 }
 
 .dark {
-  --destructive-foreground: var(--color-red-400);
-  --info: var(--color-blue-500);
-  --info-foreground: var(--color-blue-400);
-  --success: var(--color-emerald-500);
-  --success-foreground: var(--color-emerald-400);
-  --warning: var(--color-amber-500);
-  --warning-foreground: var(--color-amber-400);
-  --accent: --alpha(var(--color-white) / 4%);
-  --accent-foreground: var(--color-neutral-100);
-  --background: color-mix(in srgb, var(--color-neutral-950) 95%, var(--color-white));
-  --border: --alpha(var(--color-white) / 6%);
-  --card: color-mix(in srgb, var(--background) 98%, var(--color-white));
-  --card-foreground: var(--color-neutral-100);
-  --destructive: color-mix(in srgb, var(--color-red-500) 90%, var(--color-white));
-  --foreground: var(--color-neutral-100);
-  --input: --alpha(var(--color-white) / 8%);
-  --muted: --alpha(var(--color-white) / 4%);
-  --muted-foreground: color-mix(in srgb, var(--color-neutral-500) 90%, var(--color-white));
-  --popover: color-mix(in srgb, var(--background) 98%, var(--color-white));
-  --popover-foreground: var(--color-neutral-100);
-  --primary: var(--color-neutral-100);
-  --primary-foreground: var(--color-neutral-800);
-  --ring: var(--color-neutral-500);
-  --secondary: --alpha(var(--color-white) / 4%);
-  --secondary-foreground: var(--color-neutral-100);
-  --chart-1: var(--color-blue-700);
-  --chart-2: var(--color-emerald-500);
-  --chart-3: var(--color-amber-500);
-  --chart-4: var(--color-purple-500);
-  --chart-5: var(--color-rose-500);
-  --code: color-mix(in srgb, var(--background) 98%, var(--color-white));
-  --code-foreground: var(--foreground);
-  --code-highlight: --alpha(var(--color-white) / 4%);
-  --sidebar: color-mix(in srgb, var(--color-neutral-950) 97%, var(--color-white));
-  --sidebar-accent: --alpha(var(--color-white) / 4%);
-  --sidebar-accent-foreground: var(--color-neutral-100);
-  --sidebar-border: --alpha(var(--color-white) / 5%);
-  --sidebar-foreground: color-mix(in srgb, var(--color-neutral-100) 64%, var(--sidebar));
-  --sidebar-primary: var(--color-neutral-100);
-  --sidebar-primary-foreground: var(--color-neutral-800);
-  --sidebar-ring: var(--color-neutral-400);
+  /* —— page surfaces: 暖深棕底，不是纯黑 —— */
+  --brand-cream: #1a1410;
+  --brand-paper: #231b14;
+  --brand-paper-deep: #2e2419;
+
+  /* —— ink stack: 暖米白系，不是纯白 —— */
+  --brand-ink: #f3e9d5;
+  --brand-ink-soft: #d4c4a4;
+  --brand-mute: #998973;
+
+  /* —— rules: 低 alpha 暖白 —— */
+  --brand-rule: rgb(243 233 213 / 0.1);
+  --brand-rule-strong: rgb(243 233 213 / 0.2);
+
+  /* —— yellow stack: 暗底提亮一档 —— */
+  --brand-fluff: #38291a;
+  --brand-corgi: #f3c574;
+  --brand-yellow: #ecc94a;
+  --brand-yellow-warm: #ecb04a;
+  --brand-yellow-deep: #e6b240;
+  --brand-tongue: #e8775a;
+
+  --background: var(--brand-cream);
+  --foreground: var(--brand-ink);
+  --card: var(--brand-paper);
+  --card-foreground: var(--brand-ink);
+  --popover: var(--brand-paper);
+  --popover-foreground: var(--brand-ink);
+  --primary: var(--brand-yellow);
+  --primary-foreground: var(--brand-ink);
+  --secondary: var(--brand-fluff);
+  --secondary-foreground: var(--brand-ink);
+  --muted: var(--brand-paper-deep);
+  --muted-foreground: var(--brand-mute);
+  --accent: var(--brand-fluff);
+  --accent-foreground: var(--brand-ink);
+  --destructive: var(--brand-tongue);
+  --destructive-foreground: #ffb7a3;
+  --warning: #e2a946;
+  --warning-foreground: #e2a946;
+  --success: #6fa84d;
+  --success-foreground: #a9d18a;
+  --info: #6aa3cf;
+  --info-foreground: #aac9e1;
+  --border: var(--brand-rule-strong);
+  --input: var(--brand-rule);
+  --ring: var(--brand-yellow);
+
+  --code: var(--brand-paper-deep);
+  --code-foreground: var(--brand-yellow);
+  --code-highlight: var(--brand-fluff);
+
+  --sidebar: var(--brand-paper);
+  --sidebar-foreground: var(--brand-ink-soft);
+  --sidebar-accent: var(--brand-fluff);
+  --sidebar-accent-foreground: var(--brand-ink);
+  --sidebar-border: var(--brand-rule-strong);
+  --sidebar-primary: var(--brand-yellow);
+  --sidebar-primary-foreground: var(--brand-ink);
+  --sidebar-ring: var(--brand-yellow);
+
+  --shadow-press-yellow: 0 3px 0 0 #8a6814;
+  --shadow-press-ink: 0 3px 0 0 rgb(243 233 213 / 0.32);
+  --glow-yellow: 0 0 24px rgb(236 201 74 / 0.25);
+  --focus-ring: 0 0 0 3px rgb(236 201 74 / 0.45);
 }
 
 @layer base {
@@ -161,10 +243,121 @@
   body {
     @apply bg-background text-foreground;
   }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    letter-spacing: -0.018em;
+  }
   code,
   kbd,
   samp,
   pre {
     font-family: var(--font-mono);
+  }
+  ::selection {
+    background: var(--brand-yellow);
+    color: var(--brand-ink);
+  }
+}
+
+@layer components {
+  /* —— press 厚边立体按钮（品牌招牌） —— */
+  .press {
+    box-shadow: var(--shadow-press-yellow);
+    transition:
+      transform 0.12s cubic-bezier(0.22, 0.61, 0.36, 1),
+      box-shadow 0.12s;
+  }
+  .press:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 0 0 var(--brand-yellow-deep);
+  }
+  .press:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 0 var(--brand-yellow-deep);
+  }
+  .press-ink {
+    box-shadow: var(--shadow-press-ink);
+    transition:
+      transform 0.12s cubic-bezier(0.22, 0.61, 0.36, 1),
+      box-shadow 0.12s;
+  }
+  .press-ink:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 0 0 var(--brand-ink);
+  }
+  .press-ink:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 0 var(--brand-ink);
+  }
+
+  /* —— 装饰底纹 —— */
+  .bg-grid {
+    background-image: radial-gradient(circle, rgb(58 46 35 / 0.05) 1.2px, transparent 1.2px);
+    background-size: 24px 24px;
+  }
+  .dark .bg-grid {
+    background-image: radial-gradient(circle, rgb(243 233 213 / 0.05) 1.2px, transparent 1.2px);
+  }
+  .bg-sun {
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 0%, rgb(243 197 116 / 0.45), transparent 60%),
+      radial-gradient(ellipse 50% 50% at 10% 100%, rgb(251 241 216 / 0.6), transparent 50%);
+  }
+  .dark .bg-sun {
+    background:
+      radial-gradient(ellipse 60% 50% at 80% 0%, rgb(236 201 74 / 0.2), transparent 60%),
+      radial-gradient(ellipse 50% 50% at 10% 100%, rgb(46 36 25 / 0.6), transparent 50%);
+  }
+
+  /* —— 文本点睛：荧光笔块状高亮 —— */
+  .highlight {
+    position: relative;
+    display: inline-block;
+    white-space: nowrap;
+  }
+  .highlight::before {
+    content: "";
+    position: absolute;
+    left: -2px;
+    right: -2px;
+    bottom: 6%;
+    height: 42%;
+    background: color-mix(in srgb, var(--brand-corgi) 80%, transparent);
+    transform: skewY(-1deg);
+    border-radius: 2px;
+    z-index: -1;
+  }
+
+  /* —— 等宽小标签：section eyebrow —— */
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: var(--brand-yellow-deep);
+  }
+
+  /* —— 装饰元素轻摆动 —— */
+  @keyframes wiggle {
+    0%,
+    100% {
+      transform: rotate(-3deg);
+    }
+    50% {
+      transform: rotate(3deg);
+    }
+  }
+  .wiggle {
+    animation: wiggle 2.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    transform-origin: center;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wiggle {
+      animation: none;
+    }
   }
 }

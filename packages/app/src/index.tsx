@@ -40,7 +40,13 @@ app.route('/mcp', mcp);
 app.route('/oauth', oauth);
 // 首页
 app.get('/', (c) => {
-  return c.render(<h1>Uni-Gateway - AI API 统一网关</h1>);
+  return c.render(
+    <main>
+      <span class="eyebrow">Meathill Studio · Mui Router</span>
+      <h1>Uni-Gateway - AI API 统一网关</h1>
+      <p>由柯基 Mui 监修。</p>
+    </main>,
+  );
 });
 
 export default {

@@ -40,6 +40,10 @@ export const buttonVariants = cva(
           'border-input bg-popover not-dark:bg-clip-padding text-foreground shadow-xs/5 not-disabled:not-active:not-data-pressed:before:shadow-[0_1px_--theme(--color-black/4%)] hover:bg-accent/50 data-pressed:bg-accent/50 dark:bg-input/32 dark:data-pressed:bg-input/64 dark:hover:bg-input/64 dark:not-disabled:before:shadow-[0_-1px_--theme(--color-white/2%)] dark:not-disabled:not-active:not-data-pressed:before:shadow-[0_-1px_--theme(--color-white/6%)] [:disabled,:active,[data-pressed]]:shadow-none',
         secondary:
           'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/90 data-pressed:bg-secondary/90 [:active,[data-pressed]]:bg-secondary/80',
+        press:
+          'border-2 border-[#3a2e23] bg-[var(--brand-yellow)] text-[#3a2e23] shadow-[0_3px_0_0_#3a2e23] transition-[transform,box-shadow] duration-[120ms] ease-[cubic-bezier(0.22,0.61,0.36,1)] before:hidden hover:-translate-y-px hover:bg-[var(--brand-yellow)] hover:shadow-[0_4px_0_0_#3a2e23] data-pressed:translate-y-0.5 data-pressed:shadow-[0_1px_0_0_#3a2e23] [:active]:translate-y-0.5 [:active]:shadow-[0_1px_0_0_#3a2e23] disabled:translate-y-0 disabled:shadow-none',
+        'press-ink':
+          'border-2 border-[var(--brand-ink)] bg-[var(--brand-cream)] text-[var(--brand-ink)] shadow-[0_3px_0_0_var(--brand-ink)] transition-[transform,box-shadow] duration-[120ms] ease-[cubic-bezier(0.22,0.61,0.36,1)] before:hidden hover:-translate-y-px hover:bg-[var(--brand-fluff)] hover:shadow-[0_4px_0_0_var(--brand-ink)] data-pressed:translate-y-0.5 data-pressed:shadow-[0_1px_0_0_var(--brand-ink)] [:active]:translate-y-0.5 [:active]:shadow-[0_1px_0_0_var(--brand-ink)] disabled:translate-y-0 disabled:shadow-none',
       },
     },
   },

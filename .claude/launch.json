@@ -4,7 +4,7 @@
     {
       "name": "dashboard",
       "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["--filter", "dashboard", "dev"],
+      "runtimeArgs": ["--filter", "mui-api-dashboard", "dev"],
       "port": 3035,
       "autoPort": false
     },
