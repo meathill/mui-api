@@ -153,7 +153,7 @@ export default function StatisticsPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">{t('title')}</h2>
+      <h2 className="text-lg font-bold mb-4">{t('title')}</h2>
 
       {/* 时间范围快捷选择 */}
       <div className="flex flex-wrap gap-2 mb-4">
@@ -170,7 +170,7 @@ export default function StatisticsPage() {
       </div>
 
       {/* 自定义筛选 */}
-      <Card className="p-4 mb-6">
+      <Card className="p-4 mb-4">
         <form onSubmit={handleSearch} className="flex flex-wrap gap-3 items-end">
           <div>
             <label className="block text-xs text-muted-foreground mb-1">{t('startDate')}</label>
@@ -189,7 +189,7 @@ export default function StatisticsPage() {
       </Card>
 
       {data?.source === 'realtime' && (
-        <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 text-sm px-4 py-2 rounded mb-4">
+        <div className="bg-[var(--brand-fluff)] border border-[var(--brand-corgi)] text-[var(--brand-yellow-deep)] text-sm px-4 py-2 rounded mb-4">
           {t('realtimeNotice')}
         </div>
       )}
@@ -200,7 +200,7 @@ export default function StatisticsPage() {
       ) : data ? (
         <>
           {/* 概览卡片 */}
-          <div className="grid grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-4 gap-3 mb-4">
             <Card className="p-4">
               <p className="text-xs text-muted-foreground">{t('totalCost')}</p>
               <p className="text-2xl font-bold font-mono">${data.overview.totalCost.toFixed(4)}</p>
@@ -221,18 +221,18 @@ export default function StatisticsPage() {
 
           {/* 趋势图 */}
           {chartData.length > 1 && (
-            <Card className="p-4 mb-6">
+            <Card className="p-4 mb-4">
               <h3 className="font-medium mb-3">{t('costTrend')}</h3>
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" fontSize={12} />
-                  <YAxis fontSize={12} />
+                  <CartesianGrid strokeDasharray="3 3" stroke="var(--brand-rule)" />
+                  <XAxis dataKey="name" fontSize={12} stroke="var(--brand-mute)" />
+                  <YAxis fontSize={12} stroke="var(--brand-mute)" />
                   <Tooltip />
                   <Line
                     type="monotone"
                     dataKey="cost"
-                    stroke="hsl(var(--primary))"
+                    stroke="var(--brand-yellow-deep)"
                     name={t('costLabel')}
                     strokeWidth={2}
                   />
@@ -243,7 +243,7 @@ export default function StatisticsPage() {
 
           {/* 模型分布 */}
           {data.byModel.length > 0 && (
-            <Card className="p-4 mb-6">
+            <Card className="p-4 mb-4">
               <h3 className="font-medium mb-3">{t('modelDistribution')}</h3>
               <Table>
                 <TableHeader>

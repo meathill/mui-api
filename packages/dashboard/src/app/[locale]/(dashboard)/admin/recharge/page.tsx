@@ -96,10 +96,10 @@ export default function RechargeLogsPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">{t('title')}</h2>
+      <h2 className="text-lg font-bold mb-4">{t('title')}</h2>
 
       {/* 筛选 */}
-      <Card className="p-4 mb-6">
+      <Card className="p-4 mb-4">
         <form onSubmit={handleSearch} className="flex flex-wrap gap-3 items-end">
           <div>
             <label className="block text-xs text-muted-foreground mb-1">{t('userIdOrEmail')}</label>
@@ -170,7 +170,7 @@ export default function RechargeLogsPage() {
 
           {/* 分页 */}
           {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between mt-3">
               <span className="text-sm text-muted-foreground">
                 {t('pagination', { total: pagination.total, page: pagination.page, totalPages: pagination.totalPages })}
               </span>

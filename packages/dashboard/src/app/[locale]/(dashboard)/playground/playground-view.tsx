@@ -56,10 +56,10 @@ export function PlaygroundView(props: PlaygroundViewProps) {
   const t = useTranslations('playground');
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h2 className="text-xl font-bold">{t('title')}</h2>
+          <h2 className="text-lg font-bold">{t('title')}</h2>
           <p className="mt-1 text-sm text-muted-foreground">{t('subtitle')}</p>
         </div>
         <Tabs value={props.mode} onValueChange={props.onModeChange}>
@@ -80,10 +80,10 @@ export function PlaygroundView(props: PlaygroundViewProps) {
         </Tabs>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
         <Card className="p-4">
-          <div className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-3">
+            <div className="grid gap-3 md:grid-cols-2">
               <Field label={t('model')}>
                 <select
                   value={props.selectedModel}

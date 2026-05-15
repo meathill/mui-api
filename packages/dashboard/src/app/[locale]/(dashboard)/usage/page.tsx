@@ -78,9 +78,9 @@ export default function UserUsagePage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">{t('title')}</h2>
+      <h2 className="text-lg font-bold mb-4">{t('title')}</h2>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-3 gap-3 mb-4">
         <Card className="p-4">
           <p className="text-xs text-muted-foreground">{t('pageCost')}</p>
           <p className="text-2xl font-bold font-mono">${totalCost.toFixed(4)}</p>
@@ -95,7 +95,7 @@ export default function UserUsagePage() {
         </Card>
       </div>
 
-      <Card className="p-4 mb-6">
+      <Card className="p-4 mb-4">
         <form onSubmit={handleSearch} className="flex flex-wrap gap-3 items-end">
           <div>
             <label className="block text-xs text-muted-foreground mb-1">{t('model')}</label>
@@ -157,7 +157,7 @@ export default function UserUsagePage() {
           </Card>
 
           {pagination.totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between mt-3">
               <span className="text-sm text-muted-foreground">
                 {t('total', { total: pagination.total, page: pagination.page, totalPages: pagination.totalPages })}
               </span>

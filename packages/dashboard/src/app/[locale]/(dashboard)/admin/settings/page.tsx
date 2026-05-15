@@ -135,7 +135,7 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">{t('title')}</h2>
+      <h2 className="text-lg font-bold mb-4">{t('title')}</h2>
 
       {/* 暂停/恢复确认弹窗 */}
       <AlertDialog open={pauseDialogOpen} onOpenChange={setPauseDialogOpen}>
@@ -170,7 +170,7 @@ export default function SettingsPage() {
 
       {/* 消费概况 */}
       {stats && (
-        <div className="grid grid-cols-2 gap-4 mb-6">
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <Card className="p-4">
             <p className="text-xs text-muted-foreground mb-1">{t('todaySpending')}</p>
             <p className="text-2xl font-bold font-mono">${stats.dailySpending.toFixed(2)}</p>
@@ -202,7 +202,7 @@ export default function SettingsPage() {
 
       {/* 服务状态 */}
       {config && (
-        <Card className="p-4 mb-6">
+        <Card className="p-4 mb-4">
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-medium">{t('serviceStatus')}</h3>
@@ -227,7 +227,7 @@ export default function SettingsPage() {
       )}
 
       {/* 免费额度配置 */}
-      <Card className="p-4 mb-6">
+      <Card className="p-4 mb-4">
         <div className="flex items-start justify-between gap-4">
           <div>
             <h3 className="font-medium">{t('freeQuotaConfig')}</h3>

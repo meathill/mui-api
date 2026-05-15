@@ -249,12 +249,12 @@ export default function ModelsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">{t('title')}</h2>
+        <h2 className="text-lg font-bold">{t('title')}</h2>
         <Button onClick={handleAdd}>{t('addModel')}</Button>
       </div>
 
       {/* 搜索栏 */}
-      <div className="relative mb-4 max-w-sm">
+      <div className="relative mb-3 max-w-sm">
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={search}
@@ -444,7 +444,7 @@ export default function ModelsPage() {
 
           {/* 分页 */}
           {sortedModels.length > PAGE_SIZE && (
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between mt-3">
               <span className="text-sm text-muted-foreground">
                 {t('pagination', { count: sortedModels.length, page: safePage, totalPages })}
               </span>

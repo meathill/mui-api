@@ -242,7 +242,7 @@ export default function UsersPage() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold mb-4">{t('title')}</h2>
+      <h2 className="text-lg font-bold mb-4">{t('title')}</h2>
 
       {/* 错误弹窗 */}
       <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>
@@ -301,7 +301,7 @@ export default function UsersPage() {
       </Dialog>
 
       {/* 充值 */}
-      <Card className="p-4 mb-6">
+      <Card className="p-4 mb-4">
         <h3 className="font-medium mb-3">{t('recharge')}</h3>
         <form onSubmit={handleRecharge} className="flex gap-3 items-end">
           <div>
@@ -336,7 +336,7 @@ export default function UsersPage() {
       </Card>
 
       {/* 充值记录链接 */}
-      <div className="mb-6">
+      <div className="mb-4">
         <Link href="/admin/recharge" className="text-sm text-primary hover:underline">
           {t('viewRechargeHistory')}
         </Link>
@@ -427,7 +427,7 @@ export default function UsersPage() {
 
           {/* 分页 */}
           {sortedUsers.length > PAGE_SIZE && (
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center justify-between mt-3">
               <span className="text-sm text-muted-foreground">
                 {t('pagination', { count: sortedUsers.length, page: safePage, totalPages })}
               </span>
