@@ -4,6 +4,7 @@ import { ChartBar, CreditCard, Gift, Key, Wallet } from '@phosphor-icons/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useEffect, useRef, useState } from 'react';
+import { PageHeader } from '@/components/page-header';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -194,7 +195,7 @@ export default function DashboardHome() {
 
   return (
     <div>
-      <h2 className="mb-6 text-xl font-bold">{t('title')}</h2>
+      <PageHeader eyebrow="Dashboard · Overview" title={t('title')} />
 
       {topUpNotice && (
         <Alert className="mb-6" variant={topUpNotice.variant}>
@@ -211,7 +212,7 @@ export default function DashboardHome() {
             </div>
             <span className="text-sm text-muted-foreground">{t('balance')}</span>
           </div>
-          <p className="font-mono text-3xl font-bold">${balance.toFixed(2)}</p>
+          <p className="font-heading text-3xl font-bold tracking-tight">${balance.toFixed(2)}</p>
         </Card>
 
         <Card className="p-6">
@@ -221,7 +222,7 @@ export default function DashboardHome() {
             </div>
             <span className="text-sm text-muted-foreground">{t('activeKeys')}</span>
           </div>
-          <p className="font-mono text-3xl font-bold">{keyCount}</p>
+          <p className="font-heading text-3xl font-bold tracking-tight">{keyCount}</p>
         </Card>
 
         <Card className="p-6">
@@ -242,7 +243,7 @@ export default function DashboardHome() {
               </div>
               <span className="text-sm text-muted-foreground">{t('freeQuota')}</span>
             </div>
-            <p className="font-mono text-3xl font-bold">${freeQuota.remaining.toFixed(2)}</p>
+            <p className="font-heading text-3xl font-bold tracking-tight">${freeQuota.remaining.toFixed(2)}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               {t('freeQuotaHint', {
                 amount: freeQuota.amount.toFixed(2),

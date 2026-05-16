@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -78,20 +79,20 @@ export default function UserUsagePage() {
 
   return (
     <div>
-      <h2 className="text-lg font-bold mb-4">{t('title')}</h2>
+      <PageHeader eyebrow="Dashboard · Usage" title={t('title')} />
 
       <div className="grid grid-cols-3 gap-3 mb-4">
         <Card className="p-4">
           <p className="text-xs text-muted-foreground">{t('pageCost')}</p>
-          <p className="text-2xl font-bold font-mono">${totalCost.toFixed(4)}</p>
+          <p className="font-heading text-2xl font-bold tracking-tight">${totalCost.toFixed(4)}</p>
         </Card>
         <Card className="p-4">
           <p className="text-xs text-muted-foreground">{t('inputTokens')}</p>
-          <p className="text-2xl font-bold font-mono">{totalInput.toLocaleString()}</p>
+          <p className="font-heading text-2xl font-bold tracking-tight">{totalInput.toLocaleString()}</p>
         </Card>
         <Card className="p-4">
           <p className="text-xs text-muted-foreground">{t('outputTokens')}</p>
-          <p className="text-2xl font-bold font-mono">{totalOutput.toLocaleString()}</p>
+          <p className="font-heading text-2xl font-bold tracking-tight">{totalOutput.toLocaleString()}</p>
         </Card>
       </div>
 

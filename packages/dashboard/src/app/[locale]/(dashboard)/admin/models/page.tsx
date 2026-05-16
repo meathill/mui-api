@@ -13,6 +13,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import {
@@ -248,10 +249,11 @@ export default function ModelsPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold">{t('title')}</h2>
-        <Button onClick={handleAdd}>{t('addModel')}</Button>
-      </div>
+      <PageHeader
+        eyebrow="Admin · Models"
+        title={t('title')}
+        actions={<Button onClick={handleAdd}>{t('addModel')}</Button>}
+      />
 
       {/* 搜索栏 */}
       <div className="relative mb-3 max-w-sm">

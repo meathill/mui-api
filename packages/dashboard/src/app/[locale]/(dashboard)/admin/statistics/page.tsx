@@ -3,6 +3,7 @@
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -153,7 +154,7 @@ export default function StatisticsPage() {
 
   return (
     <div>
-      <h2 className="text-lg font-bold mb-4">{t('title')}</h2>
+      <PageHeader eyebrow="Admin · Statistics" title={t('title')} />
 
       {/* 时间范围快捷选择 */}
       <div className="flex flex-wrap gap-2 mb-4">
@@ -203,19 +204,25 @@ export default function StatisticsPage() {
           <div className="grid grid-cols-4 gap-3 mb-4">
             <Card className="p-4">
               <p className="text-xs text-muted-foreground">{t('totalCost')}</p>
-              <p className="text-2xl font-bold font-mono">${data.overview.totalCost.toFixed(4)}</p>
+              <p className="font-heading text-2xl font-bold tracking-tight">${data.overview.totalCost.toFixed(4)}</p>
             </Card>
             <Card className="p-4">
               <p className="text-xs text-muted-foreground">{t('totalRequests')}</p>
-              <p className="text-2xl font-bold font-mono">{data.overview.requestCount.toLocaleString()}</p>
+              <p className="font-heading text-2xl font-bold tracking-tight">
+                {data.overview.requestCount.toLocaleString()}
+              </p>
             </Card>
             <Card className="p-4">
               <p className="text-xs text-muted-foreground">{t('totalInputTokens')}</p>
-              <p className="text-2xl font-bold font-mono">{data.overview.totalInputTokens.toLocaleString()}</p>
+              <p className="font-heading text-2xl font-bold tracking-tight">
+                {data.overview.totalInputTokens.toLocaleString()}
+              </p>
             </Card>
             <Card className="p-4">
               <p className="text-xs text-muted-foreground">{t('totalOutputTokens')}</p>
-              <p className="text-2xl font-bold font-mono">{data.overview.totalOutputTokens.toLocaleString()}</p>
+              <p className="font-heading text-2xl font-bold tracking-tight">
+                {data.overview.totalOutputTokens.toLocaleString()}
+              </p>
             </Card>
           </div>
 

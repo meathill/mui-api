@@ -1,75 +1,103 @@
 'use client';
 
-import { MoonIcon, SunIcon } from 'lucide-react';
+import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react';
+import type * as React from 'react';
 import { useEffect, useState } from 'react';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/menu';
 
-type Theme = 'light' | 'dark';
+type Mode = 'light' | 'dark' | 'system';
+type Resolved = 'light' | 'dark';
+
 const STORAGE_KEY = 'mui-theme';
 
-function readStored(): Theme | null {
+function readStored(): Mode {
   if (typeof window === 'undefined') {
-    return null;
+    return 'system';
   }
   const raw = window.localStorage.getItem(STORAGE_KEY);
-  return raw === 'light' || raw === 'dark' ? raw : null;
+  return raw === 'light' || raw === 'dark' || raw === 'system' ? raw : 'system';
 }
 
-function readSystem(): Theme {
+function readSystem(): Resolved {
   if (typeof window === 'undefined') {
     return 'light';
   }
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
-function applyTheme(theme: Theme) {
+function resolve(mode: Mode): Resolved {
+  return mode === 'system' ? readSystem() : mode;
+}
+
+function applyTheme(resolved: Resolved) {
   if (typeof document === 'undefined') {
     return;
   }
-  document.documentElement.classList.toggle('dark', theme === 'dark');
+  document.documentElement.classList.toggle('dark', resolved === 'dark');
 }
 
 export function ThemeToggle({ className }: { className?: string }) {
   const [mounted, setMounted] = useState(false);
-  const [theme, setTheme] = useState<Theme>('light');
+  const [mode, setMode] = useState<Mode>('system');
 
   useEffect(() => {
     setMounted(true);
-    const initial = readStored() ?? readSystem();
-    setTheme(initial);
-    applyTheme(initial);
+    const initial = readStored();
+    setMode(initial);
+    applyTheme(resolve(initial));
 
-    // 没有手动选择时，跟随系统切换
     const mql = window.matchMedia('(prefers-color-scheme: dark)');
-    function onSystemChange(e: MediaQueryListEvent) {
-      if (readStored() === null) {
-        const next: Theme = e.matches ? 'dark' : 'light';
-        setTheme(next);
-        applyTheme(next);
+    function onSystemChange() {
+      // 模式是 system 时，跟随系统翻面
+      if (readStored() === 'system') {
+        applyTheme(readSystem());
       }
     }
     mql.addEventListener('change', onSystemChange);
     return () => mql.removeEventListener('change', onSystemChange);
   }, []);
 
-  function handleToggle() {
-    const next: Theme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(next);
-    applyTheme(next);
+  function handleSelect(next: Mode) {
+    setMode(next);
     window.localStorage.setItem(STORAGE_KEY, next);
+    applyTheme(resolve(next));
   }
 
-  const isDark = mounted && theme === 'dark';
+  const resolved = mounted ? resolve(mode) : 'light';
+  const TriggerIcon = mode === 'system' ? MonitorIcon : resolved === 'dark' ? MoonIcon : SunIcon;
 
   return (
-    <button
-      type="button"
-      onClick={handleToggle}
-      aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-      title={isDark ? 'Light mode' : 'Dark mode'}
-      suppressHydrationWarning
-      className={`inline-flex h-9 w-9 items-center justify-center rounded-lg border border-input bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground ${className ?? ''}`}
-    >
-      {isDark ? <MoonIcon size={16} /> : <SunIcon size={16} />}
-    </button>
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        className={`inline-flex h-9 w-9 items-center justify-center rounded-lg border border-input bg-background text-muted-foreground transition-colors hover:bg-accent hover:text-foreground ${className ?? ''}`}
+        aria-label="Theme"
+        title="Theme"
+        suppressHydrationWarning
+      >
+        <TriggerIcon size={16} />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="min-w-36">
+        <DropdownMenuRadioGroup value={mode} onValueChange={(v) => handleSelect(v as Mode)}>
+          <DropdownMenuRadioItem value="light">
+            <SunIcon />
+            Light
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="dark">
+            <MoonIcon />
+            Dark
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="system">
+            <MonitorIcon />
+            System
+          </DropdownMenuRadioItem>
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

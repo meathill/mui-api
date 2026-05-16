@@ -12,6 +12,7 @@ import {
   AlertDialogPopup,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -242,7 +243,7 @@ export default function UsersPage() {
 
   return (
     <div>
-      <h2 className="text-lg font-bold mb-4">{t('title')}</h2>
+      <PageHeader eyebrow="Admin · Users" title={t('title')} />
 
       {/* 错误弹窗 */}
       <AlertDialog open={errorDialogOpen} onOpenChange={setErrorDialogOpen}>

@@ -11,6 +11,7 @@ import {
   AlertDialogPopup,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { PageHeader } from '@/components/page-header';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -128,12 +129,15 @@ export default function KeysPage() {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-bold">{t('title')}</h2>
-        <Button onClick={handleCreateKey} disabled={creating}>
-          {creating ? t('generating') : t('generate')}
-        </Button>
-      </div>
+      <PageHeader
+        eyebrow="Dashboard · API Keys"
+        title={t('title')}
+        actions={
+          <Button onClick={handleCreateKey} disabled={creating}>
+            {creating ? t('generating') : t('generate')}
+          </Button>
+        }
+      />
 
       <Dialog open={newKeyDialogOpen} onOpenChange={handleNewKeyDialogChange}>
         <DialogBackdrop />

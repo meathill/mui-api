@@ -12,6 +12,7 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -135,7 +136,7 @@ export default function SettingsPage() {
 
   return (
     <div>
-      <h2 className="text-lg font-bold mb-4">{t('title')}</h2>
+      <PageHeader eyebrow="Admin · Settings" title={t('title')} />
 
       {/* 暂停/恢复确认弹窗 */}
       <AlertDialog open={pauseDialogOpen} onOpenChange={setPauseDialogOpen}>
@@ -173,7 +174,7 @@ export default function SettingsPage() {
         <div className="grid grid-cols-2 gap-3 mb-4">
           <Card className="p-4">
             <p className="text-xs text-muted-foreground mb-1">{t('todaySpending')}</p>
-            <p className="text-2xl font-bold font-mono">${stats.dailySpending.toFixed(2)}</p>
+            <p className="font-heading text-2xl font-bold tracking-tight">${stats.dailySpending.toFixed(2)}</p>
             {stats.dailySpendingCap > 0 && (
               <div className="mt-3">
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
@@ -186,7 +187,7 @@ export default function SettingsPage() {
           </Card>
           <Card className="p-4">
             <p className="text-xs text-muted-foreground mb-1">{t('monthlySpending')}</p>
-            <p className="text-2xl font-bold font-mono">${stats.monthlySpending.toFixed(2)}</p>
+            <p className="font-heading text-2xl font-bold tracking-tight">${stats.monthlySpending.toFixed(2)}</p>
             {stats.monthlySpendingCap > 0 && (
               <div className="mt-3">
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">

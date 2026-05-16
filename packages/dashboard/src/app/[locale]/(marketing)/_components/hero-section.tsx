@@ -1,5 +1,6 @@
 import { ArrowRightIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { PawIcon } from '@/components/brand/paw-icon';
 import { Link } from '@/i18n/navigation';
 
 export function HeroSection() {
@@ -14,6 +15,10 @@ export function HeroSection() {
 
   return (
     <section className="bg-sun relative overflow-hidden px-6 py-16 sm:py-20">
+      {/* 角落爪印装饰 */}
+      <PawIcon className="wiggle pointer-events-none absolute left-[6%] top-[18%] hidden size-12 text-[var(--brand-corgi)]/45 sm:block" />
+      <PawIcon className="pointer-events-none absolute right-[5%] top-[60%] hidden size-10 -rotate-12 text-[var(--brand-corgi)]/35 sm:block" />
+
       <div className="mx-auto max-w-4xl text-center">
         <p className="eyebrow mb-3">{t('badge')}</p>
 
@@ -47,7 +52,9 @@ export function HeroSection() {
         <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-6">
           {stats.map((stat) => (
             <div key={stat.label}>
-              <div className="text-3xl font-bold tracking-tight text-[var(--brand-yellow-deep)]">{stat.value}</div>
+              <div className="font-heading text-3xl font-bold tracking-tight text-[var(--brand-yellow-deep)]">
+                {stat.value}
+              </div>
               <div className="mt-1 text-sm text-muted-foreground">{stat.label}</div>
             </div>
           ))}

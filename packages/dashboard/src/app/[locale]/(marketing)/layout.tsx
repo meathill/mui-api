@@ -71,7 +71,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
       </header>
       <main className="flex-1">{children}</main>
       <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
-        &copy; {new Date().getFullYear()} MUI Router. All rights reserved.
+        &copy; {new Date().getFullYear()} Meathill LLC. All rights reserved.
         <span className="mx-2 text-muted-foreground/50">·</span>
         <span className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.18em] text-[var(--brand-yellow-deep)] align-middle">
           supervised by Mui

@@ -2,6 +2,7 @@
 
 import { ImageIcon, LoaderCircleIcon, MessageSquareIcon, SaveIcon, Volume2Icon, XIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -57,28 +58,29 @@ export function PlaygroundView(props: PlaygroundViewProps) {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-lg font-bold">{t('title')}</h2>
-          <p className="mt-1 text-sm text-muted-foreground">{t('subtitle')}</p>
-        </div>
-        <Tabs value={props.mode} onValueChange={props.onModeChange}>
-          <TabsList>
-            <TabsTab value="chat">
-              <MessageSquareIcon />
-              {t('chatMode')}
-            </TabsTab>
-            <TabsTab value="image">
-              <ImageIcon />
-              {t('imageMode')}
-            </TabsTab>
-            <TabsTab value="tts">
-              <Volume2Icon />
-              {t('ttsMode')}
-            </TabsTab>
-          </TabsList>
-        </Tabs>
-      </div>
+      <PageHeader
+        eyebrow="Dashboard · Playground"
+        title={t('title')}
+        description={t('subtitle')}
+        actions={
+          <Tabs value={props.mode} onValueChange={props.onModeChange}>
+            <TabsList>
+              <TabsTab value="chat">
+                <MessageSquareIcon />
+                {t('chatMode')}
+              </TabsTab>
+              <TabsTab value="image">
+                <ImageIcon />
+                {t('imageMode')}
+              </TabsTab>
+              <TabsTab value="tts">
+                <Volume2Icon />
+                {t('ttsMode')}
+              </TabsTab>
+            </TabsList>
+          </Tabs>
+        }
+      />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)]">
         <Card className="p-4">

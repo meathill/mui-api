@@ -101,7 +101,7 @@ export default async function LocaleLayout({
           // 防 FOUC：渲染前同步读 localStorage / 系统偏好，先把 .dark 加到 <html>
           // biome-ignore lint/security/noDangerouslySetInnerHtml: 仅注入静态字符串
           dangerouslySetInnerHTML={{
-            __html: `(function(){try{var k='mui-theme';var s=localStorage.getItem(k);var d=s==='dark'||(s===null&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');}catch(e){}})();`,
+            __html: `(function(){try{var k='mui-theme';var s=localStorage.getItem(k);var d=s==='dark'||((s===null||s==='system')&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');}catch(e){}})();`,
           }}
         />
       </head>
