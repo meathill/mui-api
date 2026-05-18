@@ -1,7 +1,7 @@
 /**
  * Provider 分发：按 provider 选 SDK 调上游，返回原始 Response 透传给客户端
- * - openai          → openai SDK + AI Gateway (baseURL)
- * - google-ai-studio → @google/genai SDK + AI Gateway (httpOptions.baseUrl)
+ * - openai          → openai SDK + AI Gateway (CF_AIG_TOKEN 鉴权)
+ * - google-ai-studio → @google/genai SDK + AI Gateway (CF_AIG_TOKEN 鉴权)
  * - xiaomi-mimo     → fetch + Xiaomi MiMo OpenAI 兼容接口（直连，不走 AI Gateway）
  * - 其余 (anthropic / workers-ai / 将来新增) → env.AI.run + gateway option
  */
@@ -29,12 +29,11 @@ export function xiaomiMiMoBaseURL(env: CloudflareBindings): string {
   return trimTrailingSlashes(env.MIMO_BASE_URL ?? XIAOMI_MIMO_DEFAULT_BASE_URL);
 }
 
-/** OpenAI SDK 调用，AI Gateway BYOK 注入真实 key，cf-aig-authorization 鉴权网关 */
+/** OpenAI SDK 调用，通过 AI Gateway 转发，CF_AIG_TOKEN 鉴权 */
 export async function callOpenAI(env: CloudflareBindings, body: AnyBody): Promise<Response> {
   const client = new OpenAI({
-    apiKey: 'ai-gateway-byok',
+    apiKey: env.CF_AIG_TOKEN,
     baseURL: openAIGatewayBase(env),
-    defaultHeaders: { 'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}` },
   });
   return client.chat.completions.create(body as never).asResponse();
 }
@@ -50,7 +49,7 @@ export async function callOpenAIEndpoint(
     method: 'POST',
     headers: {
       ...headers,
-      'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}`,
+      Authorization: `Bearer ${env.CF_AIG_TOKEN}`,
     },
     body,
   });
@@ -79,10 +78,9 @@ export async function callXiaomiMiMo(env: CloudflareBindings, body: AnyBody): Pr
  */
 export async function callGemini(env: CloudflareBindings, upstreamModel: string, body: AnyBody): Promise<Response> {
   const ai = new GoogleGenAI({
-    apiKey: 'ai-gateway-byok',
+    apiKey: env.CF_AIG_TOKEN,
     httpOptions: {
       baseUrl: aiGatewayBase(env, 'google-ai-studio'),
-      headers: { 'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}` },
     },
   });
 
