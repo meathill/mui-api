@@ -105,7 +105,9 @@
     "billingNotice": "หากราคาโมเดลในแดชบอร์ดต่างจากหน้านี้ ให้ถือค่าที่ตั้งในแดชบอร์ดเป็นหลักสำหรับการคิดเงิน",
     "providers": {
       "openai": "ราคา token ปัจจุบันของโมเดลหลักและโมเดลสายโค้ดที่ OpenAI เผยแพร่",
-      "gemini": "ราคา token สาธารณะปัจจุบันของ Gemini 3 / 3.1 สำหรับโมเดล preview หลักด้านข้อความและมัลติโมดัล"
+      "anthropic": "ราคา token สาธารณะปัจจุบันของ Anthropic Claude Opus / Sonnet / Haiku",
+      "google-ai-studio": "ราคา token สาธารณะปัจจุบันของ Google Gemini สำหรับโมเดลข้อความและมัลติโมดัล",
+      "xiaomi-mimo": "ราคา token สาธารณะปัจจุบันของ Xiaomi MiMo (ระดับ ≤256K)"
     },
     "columns": {
       "model": "โมเดล",
@@ -117,9 +119,7 @@
     },
     "notes": {
       "none": "-",
-      "openaiLongContext": "ราคา long-context ใช้เมื่อเกิน 270k context: $5.00 / $0.50 / $22.50",
-      "gemini31ProPreview": "โมเดล preview หาก prompt เกิน 200k tokens จะเปลี่ยนเป็น $4.00 / $0.40 / $18.00",
-      "geminiPreview": "โมเดล preview ราคาและข้อจำกัดอาจเปลี่ยนก่อนเปิดตัวแบบเสถียร"
+      "longContextDynamic": "ราคา long-context ใช้เมื่อเกิน {threshold} tokens: อินพุต {input} / อินพุตแคช {cached} / เอาต์พุต {output}"
     }
   },
   "blog": {
@@ -325,6 +325,18 @@
     "inputPrice": "ราคาอินพุต ($/1M โทเค็น)",
     "outputPrice": "ราคาเอาต์พุต ($/1M โทเค็น)",
     "markupRate": "อัตราเพิ่ม",
+    "advancedPricing": "Advanced Pricing (cache discount + long-context tier)",
+    "advancedHint": "Leave blank to inherit the base input/output prices; fill in to enable the feature.",
+    "cachedInputPrice": "Cache Hit Input Price ($/1M tokens)",
+    "cacheWritePrice": "Cache Write Price ($/1M tokens)",
+    "longContextThresholdTokens": "Long Context Threshold (tokens)",
+    "longContextInputPrice": "Long-context Input Price ($/1M tokens)",
+    "longContextOutputPrice": "Long-context Output Price ($/1M tokens)",
+    "longContextCachedInputPrice": "Long-context Cache Hit Input Price ($/1M tokens)",
+    "longContextCacheWritePrice": "Long-context Cache Write Price ($/1M tokens)",
+    "emptyMeansDisabled": "Empty = disabled",
+    "anthropicOnly": "Anthropic only",
+    "thresholdPlaceholder": "e.g. 270000; empty = never trigger long-context tier",
     "cancel": "ยกเลิก",
     "create": "สร้าง",
     "update": "อัปเดต",

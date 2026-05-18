@@ -1,19 +1,31 @@
+import { asc } from 'drizzle-orm';
 import { ArrowUpRightIcon } from 'lucide-react';
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import {
-  PRICING_CATALOG,
-  type PricingModel,
-  type PricingProvider,
-  type ProviderPricingSection,
-} from '@/lib/pricing-catalog';
+import { models, type Model } from '@/db/app-schema';
+import { getDb } from '@/lib/db';
 import { getMarketingOgImage } from '@/lib/seo';
 
+export const revalidate = 3600;
+
+/**
+ * Pricing 页面展示的 provider 范围与每家的官方来源 URL。
+ * DB 中实际存在的 provider 若不在此列表（如 workers-ai 内部模型），不在公开 pricing 页展示。
+ */
+const PROVIDER_DISPLAY: Record<string, { label: string; sourceUrl: string }> = {
+  openai: { label: 'OpenAI', sourceUrl: 'https://developers.openai.com/api/docs/pricing' },
+  anthropic: { label: 'Anthropic', sourceUrl: 'https://www.anthropic.com/pricing' },
+  'google-ai-studio': { label: 'Gemini', sourceUrl: 'https://ai.google.dev/pricing' },
+  'xiaomi-mimo': { label: 'Xiaomi MiMo', sourceUrl: 'https://api.xiaomimimo.com/pricing' },
+};
+
+const PROVIDER_ORDER = ['openai', 'anthropic', 'google-ai-studio', 'xiaomi-mimo'];
+
 const providerStyles: Record<
-  PricingProvider,
+  string,
   {
     badgeClassName: string;
     surfaceClassName: string;
@@ -25,10 +37,20 @@ const providerStyles: Record<
     surfaceClassName: 'bg-emerald-500/5',
     borderClassName: 'from-emerald-500/70 via-emerald-400/20 to-transparent',
   },
-  gemini: {
+  anthropic: {
+    badgeClassName: 'border-orange-500/20 bg-orange-500/10 text-orange-700',
+    surfaceClassName: 'bg-orange-500/5',
+    borderClassName: 'from-orange-500/70 via-orange-400/20 to-transparent',
+  },
+  'google-ai-studio': {
     badgeClassName: 'border-blue-500/20 bg-blue-500/10 text-blue-700',
     surfaceClassName: 'bg-blue-500/5',
     borderClassName: 'from-blue-500/70 via-sky-400/20 to-transparent',
+  },
+  'xiaomi-mimo': {
+    badgeClassName: 'border-purple-500/20 bg-purple-500/10 text-purple-700',
+    surfaceClassName: 'bg-purple-500/5',
+    borderClassName: 'from-purple-500/70 via-purple-400/20 to-transparent',
   },
 };
 
@@ -38,6 +60,8 @@ const priceFormatter = new Intl.NumberFormat('en-US', {
   minimumFractionDigits: 2,
   maximumFractionDigits: 3,
 });
+
+const tokenFormatter = new Intl.NumberFormat('en-US');
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -65,10 +89,36 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
+interface ProviderSection {
+  provider: string;
+  models: Model[];
+}
+
+async function loadPricingSections(): Promise<ProviderSection[]> {
+  const db = await getDb();
+  const rows = await db.select().from(models).orderBy(asc(models.id));
+
+  // 只展示在 PROVIDER_DISPLAY 名单内、且至少有 input 价的模型；过滤 TTS / 图片这类按次计价模型
+  const grouped = new Map<string, Model[]>();
+  for (const row of rows) {
+    if (!(row.provider in PROVIDER_DISPLAY)) continue;
+    if ((row.inputPrice ?? 0) <= 0 && (row.outputPrice ?? 0) <= 0) continue;
+    const list = grouped.get(row.provider) ?? [];
+    list.push(row);
+    grouped.set(row.provider, list);
+  }
+
+  return PROVIDER_ORDER.filter((p) => grouped.has(p)).map((provider) => ({
+    provider,
+    models: grouped.get(provider) ?? [],
+  }));
+}
+
 export default async function PricingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: 'pricing' });
-  const updatedAt = PRICING_CATALOG[0]?.updatedAt ?? '';
+  const sections = await loadPricingSections();
+  const updatedAt = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="relative overflow-hidden">
@@ -112,19 +162,22 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
             <div className="rounded-3xl border border-border/70 bg-background/85 p-5">
               <p className="text-sm font-medium text-foreground">{t('sourceLabel')}</p>
               <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                {PRICING_CATALOG.map((section) => (
-                  <li key={section.provider}>
-                    <a
-                      href={section.sourceUrl}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
-                    >
-                      {section.provider === 'openai' ? 'OpenAI' : 'Gemini'}
-                      <ArrowUpRightIcon size={14} />
-                    </a>
-                  </li>
-                ))}
+                {sections.map((section) => {
+                  const display = PROVIDER_DISPLAY[section.provider];
+                  return (
+                    <li key={section.provider}>
+                      <a
+                        href={display.sourceUrl}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
+                      >
+                        {display.label}
+                        <ArrowUpRightIcon size={14} />
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
@@ -133,7 +186,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
 
       <section className="mx-auto max-w-6xl px-6 py-12 sm:py-16">
         <div className="space-y-8">
-          {PRICING_CATALOG.map((section) => (
+          {sections.map((section) => (
             <ProviderPricingCard key={section.provider} section={section} locale={locale} />
           ))}
         </div>
@@ -160,9 +213,10 @@ function SummaryPanel({ title, description }: { title: string; description: stri
   );
 }
 
-async function ProviderPricingCard({ section, locale }: { section: ProviderPricingSection; locale: string }) {
+async function ProviderPricingCard({ section, locale }: { section: ProviderSection; locale: string }) {
   const t = await getTranslations({ locale, namespace: 'pricing' });
-  const styles = providerStyles[section.provider];
+  const styles = providerStyles[section.provider] ?? providerStyles.openai;
+  const display = PROVIDER_DISPLAY[section.provider];
 
   return (
     <Card className="overflow-hidden border-border/80">
@@ -170,18 +224,18 @@ async function ProviderPricingCard({ section, locale }: { section: ProviderPrici
       <CardHeader className="gap-4 border-b border-border/60 pb-5 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-3">
           <Badge variant="outline" className={styles.badgeClassName}>
-            {section.provider === 'openai' ? 'OpenAI' : 'Gemini'}
+            {display.label}
           </Badge>
           <div className="space-y-2">
-            <CardTitle className="text-2xl">{section.provider === 'openai' ? 'OpenAI' : 'Gemini'}</CardTitle>
+            <CardTitle className="text-2xl">{display.label}</CardTitle>
             <CardDescription className="max-w-2xl text-sm leading-6">
-              {t(`providers.${section.provider}`)}
+              {t.has(`providers.${section.provider}`) ? t(`providers.${section.provider}`) : ''}
             </CardDescription>
           </div>
         </div>
 
         <a
-          href={section.sourceUrl}
+          href={display.sourceUrl}
           target="_blank"
           rel="noreferrer"
           className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground transition-colors hover:text-primary"
@@ -196,7 +250,6 @@ async function ProviderPricingCard({ section, locale }: { section: ProviderPrici
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>{t('columns.model')}</TableHead>
                 <TableHead>{t('columns.modelId')}</TableHead>
                 <TableHead className="text-right">{t('columns.input')}</TableHead>
                 <TableHead className="text-right">{t('columns.cachedInput')}</TableHead>
@@ -206,12 +259,9 @@ async function ProviderPricingCard({ section, locale }: { section: ProviderPrici
             </TableHeader>
             <TableBody>
               {section.models.map((model) => (
-                <TableRow key={model.modelId ?? model.name}>
-                  <TableCell className="whitespace-normal align-top font-medium text-foreground">
-                    {model.name}
-                  </TableCell>
+                <TableRow key={model.id}>
                   <TableCell className="whitespace-normal align-top font-mono text-xs text-muted-foreground">
-                    {model.modelId ?? t('notes.none')}
+                    {model.id}
                   </TableCell>
                   <TableCell className="text-right align-top font-medium text-foreground">
                     {formatPrice(model.inputPrice)}
@@ -223,7 +273,7 @@ async function ProviderPricingCard({ section, locale }: { section: ProviderPrici
                     {formatPrice(model.outputPrice)}
                   </TableCell>
                   <TableCell className={`whitespace-normal align-top text-sm leading-6 ${styles.surfaceClassName}`}>
-                    <div className="rounded-xl px-3 py-2 text-muted-foreground">{getNote(t, model)}</div>
+                    <div className="rounded-xl px-3 py-2 text-muted-foreground">{getDynamicNote(t, model)}</div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -233,20 +283,16 @@ async function ProviderPricingCard({ section, locale }: { section: ProviderPrici
 
         <div className="grid gap-3 md:hidden">
           {section.models.map((model) => (
-            <div
-              key={model.modelId ?? model.name}
-              className={`rounded-2xl border border-border/70 p-4 ${styles.surfaceClassName}`}
-            >
+            <div key={model.id} className={`rounded-2xl border border-border/70 p-4 ${styles.surfaceClassName}`}>
               <div className="space-y-1">
-                <p className="font-medium text-foreground">{model.name}</p>
-                <p className="font-mono text-xs text-muted-foreground">{model.modelId ?? t('notes.none')}</p>
+                <p className="font-mono text-xs text-muted-foreground">{model.id}</p>
               </div>
 
               <dl className="mt-4 grid grid-cols-2 gap-3 text-sm">
                 <PriceField label={t('columns.input')} value={formatPrice(model.inputPrice)} />
                 <PriceField label={t('columns.cachedInput')} value={formatPrice(model.cachedInputPrice)} />
                 <PriceField label={t('columns.output')} value={formatPrice(model.outputPrice)} />
-                <PriceField label={t('columns.notes')} value={getNote(t, model)} />
+                <PriceField label={t('columns.notes')} value={getDynamicNote(t, model)} />
               </dl>
             </div>
           ))}
@@ -273,10 +319,14 @@ function formatPrice(value: number | null): string {
   return priceFormatter.format(value);
 }
 
-function getNote(t: Awaited<ReturnType<typeof getTranslations>>, model: PricingModel): string {
-  if (!model.noteKey) {
+function getDynamicNote(t: Awaited<ReturnType<typeof getTranslations>>, model: Model): string {
+  if (model.longContextThresholdTokens == null) {
     return t('notes.none');
   }
-
-  return t(`notes.${model.noteKey}`);
+  return t('notes.longContextDynamic', {
+    threshold: tokenFormatter.format(model.longContextThresholdTokens),
+    input: formatPrice(model.longContextInputPrice ?? null),
+    cached: formatPrice(model.longContextCachedInputPrice ?? null),
+    output: formatPrice(model.longContextOutputPrice ?? null),
+  });
 }

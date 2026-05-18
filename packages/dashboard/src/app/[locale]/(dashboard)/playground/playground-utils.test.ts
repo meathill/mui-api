@@ -17,6 +17,13 @@ function createModel(id: string, upstreamModelId: string | null = id): ModelInfo
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    cachedInputPrice: null,
+    cacheWritePrice: null,
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
   };
 }
 

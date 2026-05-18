@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server';
 import { models } from '@/db/app-schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
+import { getKV, invalidateModelsCatalog } from '@/lib/kv';
+import { validateModelBody } from '../route';
 
 /**
  * PUT /api/admin/models/:id — 更新模型
@@ -13,24 +15,11 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     if ('error' in result) return result.error;
 
     const { id: modelId } = await params;
-    const body = (await request.json()) as {
-      provider?: string;
-      upstreamModelId?: string;
-      inputPrice?: number;
-      outputPrice?: number;
-      markupRate?: number;
-    };
+    const body = (await request.json()) as Parameters<typeof validateModelBody>[0];
     const db = await getDb();
 
-    if (body.inputPrice != null && body.inputPrice < 0) {
-      return NextResponse.json({ error: '输入价格不能为负数' }, { status: 400 });
-    }
-    if (body.outputPrice != null && body.outputPrice < 0) {
-      return NextResponse.json({ error: '输出价格不能为负数' }, { status: 400 });
-    }
-    if (body.markupRate != null && body.markupRate < 0.01) {
-      return NextResponse.json({ error: '加价倍率不能小于 0.01' }, { status: 400 });
-    }
+    const validationError = validateModelBody(body);
+    if (validationError) return validationError;
 
     const existing = await db.select().from(models).where(eq(models.id, modelId)).get();
     if (!existing) {
@@ -38,6 +27,7 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
     }
 
     await db.update(models).set(body).where(eq(models.id, modelId));
+    await invalidateModelsCatalog(await getKV());
 
     return NextResponse.json({ success: true, model: { ...existing, ...body } });
   } catch (error) {
@@ -63,6 +53,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     }
 
     await db.delete(models).where(eq(models.id, modelId));
+    await invalidateModelsCatalog(await getKV());
     return NextResponse.json({ success: true, modelId });
   } catch (error) {
     console.error('DELETE /api/admin/models/[id] 错误:', error);

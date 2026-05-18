@@ -194,6 +194,13 @@ export interface ModelInfo {
   inputPrice: number | null;
   outputPrice: number | null;
   markupRate: number | null;
+  cachedInputPrice: number | null;
+  cacheWritePrice: number | null;
+  longContextThresholdTokens: number | null;
+  longContextInputPrice: number | null;
+  longContextCachedInputPrice: number | null;
+  longContextCacheWritePrice: number | null;
+  longContextOutputPrice: number | null;
 }
 
 export interface ModelCreateInput {
@@ -203,6 +210,13 @@ export interface ModelCreateInput {
   inputPrice: number;
   outputPrice: number;
   markupRate?: number;
+  cachedInputPrice?: number | null;
+  cacheWritePrice?: number | null;
+  longContextThresholdTokens?: number | null;
+  longContextInputPrice?: number | null;
+  longContextCachedInputPrice?: number | null;
+  longContextCacheWritePrice?: number | null;
+  longContextOutputPrice?: number | null;
 }
 
 export interface UsageLog {

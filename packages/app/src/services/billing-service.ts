@@ -13,8 +13,12 @@ const FALLBACK_PRICING: Record<string, { input: number; output: number }> = {
   'gpt-4o-mini': { input: 0.15, output: 0.6 },
 };
 
+export type BillingTier = 'standard' | 'long_context';
+
 export interface UsageInfo {
   inputTokens: number;
+  cachedInputTokens: number;
+  cacheWriteTokens: number;
   outputTokens: number;
   model: string;
 }
@@ -23,6 +27,15 @@ export interface ModelPricing {
   inputPrice: number;
   outputPrice: number;
   markupRate: number;
+  // cache 分档（null 视为未启用，回退 inputPrice）
+  cachedInputPrice?: number | null;
+  cacheWritePrice?: number | null;
+  // 长上下文档位（任一字段缺失则回退对应的 standard 字段）
+  longContextThresholdTokens?: number | null;
+  longContextInputPrice?: number | null;
+  longContextCachedInputPrice?: number | null;
+  longContextCacheWritePrice?: number | null;
+  longContextOutputPrice?: number | null;
 }
 
 export interface FreeQuotaState {
@@ -42,6 +55,12 @@ export interface BillingResult {
   totalCost: number;
   chargedCost: number;
   freeQuotaDeducted: number;
+  tier: BillingTier;
+}
+
+export interface CostBreakdown {
+  cost: number;
+  tier: BillingTier;
 }
 
 /**
@@ -57,37 +76,32 @@ export class BillingService {
    * 计算请求费用
    * 优先使用传入的 modelPricing（来自 DB models 表），否则使用兜底定价
    */
-  calculateCost(
-    model: string,
-    inputTokens: number,
-    outputTokens: number,
-    modelPricing?: ModelPricing | null,
-    userRateMultiplier: number = 1,
-  ): number {
-    let inputPrice: number;
-    let outputPrice: number;
-    let markupRate: number;
+  calculateCost(usage: UsageInfo, modelPricing?: ModelPricing | null, userRateMultiplier = 1): CostBreakdown {
+    const pricing = resolvePricing(usage.model, modelPricing);
+    const contextSize = usage.inputTokens + usage.cachedInputTokens + usage.cacheWriteTokens;
+    const isLongContext =
+      pricing.longContextThresholdTokens != null &&
+      pricing.longContextThresholdTokens > 0 &&
+      contextSize > pricing.longContextThresholdTokens;
 
-    if (modelPricing) {
-      inputPrice = modelPricing.inputPrice;
-      outputPrice = modelPricing.outputPrice;
-      markupRate = modelPricing.markupRate;
-    } else {
-      const fallback = FALLBACK_PRICING[model];
-      if (!fallback) {
-        console.warn(`模型 ${model} 无定价配置，使用 gpt-4o-mini 兜底`);
-      }
-      const pricing = fallback ?? FALLBACK_PRICING['gpt-4o-mini'];
-      inputPrice = pricing.input;
-      outputPrice = pricing.output;
-      markupRate = DEFAULT_MARKUP_RATE;
-    }
+    const inputPrice = isLongContext ? (pricing.longContextInputPrice ?? pricing.inputPrice) : pricing.inputPrice;
+    const cachedInputPrice = isLongContext
+      ? (pricing.longContextCachedInputPrice ?? pricing.cachedInputPrice ?? inputPrice)
+      : (pricing.cachedInputPrice ?? pricing.inputPrice);
+    const cacheWritePrice = isLongContext
+      ? (pricing.longContextCacheWritePrice ?? pricing.cacheWritePrice ?? inputPrice)
+      : (pricing.cacheWritePrice ?? pricing.inputPrice);
+    const outputPrice = isLongContext ? (pricing.longContextOutputPrice ?? pricing.outputPrice) : pricing.outputPrice;
 
-    const inputCost = (inputTokens / 1_000_000) * inputPrice;
-    const outputCost = (outputTokens / 1_000_000) * outputPrice;
-    const totalCost = (inputCost + outputCost) * markupRate * userRateMultiplier;
+    const rawCost =
+      (usage.inputTokens * inputPrice +
+        usage.cachedInputTokens * cachedInputPrice +
+        usage.cacheWriteTokens * cacheWritePrice +
+        usage.outputTokens * outputPrice) /
+      1_000_000;
+    const cost = rawCost * pricing.markupRate * userRateMultiplier;
 
-    return totalCost;
+    return { cost, tier: isLongContext ? 'long_context' : 'standard' };
   }
 
   /**
@@ -123,18 +137,20 @@ export class BillingService {
   async logUsage(
     userId: string,
     apiKeyId: string | null,
-    model: string,
-    inputTokens: number,
-    outputTokens: number,
+    usage: UsageInfo,
     cost: number,
+    tier: BillingTier,
   ): Promise<void> {
     const log: NewUsageLog = {
       id: generateId(),
       userId,
       apiKeyId,
-      modelId: model,
-      inputTokens,
-      outputTokens,
+      modelId: usage.model,
+      inputTokens: usage.inputTokens,
+      outputTokens: usage.outputTokens,
+      cachedInputTokens: usage.cachedInputTokens,
+      cacheWriteTokens: usage.cacheWriteTokens,
+      tier,
       cost,
     };
 
@@ -149,16 +165,10 @@ export class BillingService {
     apiKeyId: string | null,
     usage: UsageInfo,
     modelPricing?: ModelPricing | null,
-    userRateMultiplier: number = 1,
+    userRateMultiplier = 1,
     options: BillingOptions = {},
   ): Promise<BillingResult> {
-    const cost = this.calculateCost(
-      usage.model,
-      usage.inputTokens,
-      usage.outputTokens,
-      modelPricing,
-      userRateMultiplier,
-    );
+    const { cost, tier } = this.calculateCost(usage, modelPricing, userRateMultiplier);
 
     let freeQuotaDeducted = 0;
     if (options.useFreeQuota) {
@@ -177,14 +187,29 @@ export class BillingService {
     }
 
     // D1 记录日志
-    await this.logUsage(userId, apiKeyId, usage.model, usage.inputTokens, usage.outputTokens, cost);
+    await this.logUsage(userId, apiKeyId, usage, cost, tier);
 
     return {
       totalCost: cost,
       chargedCost,
       freeQuotaDeducted,
+      tier,
     };
   }
+}
+
+function resolvePricing(model: string, modelPricing: ModelPricing | null | undefined): ModelPricing {
+  if (modelPricing) return modelPricing;
+  const fallback = FALLBACK_PRICING[model];
+  if (!fallback) {
+    console.warn(`模型 ${model} 无定价配置，使用 gpt-4o-mini 兜底`);
+  }
+  const pricing = fallback ?? FALLBACK_PRICING['gpt-4o-mini'];
+  return {
+    inputPrice: pricing.input,
+    outputPrice: pricing.output,
+    markupRate: DEFAULT_MARKUP_RATE,
+  };
 }
 
 function normalizeFreeQuotaConfig(config: FreeQuotaConfig | undefined): FreeQuotaConfig {

@@ -18,6 +18,15 @@ export const models = sqliteTable('models', {
   inputPrice: real('input_price'),
   outputPrice: real('output_price'),
   markupRate: real('markup_rate').default(1.2),
+  // cache 分档（null 表示不启用，回退 inputPrice）
+  cachedInputPrice: real('cached_input_price'),
+  cacheWritePrice: real('cache_write_price'),
+  // 长上下文档位：input + cached + cache_write 之和超过阈值时启用 longContext* 价
+  longContextThresholdTokens: integer('long_context_threshold_tokens'),
+  longContextInputPrice: real('long_context_input_price'),
+  longContextCachedInputPrice: real('long_context_cached_input_price'),
+  longContextCacheWritePrice: real('long_context_cache_write_price'),
+  longContextOutputPrice: real('long_context_output_price'),
 });
 
 export const usageLogs = sqliteTable('usage_logs', {
@@ -27,6 +36,9 @@ export const usageLogs = sqliteTable('usage_logs', {
   modelId: text('model_id'),
   inputTokens: integer('input_tokens'),
   outputTokens: integer('output_tokens'),
+  cachedInputTokens: integer('cached_input_tokens').default(0),
+  cacheWriteTokens: integer('cache_write_tokens').default(0),
+  tier: text('tier').default('standard'),
   cost: real('cost'),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
@@ -69,7 +81,10 @@ export const usageStats = sqliteTable('usage_stats', {
   totalCost: real('total_cost').default(0),
   totalInputTokens: integer('total_input_tokens').default(0),
   totalOutputTokens: integer('total_output_tokens').default(0),
+  totalCachedInputTokens: integer('total_cached_input_tokens').default(0),
+  totalCacheWriteTokens: integer('total_cache_write_tokens').default(0),
   requestCount: integer('request_count').default(0),
+  longContextRequestCount: integer('long_context_request_count').default(0),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
 });

@@ -1,15 +1,45 @@
 import { describe, expect, it } from 'vitest';
 import { extractStreamUsage, extractUsage } from './usage-extractor';
 
+const zeroCache = { cachedInputTokens: 0, cacheWriteTokens: 0 };
+
 describe('extractUsage', () => {
   it('openai 提取 prompt/completion_tokens', () => {
     const data = { model: 'gpt-4o', usage: { prompt_tokens: 10, completion_tokens: 20 } };
-    expect(extractUsage('openai', data)).toEqual({ model: 'gpt-4o', inputTokens: 10, outputTokens: 20 });
+    expect(extractUsage('openai', data)).toEqual({
+      model: 'gpt-4o',
+      inputTokens: 10,
+      outputTokens: 20,
+      ...zeroCache,
+    });
   });
 
   it('openai 图片接口提取 input_tokens/output_tokens', () => {
     const data = { model: 'gpt-image-2', usage: { input_tokens: 35, output_tokens: 1056 } };
-    expect(extractUsage('openai', data)).toEqual({ model: 'gpt-image-2', inputTokens: 35, outputTokens: 1056 });
+    expect(extractUsage('openai', data)).toEqual({
+      model: 'gpt-image-2',
+      inputTokens: 35,
+      outputTokens: 1056,
+      ...zeroCache,
+    });
+  });
+
+  it('openai cached_tokens：prompt_tokens 拆出 cached 部分', () => {
+    const data = {
+      model: 'gpt-5.4',
+      usage: {
+        prompt_tokens: 1000,
+        completion_tokens: 200,
+        prompt_tokens_details: { cached_tokens: 800 },
+      },
+    };
+    expect(extractUsage('openai', data)).toEqual({
+      model: 'gpt-5.4',
+      inputTokens: 200,
+      cachedInputTokens: 800,
+      cacheWriteTokens: 0,
+      outputTokens: 200,
+    });
   });
 
   it('anthropic 提取 input_tokens/output_tokens', () => {
@@ -18,6 +48,26 @@ describe('extractUsage', () => {
       model: 'claude-opus-4.6',
       inputTokens: 30,
       outputTokens: 40,
+      ...zeroCache,
+    });
+  });
+
+  it('anthropic cache_read + cache_creation 同时提取', () => {
+    const data = {
+      model: 'claude-sonnet-4.6',
+      usage: {
+        input_tokens: 100,
+        cache_read_input_tokens: 5000,
+        cache_creation_input_tokens: 2000,
+        output_tokens: 300,
+      },
+    };
+    expect(extractUsage('anthropic', data)).toEqual({
+      model: 'claude-sonnet-4.6',
+      inputTokens: 100,
+      cachedInputTokens: 5000,
+      cacheWriteTokens: 2000,
+      outputTokens: 300,
     });
   });
 
@@ -30,6 +80,21 @@ describe('extractUsage', () => {
       model: 'gemini-1.5-pro',
       inputTokens: 50,
       outputTokens: 60,
+      ...zeroCache,
+    });
+  });
+
+  it('google-ai-studio cachedContentTokenCount：从 promptTokenCount 扣除 cached 部分', () => {
+    const data = {
+      modelVersion: 'gemini-3.1-pro-preview',
+      usageMetadata: { promptTokenCount: 1200, candidatesTokenCount: 300, cachedContentTokenCount: 900 },
+    };
+    expect(extractUsage('google-ai-studio', data)).toEqual({
+      model: 'gemini-3.1-pro-preview',
+      inputTokens: 300,
+      cachedInputTokens: 900,
+      cacheWriteTokens: 0,
+      outputTokens: 300,
     });
   });
 
@@ -39,6 +104,7 @@ describe('extractUsage', () => {
       model: '@cf/qwen/qwen3-30b-a3b-fp8',
       inputTokens: 5,
       outputTokens: 8,
+      ...zeroCache,
     });
   });
 
@@ -48,6 +114,7 @@ describe('extractUsage', () => {
       model: 'mimo-v2.5-pro',
       inputTokens: 11,
       outputTokens: 13,
+      ...zeroCache,
     });
   });
 
@@ -81,7 +148,23 @@ describe('extractStreamUsage', () => {
       'data: [DONE]\n\n',
     ]);
     const result = await extractStreamUsage('openai', response);
-    expect(result).toEqual({ model: 'gpt-4o', inputTokens: 10, outputTokens: 5 });
+    expect(result).toEqual({ model: 'gpt-4o', inputTokens: 10, outputTokens: 5, ...zeroCache });
+  });
+
+  it('openai 流式：尾 chunk 带 cached_tokens', async () => {
+    const response = createSSEResponse([
+      'data: {"model":"gpt-5.4","choices":[{"delta":{"content":"Hi"}}]}\n\n',
+      'data: {"model":"gpt-5.4","choices":[],"usage":{"prompt_tokens":1000,"completion_tokens":50,"prompt_tokens_details":{"cached_tokens":700}}}\n\n',
+      'data: [DONE]\n\n',
+    ]);
+    const result = await extractStreamUsage('openai', response);
+    expect(result).toEqual({
+      model: 'gpt-5.4',
+      inputTokens: 300,
+      cachedInputTokens: 700,
+      cacheWriteTokens: 0,
+      outputTokens: 50,
+    });
   });
 
   it('anthropic：message_start + message_delta 合并出 usage', async () => {
@@ -92,7 +175,23 @@ describe('extractStreamUsage', () => {
       'data: {"type":"message_stop"}\n\n',
     ]);
     const result = await extractStreamUsage('anthropic', response);
-    expect(result).toEqual({ model: 'claude-opus-4.6', inputTokens: 12, outputTokens: 7 });
+    expect(result).toEqual({ model: 'claude-opus-4.6', inputTokens: 12, outputTokens: 7, ...zeroCache });
+  });
+
+  it('anthropic 流式：message_start 带 cache_read + cache_creation', async () => {
+    const response = createSSEResponse([
+      'data: {"type":"message_start","message":{"model":"claude-sonnet-4.6","usage":{"input_tokens":15,"cache_read_input_tokens":4000,"cache_creation_input_tokens":1500}}}\n\n',
+      'data: {"type":"message_delta","usage":{"output_tokens":42}}\n\n',
+      'data: {"type":"message_stop"}\n\n',
+    ]);
+    const result = await extractStreamUsage('anthropic', response);
+    expect(result).toEqual({
+      model: 'claude-sonnet-4.6',
+      inputTokens: 15,
+      cachedInputTokens: 4000,
+      cacheWriteTokens: 1500,
+      outputTokens: 42,
+    });
   });
 
   it('google-ai-studio：每个 chunk 都有 usageMetadata，取最新', async () => {
@@ -102,7 +201,7 @@ describe('extractStreamUsage', () => {
       'data: [DONE]\n\n',
     ]);
     const result = await extractStreamUsage('google-ai-studio', response);
-    expect(result).toEqual({ model: 'gemini-2.5-flash', inputTokens: 8, outputTokens: 15 });
+    expect(result).toEqual({ model: 'gemini-2.5-flash', inputTokens: 8, outputTokens: 15, ...zeroCache });
   });
 
   it('xiaomi-mimo：按 openai SSE usage 提取', async () => {
@@ -112,7 +211,7 @@ describe('extractStreamUsage', () => {
       'data: [DONE]\n\n',
     ]);
     const result = await extractStreamUsage('xiaomi-mimo', response);
-    expect(result).toEqual({ model: 'mimo-v2.5-pro', inputTokens: 21, outputTokens: 34 });
+    expect(result).toEqual({ model: 'mimo-v2.5-pro', inputTokens: 21, outputTokens: 34, ...zeroCache });
   });
 
   it('无 body 返回 null', async () => {
@@ -132,6 +231,6 @@ describe('extractStreamUsage', () => {
       'data: [DONE]\n\n',
     ]);
     const result = await extractStreamUsage('openai', response);
-    expect(result).toEqual({ model: 'gpt-4o', inputTokens: 5, outputTokens: 3 });
+    expect(result).toEqual({ model: 'gpt-4o', inputTokens: 5, outputTokens: 3, ...zeroCache });
   });
 });

@@ -4,6 +4,7 @@ import { createDb } from '../../db';
 import { models } from '../../db/schema';
 import { badRequest, notFound, zodErrorToApiError } from '../../lib/errors';
 import { ModelCreateSchema, ModelUpdateSchema } from '../../lib/validators';
+import { createProxyServices } from '../../services/service-factory';
 import type { CloudflareBindings } from '../../types';
 
 const modelRoutes = new Hono<{ Bindings: CloudflareBindings }>();
@@ -34,6 +35,7 @@ modelRoutes.post('/', async (c) => {
 
   try {
     await db.insert(models).values(result.data);
+    await createProxyServices(c.env).modelCatalog.refresh();
     return c.json({ success: true, model: result.data }, 201);
   } catch (error) {
     if (String(error).includes('UNIQUE')) {
@@ -63,6 +65,7 @@ modelRoutes.put('/:id', async (c) => {
   }
 
   await db.update(models).set(result.data).where(eq(models.id, modelId));
+  await createProxyServices(c.env).modelCatalog.refresh();
 
   return c.json({ success: true, model: { ...existing, ...result.data } });
 });
@@ -81,6 +84,7 @@ modelRoutes.delete('/:id', async (c) => {
   }
 
   await db.delete(models).where(eq(models.id, modelId));
+  await createProxyServices(c.env).modelCatalog.refresh();
 
   return c.json({ success: true, modelId });
 });

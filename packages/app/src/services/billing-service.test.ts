@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { GlobalConfig } from './alert-service';
-import { BillingService } from './billing-service';
+import { BillingService, type ModelPricing, type UsageInfo } from './billing-service';
 import type { KVService } from './kv-service';
 
 // Mock Database
@@ -19,6 +19,16 @@ const mockDb = {
     values: async () => {},
   }),
 };
+
+function makeUsage(partial: Partial<UsageInfo> & { model: string }): UsageInfo {
+  return {
+    inputTokens: 0,
+    cachedInputTokens: 0,
+    cacheWriteTokens: 0,
+    outputTokens: 0,
+    ...partial,
+  };
+}
 
 function createMockKV(
   initialData: { balance: number; concurrency: number; freeQuotaUsed?: number },
@@ -72,34 +82,158 @@ function createGlobalConfig(modelIds: string[]): GlobalConfig {
 
 describe('BillingService', () => {
   describe('calculateCost', () => {
-    it('should calculate cost for gpt-4o model', async () => {
+    it('兜底定价：gpt-4o 无 cache 无 tier', () => {
       const service = new BillingService(null as never, mockDb as never);
-      const cost = await service.calculateCost('gpt-4o', 1000, 500);
-
-      // gpt-4o: input $2.5/1M, output $10/1M, markup 1.2
-      // (1000/1M * 2.5 + 500/1M * 10) * 1.2
-      // = (0.0025 + 0.005) * 1.2
-      // = 0.009
+      const { cost, tier } = service.calculateCost(
+        makeUsage({ model: 'gpt-4o', inputTokens: 1000, outputTokens: 500 }),
+      );
+      // (1000/1M * 2.5 + 500/1M * 10) * 1.2 = 0.009
       expect(cost).toBeCloseTo(0.009, 5);
+      expect(tier).toBe('standard');
     });
 
-    it('should calculate cost for gpt-4o-mini model', async () => {
+    it('兜底定价：gpt-4o-mini', () => {
       const service = new BillingService(null as never, mockDb as never);
-      const cost = await service.calculateCost('gpt-4o-mini', 10000, 5000);
-
-      // gpt-4o-mini: input $0.15/1M, output $0.6/1M, markup 1.2
-      // (10000/1M * 0.15 + 5000/1M * 0.6) * 1.2
-      // = (0.0015 + 0.003) * 1.2
-      // = 0.0054
+      const { cost, tier } = service.calculateCost(
+        makeUsage({ model: 'gpt-4o-mini', inputTokens: 10000, outputTokens: 5000 }),
+      );
+      // (10000/1M * 0.15 + 5000/1M * 0.6) * 1.2 = 0.0054
       expect(cost).toBeCloseTo(0.0054, 5);
+      expect(tier).toBe('standard');
     });
 
-    it('should use default pricing for unknown models', async () => {
+    it('未知模型回退 gpt-4o-mini 兜底', () => {
       const service = new BillingService(null as never, mockDb as never);
-      const cost = await service.calculateCost('unknown-model', 1000, 500);
-
-      // Falls back to gpt-4o-mini pricing
+      const { cost } = service.calculateCost(
+        makeUsage({ model: 'unknown-model', inputTokens: 1000, outputTokens: 500 }),
+      );
       expect(cost).toBeGreaterThan(0);
+    });
+
+    it('cached_input_price 命中折扣', () => {
+      const service = new BillingService(null as never, mockDb as never);
+      const pricing: ModelPricing = {
+        inputPrice: 10,
+        outputPrice: 0,
+        markupRate: 1,
+        cachedInputPrice: 1, // 0.1x
+      };
+      const { cost } = service.calculateCost(
+        makeUsage({ model: 'm', inputTokens: 1_000_000, cachedInputTokens: 1_000_000 }),
+        pricing,
+      );
+      // 1_000_000/1M * 10 + 1_000_000/1M * 1 = 11
+      expect(cost).toBeCloseTo(11, 5);
+    });
+
+    it('cachedInputPrice 为 null 时回退 inputPrice', () => {
+      const service = new BillingService(null as never, mockDb as never);
+      const pricing: ModelPricing = { inputPrice: 10, outputPrice: 0, markupRate: 1, cachedInputPrice: null };
+      const { cost } = service.calculateCost(
+        makeUsage({ model: 'm', inputTokens: 500_000, cachedInputTokens: 500_000 }),
+        pricing,
+      );
+      // 两段都按 input 价：(500_000 + 500_000)/1M * 10 = 10
+      expect(cost).toBeCloseTo(10, 5);
+    });
+
+    it('anthropic cache_write_price 命中加价', () => {
+      const service = new BillingService(null as never, mockDb as never);
+      const pricing: ModelPricing = {
+        inputPrice: 10,
+        outputPrice: 0,
+        markupRate: 1,
+        cachedInputPrice: 1,
+        cacheWritePrice: 12.5, // 1.25x
+      };
+      const { cost } = service.calculateCost(
+        makeUsage({ model: 'claude', inputTokens: 0, cacheWriteTokens: 1_000_000 }),
+        pricing,
+      );
+      // 1_000_000/1M * 12.5 = 12.5
+      expect(cost).toBeCloseTo(12.5, 5);
+    });
+
+    it('长上下文档位：跨阈值后切换 longContext 价', () => {
+      const service = new BillingService(null as never, mockDb as never);
+      const pricing: ModelPricing = {
+        inputPrice: 2.5,
+        outputPrice: 15,
+        markupRate: 1,
+        cachedInputPrice: 0.25,
+        longContextThresholdTokens: 270_000,
+        longContextInputPrice: 5,
+        longContextCachedInputPrice: 0.5,
+        longContextOutputPrice: 22.5,
+      };
+      const { cost, tier } = service.calculateCost(
+        makeUsage({ model: 'gpt-5.4', inputTokens: 300_000, outputTokens: 100_000 }),
+        pricing,
+      );
+      // 触发长上下文（300k > 270k）：input 300k * 5 + output 100k * 22.5 = 1.5 + 2.25 = 3.75
+      expect(tier).toBe('long_context');
+      expect(cost).toBeCloseTo(3.75, 5);
+    });
+
+    it('未跨阈值：使用 standard 价', () => {
+      const service = new BillingService(null as never, mockDb as never);
+      const pricing: ModelPricing = {
+        inputPrice: 2.5,
+        outputPrice: 15,
+        markupRate: 1,
+        longContextThresholdTokens: 270_000,
+        longContextInputPrice: 5,
+        longContextOutputPrice: 22.5,
+      };
+      const { cost, tier } = service.calculateCost(
+        makeUsage({ model: 'gpt-5.4', inputTokens: 100_000, outputTokens: 50_000 }),
+        pricing,
+      );
+      // 标准档：100k * 2.5 + 50k * 15 = 0.25 + 0.75 = 1.0
+      expect(tier).toBe('standard');
+      expect(cost).toBeCloseTo(1.0, 5);
+    });
+
+    it('长上下文 + cache：cached + write + output 都用长档价', () => {
+      const service = new BillingService(null as never, mockDb as never);
+      const pricing: ModelPricing = {
+        inputPrice: 2.5,
+        outputPrice: 15,
+        markupRate: 1,
+        cachedInputPrice: 0.25,
+        cacheWritePrice: 3.125,
+        longContextThresholdTokens: 270_000,
+        longContextInputPrice: 5,
+        longContextCachedInputPrice: 0.5,
+        longContextCacheWritePrice: 6.25,
+        longContextOutputPrice: 22.5,
+      };
+      const { cost, tier } = service.calculateCost(
+        makeUsage({
+          model: 'm',
+          inputTokens: 200_000,
+          cachedInputTokens: 100_000,
+          cacheWriteTokens: 50_000,
+          outputTokens: 10_000,
+        }),
+        pricing,
+      );
+      // contextSize = 350k > 270k → long_context
+      // 200k*5 + 100k*0.5 + 50k*6.25 + 10k*22.5 (all /1M) = 1.0 + 0.05 + 0.3125 + 0.225 = 1.5875
+      expect(tier).toBe('long_context');
+      expect(cost).toBeCloseTo(1.5875, 5);
+    });
+
+    it('longContextThresholdTokens 为 null：永远 standard', () => {
+      const service = new BillingService(null as never, mockDb as never);
+      const pricing: ModelPricing = {
+        inputPrice: 10,
+        outputPrice: 0,
+        markupRate: 1,
+        longContextThresholdTokens: null,
+      };
+      const { tier } = service.calculateCost(makeUsage({ model: 'm', inputTokens: 10_000_000 }), pricing);
+      expect(tier).toBe('standard');
     });
   });
 
@@ -114,7 +248,7 @@ describe('BillingService', () => {
       const result = await service.processUsage(
         'user-1',
         'key-1',
-        { model: 'mimo-v2.5-pro', inputTokens: 500_000, outputTokens: 0 },
+        makeUsage({ model: 'mimo-v2.5-pro', inputTokens: 500_000 }),
         { inputPrice: 1, outputPrice: 0, markupRate: 1 },
         1,
         { useFreeQuota: true },
@@ -123,6 +257,7 @@ describe('BillingService', () => {
       expect(result.totalCost).toBeCloseTo(0.5, 5);
       expect(result.freeQuotaDeducted).toBeCloseTo(0.5, 5);
       expect(result.chargedCost).toBe(0);
+      expect(result.tier).toBe('standard');
       expect(kv.data().balance).toBe(1);
       expect(kv.data().freeQuotaUsed).toBeCloseTo(0.75, 5);
     });
@@ -137,7 +272,7 @@ describe('BillingService', () => {
       const result = await service.processUsage(
         'user-1',
         'key-1',
-        { model: 'mimo-v2.5-pro', inputTokens: 500_000, outputTokens: 0 },
+        makeUsage({ model: 'mimo-v2.5-pro', inputTokens: 500_000 }),
         { inputPrice: 1, outputPrice: 0, markupRate: 1 },
         1,
         { useFreeQuota: true },
@@ -156,7 +291,7 @@ describe('BillingService', () => {
       const result = await service.processUsage(
         'user-1',
         'key-1',
-        { model: 'gpt-4o', inputTokens: 500_000, outputTokens: 0 },
+        makeUsage({ model: 'gpt-4o', inputTokens: 500_000 }),
         { inputPrice: 1, outputPrice: 0, markupRate: 1 },
         1,
         { useFreeQuota: true },

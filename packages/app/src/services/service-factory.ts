@@ -5,6 +5,7 @@ import { BillingService } from './billing-service';
 import { EmailService } from './email-service';
 import { GatewayService } from './gateway-service';
 import { KVService } from './kv-service';
+import { ModelCatalogService } from './model-catalog-service';
 
 export interface ProxyServices {
   db: Database;
@@ -12,6 +13,7 @@ export interface ProxyServices {
   billingService: BillingService;
   alertService: AlertService;
   gatewayService: GatewayService;
+  modelCatalog: ModelCatalogService;
 }
 
 /**
@@ -29,6 +31,7 @@ export function createProxyServices(env: CloudflareBindings): ProxyServices {
   });
   const alertService = new AlertService(kvService, db, emailService, env.ADMIN_EMAIL);
   const gatewayService = new GatewayService(env.CF_ACCOUNT_ID, env.CF_GATEWAY_ID, env.CF_AIG_TOKEN, env.CF_TOKEN);
+  const modelCatalog = new ModelCatalogService(kvService, db);
 
-  return { db, kvService, billingService, alertService, gatewayService };
+  return { db, kvService, billingService, alertService, gatewayService, modelCatalog };
 }

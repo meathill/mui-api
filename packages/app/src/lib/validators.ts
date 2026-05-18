@@ -35,6 +35,15 @@ export const ModelCreateSchema = z.object({
   inputPrice: z.number().min(0, '价格不能为负'),
   outputPrice: z.number().min(0, '价格不能为负'),
   markupRate: z.number().min(1).default(1.2),
+  // cache 单价：null / 缺省视为未启用，计费时回退基础 input 价
+  cachedInputPrice: z.number().min(0, '价格不能为负').nullable().optional(),
+  cacheWritePrice: z.number().min(0, '价格不能为负').nullable().optional(),
+  // 长上下文档位：null / 缺省视为永远 standard 档
+  longContextThresholdTokens: z.number().int().positive('阈值必须为正整数').nullable().optional(),
+  longContextInputPrice: z.number().min(0, '价格不能为负').nullable().optional(),
+  longContextCachedInputPrice: z.number().min(0, '价格不能为负').nullable().optional(),
+  longContextCacheWritePrice: z.number().min(0, '价格不能为负').nullable().optional(),
+  longContextOutputPrice: z.number().min(0, '价格不能为负').nullable().optional(),
 });
 export type ModelCreateInput = z.infer<typeof ModelCreateSchema>;
 

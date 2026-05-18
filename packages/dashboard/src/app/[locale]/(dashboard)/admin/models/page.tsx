@@ -1,6 +1,13 @@
 'use client';
 
-import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon, SearchIcon } from 'lucide-react';
+import {
+  ArrowDownIcon,
+  ArrowUpDownIcon,
+  ArrowUpIcon,
+  ChevronDownIcon,
+  ChevronRightIcon,
+  SearchIcon,
+} from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -43,6 +50,14 @@ interface ModelFormData {
   inputPrice: string;
   outputPrice: string;
   markupRate: string;
+  // 空字符串表示未配置 / 缺省
+  cachedInputPrice: string;
+  cacheWritePrice: string;
+  longContextThresholdTokens: string;
+  longContextInputPrice: string;
+  longContextCachedInputPrice: string;
+  longContextCacheWritePrice: string;
+  longContextOutputPrice: string;
 }
 
 const EMPTY_FORM: ModelFormData = {
@@ -52,7 +67,21 @@ const EMPTY_FORM: ModelFormData = {
   inputPrice: '',
   outputPrice: '',
   markupRate: '1.2',
+  cachedInputPrice: '',
+  cacheWritePrice: '',
+  longContextThresholdTokens: '',
+  longContextInputPrice: '',
+  longContextCachedInputPrice: '',
+  longContextCacheWritePrice: '',
+  longContextOutputPrice: '',
 };
+
+function parseOptionalNumber(v: string): number | null {
+  const trimmed = v.trim();
+  if (trimmed === '') return null;
+  const num = Number(trimmed);
+  return Number.isFinite(num) ? num : null;
+}
 
 function SortIndicator({
   field,
@@ -111,6 +140,9 @@ export default function ModelsPage() {
   // 错误弹窗
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // 高级定价折叠区
+  const [advancedOpen, setAdvancedOpen] = useState(false);
 
   // 数据处理流水线：搜索 → 排序 → 分页
   const filteredModels = useMemo(() => {
@@ -185,7 +217,20 @@ export default function ModelsPage() {
       inputPrice: String(model.inputPrice ?? ''),
       outputPrice: String(model.outputPrice ?? ''),
       markupRate: String(model.markupRate ?? '1.2'),
+      cachedInputPrice: model.cachedInputPrice == null ? '' : String(model.cachedInputPrice),
+      cacheWritePrice: model.cacheWritePrice == null ? '' : String(model.cacheWritePrice),
+      longContextThresholdTokens:
+        model.longContextThresholdTokens == null ? '' : String(model.longContextThresholdTokens),
+      longContextInputPrice: model.longContextInputPrice == null ? '' : String(model.longContextInputPrice),
+      longContextCachedInputPrice:
+        model.longContextCachedInputPrice == null ? '' : String(model.longContextCachedInputPrice),
+      longContextCacheWritePrice:
+        model.longContextCacheWritePrice == null ? '' : String(model.longContextCacheWritePrice),
+      longContextOutputPrice: model.longContextOutputPrice == null ? '' : String(model.longContextOutputPrice),
     });
+    setAdvancedOpen(
+      model.cachedInputPrice != null || model.cacheWritePrice != null || model.longContextThresholdTokens != null,
+    );
     setDialogOpen(true);
     setFormMsg('');
   }
@@ -193,6 +238,7 @@ export default function ModelsPage() {
   function handleAdd() {
     setEditingId(null);
     setForm(EMPTY_FORM);
+    setAdvancedOpen(false);
     setDialogOpen(true);
     setFormMsg('');
   }
@@ -207,6 +253,13 @@ export default function ModelsPage() {
       inputPrice: Number(form.inputPrice),
       outputPrice: Number(form.outputPrice),
       markupRate: Number(form.markupRate) || 1.2,
+      cachedInputPrice: parseOptionalNumber(form.cachedInputPrice),
+      cacheWritePrice: parseOptionalNumber(form.cacheWritePrice),
+      longContextThresholdTokens: parseOptionalNumber(form.longContextThresholdTokens),
+      longContextInputPrice: parseOptionalNumber(form.longContextInputPrice),
+      longContextCachedInputPrice: parseOptionalNumber(form.longContextCachedInputPrice),
+      longContextCacheWritePrice: parseOptionalNumber(form.longContextCacheWritePrice),
+      longContextOutputPrice: parseOptionalNumber(form.longContextOutputPrice),
     };
     try {
       if (editingId) {
@@ -338,6 +391,97 @@ export default function ModelsPage() {
                 onChange={(e) => updateField('markupRate', e.target.value)}
               />
             </div>
+
+            {/* 高级定价：cache 折扣 + 长上下文档位，留空 = 未启用 */}
+            <div className="col-span-2 -mx-6 mt-2 border-t pt-3 px-6">
+              <button
+                type="button"
+                onClick={() => setAdvancedOpen((v) => !v)}
+                className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {advancedOpen ? <ChevronDownIcon className="h-3 w-3" /> : <ChevronRightIcon className="h-3 w-3" />}
+                {t('advancedPricing')}
+              </button>
+              <p className="text-xs text-muted-foreground mt-1">{t('advancedHint')}</p>
+            </div>
+
+            {advancedOpen && (
+              <>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">{t('cachedInputPrice')}</label>
+                  <Input
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    value={form.cachedInputPrice}
+                    onChange={(e) => updateField('cachedInputPrice', e.target.value)}
+                    placeholder={t('emptyMeansDisabled')}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">{t('cacheWritePrice')}</label>
+                  <Input
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    value={form.cacheWritePrice}
+                    onChange={(e) => updateField('cacheWritePrice', e.target.value)}
+                    placeholder={t('anthropicOnly')}
+                  />
+                </div>
+                <div className="col-span-2">
+                  <label className="block text-xs text-muted-foreground mb-1">{t('longContextThresholdTokens')}</label>
+                  <Input
+                    type="number"
+                    step="1"
+                    min="1"
+                    value={form.longContextThresholdTokens}
+                    onChange={(e) => updateField('longContextThresholdTokens', e.target.value)}
+                    placeholder={t('thresholdPlaceholder')}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">{t('longContextInputPrice')}</label>
+                  <Input
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    value={form.longContextInputPrice}
+                    onChange={(e) => updateField('longContextInputPrice', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">{t('longContextOutputPrice')}</label>
+                  <Input
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    value={form.longContextOutputPrice}
+                    onChange={(e) => updateField('longContextOutputPrice', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">{t('longContextCachedInputPrice')}</label>
+                  <Input
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    value={form.longContextCachedInputPrice}
+                    onChange={(e) => updateField('longContextCachedInputPrice', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-muted-foreground mb-1">{t('longContextCacheWritePrice')}</label>
+                  <Input
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    value={form.longContextCacheWritePrice}
+                    onChange={(e) => updateField('longContextCacheWritePrice', e.target.value)}
+                  />
+                </div>
+              </>
+            )}
           </form>
           <DialogFooter variant="bare">
             {formMsg && <span className="text-sm text-muted-foreground mr-auto">{formMsg}</span>}

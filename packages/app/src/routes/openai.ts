@@ -1,8 +1,7 @@
-import { eq } from 'drizzle-orm';
 import { type Context, Hono } from 'hono';
-import { createDb } from '../db';
-import { type Model, models } from '../db/schema';
+import type { Model } from '../db/schema';
 import { authMiddleware, MIN_BALANCE } from '../middleware/auth';
+import type { ModelPricing } from '../services/billing-service';
 import {
   callAiBinding,
   callGemini,
@@ -21,55 +20,8 @@ type MultipartValue = string | File;
 type ModelLookup = {
   modelConfig: Model;
   upstreamModel: string;
-  modelPricing: {
-    inputPrice: number;
-    outputPrice: number;
-    markupRate: number;
-  };
+  modelPricing: ModelPricing;
 };
-
-const BUILT_IN_MODELS: Model[] = [
-  {
-    id: 'gpt-image-2',
-    provider: 'openai',
-    upstreamModelId: 'gpt-image-2',
-    inputPrice: 8,
-    outputPrice: 30,
-    markupRate: 1.2,
-  },
-  {
-    id: 'mimo-v2.5-tts',
-    provider: 'xiaomi-mimo',
-    upstreamModelId: 'mimo-v2.5-tts',
-    inputPrice: 0,
-    outputPrice: 0,
-    markupRate: 1.2,
-  },
-  {
-    id: 'mimo-v2.5-tts-voiceclone',
-    provider: 'xiaomi-mimo',
-    upstreamModelId: 'mimo-v2.5-tts-voiceclone',
-    inputPrice: 0,
-    outputPrice: 0,
-    markupRate: 1.2,
-  },
-  {
-    id: 'mimo-v2.5-tts-voicedesign',
-    provider: 'xiaomi-mimo',
-    upstreamModelId: 'mimo-v2.5-tts-voicedesign',
-    inputPrice: 0,
-    outputPrice: 0,
-    markupRate: 1.2,
-  },
-  {
-    id: 'mimo-v2-tts',
-    provider: 'xiaomi-mimo',
-    upstreamModelId: 'mimo-v2-tts',
-    inputPrice: 0,
-    outputPrice: 0,
-    markupRate: 1.2,
-  },
-];
 
 // 应用认证中间件（包含并发控制）
 openai.use('/*', authMiddleware);
@@ -91,32 +43,30 @@ async function lookupModel(
   modelId: string,
   services: ProxyServices,
 ): Promise<ModelLookup | Response> {
-  const modelConfig = await services.db.select().from(models).where(eq(models.id, modelId)).get();
-
+  const modelConfig = await services.modelCatalog.getById(modelId);
   if (!modelConfig) {
-    const builtInModel = BUILT_IN_MODELS.find((model) => model.id === modelId);
-    if (!builtInModel) {
-      return c.json({ error: { message: `未知模型: ${modelId}`, type: 'invalid_request_error' } }, 404);
-    }
-    return {
-      modelConfig: builtInModel,
-      upstreamModel: builtInModel.upstreamModelId ?? modelId,
-      modelPricing: {
-        inputPrice: builtInModel.inputPrice ?? 0,
-        outputPrice: builtInModel.outputPrice ?? 0,
-        markupRate: builtInModel.markupRate ?? 1.2,
-      },
-    };
+    return c.json({ error: { message: `未知模型: ${modelId}`, type: 'invalid_request_error' } }, 404);
   }
 
   return {
     modelConfig,
     upstreamModel: modelConfig.upstreamModelId ?? modelId,
-    modelPricing: {
-      inputPrice: modelConfig.inputPrice ?? 0,
-      outputPrice: modelConfig.outputPrice ?? 0,
-      markupRate: modelConfig.markupRate ?? 1.2,
-    },
+    modelPricing: toModelPricing(modelConfig),
+  };
+}
+
+function toModelPricing(model: Model): ModelPricing {
+  return {
+    inputPrice: model.inputPrice ?? 0,
+    outputPrice: model.outputPrice ?? 0,
+    markupRate: model.markupRate ?? 1.2,
+    cachedInputPrice: model.cachedInputPrice,
+    cacheWritePrice: model.cacheWritePrice,
+    longContextThresholdTokens: model.longContextThresholdTokens,
+    longContextInputPrice: model.longContextInputPrice,
+    longContextCachedInputPrice: model.longContextCachedInputPrice,
+    longContextCacheWritePrice: model.longContextCacheWritePrice,
+    longContextOutputPrice: model.longContextOutputPrice,
   };
 }
 
@@ -139,11 +89,17 @@ async function processBilling(
   try {
     const data = (await response.json()) as JsonBody;
     const usage = extractUsage(provider, data);
-    if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
+    if (usage && hasAnyTokens(usage)) {
       const billing = await services.billingService.processUsage(
         userId,
         apiKeyId,
-        { model: modelId, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens },
+        {
+          model: modelId,
+          inputTokens: usage.inputTokens,
+          cachedInputTokens: usage.cachedInputTokens,
+          cacheWriteTokens: usage.cacheWriteTokens,
+          outputTokens: usage.outputTokens,
+        },
         modelPricing,
         userRateMultiplier,
         { useFreeQuota: true },
@@ -153,6 +109,15 @@ async function processBilling(
   } catch (error) {
     console.error('非流式计费失败:', error);
   }
+}
+
+function hasAnyTokens(usage: {
+  inputTokens: number;
+  cachedInputTokens: number;
+  cacheWriteTokens: number;
+  outputTokens: number;
+}) {
+  return usage.inputTokens > 0 || usage.cachedInputTokens > 0 || usage.cacheWriteTokens > 0 || usage.outputTokens > 0;
 }
 
 async function assertBillableAccess(
@@ -283,11 +248,17 @@ openai.post('/chat/completions', async (c) => {
         (async () => {
           try {
             const usage = await extractStreamUsage(provider, new Response(billingStream));
-            if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
+            if (usage && hasAnyTokens(usage)) {
               const billing = await services.billingService.processUsage(
                 userId,
                 apiKeyId,
-                { model: modelId, inputTokens: usage.inputTokens, outputTokens: usage.outputTokens },
+                {
+                  model: modelId,
+                  inputTokens: usage.inputTokens,
+                  cachedInputTokens: usage.cachedInputTokens,
+                  cacheWriteTokens: usage.cacheWriteTokens,
+                  outputTokens: usage.outputTokens,
+                },
                 modelPricing,
                 userRateMultiplier,
                 { useFreeQuota: true },
@@ -438,18 +409,11 @@ openai.post('/images/edits', async (c) => {
  * 列出可用模型
  */
 openai.get('/models', async (c) => {
-  const db = createDb(c.env.DB);
-  const modelList = await db.query.models.findMany();
-  const mergedModels = [...modelList];
-  for (const model of BUILT_IN_MODELS) {
-    if (!mergedModels.some((item) => item.id === model.id)) {
-      mergedModels.push(model);
-    }
-  }
-
+  const services = createProxyServices(c.env);
+  const all = await services.modelCatalog.getAll();
   return c.json({
     object: 'list',
-    data: mergedModels.map((m) => ({
+    data: all.map((m) => ({
       id: m.id,
       object: 'model',
       created: 0,

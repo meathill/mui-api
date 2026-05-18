@@ -105,7 +105,9 @@
     "billingNotice": "If a model price in the dashboard differs from this page, dashboard configuration is the effective billing source.",
     "providers": {
       "openai": "Current flagship and coding-oriented token prices published by OpenAI.",
-      "gemini": "Current Gemini 3 / 3.1 public token prices for the main text and multimodal preview models."
+      "anthropic": "Current Anthropic Claude Opus / Sonnet / Haiku public token prices.",
+      "google-ai-studio": "Current Google Gemini public token prices for text and multimodal models.",
+      "xiaomi-mimo": "Current Xiaomi MiMo public token prices (listed at the ≤256K tier)."
     },
     "columns": {
       "model": "Model",
@@ -117,9 +119,7 @@
     },
     "notes": {
       "none": "-",
-      "openaiLongContext": "Long-context pricing applies above 270k context: $5.00 / $0.50 / $22.50.",
-      "gemini31ProPreview": "Preview model. Prompts above 200k tokens move to $4.00 / $0.40 / $18.00.",
-      "geminiPreview": "Preview model. Pricing and limits may change before stable release."
+      "longContextDynamic": "Long-context tier applies above {threshold} tokens: input {input} / cached input {cached} / output {output}."
     }
   },
   "blog": {
@@ -325,6 +325,18 @@
     "inputPrice": "Input Price ($/1M tokens)",
     "outputPrice": "Output Price ($/1M tokens)",
     "markupRate": "Markup Rate",
+    "advancedPricing": "Advanced Pricing (cache discount + long-context tier)",
+    "advancedHint": "Leave blank to inherit the base input/output prices; fill in to enable the feature.",
+    "cachedInputPrice": "Cache Hit Input Price ($/1M tokens)",
+    "cacheWritePrice": "Cache Write Price ($/1M tokens)",
+    "longContextThresholdTokens": "Long Context Threshold (tokens)",
+    "longContextInputPrice": "Long-context Input Price ($/1M tokens)",
+    "longContextOutputPrice": "Long-context Output Price ($/1M tokens)",
+    "longContextCachedInputPrice": "Long-context Cache Hit Input Price ($/1M tokens)",
+    "longContextCacheWritePrice": "Long-context Cache Write Price ($/1M tokens)",
+    "emptyMeansDisabled": "Empty = disabled",
+    "anthropicOnly": "Anthropic only",
+    "thresholdPlaceholder": "e.g. 270000; empty = never trigger long-context tier",
     "cancel": "Cancel",
     "create": "Create",
     "update": "Update",

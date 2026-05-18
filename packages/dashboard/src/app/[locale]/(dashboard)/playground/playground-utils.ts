@@ -19,6 +19,16 @@ export type TtsVoiceOption = {
   label: string;
 };
 
+const NO_TIER_PRICING = {
+  cachedInputPrice: null,
+  cacheWritePrice: null,
+  longContextThresholdTokens: null,
+  longContextInputPrice: null,
+  longContextCachedInputPrice: null,
+  longContextCacheWritePrice: null,
+  longContextOutputPrice: null,
+} as const;
+
 export const BUILT_IN_IMAGE_MODELS: ModelInfo[] = [
   {
     id: 'gpt-image-2',
@@ -27,6 +37,7 @@ export const BUILT_IN_IMAGE_MODELS: ModelInfo[] = [
     inputPrice: 8,
     outputPrice: 30,
     markupRate: 1.2,
+    ...NO_TIER_PRICING,
   },
 ];
 
@@ -38,6 +49,7 @@ export const BUILT_IN_TTS_MODELS: ModelInfo[] = [
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    ...NO_TIER_PRICING,
   },
   {
     id: 'mimo-v2.5-tts-voiceclone',
@@ -46,6 +58,7 @@ export const BUILT_IN_TTS_MODELS: ModelInfo[] = [
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    ...NO_TIER_PRICING,
   },
   {
     id: 'mimo-v2.5-tts-voicedesign',
@@ -54,6 +67,7 @@ export const BUILT_IN_TTS_MODELS: ModelInfo[] = [
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    ...NO_TIER_PRICING,
   },
   {
     id: 'mimo-v2-tts',
@@ -62,6 +76,7 @@ export const BUILT_IN_TTS_MODELS: ModelInfo[] = [
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    ...NO_TIER_PRICING,
   },
 ];
 

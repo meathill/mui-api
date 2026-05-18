@@ -46,13 +46,15 @@ providers.all('/:provider{.+}/*', async (c) => {
         (async () => {
           try {
             const usage = await extractStreamUsage(provider, new Response(billingStream));
-            if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
+            if (usage && hasAnyTokens(usage)) {
               const billing = await billingService.processUsage(
                 userId,
                 apiKeyId,
                 {
                   model: usage.model,
                   inputTokens: usage.inputTokens,
+                  cachedInputTokens: usage.cachedInputTokens,
+                  cacheWriteTokens: usage.cacheWriteTokens,
                   outputTokens: usage.outputTokens,
                 },
                 null,
@@ -80,13 +82,15 @@ providers.all('/:provider{.+}/*', async (c) => {
         try {
           const data = (await billingResponse.json()) as Record<string, unknown>;
           const usage = extractUsage(provider, data);
-          if (usage && (usage.inputTokens > 0 || usage.outputTokens > 0)) {
+          if (usage && hasAnyTokens(usage)) {
             const billing = await billingService.processUsage(
               userId,
               apiKeyId,
               {
                 model: usage.model,
                 inputTokens: usage.inputTokens,
+                cachedInputTokens: usage.cachedInputTokens,
+                cacheWriteTokens: usage.cacheWriteTokens,
                 outputTokens: usage.outputTokens,
               },
               null,
@@ -111,5 +115,14 @@ providers.all('/:provider{.+}/*', async (c) => {
     return c.json({ error: { message: '上游 API 调用失败', type: 'api_error' } }, 502);
   }
 });
+
+function hasAnyTokens(usage: {
+  inputTokens: number;
+  cachedInputTokens: number;
+  cacheWriteTokens: number;
+  outputTokens: number;
+}) {
+  return usage.inputTokens > 0 || usage.cachedInputTokens > 0 || usage.cacheWriteTokens > 0 || usage.outputTokens > 0;
+}
 
 export default providers;

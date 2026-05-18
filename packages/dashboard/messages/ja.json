@@ -105,7 +105,9 @@
     "billingNotice": "ダッシュボード内のモデル価格がこのページと異なる場合、請求にはダッシュボード設定が適用されます。",
     "providers": {
       "openai": "OpenAI が公開している最新のフラッグシップモデルとコード向けモデルの token 価格です。",
-      "gemini": "Gemini 3 / 3.1 の主要なテキスト・マルチモーダル preview モデルに対する最新の公開 token 価格です。"
+      "anthropic": "Anthropic Claude Opus / Sonnet / Haiku の最新の公開 token 価格です。",
+      "google-ai-studio": "Google Gemini のテキスト・マルチモーダルモデルに対する最新の公開 token 価格です。",
+      "xiaomi-mimo": "Xiaomi MiMo の最新公開 token 価格（≤256K 帯）です。"
     },
     "columns": {
       "model": "モデル",
@@ -117,9 +119,7 @@
     },
     "notes": {
       "none": "-",
-      "openaiLongContext": "270k を超えるコンテキストでは長文コンテキスト料金が適用されます: $5.00 / $0.50 / $22.50。",
-      "gemini31ProPreview": "Preview モデルです。200k tokens を超える prompt は $4.00 / $0.40 / $18.00 になります。",
-      "geminiPreview": "Preview モデルのため、正式版前に価格や制限が変わる可能性があります。"
+      "longContextDynamic": "{threshold} tokens を超えると長文コンテキスト料金が適用されます: 入力 {input} / キャッシュ入力 {cached} / 出力 {output}。"
     }
   },
   "blog": {
@@ -325,6 +325,18 @@
     "inputPrice": "入力価格（$/100万トークン）",
     "outputPrice": "出力価格（$/100万トークン）",
     "markupRate": "マークアップ率",
+    "advancedPricing": "Advanced Pricing (cache discount + long-context tier)",
+    "advancedHint": "Leave blank to inherit the base input/output prices; fill in to enable the feature.",
+    "cachedInputPrice": "Cache Hit Input Price ($/1M tokens)",
+    "cacheWritePrice": "Cache Write Price ($/1M tokens)",
+    "longContextThresholdTokens": "Long Context Threshold (tokens)",
+    "longContextInputPrice": "Long-context Input Price ($/1M tokens)",
+    "longContextOutputPrice": "Long-context Output Price ($/1M tokens)",
+    "longContextCachedInputPrice": "Long-context Cache Hit Input Price ($/1M tokens)",
+    "longContextCacheWritePrice": "Long-context Cache Write Price ($/1M tokens)",
+    "emptyMeansDisabled": "Empty = disabled",
+    "anthropicOnly": "Anthropic only",
+    "thresholdPlaceholder": "e.g. 270000; empty = never trigger long-context tier",
     "cancel": "キャンセル",
     "create": "作成",
     "update": "更新",

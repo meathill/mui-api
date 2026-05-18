@@ -53,6 +53,7 @@ const USER_KEY_PREFIX = 'user:';
 const APIKEY_PREFIX = 'apikey:';
 const GLOBAL_CONFIG_KEY = 'config:global';
 const GLOBAL_SPENDING_PREFIX = 'stats:';
+const MODELS_CATALOG_KEY = 'models:catalog';
 const DEFAULT_FREE_QUOTA_CONFIG: FreeQuotaConfig = {
   enabled: false,
   amount: 0,
@@ -162,6 +163,14 @@ export async function getGlobalConfig(kv: KVNamespace): Promise<GlobalConfig | n
 
 export async function setGlobalConfig(kv: KVNamespace, config: GlobalConfig): Promise<void> {
   await kv.put(GLOBAL_CONFIG_KEY, JSON.stringify(config));
+}
+
+/**
+ * 失效 KV 模型 catalog 缓存。dashboard 写入 models 表后调用，
+ * 后端 ModelCatalogService 下一次 getAll() 会自动回源 D1 重新填充。
+ */
+export async function invalidateModelsCatalog(kv: KVNamespace): Promise<void> {
+  await kv.delete(MODELS_CATALOG_KEY);
 }
 
 export function normalizeFreeQuotaConfig(config: Partial<FreeQuotaConfig> | null | undefined): FreeQuotaConfig {

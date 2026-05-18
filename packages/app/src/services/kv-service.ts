@@ -2,12 +2,14 @@ import { hashApiKey } from '../lib/crypto';
 import type { KVUserData, KVUserMetadata } from '../types';
 
 import type { GlobalConfig } from './alert-service';
+import type { Model } from '../db/schema';
 
 const USER_KEY_PREFIX = 'user:';
 const APIKEY_PREFIX = 'apikey:';
 const GLOBAL_CONFIG_KEY = 'config:global';
 const GLOBAL_SPENDING_PREFIX = 'stats:';
 const USER_SPENDING_PREFIX = 'spending:user:';
+const MODELS_CATALOG_KEY = 'models:catalog';
 
 export interface ApiKeyMetadata {
   keyPrefix: string;
@@ -202,6 +204,21 @@ export class KVService {
    */
   async setGlobalConfig(config: GlobalConfig): Promise<void> {
     await this.kv.put(GLOBAL_CONFIG_KEY, JSON.stringify(config));
+  }
+
+  /**
+   * 读取模型 catalog 缓存。
+   * 不设 TTL：模型表只有 admin CRUD 一条写路径，由 ModelCatalogService.refresh() 显式失效。
+   */
+  async getModelsCatalog(): Promise<Model[] | null> {
+    return this.kv.get<Model[]>(MODELS_CATALOG_KEY, 'json');
+  }
+
+  /**
+   * 写入模型 catalog 缓存。
+   */
+  async setModelsCatalog(models: Model[]): Promise<void> {
+    await this.kv.put(MODELS_CATALOG_KEY, JSON.stringify(models));
   }
 
   /**

@@ -11,7 +11,10 @@ interface AggregateRow {
   totalCost: number;
   totalInputTokens: number;
   totalOutputTokens: number;
+  totalCachedInputTokens: number;
+  totalCacheWriteTokens: number;
   requestCount: number;
+  longContextRequestCount: number;
 }
 
 interface AggregateData {
@@ -21,6 +24,8 @@ interface AggregateData {
 }
 
 type UpsertRow = { userId: string | null; modelId: string | null } & AggregateRow;
+
+const longContextCountSql = sql<number>`SUM(CASE WHEN ${usageLogs.tier} = 'long_context' THEN 1 ELSE 0 END)`;
 
 async function upsertStats(
   db: Database,
@@ -53,9 +58,12 @@ async function upsertStats(
         .update(usageStats)
         .set({
           requestCount: row.requestCount,
+          longContextRequestCount: row.longContextRequestCount,
           totalCost: row.totalCost,
           totalInputTokens: row.totalInputTokens,
           totalOutputTokens: row.totalOutputTokens,
+          totalCachedInputTokens: row.totalCachedInputTokens,
+          totalCacheWriteTokens: row.totalCacheWriteTokens,
           updatedAt: now,
         })
         .where(eq(usageStats.id, existing[0].id));
@@ -69,56 +77,73 @@ async function upsertStats(
       periodEnd: period.end,
       periodStart: period.start,
       requestCount: row.requestCount,
+      longContextRequestCount: row.longContextRequestCount,
       totalCost: row.totalCost,
       totalInputTokens: row.totalInputTokens,
       totalOutputTokens: row.totalOutputTokens,
+      totalCachedInputTokens: row.totalCachedInputTokens,
+      totalCacheWriteTokens: row.totalCacheWriteTokens,
       userId: row.userId,
     });
   }
 }
 
 async function aggregateFromLogs(db: Database, period: PeriodRange): Promise<AggregateData> {
+  const inRange = and(gte(usageLogs.createdAt, period.start), lt(usageLogs.createdAt, period.end));
+
   const [globalResult] = await db
     .select({
       requestCount: count(),
+      longContextRequestCount: longContextCountSql.mapWith(Number),
       totalCost: sum(usageLogs.cost).mapWith(Number),
       totalInputTokens: sum(usageLogs.inputTokens).mapWith(Number),
       totalOutputTokens: sum(usageLogs.outputTokens).mapWith(Number),
+      totalCachedInputTokens: sum(usageLogs.cachedInputTokens).mapWith(Number),
+      totalCacheWriteTokens: sum(usageLogs.cacheWriteTokens).mapWith(Number),
     })
     .from(usageLogs)
-    .where(and(gte(usageLogs.createdAt, period.start), lt(usageLogs.createdAt, period.end)));
+    .where(inRange);
 
   const byUserResults = await db
     .select({
       requestCount: count(),
+      longContextRequestCount: longContextCountSql.mapWith(Number),
       totalCost: sum(usageLogs.cost).mapWith(Number),
       totalInputTokens: sum(usageLogs.inputTokens).mapWith(Number),
       totalOutputTokens: sum(usageLogs.outputTokens).mapWith(Number),
+      totalCachedInputTokens: sum(usageLogs.cachedInputTokens).mapWith(Number),
+      totalCacheWriteTokens: sum(usageLogs.cacheWriteTokens).mapWith(Number),
       userId: usageLogs.userId,
     })
     .from(usageLogs)
-    .where(and(gte(usageLogs.createdAt, period.start), lt(usageLogs.createdAt, period.end)))
+    .where(inRange)
     .groupBy(usageLogs.userId);
 
   const byModelResults = await db
     .select({
       modelId: usageLogs.modelId,
       requestCount: count(),
+      longContextRequestCount: longContextCountSql.mapWith(Number),
       totalCost: sum(usageLogs.cost).mapWith(Number),
       totalInputTokens: sum(usageLogs.inputTokens).mapWith(Number),
       totalOutputTokens: sum(usageLogs.outputTokens).mapWith(Number),
+      totalCachedInputTokens: sum(usageLogs.cachedInputTokens).mapWith(Number),
+      totalCacheWriteTokens: sum(usageLogs.cacheWriteTokens).mapWith(Number),
     })
     .from(usageLogs)
-    .where(and(gte(usageLogs.createdAt, period.start), lt(usageLogs.createdAt, period.end)))
+    .where(inRange)
     .groupBy(usageLogs.modelId);
 
   return {
     global: {
       dimension: null,
       requestCount: globalResult.requestCount || 0,
+      longContextRequestCount: globalResult.longContextRequestCount || 0,
       totalCost: globalResult.totalCost || 0,
       totalInputTokens: globalResult.totalInputTokens || 0,
       totalOutputTokens: globalResult.totalOutputTokens || 0,
+      totalCachedInputTokens: globalResult.totalCachedInputTokens || 0,
+      totalCacheWriteTokens: globalResult.totalCacheWriteTokens || 0,
     },
     byUser: byUserResults
       .filter((row) => row.userId)
@@ -126,9 +151,12 @@ async function aggregateFromLogs(db: Database, period: PeriodRange): Promise<Agg
         userId: row.userId!,
         dimension: row.userId,
         requestCount: row.requestCount || 0,
+        longContextRequestCount: row.longContextRequestCount || 0,
         totalCost: row.totalCost || 0,
         totalInputTokens: row.totalInputTokens || 0,
         totalOutputTokens: row.totalOutputTokens || 0,
+        totalCachedInputTokens: row.totalCachedInputTokens || 0,
+        totalCacheWriteTokens: row.totalCacheWriteTokens || 0,
       })),
     byModel: byModelResults
       .filter((row) => row.modelId)
@@ -136,9 +164,12 @@ async function aggregateFromLogs(db: Database, period: PeriodRange): Promise<Agg
         modelId: row.modelId!,
         dimension: row.modelId,
         requestCount: row.requestCount || 0,
+        longContextRequestCount: row.longContextRequestCount || 0,
         totalCost: row.totalCost || 0,
         totalInputTokens: row.totalInputTokens || 0,
         totalOutputTokens: row.totalOutputTokens || 0,
+        totalCachedInputTokens: row.totalCachedInputTokens || 0,
+        totalCacheWriteTokens: row.totalCacheWriteTokens || 0,
       })),
   };
 }
@@ -165,13 +196,18 @@ async function aggregateFromStats(
     return null;
   }
 
+  const statsAgg = {
+    requestCount: sum(usageStats.requestCount).mapWith(Number),
+    longContextRequestCount: sum(usageStats.longContextRequestCount).mapWith(Number),
+    totalCost: sum(usageStats.totalCost).mapWith(Number),
+    totalInputTokens: sum(usageStats.totalInputTokens).mapWith(Number),
+    totalOutputTokens: sum(usageStats.totalOutputTokens).mapWith(Number),
+    totalCachedInputTokens: sum(usageStats.totalCachedInputTokens).mapWith(Number),
+    totalCacheWriteTokens: sum(usageStats.totalCacheWriteTokens).mapWith(Number),
+  };
+
   const [globalResult] = await db
-    .select({
-      requestCount: sum(usageStats.requestCount).mapWith(Number),
-      totalCost: sum(usageStats.totalCost).mapWith(Number),
-      totalInputTokens: sum(usageStats.totalInputTokens).mapWith(Number),
-      totalOutputTokens: sum(usageStats.totalOutputTokens).mapWith(Number),
-    })
+    .select(statsAgg)
     .from(usageStats)
     .where(
       and(
@@ -184,13 +220,7 @@ async function aggregateFromStats(
     );
 
   const byUserResults = await db
-    .select({
-      requestCount: sum(usageStats.requestCount).mapWith(Number),
-      totalCost: sum(usageStats.totalCost).mapWith(Number),
-      totalInputTokens: sum(usageStats.totalInputTokens).mapWith(Number),
-      totalOutputTokens: sum(usageStats.totalOutputTokens).mapWith(Number),
-      userId: usageStats.userId,
-    })
+    .select({ ...statsAgg, userId: usageStats.userId })
     .from(usageStats)
     .where(
       and(
@@ -204,13 +234,7 @@ async function aggregateFromStats(
     .groupBy(usageStats.userId);
 
   const byModelResults = await db
-    .select({
-      modelId: usageStats.modelId,
-      requestCount: sum(usageStats.requestCount).mapWith(Number),
-      totalCost: sum(usageStats.totalCost).mapWith(Number),
-      totalInputTokens: sum(usageStats.totalInputTokens).mapWith(Number),
-      totalOutputTokens: sum(usageStats.totalOutputTokens).mapWith(Number),
-    })
+    .select({ modelId: usageStats.modelId, ...statsAgg })
     .from(usageStats)
     .where(
       and(
@@ -227,9 +251,12 @@ async function aggregateFromStats(
     global: {
       dimension: null,
       requestCount: globalResult.requestCount || 0,
+      longContextRequestCount: globalResult.longContextRequestCount || 0,
       totalCost: globalResult.totalCost || 0,
       totalInputTokens: globalResult.totalInputTokens || 0,
       totalOutputTokens: globalResult.totalOutputTokens || 0,
+      totalCachedInputTokens: globalResult.totalCachedInputTokens || 0,
+      totalCacheWriteTokens: globalResult.totalCacheWriteTokens || 0,
     },
     byUser: byUserResults
       .filter((row) => row.userId)
@@ -237,9 +264,12 @@ async function aggregateFromStats(
         userId: row.userId!,
         dimension: row.userId,
         requestCount: row.requestCount || 0,
+        longContextRequestCount: row.longContextRequestCount || 0,
         totalCost: row.totalCost || 0,
         totalInputTokens: row.totalInputTokens || 0,
         totalOutputTokens: row.totalOutputTokens || 0,
+        totalCachedInputTokens: row.totalCachedInputTokens || 0,
+        totalCacheWriteTokens: row.totalCacheWriteTokens || 0,
       })),
     byModel: byModelResults
       .filter((row) => row.modelId)
@@ -247,9 +277,12 @@ async function aggregateFromStats(
         modelId: row.modelId!,
         dimension: row.modelId,
         requestCount: row.requestCount || 0,
+        longContextRequestCount: row.longContextRequestCount || 0,
         totalCost: row.totalCost || 0,
         totalInputTokens: row.totalInputTokens || 0,
         totalOutputTokens: row.totalOutputTokens || 0,
+        totalCachedInputTokens: row.totalCachedInputTokens || 0,
+        totalCacheWriteTokens: row.totalCacheWriteTokens || 0,
       })),
   };
 }

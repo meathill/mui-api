@@ -105,7 +105,9 @@
     "billingNotice": "如果控制台里的模型价格与本页不一致，最终计费以控制台配置为准。",
     "providers": {
       "openai": "OpenAI 当前公开的旗舰模型与代码模型 token 定价。",
-      "gemini": "Gemini 3 / 3.1 当前公开的主流文本与多模态预览模型 token 定价。"
+      "anthropic": "Anthropic Claude 当前公开的旗舰、Sonnet 与 Haiku 系列 token 定价。",
+      "google-ai-studio": "Google Gemini 当前公开的主流文本与多模态模型 token 定价。",
+      "xiaomi-mimo": "Xiaomi MiMo 当前公开的文本与多模态模型 token 定价（按 ≤256K 档位列示）。"
     },
     "columns": {
       "model": "模型",
@@ -117,9 +119,7 @@
     },
     "notes": {
       "none": "-",
-      "openaiLongContext": "超过 270k 上下文后启用长上下文档位：$5.00 / $0.50 / $22.50。",
-      "gemini31ProPreview": "预览版模型。超过 200k tokens 的 prompt 按 $4.00 / $0.40 / $18.00 计。",
-      "geminiPreview": "预览版模型，价格和限制在正式发布前仍可能调整。"
+      "longContextDynamic": "超过 {threshold} tokens 后启用长上下文档位：输入 {input} / 缓存输入 {cached} / 输出 {output}。"
     }
   },
   "blog": {
@@ -325,6 +325,18 @@
     "inputPrice": "输入价格 ($/1M tokens)",
     "outputPrice": "输出价格 ($/1M tokens)",
     "markupRate": "加价倍率",
+    "advancedPricing": "高级定价（cache 折扣 + 长上下文档位）",
+    "advancedHint": "留空 = 沿用基础 input/output 价；填了才启用对应特性",
+    "cachedInputPrice": "Cache 命中输入价 ($/1M tokens)",
+    "cacheWritePrice": "Cache 写入价 ($/1M tokens)",
+    "longContextThresholdTokens": "长上下文档位阈值（tokens）",
+    "longContextInputPrice": "长档输入价 ($/1M tokens)",
+    "longContextOutputPrice": "长档输出价 ($/1M tokens)",
+    "longContextCachedInputPrice": "长档 cache 命中价 ($/1M tokens)",
+    "longContextCacheWritePrice": "长档 cache 写入价 ($/1M tokens)",
+    "emptyMeansDisabled": "留空 = 不启用",
+    "anthropicOnly": "仅 anthropic 适用",
+    "thresholdPlaceholder": "如 270000；留空则永不触发长档",
     "cancel": "取消",
     "create": "创建",
     "update": "更新",
