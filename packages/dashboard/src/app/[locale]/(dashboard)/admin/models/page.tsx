@@ -363,7 +363,7 @@ export default function ModelsPage() {
               <label className="block text-xs text-muted-foreground mb-1">{t('inputPrice')}</label>
               <Input
                 type="number"
-                step="0.01"
+                step="0.001"
                 min="0"
                 value={form.inputPrice}
                 onChange={(e) => updateField('inputPrice', e.target.value)}
@@ -374,7 +374,7 @@ export default function ModelsPage() {
               <label className="block text-xs text-muted-foreground mb-1">{t('outputPrice')}</label>
               <Input
                 type="number"
-                step="0.01"
+                step="0.001"
                 min="0"
                 value={form.outputPrice}
                 onChange={(e) => updateField('outputPrice', e.target.value)}
