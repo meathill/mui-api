@@ -15,10 +15,10 @@ await db.batch([
   ),
   db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS user_email_unique ON user (email)'),
   db.prepare(
-    'CREATE TABLE IF NOT EXISTS models (id TEXT PRIMARY KEY NOT NULL, provider TEXT NOT NULL, upstream_model_id TEXT, input_price REAL, output_price REAL, markup_rate REAL DEFAULT 1.2)',
+    'CREATE TABLE IF NOT EXISTS models (id TEXT PRIMARY KEY NOT NULL, provider TEXT NOT NULL, upstream_model_id TEXT, input_price REAL, output_price REAL, markup_rate REAL DEFAULT 1.2, cached_input_price REAL, cache_write_price REAL, long_context_threshold_tokens INTEGER, long_context_input_price REAL, long_context_cached_input_price REAL, long_context_cache_write_price REAL, long_context_output_price REAL)',
   ),
   db.prepare(
-    'CREATE TABLE IF NOT EXISTS usage_logs (id TEXT PRIMARY KEY NOT NULL, user_id TEXT, api_key_id TEXT, model_id TEXT, input_tokens INTEGER, output_tokens INTEGER, cost REAL, created_at INTEGER DEFAULT (unixepoch()))',
+    "CREATE TABLE IF NOT EXISTS usage_logs (id TEXT PRIMARY KEY NOT NULL, user_id TEXT, api_key_id TEXT, model_id TEXT, input_tokens INTEGER, output_tokens INTEGER, cached_input_tokens INTEGER DEFAULT 0, cache_write_tokens INTEGER DEFAULT 0, tier TEXT DEFAULT 'standard', cost REAL, created_at INTEGER DEFAULT (unixepoch()))",
   ),
   db.prepare(
     "CREATE TABLE IF NOT EXISTS wallets (user_id TEXT PRIMARY KEY NOT NULL, balance REAL DEFAULT 0, currency TEXT DEFAULT 'USD', updated_at INTEGER DEFAULT (unixepoch()), FOREIGN KEY (user_id) REFERENCES user(id))",
@@ -34,7 +34,7 @@ await db.batch([
     "CREATE TABLE IF NOT EXISTS stripe_topup_sessions (checkout_session_id TEXT PRIMARY KEY NOT NULL, user_id TEXT NOT NULL, amount REAL NOT NULL, currency TEXT NOT NULL DEFAULT 'USD', status TEXT NOT NULL DEFAULT 'created', payment_status TEXT, stripe_customer_id TEXT, payment_intent_id TEXT, balance_after REAL, last_error TEXT, created_at INTEGER DEFAULT (unixepoch()), updated_at INTEGER DEFAULT (unixepoch()), completed_at INTEGER)",
   ),
   db.prepare(
-    'CREATE TABLE IF NOT EXISTS usage_stats (id TEXT PRIMARY KEY NOT NULL, granularity TEXT NOT NULL, period_start INTEGER NOT NULL, period_end INTEGER NOT NULL, user_id TEXT, model_id TEXT, total_cost REAL DEFAULT 0, total_input_tokens INTEGER DEFAULT 0, total_output_tokens INTEGER DEFAULT 0, request_count INTEGER DEFAULT 0, created_at INTEGER DEFAULT (unixepoch()), updated_at INTEGER DEFAULT (unixepoch()))',
+    'CREATE TABLE IF NOT EXISTS usage_stats (id TEXT PRIMARY KEY NOT NULL, granularity TEXT NOT NULL, period_start INTEGER NOT NULL, period_end INTEGER NOT NULL, user_id TEXT, model_id TEXT, total_cost REAL DEFAULT 0, total_input_tokens INTEGER DEFAULT 0, total_output_tokens INTEGER DEFAULT 0, total_cached_input_tokens INTEGER DEFAULT 0, total_cache_write_tokens INTEGER DEFAULT 0, request_count INTEGER DEFAULT 0, long_context_request_count INTEGER DEFAULT 0, created_at INTEGER DEFAULT (unixepoch()), updated_at INTEGER DEFAULT (unixepoch()))',
   ),
   db.prepare(
     'CREATE UNIQUE INDEX IF NOT EXISTS idx_usage_stats_unique ON usage_stats (granularity, period_start, user_id, model_id)',
