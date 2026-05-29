@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { buildMetadata, getResolvedLocale } from '@/lib/seo';
 
@@ -52,7 +52,9 @@ const tools: Array<{ name: string; desc: string; example: string }> = [
   },
 ];
 
-export default function McpPage() {
+export default async function McpPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  setRequestLocale(locale);
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
       <header className="mb-10">

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { buildMetadata, getResolvedLocale } from '@/lib/seo';
 import { AdvantagesSection } from './_components/advantages-section';
 import { CodeSection } from './_components/code-section';
@@ -16,7 +16,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   return buildMetadata({
     path: '/',
-    title: `MUI Router - ${t('ogTitle')}`,
+    // 根 layout 已设 title.template = "%s | MUI Router"，这里只传可变部分。
+    title: t('ogTitle'),
     description: t('description'),
     locale: resolvedLocale,
   });
@@ -24,6 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'metadata' });
 
   const jsonLd = {

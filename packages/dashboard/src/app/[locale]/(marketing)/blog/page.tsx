@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
 import { getLocalizedBlogPosts } from '@/lib/blog';
 import { buildMetadata, getLocalizedPath, getResolvedLocale, SITE_URL } from '@/lib/seo';
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   return buildMetadata({
     path: '/blog',
-    title: `MUI Router - ${t('title')}`,
+    title: t('title'),
     description: t('description'),
     locale: resolvedLocale,
   });
@@ -29,6 +29,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function BlogPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const resolvedLocale = getResolvedLocale(locale);
+  setRequestLocale(resolvedLocale);
   const t = await getTranslations({ locale: resolvedLocale, namespace: 'blog' });
   const posts = getLocalizedBlogPosts(resolvedLocale);
 

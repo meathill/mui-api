@@ -18,7 +18,11 @@ export function getMarketingOgImage(locale: string) {
 }
 
 export function getLocalizedPath(href: string, locale: string): string {
-  return locale === defaultLocale ? href : `/${locale}${href}`;
+  if (locale === defaultLocale) {
+    return href;
+  }
+  // 对根路径要特殊处理：/zh 而不是 /zh/，避免 Next.js 自动 308 重定向
+  return href === '/' ? `/${locale}` : `/${locale}${href}`;
 }
 
 export function getLanguageAlternates(href: string): Record<string, string> {

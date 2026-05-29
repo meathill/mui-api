@@ -1,12 +1,22 @@
 import Image from 'next/image';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PawIcon } from '@/components/brand/paw-icon';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { HeaderAuthCta } from '@/components/marketing/header-auth-cta';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Link } from '@/i18n/navigation';
 
-export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
+export default async function MarketingLayout({
+  children,
+  params,
+}: {
+  children: React.ReactNode;
+  params: Promise<{ locale: string }>;
+}) {
+  // 显式 setRequestLocale 让 next-intl 在 SSG 时拿到 locale，
+  // 否则 getTranslations 会落入 cookie/header 动态读取，导致整树 force dynamic。
+  const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations('header');
 
   return (

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import type { ComponentType } from 'react';
 import type { Locale } from '@/i18n/config';
 import { Link } from '@/i18n/navigation';
@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   return buildMetadata({
     path: post.href,
-    title: `MUI Router - ${localizedPost.title}`,
+    title: localizedPost.title,
     description: localizedPost.description,
     locale: resolvedLocale,
     ogType: 'article',
@@ -54,6 +54,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default async function Gpt55BlogPostPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const resolvedLocale = getResolvedLocale(locale);
+  setRequestLocale(resolvedLocale);
   const t = await getTranslations({ locale: resolvedLocale, namespace: 'blog' });
   const post = getBlogPost(POST_SLUG);
 

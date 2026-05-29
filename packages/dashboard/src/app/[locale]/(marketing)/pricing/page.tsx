@@ -1,7 +1,7 @@
 import { asc } from 'drizzle-orm';
 import { ArrowUpRightIcon } from 'lucide-react';
 import type { Metadata } from 'next';
-import { getTranslations } from 'next-intl/server';
+import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -9,7 +9,9 @@ import { models, type Model } from '@/db/app-schema';
 import { getDb } from '@/lib/db';
 import { buildMetadata, getResolvedLocale } from '@/lib/seo';
 
-export const revalidate = 3600;
+// Pricing 表数据来自 D1，build 阶段无绑定无法预渲染；运行时由 CF 边缘缓存兜底
+// （Worker 层 + 浏览器层都可加 cache-control 头）。
+export const dynamic = 'force-dynamic';
 
 /**
  * Pricing 页面展示的 provider 范围与每家的官方来源 URL。
@@ -103,6 +105,7 @@ async function loadPricingSections(): Promise<ProviderSection[]> {
 
 export default async function PricingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'pricing' });
   const sections = await loadPricingSections();
   const updatedAt = new Date().toISOString().slice(0, 10);

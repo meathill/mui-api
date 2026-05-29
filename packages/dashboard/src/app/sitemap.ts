@@ -1,8 +1,7 @@
 import type { MetadataRoute } from 'next';
-import { defaultLocale, locales } from '@/i18n/config';
+import { locales } from '@/i18n/config';
 import { BLOG_POSTS } from '@/lib/blog';
-
-const SITE_URL = 'https://muirouter.com';
+import { getLanguageAlternates, getLocalizedPath, SITE_URL } from '@/lib/seo';
 
 type SitemapPage = {
   path: string;
@@ -29,36 +28,18 @@ const pages: SitemapPage[] = [
   // /login 不在 sitemap：layout 已设 robots: noindex，与 sitemap 收录冲突会让 GSC 报错。
 ];
 
-function getLocalizedPath(path: string, locale: (typeof locales)[number]) {
-  if (locale === defaultLocale) {
-    return path;
-  }
-
-  return path === '/' ? `/${locale}/` : `/${locale}${path}`;
-}
-
-function getAbsoluteUrl(path: string) {
-  return `${SITE_URL}${path}`;
-}
-
-function getLanguageAlternates(path: string) {
-  const languages = Object.fromEntries(
-    locales.map((locale) => [locale, getAbsoluteUrl(getLocalizedPath(path, locale))]),
-  );
-  return {
-    ...languages,
-    'x-default': getAbsoluteUrl(getLocalizedPath(path, defaultLocale)),
-  };
+function toAbsoluteAlternates(altPaths: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(Object.entries(altPaths).map(([key, path]) => [key, `${SITE_URL}${path}`]));
 }
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const entries: MetadataRoute.Sitemap = [];
 
   for (const page of pages) {
-    const languages = getLanguageAlternates(page.path);
+    const languages = toAbsoluteAlternates(getLanguageAlternates(page.path));
     for (const locale of locales) {
       entries.push({
-        url: getAbsoluteUrl(getLocalizedPath(page.path, locale)),
+        url: `${SITE_URL}${getLocalizedPath(page.path, locale)}`,
         lastModified: page.lastModified,
         changeFrequency: page.changeFrequency,
         priority: page.priority,
