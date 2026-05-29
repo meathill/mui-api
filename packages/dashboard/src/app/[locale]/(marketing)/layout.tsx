@@ -2,15 +2,11 @@ import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { PawIcon } from '@/components/brand/paw-icon';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { HeaderAuthCta } from '@/components/marketing/header-auth-cta';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Link } from '@/i18n/navigation';
-import { getSession } from '@/lib/session';
-
-// 依赖 cookie/header 的会话读取，禁用静态优化
-export const dynamic = 'force-dynamic';
 
 export default async function MarketingLayout({ children }: { children: React.ReactNode }) {
-  const { user } = await getSession();
   const t = await getTranslations('header');
 
   return (
@@ -51,21 +47,7 @@ export default async function MarketingLayout({ children }: { children: React.Re
             <span className="min-w-4 flex-1" aria-hidden="true" />
             <ThemeToggle />
             <LanguageSwitcher />
-            {user ? (
-              <Link
-                href="/app"
-                className="inline-flex h-9 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors sm:px-4"
-              >
-                {t('dashboard')}
-              </Link>
-            ) : (
-              <Link
-                href="/login"
-                className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors sm:px-4"
-              >
-                {t('signIn')}
-              </Link>
-            )}
+            <HeaderAuthCta />
           </nav>
         </div>
       </header>
