@@ -2,37 +2,25 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations } from 'next-intl/server';
 import type { ComponentType } from 'react';
-import GermanArticleContent from '@/content/blog/gpt-5-5.de.mdx';
-import SpanishArticleContent from '@/content/blog/gpt-5-5.es.mdx';
-import FrenchArticleContent from '@/content/blog/gpt-5-5.fr.mdx';
-import JapaneseArticleContent from '@/content/blog/gpt-5-5.ja.mdx';
-import EnglishArticleContent from '@/content/blog/gpt-5-5.mdx';
-import PortugueseArticleContent from '@/content/blog/gpt-5-5.pt.mdx';
-import ThaiArticleContent from '@/content/blog/gpt-5-5.th.mdx';
-import ChineseArticleContent from '@/content/blog/gpt-5-5.zh.mdx';
 import type { Locale } from '@/i18n/config';
 import { Link } from '@/i18n/navigation';
-import {
-  getBlogPost,
-  getLanguageAlternates,
-  getLocalizedBlogPost,
-  getLocalizedPath,
-  getResolvedLocale,
-} from '@/lib/blog';
-import { getMarketingOgImage, SITE_URL } from '@/lib/seo';
+import { getBlogPost, getLocalizedBlogPost } from '@/lib/blog';
+import { buildMetadata, getLocalizedPath, getResolvedLocale, SITE_URL } from '@/lib/seo';
 
 const POST_SLUG = 'gpt-5-5';
 
-const articleContentByLocale = {
-  en: EnglishArticleContent,
-  zh: ChineseArticleContent,
-  fr: FrenchArticleContent,
-  es: SpanishArticleContent,
-  pt: PortugueseArticleContent,
-  de: GermanArticleContent,
-  th: ThaiArticleContent,
-  ja: JapaneseArticleContent,
-} satisfies Record<Locale, ComponentType>;
+// 按 locale 懒加载 MDX，避免 8 种语言文章全部打包进同一 chunk。
+// 服务端组件里的动态 import 会被 Next.js 自动按 SSG 路由切片。
+const articleContentLoaders: Record<Locale, () => Promise<{ default: ComponentType }>> = {
+  en: () => import('@/content/blog/gpt-5-5.mdx'),
+  zh: () => import('@/content/blog/gpt-5-5.zh.mdx'),
+  fr: () => import('@/content/blog/gpt-5-5.fr.mdx'),
+  es: () => import('@/content/blog/gpt-5-5.es.mdx'),
+  pt: () => import('@/content/blog/gpt-5-5.pt.mdx'),
+  de: () => import('@/content/blog/gpt-5-5.de.mdx'),
+  th: () => import('@/content/blog/gpt-5-5.th.mdx'),
+  ja: () => import('@/content/blog/gpt-5-5.ja.mdx'),
+};
 
 function formatDate(locale: string, date: string) {
   return new Intl.DateTimeFormat(locale, {
@@ -53,31 +41,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   }
 
   const localizedPost = getLocalizedBlogPost(post, resolvedLocale);
-  const ogImage = getMarketingOgImage(resolvedLocale);
 
-  return {
+  return buildMetadata({
+    path: post.href,
     title: `MUI Router - ${localizedPost.title}`,
     description: localizedPost.description,
-    alternates: {
-      canonical: getLocalizedPath(post.href, resolvedLocale),
-      languages: getLanguageAlternates(post.href),
-    },
-    openGraph: {
-      title: localizedPost.title,
-      description: localizedPost.description,
-      type: 'article',
-      publishedTime: post.publishedAt,
-      locale: resolvedLocale,
-      url: getLocalizedPath(post.href, resolvedLocale),
-      images: [ogImage],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: localizedPost.title,
-      description: localizedPost.description,
-      images: [ogImage.url],
-    },
-  };
+    locale: resolvedLocale,
+    ogType: 'article',
+  });
 }
 
 export default async function Gpt55BlogPostPage({ params }: { params: Promise<{ locale: string }> }) {
@@ -91,7 +62,7 @@ export default async function Gpt55BlogPostPage({ params }: { params: Promise<{ 
   }
 
   const localizedPost = getLocalizedBlogPost(post, resolvedLocale);
-  const ArticleContent = articleContentByLocale[resolvedLocale];
+  const { default: ArticleContent } = await articleContentLoaders[resolvedLocale]();
 
   const jsonLd = {
     '@context': 'https://schema.org',

@@ -1,14 +1,20 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
-import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { api, type StatisticsResponse } from '@/lib/api';
+
+// recharts 体积较大且仅在有数据时渲染，按需加载避免首屏阻塞。
+const CostTrendChart = dynamic(() => import('@/components/admin/cost-trend-chart'), {
+  ssr: false,
+  loading: () => <div className="h-[300px] w-full animate-pulse rounded bg-muted/40" />,
+});
 
 interface TimeRange {
   key: string;
@@ -230,21 +236,7 @@ export default function StatisticsPage() {
           {chartData.length > 1 && (
             <Card className="p-4 mb-4">
               <h3 className="font-medium mb-3">{t('costTrend')}</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="var(--brand-rule)" />
-                  <XAxis dataKey="name" fontSize={12} stroke="var(--brand-mute)" />
-                  <YAxis fontSize={12} stroke="var(--brand-mute)" />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="cost"
-                    stroke="var(--brand-yellow-deep)"
-                    name={t('costLabel')}
-                    strokeWidth={2}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
+              <CostTrendChart data={chartData} costLabel={t('costLabel')} />
             </Card>
           )}
 

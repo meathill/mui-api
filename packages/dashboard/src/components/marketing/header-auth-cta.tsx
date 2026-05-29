@@ -28,7 +28,8 @@ export function HeaderAuthCta() {
     return () => controller.abort();
   }, []);
 
-  const baseClass = 'inline-flex h-9 min-w-[5.5rem] items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors sm:px-4';
+  const baseClass =
+    'inline-flex h-9 min-w-[5.5rem] items-center justify-center rounded-lg px-3 text-sm font-medium transition-colors sm:px-4';
 
   if (state === 'loading') {
     return <div className={`${baseClass} bg-muted/40`} aria-hidden suppressHydrationWarning />;

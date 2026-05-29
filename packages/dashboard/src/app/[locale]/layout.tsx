@@ -9,15 +9,17 @@ import { getMarketingOgImage, SITE_URL } from '@/lib/seo';
 
 const SITE_NAME = 'MUI Router';
 
+// Tailwind class 实际只用到 normal/medium/semibold/bold（400-700），
+// 砍掉未使用的 800 字重以缩小字体文件总体积。
 const fontSans = Nunito({
   subsets: ['latin'],
-  weight: ['400', '500', '600', '700', '800'],
+  weight: ['400', '500', '600', '700'],
   variable: '--font-nunito',
   display: 'swap',
 });
 const fontHeading = Fraunces({
   subsets: ['latin'],
-  weight: ['500', '600', '700', '800'],
+  weight: ['500', '600', '700'],
   variable: '--font-fraunces',
   display: 'swap',
 });
