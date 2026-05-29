@@ -537,5 +537,11 @@
     "editDesc": "Use /v1/images/edits with multipart uploads to transform, combine, or refine existing images.",
     "workflowTitle": "One account, one bill",
     "workflowDesc": "Image requests share the same model registry, wallet balance, usage logs, and API key flow as chat models."
+  },
+  "mcp": {
+    "metadata": {
+      "title": "Intégration MCP",
+      "description": "Connectez Claude Desktop, Cursor et d'autres clients IA à MUI Router via Model Context Protocol. Interrogez solde, consommation, modèles, rechargements et générez des images avec votre clé sk-gw-."
+    }
   }
 }

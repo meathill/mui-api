@@ -1,4 +1,7 @@
-import { defaultLocale, type Locale, locales } from '@/i18n/config';
+import { defaultLocale, type Locale } from '@/i18n/config';
+
+// 旧导入入口：路径/hreflang 的真实实现已迁到 lib/seo.ts，这里只做转发。
+export { getLanguageAlternates, getLocalizedPath, getResolvedLocale } from '@/lib/seo';
 
 export type BlogSource = {
   label: string;
@@ -154,21 +157,6 @@ export const BLOG_POSTS = [
 
 export function getBlogPost(slug: string): BlogPost | undefined {
   return BLOG_POSTS.find((post) => post.slug === slug);
-}
-
-export function getResolvedLocale(locale: string): Locale {
-  return locales.includes(locale as Locale) ? (locale as Locale) : defaultLocale;
-}
-
-export function getLocalizedPath(href: string, locale: Locale): string {
-  return locale === defaultLocale ? href : `/${locale}${href}`;
-}
-
-export function getLanguageAlternates(href: string): Record<string, string> {
-  return Object.fromEntries([
-    ...locales.map((locale) => [locale, getLocalizedPath(href, locale)]),
-    ['x-default', href],
-  ]);
 }
 
 export function getLocalizedBlogPost(post: BlogPost, locale: Locale): LocalizedBlogPost {

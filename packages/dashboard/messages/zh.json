@@ -537,5 +537,11 @@
     "editDesc": "通过 /v1/images/edits 使用 multipart 上传图片，完成改图、合成和细节优化。",
     "workflowTitle": "一个账户，一套账单",
     "workflowDesc": "图片请求复用同一套模型配置、钱包余额、用量记录和 API Key 流程。"
+  },
+  "mcp": {
+    "metadata": {
+      "title": "MCP 接入指南",
+      "description": "通过 Model Context Protocol 让 Claude Desktop、Cursor 等 AI 客户端直接接入 MUI Router，使用 sk-gw- key 查询余额、用量、模型、充值与生成图像。"
+    }
   }
 }

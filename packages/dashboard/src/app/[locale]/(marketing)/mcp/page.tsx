@@ -1,11 +1,20 @@
 import type { Metadata } from 'next';
+import { getTranslations } from 'next-intl/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { buildMetadata, getResolvedLocale } from '@/lib/seo';
 
-export const metadata: Metadata = {
-  title: 'MCP 接入指南 | MUI Router',
-  description:
-    '通过 MCP（Model Context Protocol）让 Claude Desktop、Claude Code、Cursor 等 AI 客户端直接接入 MUI Router，查询余额、用量、充值与生成图像。',
-};
+export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+  const { locale } = await params;
+  const resolvedLocale = getResolvedLocale(locale);
+  const t = await getTranslations({ locale: resolvedLocale, namespace: 'mcp.metadata' });
+
+  return buildMetadata({
+    path: '/mcp',
+    title: t('title'),
+    description: t('description'),
+    locale: resolvedLocale,
+  });
+}
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? 'https://api.muirouter.com';
 const MCP_URL = `${API_BASE}/mcp`;

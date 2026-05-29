@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 import { Link } from '@/i18n/navigation';
-import { getLanguageAlternates, getLocalizedBlogPosts, getLocalizedPath, getResolvedLocale } from '@/lib/blog';
-import { getMarketingOgImage, SITE_URL } from '@/lib/seo';
+import { getLocalizedBlogPosts } from '@/lib/blog';
+import { buildMetadata, getLocalizedPath, getResolvedLocale, SITE_URL } from '@/lib/seo';
 
 function formatDate(locale: string, date: string) {
   return new Intl.DateTimeFormat(locale, {
@@ -17,29 +17,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   const resolvedLocale = getResolvedLocale(locale);
   const t = await getTranslations({ locale: resolvedLocale, namespace: 'blog.metadata' });
-  const ogImage = getMarketingOgImage(resolvedLocale);
 
-  return {
+  return buildMetadata({
+    path: '/blog',
     title: `MUI Router - ${t('title')}`,
     description: t('description'),
-    alternates: {
-      canonical: getLocalizedPath('/blog', resolvedLocale),
-      languages: getLanguageAlternates('/blog'),
-    },
-    openGraph: {
-      title: t('title'),
-      description: t('description'),
-      type: 'website',
-      url: getLocalizedPath('/blog', resolvedLocale),
-      images: [ogImage],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: t('title'),
-      description: t('description'),
-      images: [ogImage.url],
-    },
-  };
+    locale: resolvedLocale,
+  });
 }
 
 export default async function BlogPage({ params }: { params: Promise<{ locale: string }> }) {

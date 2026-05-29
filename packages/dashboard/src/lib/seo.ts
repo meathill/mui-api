@@ -1,5 +1,7 @@
-import { defaultLocale } from '@/i18n/config';
+import type { Metadata } from 'next';
+import { defaultLocale, type Locale, locales } from '@/i18n/config';
 
+export const SITE_NAME = 'MUI Router';
 export const SITE_URL = 'https://muirouter.com';
 export const MARKETING_OG_IMAGE_ALT = 'MUI Router - One Key, All AI Models';
 export const MARKETING_OG_IMAGE_SIZE = { width: 1200, height: 630 } as const;
@@ -12,5 +14,63 @@ export function getMarketingOgImage(locale: string) {
     width: MARKETING_OG_IMAGE_SIZE.width,
     height: MARKETING_OG_IMAGE_SIZE.height,
     alt: MARKETING_OG_IMAGE_ALT,
+  };
+}
+
+export function getLocalizedPath(href: string, locale: string): string {
+  return locale === defaultLocale ? href : `/${locale}${href}`;
+}
+
+export function getLanguageAlternates(href: string): Record<string, string> {
+  return Object.fromEntries([
+    ...locales.map((locale) => [locale, getLocalizedPath(href, locale)]),
+    ['x-default', href],
+  ]);
+}
+
+export function getResolvedLocale(locale: string): Locale {
+  return locales.includes(locale as Locale) ? (locale as Locale) : defaultLocale;
+}
+
+interface BuildMetadataOptions {
+  path: string;
+  title: string;
+  description: string;
+  locale: string;
+  ogType?: 'website' | 'article';
+  ogImage?: ReturnType<typeof getMarketingOgImage>;
+  noindex?: boolean;
+}
+
+/**
+ * 营销页统一 metadata 构造器：保证 canonical / hreflang / OpenGraph / Twitter 一致。
+ */
+export function buildMetadata(opts: BuildMetadataOptions): Metadata {
+  const ogImage = opts.ogImage ?? getMarketingOgImage(opts.locale);
+  const localizedPath = getLocalizedPath(opts.path, opts.locale);
+
+  return {
+    title: opts.title,
+    description: opts.description,
+    alternates: {
+      canonical: localizedPath,
+      languages: getLanguageAlternates(opts.path),
+    },
+    openGraph: {
+      type: opts.ogType ?? 'website',
+      siteName: SITE_NAME,
+      title: opts.title,
+      description: opts.description,
+      url: localizedPath,
+      locale: opts.locale,
+      images: [ogImage],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: opts.title,
+      description: opts.description,
+      images: [ogImage.url],
+    },
+    ...(opts.noindex ? { robots: { index: false, follow: false } } : {}),
   };
 }

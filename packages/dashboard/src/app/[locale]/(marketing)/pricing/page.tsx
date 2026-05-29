@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { models, type Model } from '@/db/app-schema';
 import { getDb } from '@/lib/db';
-import { getMarketingOgImage } from '@/lib/seo';
+import { buildMetadata, getResolvedLocale } from '@/lib/seo';
 
 export const revalidate = 3600;
 
@@ -65,28 +65,15 @@ const tokenFormatter = new Intl.NumberFormat('en-US');
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'pricing.metadata' });
-  const ogImage = getMarketingOgImage(locale);
+  const resolvedLocale = getResolvedLocale(locale);
+  const t = await getTranslations({ locale: resolvedLocale, namespace: 'pricing.metadata' });
 
-  return {
+  return buildMetadata({
+    path: '/pricing',
     title: t('title'),
     description: t('description'),
-    alternates: {
-      canonical: '/pricing',
-    },
-    openGraph: {
-      title: t('title'),
-      description: t('description'),
-      url: '/pricing',
-      images: [ogImage],
-    },
-    twitter: {
-      card: 'summary_large_image',
-      title: t('title'),
-      description: t('description'),
-      images: [ogImage.url],
-    },
-  };
+    locale: resolvedLocale,
+  });
 }
 
 interface ProviderSection {

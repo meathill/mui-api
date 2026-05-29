@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
+import { buildMetadata, getResolvedLocale } from '@/lib/seo';
 import { AdvantagesSection } from './_components/advantages-section';
 import { CodeSection } from './_components/code-section';
 import { CtaSection } from './_components/cta-section';
@@ -10,15 +11,15 @@ import { StepsSection } from './_components/steps-section';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: 'metadata' });
+  const resolvedLocale = getResolvedLocale(locale);
+  const t = await getTranslations({ locale: resolvedLocale, namespace: 'metadata' });
 
-  return {
+  return buildMetadata({
+    path: '/',
     title: `MUI Router - ${t('ogTitle')}`,
     description: t('description'),
-    alternates: {
-      canonical: '/',
-    },
-  };
+    locale: resolvedLocale,
+  });
 }
 
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
