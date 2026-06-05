@@ -11,67 +11,70 @@ export interface EmailConfig {
  */
 export class EmailService {
   private resend: Resend;
+  private apiKey: string;
   private fromEmail: string;
   private fromName: string;
 
   constructor(config: EmailConfig) {
     this.resend = new Resend(config.apiKey);
+    this.apiKey = config.apiKey;
     this.fromEmail = config.fromEmail ?? 'noreply@example.com';
     this.fromName = config.fromName ?? 'Uni-Gateway';
+  }
+
+  /**
+   * 统一发送入口：未配置 API Key 时跳过（不发起网络请求），异常吞掉返回 false
+   */
+  private async send(params: { to: string; subject: string; html: string }): Promise<boolean> {
+    if (!this.apiKey) {
+      console.warn('RESEND_API_KEY 未配置，跳过邮件发送:', params.subject);
+      return false;
+    }
+    try {
+      await this.resend.emails.send({
+        from: `${this.fromName} <${this.fromEmail}>`,
+        to: params.to,
+        subject: params.subject,
+        html: params.html,
+      });
+      return true;
+    } catch (error) {
+      console.error('发送邮件失败:', params.subject, error);
+      return false;
+    }
   }
 
   /**
    * 发送欢迎邮件（新用户）
    */
   async sendWelcomeEmail(email: string, amount: number, dashboardUrl: string): Promise<boolean> {
-    try {
-      await this.resend.emails.send({
-        from: `${this.fromName} <${this.fromEmail}>`,
-        to: email,
-        subject: '欢迎使用 Uni-Gateway',
-        html: this.getWelcomeEmailHtml(amount, dashboardUrl),
-      });
-      return true;
-    } catch (error) {
-      console.error('发送欢迎邮件失败:', error);
-      return false;
-    }
+    return this.send({
+      to: email,
+      subject: '欢迎使用 Uni-Gateway',
+      html: this.getWelcomeEmailHtml(amount, dashboardUrl),
+    });
   }
 
   /**
    * 发送充值成功邮件（老用户）
    */
   async sendRechargeSuccessEmail(email: string, amount: number, newBalance: number): Promise<boolean> {
-    try {
-      await this.resend.emails.send({
-        from: `${this.fromName} <${this.fromEmail}>`,
-        to: email,
-        subject: '💰 充值成功 - Uni-Gateway',
-        html: this.getRechargeSuccessEmailHtml(amount, newBalance),
-      });
-      return true;
-    } catch (error) {
-      console.error('发送充值成功邮件失败:', error);
-      return false;
-    }
+    return this.send({
+      to: email,
+      subject: '💰 充值成功 - Uni-Gateway',
+      html: this.getRechargeSuccessEmailHtml(amount, newBalance),
+    });
   }
 
   /**
    * 发送告警邮件（消费限额、全局阈值等）
    */
   async sendAlertEmail(to: string, subject: string, message: string): Promise<boolean> {
-    try {
-      await this.resend.emails.send({
-        from: `${this.fromName} <${this.fromEmail}>`,
-        to,
-        subject,
-        html: this.getAlertEmailHtml(subject, message),
-      });
-      return true;
-    } catch (error) {
-      console.error('发送告警邮件失败:', error);
-      return false;
-    }
+    return this.send({
+      to,
+      subject,
+      html: this.getAlertEmailHtml(subject, message),
+    });
   }
 
   private getAlertEmailHtml(title: string, message: string): string {

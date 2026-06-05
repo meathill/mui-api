@@ -85,12 +85,13 @@ users.post('/recharge', async (c) => {
       });
 
       const dashboardUrl = `${c.env.BASE_URL}`;
-      await emailService.sendWelcomeEmail(email, amount, dashboardUrl);
+      // 邮件发送走 waitUntil 异步：充值的真相是 KV/DB 写入，响应不应被邮件服务的延迟或故障阻塞
+      c.executionCtx.waitUntil(emailService.sendWelcomeEmail(email, amount, dashboardUrl));
 
       return c.json({
         success: true,
         isNewUser: true,
-        message: '新用户已创建，欢迎邮件已发送',
+        message: '新用户已创建，欢迎邮件发送中',
         userId,
         balance: amount,
       });
@@ -107,12 +108,13 @@ users.post('/recharge', async (c) => {
       note: note || null,
     });
 
-    await emailService.sendRechargeSuccessEmail(email, amount, newBalance);
+    // 同上：邮件异步发送，不阻塞充值响应
+    c.executionCtx.waitUntil(emailService.sendRechargeSuccessEmail(email, amount, newBalance));
 
     return c.json({
       success: true,
       isNewUser: false,
-      message: '充值成功，通知邮件已发送',
+      message: '充值成功，通知邮件发送中',
       userId,
       balance: newBalance,
     });

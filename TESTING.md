@@ -99,3 +99,4 @@ pnpm --dir packages/dashboard run build
 - 不要读取仓库内的 `.env` / `.dev.vars` 作为维护前提；如果确实需要真实环境数据，优先编写脚本交给人工执行
 - `packages/app` 与 `packages/dashboard` 本地开发时共用仓库根目录的 `.wrangler/state/v3`
 - 自动化测试使用隔离环境，不应依赖这份本地共享状态
+- `packages/app` E2E（vitest-pool-workers，用 `SELF.fetch` 打被测 Worker）里 mock 外部 HTTP 要用 `vi.stubGlobal('fetch', mock)` + `afterEach(vi.unstubAllGlobals)`，`vi.mock('模块名')` 无法拦截被测 Worker 的模块图（如 `resend`）。断言 `waitUntil` 里的副作用用 `vi.waitFor(...)`。E2E 不应发起真实外网请求（会受代理影响偶发超时）

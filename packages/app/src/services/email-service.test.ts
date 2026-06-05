@@ -53,6 +53,14 @@ describe('EmailService', () => {
     expect(sendMock.mock.calls[0][0].from).toBe('MuiRouter <hi@muirouter.com>');
   });
 
+  it('apiKey 缺失时跳过发送、不发起网络请求并返回 false', async () => {
+    const service = new EmailService({ apiKey: '' });
+    expect(await service.sendWelcomeEmail('u@e.com', 1, 'd')).toBe(false);
+    expect(await service.sendRechargeSuccessEmail('u@e.com', 1, 2)).toBe(false);
+    expect(await service.sendAlertEmail('u@e.com', 's', 'm')).toBe(false);
+    expect(sendMock).not.toHaveBeenCalled();
+  });
+
   it('Resend 抛错时各方法吞掉异常并返回 false', async () => {
     sendMock.mockRejectedValue(new Error('boom'));
     const service = new EmailService({ apiKey: 'k' });
