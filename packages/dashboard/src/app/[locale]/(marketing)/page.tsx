@@ -5,6 +5,7 @@ import { AdvantagesSection } from './_components/advantages-section';
 import { CodeSection } from './_components/code-section';
 import { CtaSection } from './_components/cta-section';
 import { HeroSection } from './_components/hero-section';
+import { HomeFaqSection } from './_components/home-faq-section';
 import { ImageSection } from './_components/image-section';
 import { ModelsSection } from './_components/models-section';
 import { StepsSection } from './_components/steps-section';
@@ -16,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
   return buildMetadata({
     path: '/',
-    // 根 layout 已设 title.template = "%s | MUI Router"，这里只传可变部分。
+    // 根 layout 已设 title.template = "%s | MuiRouter"，这里只传可变部分。
     title: t('ogTitle'),
     description: t('description'),
     locale: resolvedLocale,
@@ -33,13 +34,13 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
     '@graph': [
       {
         '@type': 'Organization',
-        name: 'MUI Router',
+        name: 'MuiRouter',
         url: 'https://muirouter.com',
         logo: 'https://muirouter.com/favicon.svg',
       },
       {
         '@type': 'WebApplication',
-        name: 'MUI Router',
+        name: 'MuiRouter',
         url: 'https://muirouter.com',
         applicationCategory: 'DeveloperApplication',
         operatingSystem: 'All',
@@ -63,6 +64,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
       <AdvantagesSection />
       <StepsSection />
       <CodeSection />
+      <HomeFaqSection />
       <CtaSection />
     </div>
   );

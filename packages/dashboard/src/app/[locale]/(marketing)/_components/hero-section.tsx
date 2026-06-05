@@ -49,6 +49,16 @@ export function HeroSection() {
           </Link>
         </div>
 
+        <div className="mt-4">
+          <Link
+            href="/ai-router"
+            className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+          >
+            {t('ctaLearn')}
+            <ArrowRightIcon size={14} />
+          </Link>
+        </div>
+
         <div className="mt-12 grid grid-cols-2 sm:grid-cols-4 gap-6">
           {stats.map((stat) => (
             <div key={stat.label}>

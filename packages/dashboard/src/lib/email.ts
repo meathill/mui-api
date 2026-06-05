@@ -13,7 +13,7 @@ interface EmailConfig {
 export function createEmailService(config: EmailConfig) {
   const resend = new Resend(config.apiKey);
   const fromEmail = config.fromEmail ?? 'noreply@example.com';
-  const fromName = config.fromName ?? 'MUI Router';
+  const fromName = config.fromName ?? 'MuiRouter';
   const from = `${fromName} <${fromEmail}>`;
 
   return {
@@ -22,7 +22,7 @@ export function createEmailService(config: EmailConfig) {
         await resend.emails.send({
           from,
           to: email,
-          subject: '充值成功 - MUI Router',
+          subject: '充值成功 - MuiRouter',
           html: getRechargeSuccessEmailHtml(amount, newBalance),
         });
         return true;
@@ -62,7 +62,7 @@ function getRechargeSuccessEmailHtml(amount: number, newBalance: number): string
     </div>
     <p>你可以继续使用你的 API Key 调用服务。</p>
     <div class="footer">
-      <p>MUI Router - 统一 AI 接口网关</p>
+      <p>MuiRouter - 统一 AI 接口网关</p>
     </div>
   </div>
 </body>

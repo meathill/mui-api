@@ -88,6 +88,18 @@
 - 语言配置文件和翻译文本由 `next-intl` 标准结构维护。
 - SEO 适配多语言，`sitemap.xml` 和 `robots.txt`、JSON-LD 都考虑了多语言版本的动态生成。
 
+### SEO 重定位与品牌拼写（消解 Material UI 歧义）
+
+**背景**：GSC 显示 muirouter.com 曝光被 Material UI / MUI X 意图主导（`mui pricing`、`muix pricing`、`mui pro`），真正的 `ai router` 只排到 pos 47-87，CTR 0.66%。
+
+**决策**：
+- 品牌统一拼写为 **`MuiRouter`（一个词）**，不再用 `MUI Router`（空格 + 大写 MUI）。后者让每个页面标题带上独立的 `MUI` token，是 Material UI 曝光的头号来源；一个词且与域名一致，仍能命中 `mui router` 品牌词。改名覆盖 `lib/seo.ts` `SITE_NAME`、根 layout `title.template`、OG 图、JSON-LD、邮件等。
+- 文案/metadata 显式打出 `AI API Router / LLM Router / OpenAI-compatible / MCP server` 意图词，并**按语种本地化关键词**（de→KI、es/pt→IA + 保留 "router"、zh→AI 路由、ja→AI ルーター），不要机械直译。
+- 主题集群（pillar-spoke）：支柱页 `/ai-router` + 分簇页 `/llm-router`、`/openai-compatible-router`、`/mcp-router`，共用 `(marketing)/_components/router-landing.tsx`（内容全走 i18n namespace，8 语言；内联 FAQPage / BreadcrumbList 结构化数据）。新页 canonical/hreflang 由 `buildMetadata` 自动产出，sitemap 仅需在 `pages[]` 增条目并 bump `STATIC_PAGES_UPDATED_AT`。
+- 营销文案不再硬编码：`/mcp` 页此前对全部语言硬编码中文，已抽到 `mcpPage` namespace 并补齐 8 语言（代码块/endpoint/curl 保持字面，动态值用 ICU 占位符 `{url}`/`{header}`/`{path}`）。
+
+**度量**：上线后 28 天窗口在 GSC 看 `ai router`/`router ai` 排名上行、Material UI 式曝光下降、承载页 CTR 上升（按 `dimensions=query,page` 排查蚕食）。
+
 ### better-auth 统一用户体系
 
 **决策**：Dashboard 使用 better-auth 管理用户认证，`user` 表同时作为业务用户表。

@@ -76,11 +76,11 @@ export default async function Gpt55BlogPostPage({ params }: { params: Promise<{ 
     mainEntityOfPage: `${SITE_URL}${getLocalizedPath(post.href, resolvedLocale)}`,
     author: {
       '@type': 'Organization',
-      name: 'MUI Router',
+      name: 'MuiRouter',
     },
     publisher: {
       '@type': 'Organization',
-      name: 'MUI Router',
+      name: 'MuiRouter',
       logo: {
         '@type': 'ImageObject',
         url: `${SITE_URL}/favicon.svg`,

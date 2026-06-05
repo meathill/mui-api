@@ -79,7 +79,7 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
             className="shrink-0 rounded-md border border-[var(--brand-rule-strong)]"
             aria-hidden
           />
-          <h1 className="font-heading text-lg font-bold text-foreground">MUI Router</h1>
+          <h1 className="font-heading text-lg font-bold text-foreground">MuiRouter</h1>
         </div>
         <p className="eyebrow mt-1.5">{t('console')}</p>
       </div>

@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { defaultLocale, type Locale, locales } from '@/i18n/config';
 
-export const SITE_NAME = 'MUI Router';
+export const SITE_NAME = 'MuiRouter';
 export const SITE_URL = 'https://muirouter.com';
-export const MARKETING_OG_IMAGE_ALT = 'MUI Router - One Key, All AI Models';
+export const MARKETING_OG_IMAGE_ALT = 'MuiRouter - AI API Router for Every LLM';
 export const MARKETING_OG_IMAGE_SIZE = { width: 1200, height: 630 } as const;
 
 export function getMarketingOgImage(locale: string) {

@@ -8,7 +8,7 @@ test.describe('SEO', () => {
     });
 
     test('包含正确的 title', async ({ page }) => {
-      await expect(page).toHaveTitle(/MUI Router/);
+      await expect(page).toHaveTitle(/MuiRouter/);
       await expect(page).toHaveTitle(new RegExp(defaultMessages.metadata.ogTitle));
     });
 
@@ -91,19 +91,19 @@ test.describe('SEO', () => {
     test('登录页有独立 title', async ({ page }) => {
       await page.goto('/login');
       await expect(page).toHaveTitle(new RegExp(defaultMessages.header.login));
-      await expect(page).toHaveTitle(/MUI Router/);
+      await expect(page).toHaveTitle(/MuiRouter/);
     });
 
     test('注册页有独立 title', async ({ page }) => {
       await page.goto('/register');
       await expect(page).toHaveTitle(new RegExp(defaultMessages.header.register));
-      await expect(page).toHaveTitle(/MUI Router/);
+      await expect(page).toHaveTitle(/MuiRouter/);
     });
 
     test('价格页有独立 title 和 description', async ({ page }) => {
       await page.goto('/pricing');
       await expect(page).toHaveTitle(new RegExp(defaultMessages.pricing.metadata.title));
-      await expect(page).toHaveTitle(/MUI Router/);
+      await expect(page).toHaveTitle(/MuiRouter/);
       await expect(page.locator('meta[name="description"]')).toHaveAttribute(
         'content',
         defaultMessages.pricing.metadata.description,

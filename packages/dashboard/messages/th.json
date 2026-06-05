@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "เกตเวย์ API ปัญญาประดิษฐ์แบบรวมศูนย์",
-    "description": "เกตเวย์ API ปัญญาประดิษฐ์แบบรวมศูนย์ คีย์เดียวเข้าถึงทุกโมเดล AI รองรับ OpenAI, Anthropic, Google และอื่นๆ จ่ายตามโทเค็น ไม่ต้องใช้ VPN",
-    "ogTitle": "คีย์เดียว ครบทุกโมเดล AI"
+    "title": "เราเตอร์ AI API สำหรับ OpenAI, Claude และ Gemini",
+    "description": "MuiRouter คือเราเตอร์ AI API ที่รองรับ OpenAI และ LLM gateway คีย์เดียว route คำขอไปยัง OpenAI, Anthropic, Google และอื่นๆ คิดเงินตามโทเค็น ไม่ต้องใช้ VPN ไม่ต้องสมัครสมาชิก มาพร้อมเซิร์ฟเวอร์ MCP ในตัว",
+    "ogTitle": "เราเตอร์ AI API และ LLM Gateway ที่รองรับ OpenAI"
   },
   "header": {
     "login": "เข้าสู่ระบบ",
@@ -11,16 +11,21 @@
     "blog": "บล็อก",
     "mcp": "MCP",
     "pricing": "ราคา",
-    "dashboard": "แดชบอร์ด"
+    "dashboard": "แดชบอร์ด",
+    "aiRouter": "เราเตอร์ AI",
+    "llmRouter": "เราเตอร์ LLM",
+    "openaiCompatibleRouter": "รองรับ OpenAI",
+    "mcpRouter": "เราเตอร์ MCP"
   },
   "hero": {
-    "badge": "OpenAI / Gemini / Workers AI / MiMo รองรับทั้งหมด",
-    "title": "คีย์เดียว เข้าถึง",
-    "titleHighlight": "ทุกโมเดล AI",
-    "description": "ไม่ต้องใช้ VPN ไม่ต้องมีบัญชีต่างประเทศ ทดลอง MiMo ด้วยโควตาฟรีก่อน แล้วค่อยเติมเงินเพื่อใช้โมเดลเพิ่มเติม",
-    "descriptionLine2": "รองรับ OpenAI SDK — แค่เปลี่ยน Base URL",
+    "badge": "OpenAI / Gemini / Claude / Workers AI / MiMo — เราเตอร์เดียว",
+    "title": "เราเตอร์ AI API เดียวสำหรับ",
+    "titleHighlight": "ทุก LLM",
+    "description": "MuiRouter คือเราเตอร์ API ที่รองรับ OpenAI คีย์เดียว route คำขอของคุณไปยัง OpenAI, Claude, Gemini และอื่นๆ ไม่ต้องใช้ VPN ไม่ต้องมีบัญชีต่างประเทศ เริ่มฟรีด้วย MiMo แล้วเติมเงินเพื่อใช้โมเดลที่เหลือ",
+    "descriptionLine2": "ใช้งานร่วมกับ OpenAI SDK ได้ทันที — แค่เปลี่ยน Base URL",
     "ctaPrimary": "สมัครฟรี",
     "ctaSecondary": "ดูราคา",
+    "ctaLearn": "ดูวิธีการทำงานของเราเตอร์ AI",
     "stat1Value": "5",
     "stat1Label": "ผู้ให้บริการ AI หลัก",
     "stat2Value": "100%",
@@ -31,7 +36,7 @@
     "stat4Label": "ค่ารายเดือน / สมาชิก"
   },
   "models": {
-    "title": "ทุกโมเดล AI หลัก รวมในการเชื่อมต่อเดียว",
+    "title": "route ทุก LLM หลักผ่าน API เดียว",
     "subtitle": "รองรับ OpenAI, Anthropic, Google, Workers AI และ Xiaomi MiMo — ขยายเพิ่มอย่างต่อเนื่อง",
     "openaiDesc": "โมเดลอเนกประสงค์ที่ทรงพลังที่สุด — โค้ด การใช้เหตุผล มัลติโมดัล",
     "anthropicDesc": "บริบทยาวพิเศษ ยอดเยี่ยมในการเขียนโค้ดและการวิเคราะห์",
@@ -42,8 +47,8 @@
     "footnote": "รองรับทั้งโหมดที่เข้ากันได้กับ OpenAI และการส่งต่อ API ดั้งเดิม — ไม่สูญเสียฟีเจอร์ใดๆ"
   },
   "advantages": {
-    "title": "ทำไมต้องเลือก MUI Router",
-    "subtitle": "เกตเวย์ API ปัญญาประดิษฐ์ที่สร้างสำหรับนักพัฒนาทั่วโลก",
+    "title": "ทำไมนักพัฒนาถึงเลือก MuiRouter",
+    "subtitle": "เราเตอร์ AI API และ LLM gateway ที่สร้างมาเพื่อนักพัฒนาทั่วโลก",
     "noVpnTitle": "ไม่ต้องใช้ VPN",
     "noVpnDesc": "ส่งผ่านเครือข่าย Edge ทั่วโลกของ Cloudflare เข้าถึงได้ไร้อุปสรรค ไม่ต้องมีบัตรเครดิตต่างประเทศหรือบัญชีต่างประเทศ",
     "payPerUseTitle": "จ่ายตามการใช้งาน",
@@ -80,22 +85,22 @@
   },
   "pricing": {
     "metadata": {
-      "title": "ราคา",
-      "description": "ราคาทางการของโมเดล OpenAI และ Gemini ไม่มีสมาชิก จ่ายตามการใช้งาน"
+      "title": "ราคา API โมเดล AI — คิดเงินตามโทเค็น",
+      "description": "ราคาแบบโปร่งใสคิดตามโทเค็นสำหรับโมเดล OpenAI, Claude, Gemini และ MiMo ผ่านเราเตอร์ AI API ของ MuiRouter ไม่มีสมาชิก ไม่มีค่า seat จ่ายเฉพาะที่ใช้จริง"
     },
-    "eyebrow": "ราคาทางการของโมเดล",
-    "title": "ราคา",
+    "eyebrow": "ราคาโมเดล AI คิดตามโทเค็น",
+    "title": "ราคา API โมเดล AI",
     "subtitle": "ไม่มีแพ็กเกจสมาชิกและไม่มีการจำกัดตามแพ็กเกจ หน้านี้รวบรวมราคาสาธารณะล่าสุดของ OpenAI และ Gemini เพื่อให้เทียบต้นทุนโมเดลได้ง่ายขึ้น",
     "summary": {
       "noSubscriptionTitle": "ไม่มีสมาชิก",
       "noSubscriptionDescription": "ไม่มีแพ็กเกจ ไม่มีค่ารายเดือน และไม่มีข้อจำกัดตามระดับแพ็กเกจ",
       "officialTitle": "ราคาทางการ",
-      "officialDescription": "ตัวเลขทั้งหมดในหน้านี้เป็นราคาสาธารณะจากผู้ให้บริการ ไม่ใช่ราคาหลังบวกเพิ่มของ MUI Router",
+      "officialDescription": "ตัวเลขทั้งหมดในหน้านี้เป็นราคาสาธารณะจากผู้ให้บริการ ไม่ใช่ราคาหลังบวกเพิ่มของ MuiRouter",
       "unitTitle": "หน่วยชัดเจน",
       "unitDescription": "ราคาทั้งหมดแสดงในหน่วย {unit}"
     },
     "updatedAtLabel": "ซิงก์ล่าสุด",
-    "actualBillingNotice": "การคิดเงินจริงของ MUI Router จะอิงจากราคาที่ตั้งไว้ในแดชบอร์ด หน้านี้ใช้เป็นข้อมูลอ้างอิงสาธารณะเท่านั้น",
+    "actualBillingNotice": "การคิดเงินจริงของ MuiRouter จะอิงจากราคาที่ตั้งไว้ในแดชบอร์ด หน้านี้ใช้เป็นข้อมูลอ้างอิงสาธารณะเท่านั้น",
     "sourceLabel": "แหล่งที่มา",
     "officialSource": "แหล่งข้อมูลทางการ",
     "unit": "USD / 1M tokens",
@@ -125,15 +130,15 @@
   "blog": {
     "metadata": {
       "title": "บล็อก",
-      "description": "อัปเดตโมเดล AI บันทึกการเปิดตัวที่ใช้งานได้จริง และคำแนะนำผลิตภัณฑ์ MUI Router"
+      "description": "อัปเดตโมเดล AI บันทึกการเปิดตัวที่ใช้งานได้จริง และคำแนะนำผลิตภัณฑ์ MuiRouter"
     },
-    "eyebrow": "บล็อก MUI Router",
+    "eyebrow": "บล็อก MuiRouter",
     "title": "อัปเดตโมเดล AI แบบไม่รก",
     "subtitle": "สรุปชัดเจนเกี่ยวกับโมเดล frontier ใหม่ ความพร้อมของ API และความหมายของแต่ละการเปิดตัวสำหรับผู้สร้างที่ต้องการการเชื่อมต่อที่เสถียร",
     "readingTime": "อ่าน {minutes} นาที",
     "readArticle": "อ่านบทความ",
     "ctaTitle": "ต้องการการเชื่อมต่อเดียวสำหรับทุกการเปลี่ยนโมเดลไหม?",
-    "ctaDescription": "สร้างบัญชี MUI Router เพื่อให้การเชื่อมต่อแอปของคุณเสถียร แม้ระบบโมเดลจะเปลี่ยนต่อเนื่อง",
+    "ctaDescription": "สร้างบัญชี MuiRouter เพื่อให้การเชื่อมต่อแอปของคุณเสถียร แม้ระบบโมเดลจะเปลี่ยนต่อเนื่อง",
     "ctaButton": "สมัครสมาชิก",
     "backToBlog": "กลับไปบล็อก",
     "sourcesTitle": "แหล่งข้อมูลทางการ",
@@ -142,7 +147,7 @@
     "articleCtaDescription": "เริ่มจาก API Key เดียว และมีเส้นทางที่ชัดขึ้นในการ route การเข้าถึงโมเดลใหม่เมื่อ upstream พร้อมใช้งาน"
   },
   "login": {
-    "title": "เข้าสู่ระบบ MUI Router",
+    "title": "เข้าสู่ระบบ MuiRouter",
     "or": "หรือ",
     "emailLabel": "อีเมล",
     "emailPlaceholder": "you@example.com",
@@ -157,7 +162,7 @@
     "redirecting": "กำลังเปลี่ยนเส้นทาง..."
   },
   "register": {
-    "title": "สมัครสมาชิก MUI Router",
+    "title": "สมัครสมาชิก MuiRouter",
     "or": "หรือ",
     "nameLabel": "ชื่อเล่น",
     "nameOptional": "(ไม่บังคับ)",
@@ -540,8 +545,287 @@
   },
   "mcp": {
     "metadata": {
-      "title": "การเชื่อมต่อ MCP",
-      "description": "เชื่อม Claude Desktop, Cursor และ AI client อื่นเข้ากับ MUI Router ผ่าน Model Context Protocol สอบถามยอดคงเหลือ การใช้งาน โมเดล การเติมเงิน และสร้างรูปภาพด้วย sk-gw- key ของคุณ"
+      "title": "เซิร์ฟเวอร์ MCP สำหรับ Claude, Cursor และ Cline",
+      "description": "เชื่อม Claude Desktop, Claude Code, Cursor และ Cline เข้ากับเซิร์ฟเวอร์ MCP ของ MuiRouter ผ่าน streamable-HTTP route การเรียก LLM สอบถามยอดคงเหลือ การใช้งานและโมเดล พร้อมสร้างรูปภาพด้วย API key ของคุณเอง"
     }
+  },
+  "aiRouter": {
+    "metaTitle": "เราเตอร์ AI API — คีย์เดียวสำหรับทุก LLM",
+    "metaDescription": "MuiRouter คือเราเตอร์ AI API ที่รองรับ OpenAI คีย์ API เดียว route คำขอไปยัง OpenAI, Claude, Gemini, MiMo และอื่นๆ คิดเงินตามโทเค็น พร้อมเซิร์ฟเวอร์ MCP ในตัว ไม่ต้องใช้ VPN ไม่ต้องสมัครสมาชิก",
+    "eyebrow": "เราเตอร์ AI API",
+    "title": "เราเตอร์ AI API สำหรับ",
+    "titleHighlight": "ทุก LLM",
+    "intro": "MuiRouter อยู่ระหว่างแอปของคุณกับผู้ให้บริการ AI หลักทุกราย ส่งคำขอที่รองรับ OpenAI เพียงครั้งเดียว แล้วมันจะ route ไปยัง OpenAI, Anthropic Claude, Google Gemini, Cloudflare Workers AI หรือ Xiaomi MiMo — คีย์เดียว บิลเดียว ไม่ต้องใช้ VPN",
+    "ctaPrimary": "เริ่มฟรี",
+    "ctaSecondary": "ดูราคา",
+    "featuresTitle": "เราเตอร์ AI ให้อะไรกับคุณบ้าง",
+    "features": [
+      {
+        "title": "คีย์เดียว ทุกโมเดล",
+        "description": "Route ไปยัง OpenAI, Claude, Gemini, Workers AI และ MiMo ด้วยคีย์ API เดียว แทนที่จะต้องจัดการบัญชีและ SDK แยกกัน"
+      },
+      {
+        "title": "รองรับ OpenAI",
+        "description": "ใช้งานร่วมกับ OpenAI SDK และรูปแบบ REST ได้ทันที ชี้ Base URL ไปที่ MuiRouter แล้วโค้ดเดิมยังทำงานต่อได้"
+      },
+      {
+        "title": "คิดเงินตามโทเค็น",
+        "description": "ไม่มีสมาชิกและไม่มีค่า seat เติมเงินในกระเป๋าแล้วจ่ายเฉพาะโทเค็นที่ route จริงๆ ยอดเงินไม่มีวันหมดอายุ"
+      },
+      {
+        "title": "เซิร์ฟเวอร์ MCP ในตัว",
+        "description": "เปิดเราเตอร์เดียวกันนี้ให้ Claude Desktop, Cursor และ Cline ผ่านเซิร์ฟเวอร์ MCP แบบ streamable-HTTP โดยใช้คีย์ของคุณเอง"
+      }
+    ],
+    "faqTitle": "คำถามที่พบบ่อยเกี่ยวกับเราเตอร์ AI",
+    "faq": [
+      {
+        "question": "เราเตอร์ AI API คืออะไร?",
+        "answer": "เราเตอร์ AI API คือ endpoint เดียวที่ส่งต่อคำขอของคุณไปยังผู้ให้บริการโมเดล AI หลายราย แทนที่จะเชื่อมต่อ OpenAI, Anthropic และ Google แยกกัน คุณเรียก API ที่รองรับ OpenAI เพียงตัวเดียว แล้วเราเตอร์จะส่งแต่ละคำขอไปยังโมเดลที่ถูกต้อง"
+      },
+      {
+        "question": "MuiRouter เหมือนกับ Material UI หรือไม่?",
+        "answer": "ไม่ใช่ MuiRouter คือเราเตอร์ AI/LLM API สำหรับโมเดลภาษา — ไม่เกี่ยวข้องกับไลบรารีคอมโพเนนต์ React อย่าง Material UI (MUI) ชื่อนี้มาจากโดเมน muirouter.com"
+      },
+      {
+        "question": "ผม route ไปยังโมเดลใดได้บ้าง?",
+        "answer": "ปัจจุบันมี OpenAI (GPT), Anthropic Claude, Google Gemini, Cloudflare Workers AI และ Xiaomi MiMo และจะเพิ่มขึ้นเรื่อยๆ คุณเริ่มฟรีได้บน MiMo แล้วเติมเงินเพื่อใช้โมเดลที่เหลือ"
+      },
+      {
+        "question": "ต้องใช้ VPN หรือบัญชีต่างประเทศไหม?",
+        "answer": "ไม่ต้อง MuiRouter ส่งผ่านเครือข่าย Edge ทั่วโลกของ Cloudflare คุณจึงเข้าถึงผู้ให้บริการทุกรายได้โดยไม่ต้องใช้ VPN หรือบัตรเครดิตต่างประเทศ"
+      }
+    ],
+    "relatedTitle": "สำรวจเราเตอร์",
+    "related": [
+      { "href": "/llm-router", "label": "เราเตอร์ LLM" },
+      { "href": "/openai-compatible-router", "label": "เราเตอร์ที่รองรับ OpenAI" },
+      { "href": "/mcp-router", "label": "เราเตอร์และเซิร์ฟเวอร์ MCP" },
+      { "href": "/pricing", "label": "ราคาคิดตามโทเค็น" }
+    ],
+    "ctaTitle": "Route โมเดลแรกของคุณได้ในไม่กี่นาที",
+    "ctaDescription": "สร้างบัญชีฟรี รับคีย์ API แล้วชี้ OpenAI SDK ของคุณไปที่ MuiRouter",
+    "ctaButton": "เริ่มฟรี"
+  },
+  "llmRouter": {
+    "metaTitle": "เราเตอร์ LLM — API เดียวสำหรับ OpenAI, Claude และ Gemini",
+    "metaDescription": "MuiRouter คือเราเตอร์ LLM ที่รวม OpenAI, Anthropic Claude, Google Gemini และ MiMo ไว้หลัง API ที่รองรับ OpenAI ตัวเดียว สลับโมเดลด้วยการเปลี่ยนสตริงเดียว คิดเงินตามโทเค็น ไม่ต้องสมัครสมาชิก",
+    "eyebrow": "เราเตอร์ LLM",
+    "title": "เราเตอร์ LLM เดียวสำหรับ",
+    "titleHighlight": "ทุกผู้ให้บริการ",
+    "intro": "เลิกดูแลการเชื่อมต่อแยกสำหรับผู้ผลิตโมเดลแต่ละราย MuiRouter route การเรียกโมเดลภาษาขนาดใหญ่ของคุณข้าม OpenAI, Claude, Gemini, Workers AI และ MiMo จากคีย์เดียวและบิลเดียว",
+    "ctaPrimary": "เริ่มฟรี",
+    "ctaSecondary": "ดูราคา",
+    "featuresTitle": "ทำไมต้อง route LLM ผ่าน API เดียว",
+    "features": [
+      {
+        "title": "สลับโมเดลด้วยสตริงเดียว",
+        "description": "เปลี่ยนชื่อโมเดลในคำขอเพื่อย้ายระหว่าง GPT, Claude, Gemini และ MiMo — ไม่ต้องมี SDK ใหม่ ไม่ต้องมีคีย์ใหม่"
+      },
+      {
+        "title": "การใช้งานและการคิดเงินแบบรวมศูนย์",
+        "description": "ทุกโมเดลใช้กระเป๋าเดียว บันทึกการใช้งานเดียว และคีย์ API เดียว การติดตามค่าใช้จ่ายจึงเรียบง่ายแม้คุณจะเพิ่มโมเดล"
+      },
+      {
+        "title": "ส่งต่อแบบดั้งเดิมเมื่อคุณต้องการ",
+        "description": "ใช้โหมดที่รองรับ OpenAI เพื่อความพกพาได้ หรือส่งต่อไปยัง API ดั้งเดิมของผู้ให้บริการเพื่อรักษาบริบทยาวของ Claude หรือฟีเจอร์มัลติโมดัลของ Gemini"
+      },
+      {
+        "title": "การ route ที่ยืดหยุ่น",
+        "description": "กระจายทราฟฟิกข้ามผู้ให้บริการ และสำรองไปยังตัวเลือกอื่นเมื่อโมเดล upstream ไม่พร้อมใช้งาน"
+      }
+    ],
+    "faqTitle": "คำถามที่พบบ่อยเกี่ยวกับเราเตอร์ LLM",
+    "faq": [
+      {
+        "question": "เราเตอร์ LLM คืออะไร?",
+        "answer": "เราเตอร์ LLM คือ gateway ที่ส่ง prompt ของคุณไปยังโมเดลภาษาขนาดใหญ่ต่างๆ ผ่านอินเทอร์เฟซเดียว ช่วยให้คุณเปรียบเทียบ สลับ หรือรวมโมเดลอย่าง GPT, Claude และ Gemini โดยไม่ต้องเขียนการเชื่อมต่อใหม่"
+      },
+      {
+        "question": "ผมสลับระหว่างโมเดลได้อย่างไร?",
+        "answer": "ใช้คำขอที่รองรับ OpenAI เหมือนเดิม แล้วเปลี่ยนฟิลด์โมเดล — เช่นจากโมเดล GPT ไปเป็นโมเดล Claude หรือ Gemini แล้ว MuiRouter จะ route ไปยังผู้ให้บริการที่ถูกต้อง"
+      },
+      {
+        "question": "ผมใช้โค้ด OpenAI เดิมได้ไหม?",
+        "answer": "ได้ MuiRouter รองรับ OpenAI คุณจึงเปลี่ยนแค่ Base URL และคีย์ API ดูรายละเอียดได้ที่หน้าเราเตอร์ที่รองรับ OpenAI"
+      }
+    ],
+    "relatedTitle": "ที่เกี่ยวข้อง",
+    "related": [
+      { "href": "/ai-router", "label": "เราเตอร์ AI API" },
+      { "href": "/openai-compatible-router", "label": "เราเตอร์ที่รองรับ OpenAI" },
+      { "href": "/mcp-router", "label": "เราเตอร์และเซิร์ฟเวอร์ MCP" }
+    ],
+    "ctaTitle": "Route ทุก LLM ผ่านคีย์เดียว",
+    "ctaDescription": "สมัครฟรี เริ่มบน MiMo แล้วเพิ่ม OpenAI, Claude และ Gemini เมื่อคุณต้องการ",
+    "ctaButton": "เริ่มฟรี"
+  },
+  "openaiCompatibleRouter": {
+    "metaTitle": "เราเตอร์ API ที่รองรับ OpenAI — แค่เปลี่ยน Base URL",
+    "metaDescription": "MuiRouter คือเราเตอร์ API ที่รองรับ OpenAI ชี้ Base URL ของ OpenAI SDK ไปที่ MuiRouter แล้ว route คำขอไปยัง OpenAI, Claude, Gemini และ MiMo โดยไม่ต้องเขียนโค้ดใหม่ คิดเงินตามโทเค็น",
+    "eyebrow": "เราเตอร์ที่รองรับ OpenAI",
+    "title": "การ route ที่รองรับ OpenAI — ",
+    "titleHighlight": "แค่เปลี่ยน Base URL",
+    "intro": "MuiRouter พูดภาษา OpenAI API ใช้ OpenAI SDK เดิมของคุณ เปลี่ยน Base URL และคีย์ API แล้ว route ไปยัง OpenAI, Claude, Gemini, Workers AI และ MiMo โดยไม่ต้องแตะโค้ดส่วนที่เหลือ",
+    "ctaPrimary": "เริ่มฟรี",
+    "ctaSecondary": "ดูราคา",
+    "featuresTitle": "ความเข้ากันได้กับ OpenAI แบบใช้งานได้ทันที",
+    "features": [
+      {
+        "title": "ย้ายโดยไม่ต้องเขียนโค้ดใหม่",
+        "description": "endpoint ของ Chat Completions และ Images ตรงกับรูปแบบของ OpenAI โปรเจกต์ที่มีอยู่จึงย้ายได้ด้วยการเปลี่ยนสองบรรทัด"
+      },
+      {
+        "title": "OpenAI SDK หรือเครื่องมือใดก็ได้",
+        "description": "ใช้งานได้กับ OpenAI SDK ทางการ, curl และเฟรมเวิร์กใดก็ตามที่เรียก OpenAI API — Python, Node.js และอื่นๆ"
+      },
+      {
+        "title": "โมเดลมากขึ้น อินเทอร์เฟซเดิม",
+        "description": "เมื่อชี้ไปที่ MuiRouter แล้ว คุณเรียก Claude, Gemini และ MiMo ได้ด้วยรูปแบบคำขอเดียวกับที่คุณใช้กับ GPT อยู่แล้ว"
+      },
+      {
+        "title": "ตัวเลือกส่งต่อแบบดั้งเดิม",
+        "description": "ต้องการฟีเจอร์เฉพาะของผู้ให้บริการ? ใช้การส่งต่อแบบดั้งเดิมเพื่อเข้าถึง API ของผู้ให้บริการแต่ละรายขณะที่ยังใช้คีย์เดียว"
+      }
+    ],
+    "faqTitle": "คำถามที่พบบ่อยเกี่ยวกับเราเตอร์ที่รองรับ OpenAI",
+    "faq": [
+      {
+        "question": "รองรับ OpenAI หมายความว่าอย่างไร?",
+        "answer": "หมายความว่า MuiRouter รับรูปแบบคำขอและการตอบกลับเดียวกับ OpenAI API ไคลเอนต์ใดก็ตามที่สร้างมาเพื่อ OpenAI สามารถคุยกับ MuiRouter ได้ด้วยการเปลี่ยนแค่ Base URL และคีย์ API"
+      },
+      {
+        "question": "ผมต้องเปลี่ยนอะไรในโค้ด?",
+        "answer": "ตั้งค่า base URL ของไคลเอนต์ OpenAI ให้เป็น endpoint ของ MuiRouter และใช้คีย์ API ของ MuiRouter ส่วนอื่นๆ — ข้อความ การสตรีม เครื่องมือ — ยังเหมือนเดิม"
+      },
+      {
+        "question": "ผมยังใช้โมเดลที่ไม่ใช่ของ OpenAI ได้ไหม?",
+        "answer": "ได้ ผ่าน endpoint ที่รองรับ OpenAI ตัวเดียวกัน คุณ route ไปยัง Claude, Gemini และ MiMo ได้ด้วยการตั้งชื่อโมเดล"
+      }
+    ],
+    "relatedTitle": "ที่เกี่ยวข้อง",
+    "related": [
+      { "href": "/ai-router", "label": "เราเตอร์ AI API" },
+      { "href": "/llm-router", "label": "เราเตอร์ LLM" },
+      { "href": "/pricing", "label": "ราคาคิดตามโทเค็น" }
+    ],
+    "ctaTitle": "ชี้ Base URL ของคุณไปที่ MuiRouter",
+    "ctaDescription": "รับคีย์ API ฟรี แล้ว route คำขอที่รองรับ OpenAI ครั้งแรกของคุณได้ในไม่กี่นาที",
+    "ctaButton": "เริ่มฟรี"
+  },
+  "mcpRouter": {
+    "metaTitle": "เราเตอร์และเซิร์ฟเวอร์ MCP สำหรับโมเดล AI",
+    "metaDescription": "MuiRouter รันเซิร์ฟเวอร์ MCP แบบ streamable-HTTP เพื่อให้ Claude Desktop, Cursor และ Cline สามารถ route การเรียก LLM สอบถามยอดคงเหลือและการใช้งาน และสร้างรูปภาพด้วยคีย์ของคุณเอง เราเตอร์ MCP สำหรับ AI stack ของคุณ",
+    "eyebrow": "เราเตอร์ MCP",
+    "title": "เราเตอร์และเซิร์ฟเวอร์ MCP สำหรับ",
+    "titleHighlight": "ไคลเอนต์ AI ของคุณ",
+    "intro": "เชื่อมไคลเอนต์ที่รองรับ MCP อย่าง Claude Desktop, Claude Code, Cursor และ Cline เข้ากับ MuiRouter ผ่าน streamable-HTTP เซิร์ฟเวอร์ MCP จะ route การเรียกโมเดลและเปิดเผยยอดคงเหลือ การใช้งาน โมเดล และการสร้างรูปภาพผ่านคีย์ของคุณเอง",
+    "ctaPrimary": "เริ่มฟรี",
+    "ctaSecondary": "ดูราคา",
+    "featuresTitle": "เซิร์ฟเวอร์ MCP ทำอะไรได้บ้าง",
+    "features": [
+      {
+        "title": "MCP แบบ streamable-HTTP",
+        "description": "เซิร์ฟเวอร์ Model Context Protocol มาตรฐานผ่าน streamable-HTTP ที่ไคลเอนต์ซึ่งรองรับ MCP ใดก็ตามเชื่อมต่อได้"
+      },
+      {
+        "title": "Route การเรียก LLM",
+        "description": "ส่งคำขอโมเดลผ่าน MCP แล้ว MuiRouter จะ route ไปยัง OpenAI, Claude, Gemini และ MiMo หลังคีย์เดียว"
+      },
+      {
+        "title": "เครื่องมือจัดการบัญชี",
+        "description": "สอบถามยอดคงเหลือ การใช้งาน โมเดลที่ใช้ได้ และการเติมเงินได้โดยตรงจากไคลเอนต์ AI ของคุณผ่านเครื่องมือ MCP"
+      },
+      {
+        "title": "การสร้างรูปภาพ",
+        "description": "สร้างรูปภาพผ่านการเชื่อมต่อ MCP และไปป์ไลน์การคิดเงินเดียวกัน โดยใช้คีย์ sk-gw- ของคุณ"
+      }
+    ],
+    "faqTitle": "คำถามที่พบบ่อยเกี่ยวกับเราเตอร์ MCP",
+    "faq": [
+      {
+        "question": "เราเตอร์ MCP คืออะไร?",
+        "answer": "เราเตอร์ MCP เปิดเผยการ route โมเดลผ่าน Model Context Protocol ไคลเอนต์ MCP อย่าง Claude Desktop หรือ Cursor จึงเรียกโมเดล AI หลายตัวและเครื่องมือจัดการบัญชีได้ผ่านเซิร์ฟเวอร์เดียว"
+      },
+      {
+        "question": "รองรับไคลเอนต์ใดบ้าง?",
+        "answer": "ไคลเอนต์ MCP ใดก็ตามที่พูด streamable-HTTP รวมถึง Claude Desktop, Claude Code, Cursor และ Cline"
+      },
+      {
+        "question": "ผมตั้งค่าอย่างไร?",
+        "answer": "เพิ่ม endpoint MCP ของ MuiRouter ลงในไคลเอนต์ของคุณพร้อมคีย์ sk-gw- ดูการตั้งค่าสำหรับแต่ละไคลเอนต์ได้ที่คู่มือการตั้งค่า MCP"
+      }
+    ],
+    "relatedTitle": "ที่เกี่ยวข้อง",
+    "related": [
+      { "href": "/mcp", "label": "คู่มือการตั้งค่า MCP" },
+      { "href": "/ai-router", "label": "เราเตอร์ AI API" },
+      { "href": "/llm-router", "label": "เราเตอร์ LLM" }
+    ],
+    "ctaTitle": "เชื่อมไคลเอนต์ AI ของคุณเข้ากับ MuiRouter",
+    "ctaDescription": "สร้างบัญชีฟรี สร้างคีย์ แล้วเพิ่มเซิร์ฟเวอร์ MCP ลงใน Claude, Cursor หรือ Cline",
+    "ctaButton": "เริ่มฟรี"
+  },
+  "homeFaq": {
+    "title": "คำถามที่พบบ่อย",
+    "faq": [
+      {
+        "question": "MuiRouter เกี่ยวข้องกับ Material UI (MUI) หรือไม่?",
+        "answer": "ไม่ MuiRouter คือเราเตอร์ AI/LLM API ที่รองรับ OpenAI และเซิร์ฟเวอร์ MCP ตั้งชื่อตามโดเมน muirouter.com ไม่เกี่ยวข้องกับไลบรารีคอมโพเนนต์ React อย่าง Material UI (MUI) หรือ MUI X แต่อย่างใด"
+      },
+      {
+        "question": "MuiRouter คืออะไร?",
+        "answer": "MuiRouter คือเราเตอร์ AI API คีย์เดียว route คำขอของคุณไปยัง OpenAI, Anthropic Claude, Google Gemini, Cloudflare Workers AI และ Xiaomi MiMo คิดเงินตามโทเค็น ไม่ต้องสมัครสมาชิก"
+      },
+      {
+        "question": "รองรับ OpenAI ไหม?",
+        "answer": "รองรับ ชี้ Base URL ของ OpenAI SDK ไปที่ MuiRouter แล้วใช้โค้ดเดิมของคุณได้ ดูเพิ่มเติมได้ที่หน้าเราเตอร์ที่รองรับ OpenAI"
+      }
+    ]
+  },
+  "mcpPage": {
+    "title": "คู่มือการเชื่อมต่อ MCP",
+    "intro": "MuiRouter รันเซิร์ฟเวอร์ MCP แบบ streamable-HTTP เพื่อให้ไคลเอนต์ AI อย่าง Claude Desktop, Claude Code, Cursor และ Cline เรียกใช้งานได้โดยตรง ผู้ช่วย AI ของคุณจึงสามารถตรวจสอบยอดคงเหลือ ดูการใช้งาน แสดงรายการโมเดล สร้างรูปภาพ และแม้แต่เริ่มการเติมเงินได้ ทุกอย่างยืนยันตัวตนด้วยคีย์ API sk-gw- ของคุณเอง ทั้งบุคคลที่สามและไคลเอนต์ AI จึงไม่ต้องสมัครบัญชีใหม่",
+    "endpointTitle": "1. Endpoint ของเซิร์ฟเวอร์",
+    "endpointDesc": "ไคลเอนต์ MCP ทุกตัวเชื่อมต่อไปยัง URL เดียวกันโดยใช้การยืนยันตัวตนแบบ Bearer",
+    "protocolNote": "เวอร์ชันโปรโตคอล: MCP 2025-06-18, ทรานสปอร์ต: streamable-http, JSON-RPC 2.0 แบบ stateless",
+    "claudeCodeTitle": "2. เชื่อมต่อใน Claude Code",
+    "claudeCodeDesc": "แก้ไข ~/.claude/mcp.json แล้วเพิ่มเซิร์ฟเวอร์ muirouter",
+    "claudeCodeNote": "หลังจากรีสตาร์ท Claude Code ให้พิมพ์ /mcp เพื่อดูรายการเครื่องมือของ muirouter",
+    "clientsTitle": "3. เชื่อมต่อใน Cursor / Claude Desktop",
+    "clientsDesc": "กรอก URL และ Authorization header เดียวกัน",
+    "cursorDesc": "Cursor: Settings → MCP → Add new server เลือกประเภท streamable-http ตั้งค่า URL เป็น {url} แล้วเพิ่ม custom header {header}",
+    "claudeDesktopDesc": "Claude Desktop: แก้ไขไฟล์คอนฟิก (macOS: {path}) ด้วยคอนฟิกเดียวกับ Claude Code ด้านบน",
+    "toolsTitle": "4. เครื่องมือที่ใช้ได้",
+    "toolsDesc": "เครื่องมือหกตัวครอบคลุมการสอบถามบัญชี ราคา การสร้างรูปภาพ และการเติมเงิน",
+    "tools": {
+      "get_balance": "สอบถามยอดคงเหลือในกระเป๋าเงิน ยอดเติมเงินรวม และยอดใช้จ่ายรวมของผู้ใช้ที่เป็นเจ้าของคีย์ API ปัจจุบัน",
+      "get_usage": "แบ่งหน้าดูการใช้งาน API ของผู้ใช้ปัจจุบัน กรองตามโมเดลและช่วงเวลาได้",
+      "list_recharges": "แบ่งหน้าดูรายการเติมเงินของผู้ใช้ปัจจุบัน",
+      "list_models": "แสดงรายการทุกโมเดลที่ MuiRouter รองรับในปัจจุบันพร้อมราคา (input/output, markup_rate)",
+      "create_topup_session": "สร้างเซสชันเติมเงิน Stripe และคืนลิงก์ชำระเงินที่ไคลเอนต์ AI สามารถนำผู้ใช้ดำเนินการต่อได้",
+      "image_generation": "เรียก endpoint การสร้างรูปภาพที่รองรับ OpenAI ผ่าน MuiRouter (หักจากยอดคงเหลือในกระเป๋าเงิน)"
+    },
+    "jsonRpcTitle": "5. เรียก JSON-RPC โดยตรง",
+    "jsonRpcDesc": "คุณยังเรียกใช้งานโดยตรงด้วย curl ได้โดยไม่ต้องใช้ไคลเอนต์ MCP",
+    "securityTitle": "6. หมายเหตุด้านความปลอดภัย",
+    "security1": "คีย์ API ของคุณเปรียบเสมือนรหัสผ่าน อย่าเปิดเผยในที่เก็บโค้ดสาธารณะหรือบันทึกแชต หากสงสัยว่าคีย์รั่วไหล ให้เพิกถอนทันทีที่หน้า Keys",
+    "security2": "image_generation และ create_topup_session ใช้จ่ายหรือโยกย้ายเงิน ควรพิจารณาตั้งให้เครื่องมือสองตัวนี้ต้องยืนยันก่อนในไคลเอนต์ AI ของคุณ",
+    "security3": "ทุกคำขอผูกกับบัญชีที่อยู่เบื้องหลังคีย์ sk-gw- โดยมีกฎการทำงานพร้อมกันและการคิดเงินเดียวกับการเรียก REST API โดยตรง",
+    "relatedTitle": "ที่เกี่ยวข้อง",
+    "related": [
+      {
+        "href": "/mcp-router",
+        "label": "เราเตอร์และเซิร์ฟเวอร์ MCP"
+      },
+      {
+        "href": "/ai-router",
+        "label": "เราเตอร์ AI API"
+      },
+      {
+        "href": "/pricing",
+        "label": "ราคาตามโทเค็น"
+      }
+    ]
   }
 }

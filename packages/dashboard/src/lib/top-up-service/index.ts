@@ -70,7 +70,7 @@ export async function createTopUpCheckoutSession(params: {
           currency: 'usd',
           unit_amount: toStripeUnitAmount(amount),
           product_data: {
-            name: `MUI Router 余额充值 $${amount}`,
+            name: `MuiRouter 余额充值 $${amount}`,
             description: '一次性充值，充多少得多少，余额不会过期。',
           },
         },

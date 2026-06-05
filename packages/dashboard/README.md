@@ -1,6 +1,6 @@
-# MUI Router Dashboard
+# MuiRouter Dashboard
 
-MUI Router 的管理面板，基于 Next.js 16 + OpenNext 部署在 Cloudflare Workers 上。
+MuiRouter 的管理面板，基于 Next.js 16 + OpenNext 部署在 Cloudflare Workers 上。
 
 ## 技术栈
 

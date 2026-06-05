@@ -36,7 +36,7 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'Blog',
-    name: 'MUI Router Blog',
+    name: 'MuiRouter Blog',
     url: `${SITE_URL}${getLocalizedPath('/blog', resolvedLocale)}`,
     blogPost: posts.map((post) => ({
       '@type': 'BlogPosting',
@@ -47,11 +47,11 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
       url: `${SITE_URL}${getLocalizedPath(post.href, resolvedLocale)}`,
       author: {
         '@type': 'Organization',
-        name: 'MUI Router',
+        name: 'MuiRouter',
       },
       publisher: {
         '@type': 'Organization',
-        name: 'MUI Router',
+        name: 'MuiRouter',
         logo: {
           '@type': 'ImageObject',
           url: `${SITE_URL}/favicon.svg`,

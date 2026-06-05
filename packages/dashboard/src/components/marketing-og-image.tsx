@@ -21,7 +21,7 @@ export function MarketingOgImage() {
           marginBottom: 16,
         }}
       >
-        MUI Router
+        MuiRouter
       </div>
       <div
         style={{
@@ -30,7 +30,7 @@ export function MarketingOgImage() {
           marginBottom: 48,
         }}
       >
-        One Key, All AI Models
+        The AI API Router for Every LLM
       </div>
       <div
         style={{

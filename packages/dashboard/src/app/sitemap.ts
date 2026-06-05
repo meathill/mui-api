@@ -11,7 +11,7 @@ type SitemapPage = {
 };
 
 // 静态页 lastModified 维护时手动更新；避免 sitemap 每次构建都变更欺骗搜索引擎。
-const STATIC_PAGES_UPDATED_AT = new Date('2026-05-29');
+const STATIC_PAGES_UPDATED_AT = new Date('2026-06-02');
 
 const pages: SitemapPage[] = [
   { path: '/', changeFrequency: 'weekly', priority: 1.0, lastModified: STATIC_PAGES_UPDATED_AT },
@@ -24,6 +24,15 @@ const pages: SitemapPage[] = [
   })),
   { path: '/pricing', changeFrequency: 'monthly', priority: 0.8, lastModified: STATIC_PAGES_UPDATED_AT },
   { path: '/mcp', changeFrequency: 'monthly', priority: 0.7, lastModified: STATIC_PAGES_UPDATED_AT },
+  { path: '/ai-router', changeFrequency: 'monthly', priority: 0.8, lastModified: STATIC_PAGES_UPDATED_AT },
+  { path: '/llm-router', changeFrequency: 'monthly', priority: 0.7, lastModified: STATIC_PAGES_UPDATED_AT },
+  {
+    path: '/openai-compatible-router',
+    changeFrequency: 'monthly',
+    priority: 0.7,
+    lastModified: STATIC_PAGES_UPDATED_AT,
+  },
+  { path: '/mcp-router', changeFrequency: 'monthly', priority: 0.7, lastModified: STATIC_PAGES_UPDATED_AT },
   { path: '/register', changeFrequency: 'monthly', priority: 0.6, lastModified: STATIC_PAGES_UPDATED_AT },
   // /login 不在 sitemap：layout 已设 robots: noindex，与 sitemap 收录冲突会让 GSC 报错。
 ];

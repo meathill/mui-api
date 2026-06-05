@@ -33,9 +33,15 @@ export default async function MarketingLayout({
               aria-hidden
               priority
             />
-            MUI Router
+            MuiRouter
           </Link>
           <nav className="flex flex-1 flex-wrap items-center gap-2 sm:gap-3">
+            <Link
+              href="/ai-router"
+              className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors sm:px-4"
+            >
+              {t('aiRouter')}
+            </Link>
             <Link
               href="/pricing"
               className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors sm:px-4"
@@ -62,14 +68,41 @@ export default async function MarketingLayout({
         </div>
       </header>
       <main className="flex-1">{children}</main>
-      <footer className="border-t border-border py-6 text-center text-sm text-muted-foreground">
-        &copy; {new Date().getFullYear()} Meathill LLC. All rights reserved.
-        <span className="mx-2 text-muted-foreground/50">·</span>
-        <span className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.18em] text-[var(--brand-yellow-deep)] align-middle">
-          supervised by Mui
-          <PawIcon className="size-3.5" />
-        </span>
-        <span className="ml-2 text-muted-foreground/50">v{process.env.NEXT_PUBLIC_APP_VERSION}</span>
+      <footer className="border-t border-border py-8 text-sm text-muted-foreground">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6">
+          <div className="mb-6 flex flex-wrap justify-center gap-x-5 gap-y-2 font-medium">
+            <Link href="/ai-router" className="hover:text-foreground transition-colors">
+              {t('aiRouter')}
+            </Link>
+            <Link href="/llm-router" className="hover:text-foreground transition-colors">
+              {t('llmRouter')}
+            </Link>
+            <Link href="/openai-compatible-router" className="hover:text-foreground transition-colors">
+              {t('openaiCompatibleRouter')}
+            </Link>
+            <Link href="/mcp-router" className="hover:text-foreground transition-colors">
+              {t('mcpRouter')}
+            </Link>
+            <Link href="/mcp" className="hover:text-foreground transition-colors">
+              {t('mcp')}
+            </Link>
+            <Link href="/pricing" className="hover:text-foreground transition-colors">
+              {t('pricing')}
+            </Link>
+            <Link href="/blog" className="hover:text-foreground transition-colors">
+              {t('blog')}
+            </Link>
+          </div>
+          <div className="text-center">
+            &copy; {new Date().getFullYear()} Meathill LLC. All rights reserved.
+            <span className="mx-2 text-muted-foreground/50">·</span>
+            <span className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.18em] text-[var(--brand-yellow-deep)] align-middle">
+              supervised by Mui
+              <PawIcon className="size-3.5" />
+            </span>
+            <span className="ml-2 text-muted-foreground/50">v{process.env.NEXT_PUBLIC_APP_VERSION}</span>
+          </div>
+        </div>
       </footer>
     </div>
   );

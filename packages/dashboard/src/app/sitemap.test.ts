@@ -1,0 +1,66 @@
+import { describe, expect, it } from 'vitest';
+import { locales } from '@/i18n/config';
+import { buildMetadata, getLanguageAlternates } from '@/lib/seo';
+import sitemap from './sitemap';
+
+const ROUTER_PAGES = ['/ai-router', '/llm-router', '/openai-compatible-router', '/mcp-router'] as const;
+
+describe('sitemap', () => {
+  const entries = sitemap();
+  const urls = entries.map((entry) => entry.url);
+
+  it('收录 4 个新 router 落地页（默认语言无前缀）', () => {
+    for (const path of ROUTER_PAGES) {
+      expect(urls).toContain(`https://muirouter.com${path}`);
+    }
+  });
+
+  it('每个新路由覆盖全部 8 语言', () => {
+    for (const path of ROUTER_PAGES) {
+      for (const locale of locales) {
+        const expected = locale === 'en' ? `https://muirouter.com${path}` : `https://muirouter.com/${locale}${path}`;
+        expect(urls).toContain(expected);
+      }
+    }
+  });
+
+  it('保留既有页面并排除 noindex 的 /login', () => {
+    expect(urls).toContain('https://muirouter.com/');
+    expect(urls).toContain('https://muirouter.com/pricing');
+    expect(urls).toContain('https://muirouter.com/mcp');
+    expect(urls).not.toContain('https://muirouter.com/login');
+  });
+
+  it('新路由条目带全语言 + x-default hreflang alternates', () => {
+    const aiRouter = entries.find((entry) => entry.url === 'https://muirouter.com/ai-router');
+    expect(aiRouter).toBeDefined();
+    const langs = Object.keys(aiRouter?.alternates?.languages ?? {});
+    for (const locale of locales) {
+      expect(langs).toContain(locale);
+    }
+    expect(langs).toContain('x-default');
+  });
+});
+
+describe('buildMetadata（新落地页）', () => {
+  it('生成 self-canonical 与 8+1 条 hreflang', () => {
+    const metaEs = buildMetadata({ path: '/ai-router', title: 'T', description: 'D', locale: 'es' });
+    expect(metaEs.alternates?.canonical).toBe('/es/ai-router');
+
+    const metaEn = buildMetadata({ path: '/ai-router', title: 'T', description: 'D', locale: 'en' });
+    expect(metaEn.alternates?.canonical).toBe('/ai-router');
+
+    const langs = Object.keys(metaEs.alternates?.languages ?? {});
+    for (const locale of locales) {
+      expect(langs).toContain(locale);
+    }
+    expect(langs).toContain('x-default');
+  });
+
+  it('x-default 指向无前缀英文路径', () => {
+    const alts = getLanguageAlternates('/llm-router');
+    expect(alts['x-default']).toBe('/llm-router');
+    expect(alts.en).toBe('/llm-router');
+    expect(alts.zh).toBe('/zh/llm-router');
+  });
+});

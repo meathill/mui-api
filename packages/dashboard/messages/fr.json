@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "Passerelle API IA unifiée",
-    "description": "Passerelle API IA unifiée. Une seule clé pour accéder à tous les modèles IA. Compatible OpenAI, Anthropic, Google et plus. Paiement par token, sans VPN.",
-    "ogTitle": "Une clé, tous les modèles IA"
+    "title": "Routeur d'API IA pour OpenAI, Claude et Gemini",
+    "description": "MuiRouter est un routeur d'API IA compatible OpenAI et une passerelle LLM. Une seule clé route vos requêtes vers OpenAI, Anthropic, Google et plus — paiement au token, sans VPN, sans abonnement. Serveur MCP intégré.",
+    "ogTitle": "Routeur d'API IA compatible OpenAI et passerelle LLM"
   },
   "header": {
     "login": "Connexion",
@@ -11,16 +11,21 @@
     "blog": "Blog",
     "mcp": "MCP",
     "pricing": "Tarifs",
-    "dashboard": "Tableau de bord"
+    "dashboard": "Tableau de bord",
+    "aiRouter": "Routeur IA",
+    "llmRouter": "Routeur LLM",
+    "openaiCompatibleRouter": "Compatible OpenAI",
+    "mcpRouter": "Routeur MCP"
   },
   "hero": {
-    "badge": "OpenAI / Gemini / Workers AI / MiMo tous supportés",
-    "title": "Une clé, accédez à",
-    "titleHighlight": "tous les modèles IA",
-    "description": "Pas de VPN nécessaire, pas de compte étranger requis. Essayez MiMo avec un quota gratuit, puis rechargez pour plus de modèles.",
-    "descriptionLine2": "Compatible avec le SDK OpenAI — changez simplement le Base URL.",
+    "badge": "OpenAI / Gemini / Claude / Workers AI / MiMo — un seul routeur",
+    "title": "Un seul routeur d'API IA pour ",
+    "titleHighlight": "chaque LLM",
+    "description": "MuiRouter est un routeur d'API compatible OpenAI : une seule clé route vos requêtes vers OpenAI, Claude, Gemini et plus. Sans VPN, sans compte à l'étranger — commencez gratuitement avec MiMo, rechargez pour le reste.",
+    "descriptionLine2": "Compatible d'emblée avec le SDK OpenAI — changez simplement le Base URL.",
     "ctaPrimary": "Inscription gratuite",
     "ctaSecondary": "Voir les tarifs",
+    "ctaLearn": "Découvrez comment fonctionne le routeur IA",
     "stat1Value": "5",
     "stat1Label": "Fournisseurs IA majeurs",
     "stat2Value": "100%",
@@ -31,7 +36,7 @@
     "stat4Label": "Frais mensuels / abonnement"
   },
   "models": {
-    "title": "Tous les modèles IA majeurs, une seule intégration",
+    "title": "Routez chaque LLM majeur via une seule API",
     "subtitle": "Compatible OpenAI, Anthropic, Google, Workers AI et Xiaomi MiMo — en expansion continue",
     "openaiDesc": "Le modèle généraliste le plus puissant — code, raisonnement, multimodal",
     "anthropicDesc": "Contexte ultra-long, excellent en programmation et analyse",
@@ -42,8 +47,8 @@
     "footnote": "Prend en charge le mode compatible OpenAI et le passage natif API — aucune fonctionnalité perdue"
   },
   "advantages": {
-    "title": "Pourquoi choisir MUI Router",
-    "subtitle": "Passerelle API IA conçue pour les développeurs du monde entier",
+    "title": "Pourquoi les développeurs choisissent MuiRouter",
+    "subtitle": "Le routeur d'API IA et la passerelle LLM conçus pour les développeurs du monde entier",
     "noVpnTitle": "Pas de VPN nécessaire",
     "noVpnDesc": "Acheminé via le réseau mondial Cloudflare pour un accès sans barrière. Pas de carte bancaire étrangère ni de compte à l'étranger nécessaire.",
     "payPerUseTitle": "Paiement à l'utilisation",
@@ -80,22 +85,22 @@
   },
   "pricing": {
     "metadata": {
-      "title": "Tarifs",
-      "description": "Tarifs officiels des modèles OpenAI et Gemini. Sans abonnement, paiement à l'usage."
+      "title": "Tarification des API de modèles IA — paiement au token",
+      "description": "Tarification transparente au token pour les modèles OpenAI, Claude, Gemini et MiMo via le routeur d'API IA MuiRouter. Sans abonnement, sans licence par siège — payez uniquement ce que vous utilisez."
     },
-    "eyebrow": "Tarifs officiels des modèles",
-    "title": "Tarifs",
+    "eyebrow": "Tarification au token des modèles IA",
+    "title": "Tarification des API de modèles IA",
     "subtitle": "Aucun abonnement et aucune limite de forfait. Cette page regroupe les derniers tarifs publics d'OpenAI et Gemini pour comparer rapidement les coûts des modèles.",
     "summary": {
       "noSubscriptionTitle": "Sans abonnement",
       "noSubscriptionDescription": "Pas de formule, pas de frais mensuels, et aucune limite liée à un forfait.",
       "officialTitle": "Prix officiels",
-      "officialDescription": "Tous les montants affichés ici sont des prix de référence publiés par les fournisseurs, pas des majorations MUI Router.",
+      "officialDescription": "Tous les montants affichés ici sont des prix de référence publiés par les fournisseurs, pas des majorations MuiRouter.",
       "unitTitle": "Unité claire",
       "unitDescription": "Tous les prix sont affichés en {unit}."
     },
     "updatedAtLabel": "Dernière synchronisation",
-    "actualBillingNotice": "MUI Router facture selon la configuration de prix du modèle dans le tableau de bord. Cette page est uniquement une référence publique.",
+    "actualBillingNotice": "MuiRouter facture selon la configuration de prix du modèle dans le tableau de bord. Cette page est uniquement une référence publique.",
     "sourceLabel": "Sources",
     "officialSource": "Source officielle",
     "unit": "USD / 1M tokens",
@@ -125,15 +130,15 @@
   "blog": {
     "metadata": {
       "title": "Blog",
-      "description": "Actualités des modèles IA, notes de lancement pratiques et conseils produit MUI Router."
+      "description": "Actualités des modèles IA, notes de lancement pratiques et conseils produit MuiRouter."
     },
-    "eyebrow": "Blog MUI Router",
+    "eyebrow": "Blog MuiRouter",
     "title": "Les mises à jour IA, sans le bruit",
     "subtitle": "Des notes claires sur les nouveaux modèles frontier, la disponibilité API et ce que chaque lancement change pour les builders qui veulent une intégration stable.",
     "readingTime": "{minutes} min de lecture",
     "readArticle": "Lire l'article",
     "ctaTitle": "Une seule intégration pour chaque changement de modèle ?",
-    "ctaDescription": "Créez un compte MUI Router et gardez une intégration applicative stable pendant que l'écosystème des modèles évolue.",
+    "ctaDescription": "Créez un compte MuiRouter et gardez une intégration applicative stable pendant que l'écosystème des modèles évolue.",
     "ctaButton": "Inscription",
     "backToBlog": "Retour au blog",
     "sourcesTitle": "Sources officielles",
@@ -142,7 +147,7 @@
     "articleCtaDescription": "Commencez avec une seule API Key et un chemin plus clair pour router l'accès aux futurs modèles dès que l'amont est disponible."
   },
   "login": {
-    "title": "Connexion à MUI Router",
+    "title": "Connexion à MuiRouter",
     "or": "ou",
     "emailLabel": "Email",
     "emailPlaceholder": "you@example.com",
@@ -157,7 +162,7 @@
     "redirecting": "Redirection..."
   },
   "register": {
-    "title": "Inscription à MUI Router",
+    "title": "Inscription à MuiRouter",
     "or": "ou",
     "nameLabel": "Pseudo",
     "nameOptional": "(facultatif)",
@@ -540,8 +545,278 @@
   },
   "mcp": {
     "metadata": {
-      "title": "Intégration MCP",
-      "description": "Connectez Claude Desktop, Cursor et d'autres clients IA à MUI Router via Model Context Protocol. Interrogez solde, consommation, modèles, rechargements et générez des images avec votre clé sk-gw-."
+      "title": "Serveur MCP pour Claude, Cursor et Cline",
+      "description": "Connectez Claude Desktop, Claude Code, Cursor et Cline au serveur MCP MuiRouter via streamable-HTTP. Routez les appels LLM, interrogez le solde, la consommation et les modèles, et générez des images avec votre propre API Key."
     }
+  },
+  "aiRouter": {
+    "metaTitle": "Routeur d'API IA — une seule clé pour chaque LLM",
+    "metaDescription": "MuiRouter est un routeur d'API IA compatible OpenAI : une seule API Key route vos requêtes vers OpenAI, Claude, Gemini, MiMo et plus, avec facturation au token et un serveur MCP intégré. Sans VPN, sans abonnement.",
+    "eyebrow": "Routeur d'API IA",
+    "title": "Le routeur d'API IA pour ",
+    "titleHighlight": "chaque LLM",
+    "intro": "MuiRouter s'intercale entre votre application et chaque grand fournisseur d'IA. Envoyez une seule requête compatible OpenAI et il route vers OpenAI, Anthropic Claude, Google Gemini, Cloudflare Workers AI ou Xiaomi MiMo — une seule clé, une seule facture, sans VPN.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "Ce qu'un routeur IA vous apporte",
+    "features": [
+      {
+        "title": "Une seule clé, tous les modèles",
+        "description": "Routez vers OpenAI, Claude, Gemini, Workers AI et MiMo via une seule API Key au lieu de jongler avec des comptes et des SDK distincts."
+      },
+      {
+        "title": "Compatible OpenAI",
+        "description": "Compatible d'emblée avec le SDK OpenAI et le format REST. Pointez votre Base URL vers MuiRouter et votre code existant continue de fonctionner."
+      },
+      {
+        "title": "Paiement au token",
+        "description": "Sans abonnement ni licence par siège. Rechargez un portefeuille et ne payez que les tokens que vous routez réellement. Le solde n'expire jamais."
+      },
+      {
+        "title": "Serveur MCP intégré",
+        "description": "Exposez le même routeur à Claude Desktop, Cursor et Cline via un serveur MCP en streamable-HTTP, avec votre propre clé."
+      }
+    ],
+    "faqTitle": "FAQ du routeur IA",
+    "faq": [
+      {
+        "question": "Qu'est-ce qu'un routeur d'API IA ?",
+        "answer": "Un routeur d'API IA est un point d'accès unique qui transmet vos requêtes à de nombreux fournisseurs de modèles d'IA. Au lieu d'intégrer OpenAI, Anthropic et Google séparément, vous appelez une seule API compatible OpenAI et le routeur dirige chaque requête vers le bon modèle."
+      },
+      {
+        "question": "MuiRouter est-il identique à Material UI ?",
+        "answer": "Non. MuiRouter est un routeur d'API IA/LLM pour les modèles de langage — sans rapport avec la bibliothèque de composants React Material UI (MUI). Le nom vient du domaine muirouter.com."
+      },
+      {
+        "question": "Vers quels modèles puis-je router ?",
+        "answer": "OpenAI (GPT), Anthropic Claude, Google Gemini, Cloudflare Workers AI et Xiaomi MiMo aujourd'hui, avec d'autres ajoutés au fil du temps. Vous pouvez commencer gratuitement avec MiMo et recharger pour le reste."
+      },
+      {
+        "question": "Ai-je besoin d'un VPN ou d'un compte à l'étranger ?",
+        "answer": "Non. MuiRouter est acheminé via le réseau mondial Cloudflare, vous pouvez donc atteindre chaque fournisseur sans VPN ni carte bancaire étrangère."
+      }
+    ],
+    "relatedTitle": "Explorer le routeur",
+    "related": [
+      { "href": "/llm-router", "label": "Routeur LLM" },
+      { "href": "/openai-compatible-router", "label": "Routeur compatible OpenAI" },
+      { "href": "/mcp-router", "label": "Routeur et serveur MCP" },
+      { "href": "/pricing", "label": "Tarification au token" }
+    ],
+    "ctaTitle": "Routez votre premier modèle en quelques minutes",
+    "ctaDescription": "Créez un compte gratuit, récupérez une API Key et pointez votre SDK OpenAI vers MuiRouter.",
+    "ctaButton": "Commencer gratuitement"
+  },
+  "llmRouter": {
+    "metaTitle": "Routeur LLM — une seule API pour OpenAI, Claude et Gemini",
+    "metaDescription": "MuiRouter est un routeur LLM qui unifie OpenAI, Anthropic Claude, Google Gemini et MiMo derrière une seule API compatible OpenAI. Changez de modèle en modifiant une seule chaîne, payez au token, sans abonnement.",
+    "eyebrow": "Routeur LLM",
+    "title": "Un seul routeur LLM pour ",
+    "titleHighlight": "chaque fournisseur",
+    "intro": "Cessez de maintenir une intégration distincte pour chaque éditeur de modèles. MuiRouter route vos appels de grands modèles de langage vers OpenAI, Claude, Gemini, Workers AI et MiMo depuis une seule clé et une seule facture.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "Pourquoi router les LLM via une seule API",
+    "features": [
+      {
+        "title": "Changez de modèle avec une seule chaîne",
+        "description": "Modifiez le nom du modèle dans votre requête pour passer de GPT à Claude, Gemini et MiMo — sans nouveau SDK, sans nouvelle clé."
+      },
+      {
+        "title": "Consommation et facturation unifiées",
+        "description": "Chaque modèle partage un seul portefeuille, un seul journal de consommation et une seule API Key, le suivi des coûts reste donc simple à mesure que vous ajoutez des modèles."
+      },
+      {
+        "title": "Passage natif quand vous en avez besoin",
+        "description": "Utilisez le mode compatible OpenAI pour la portabilité, ou passez par l'API native d'un fournisseur pour conserver le contexte long de Claude ou le multimodal de Gemini."
+      },
+      {
+        "title": "Routage résilient",
+        "description": "Répartissez le trafic entre les fournisseurs et basculez vers des alternatives lorsqu'un modèle amont est indisponible."
+      }
+    ],
+    "faqTitle": "FAQ du routeur LLM",
+    "faq": [
+      {
+        "question": "Qu'est-ce qu'un routeur LLM ?",
+        "answer": "Un routeur LLM est une passerelle qui envoie vos prompts à différents grands modèles de langage via une seule interface. Il vous permet de comparer, changer ou combiner des modèles comme GPT, Claude et Gemini sans réécrire votre intégration."
+      },
+      {
+        "question": "Comment changer de modèle ?",
+        "answer": "Conservez la même requête compatible OpenAI et modifiez le champ du modèle — par exemple d'un modèle GPT vers un modèle Claude ou Gemini. MuiRouter le route vers le bon fournisseur."
+      },
+      {
+        "question": "Puis-je utiliser mon code OpenAI existant ?",
+        "answer": "Oui. MuiRouter est compatible OpenAI, vous changez donc seulement le Base URL et l'API Key. Consultez la page du routeur compatible OpenAI pour plus de détails."
+      }
+    ],
+    "relatedTitle": "Liens connexes",
+    "related": [
+      { "href": "/ai-router", "label": "Routeur d'API IA" },
+      { "href": "/openai-compatible-router", "label": "Routeur compatible OpenAI" },
+      { "href": "/mcp-router", "label": "Routeur et serveur MCP" }
+    ],
+    "ctaTitle": "Routez chaque LLM via une seule clé",
+    "ctaDescription": "Inscrivez-vous gratuitement, commencez avec MiMo et ajoutez OpenAI, Claude et Gemini quand vous en avez besoin.",
+    "ctaButton": "Commencer gratuitement"
+  },
+  "openaiCompatibleRouter": {
+    "metaTitle": "Routeur d'API compatible OpenAI — changez le Base URL",
+    "metaDescription": "MuiRouter est un routeur d'API compatible OpenAI. Pointez le Base URL du SDK OpenAI vers MuiRouter et routez les requêtes vers OpenAI, Claude, Gemini et MiMo sans réécriture de code et avec facturation au token.",
+    "eyebrow": "Routeur compatible OpenAI",
+    "title": "Routage compatible OpenAI — ",
+    "titleHighlight": "changez simplement le Base URL",
+    "intro": "MuiRouter parle l'API OpenAI. Conservez votre SDK OpenAI existant, remplacez le Base URL et l'API Key, et routez vers OpenAI, Claude, Gemini, Workers AI et MiMo sans toucher au reste de votre code.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "Compatibilité OpenAI d'emblée",
+    "features": [
+      {
+        "title": "Migration sans réécriture",
+        "description": "Les points d'accès Chat Completions et Images correspondent au format OpenAI, les projets existants migrent donc en changeant deux lignes."
+      },
+      {
+        "title": "Tout SDK ou outil OpenAI",
+        "description": "Fonctionne avec les SDK OpenAI officiels, curl et tout framework ciblant l'API OpenAI — Python, Node.js et plus."
+      },
+      {
+        "title": "Plus de modèles, même interface",
+        "description": "Une fois pointé vers MuiRouter, vous pouvez appeler Claude, Gemini et MiMo avec la même structure de requête que vous utilisez déjà pour GPT."
+      },
+      {
+        "title": "Option de passage natif",
+        "description": "Besoin d'une fonctionnalité propre à un fournisseur ? Utilisez le passage natif pour atteindre l'API de chaque fournisseur tout en gardant une seule clé."
+      }
+    ],
+    "faqTitle": "FAQ du routeur compatible OpenAI",
+    "faq": [
+      {
+        "question": "Que signifie compatible OpenAI ?",
+        "answer": "Cela signifie que MuiRouter accepte le même format de requête et de réponse que l'API OpenAI. Tout client conçu pour OpenAI peut communiquer avec MuiRouter en changeant uniquement le Base URL et l'API Key."
+      },
+      {
+        "question": "Que dois-je changer dans mon code ?",
+        "answer": "Définissez le base URL du client OpenAI sur le point d'accès de MuiRouter et utilisez votre API Key MuiRouter. Tout le reste — messages, streaming, outils — reste identique."
+      },
+      {
+        "question": "Puis-je toujours utiliser des modèles non-OpenAI ?",
+        "answer": "Oui. Via le même point d'accès compatible OpenAI, vous pouvez router vers Claude, Gemini et MiMo en définissant le nom du modèle."
+      }
+    ],
+    "relatedTitle": "Liens connexes",
+    "related": [
+      { "href": "/ai-router", "label": "Routeur d'API IA" },
+      { "href": "/llm-router", "label": "Routeur LLM" },
+      { "href": "/pricing", "label": "Tarification au token" }
+    ],
+    "ctaTitle": "Pointez votre Base URL vers MuiRouter",
+    "ctaDescription": "Récupérez une API Key gratuite et routez votre première requête compatible OpenAI en quelques minutes.",
+    "ctaButton": "Commencer gratuitement"
+  },
+  "mcpRouter": {
+    "metaTitle": "Routeur MCP et serveur MCP pour les modèles d'IA",
+    "metaDescription": "MuiRouter exécute un serveur MCP en streamable-HTTP pour que Claude Desktop, Cursor et Cline puissent router les appels LLM, interroger le solde et la consommation, et générer des images avec votre propre clé. Le routeur MCP pour votre stack d'IA.",
+    "eyebrow": "Routeur MCP",
+    "title": "Un routeur et serveur MCP pour ",
+    "titleHighlight": "vos clients IA",
+    "intro": "Connectez des clients compatibles MCP comme Claude Desktop, Claude Code, Cursor et Cline à MuiRouter via streamable-HTTP. Le serveur MCP route les appels de modèles et expose le solde, la consommation, les modèles et la génération d'images avec votre propre clé.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "Ce que fait le serveur MCP",
+    "features": [
+      {
+        "title": "MCP en streamable-HTTP",
+        "description": "Un serveur Model Context Protocol standard en streamable-HTTP auquel tout client compatible MCP peut se connecter."
+      },
+      {
+        "title": "Router les appels LLM",
+        "description": "Envoyez des requêtes de modèles via MCP et MuiRouter les route vers OpenAI, Claude, Gemini et MiMo derrière une seule clé."
+      },
+      {
+        "title": "Outils de compte",
+        "description": "Interrogez le solde, la consommation, les modèles disponibles et les recharges directement depuis votre client IA via les outils MCP."
+      },
+      {
+        "title": "Génération d'images",
+        "description": "Générez des images via la même connexion MCP et le même pipeline de facturation, avec votre clé sk-gw-."
+      }
+    ],
+    "faqTitle": "FAQ du routeur MCP",
+    "faq": [
+      {
+        "question": "Qu'est-ce qu'un routeur MCP ?",
+        "answer": "Un routeur MCP expose le routage de modèles via le Model Context Protocol, afin que les clients MCP tels que Claude Desktop ou Cursor puissent appeler de nombreux modèles d'IA et outils de compte via un seul serveur."
+      },
+      {
+        "question": "Quels clients sont pris en charge ?",
+        "answer": "Tout client MCP qui parle streamable-HTTP, y compris Claude Desktop, Claude Code, Cursor et Cline."
+      },
+      {
+        "question": "Comment le configurer ?",
+        "answer": "Ajoutez le point d'accès MCP de MuiRouter à votre client avec votre clé sk-gw-. Consultez le guide de configuration MCP pour le paramétrage client par client."
+      }
+    ],
+    "relatedTitle": "Liens connexes",
+    "related": [
+      { "href": "/mcp", "label": "Guide de configuration MCP" },
+      { "href": "/ai-router", "label": "Routeur d'API IA" },
+      { "href": "/llm-router", "label": "Routeur LLM" }
+    ],
+    "ctaTitle": "Connectez votre client IA à MuiRouter",
+    "ctaDescription": "Créez un compte gratuit, générez une clé et ajoutez le serveur MCP à Claude, Cursor ou Cline.",
+    "ctaButton": "Commencer gratuitement"
+  },
+  "homeFaq": {
+    "title": "Questions fréquentes",
+    "faq": [
+      {
+        "question": "MuiRouter est-il lié à Material UI (MUI) ?",
+        "answer": "Non. MuiRouter est un routeur d'API IA/LLM compatible OpenAI et un serveur MCP, nommé d'après le domaine muirouter.com. Il n'a aucun rapport avec la bibliothèque de composants React Material UI (MUI) ni avec MUI X."
+      },
+      {
+        "question": "Qu'est-ce que MuiRouter ?",
+        "answer": "MuiRouter est un routeur d'API IA : une seule clé route vos requêtes vers OpenAI, Anthropic Claude, Google Gemini, Cloudflare Workers AI et Xiaomi MiMo, facturé au token sans abonnement."
+      },
+      {
+        "question": "Est-il compatible OpenAI ?",
+        "answer": "Oui. Pointez le Base URL du SDK OpenAI vers MuiRouter et conservez votre code existant. Consultez la page du routeur compatible OpenAI pour en savoir plus."
+      }
+    ]
+  },
+  "mcpPage": {
+    "title": "Guide d'intégration MCP",
+    "intro": "MuiRouter exécute un serveur MCP en streamable-http afin que des clients IA comme Claude Desktop, Claude Code, Cursor et Cline puissent l'appeler directement — votre assistant IA peut consulter votre solde, voir votre consommation, lister les modèles, générer des images et même lancer une recharge. Tout est authentifié avec votre propre clé d'API sk-gw-, si bien que ni les tiers ni les clients IA n'ont besoin d'un nouveau compte.",
+    "endpointTitle": "1. Endpoint du serveur",
+    "endpointDesc": "Tous les clients MCP se connectent à la même URL avec une authentification Bearer.",
+    "protocolNote": "Version du protocole : MCP 2025-06-18, transport : streamable-http, JSON-RPC 2.0 sans état.",
+    "claudeCodeTitle": "2. Connexion dans Claude Code",
+    "claudeCodeDesc": "Modifiez ~/.claude/mcp.json et ajoutez le serveur muirouter.",
+    "claudeCodeNote": "Après avoir redémarré Claude Code, tapez /mcp pour voir la liste des outils muirouter.",
+    "clientsTitle": "3. Connexion dans Cursor / Claude Desktop",
+    "clientsDesc": "Renseignez la même URL et le même en-tête Authorization.",
+    "cursorDesc": "Cursor : Settings → MCP → Add new server, choisissez le type streamable-http, définissez l'URL sur {url} et ajoutez un en-tête personnalisé {header}.",
+    "claudeDesktopDesc": "Claude Desktop : modifiez le fichier de configuration (macOS : {path}) avec la même configuration que pour Claude Code ci-dessus.",
+    "toolsTitle": "4. Outils disponibles",
+    "toolsDesc": "Six outils couvrant les requêtes de compte, la tarification, la génération d'images et les recharges.",
+    "tools": {
+      "get_balance": "Interroge le solde du portefeuille, le total des recharges et le total des dépenses de l'utilisateur propriétaire de la clé d'API courante.",
+      "get_usage": "Parcourt par pagination la consommation d'API de l'utilisateur courant, filtrable par modèle et par plage de temps.",
+      "list_recharges": "Parcourt par pagination les enregistrements de recharge de l'utilisateur courant.",
+      "list_models": "Liste tous les modèles actuellement pris en charge par MuiRouter et leur tarification (input/output, markup_rate).",
+      "create_topup_session": "Crée une session de recharge Stripe et renvoie un lien de paiement que le client IA peut proposer à l'utilisateur.",
+      "image_generation": "Appelle l'endpoint de génération d'images compatible OpenAI via MuiRouter (consomme le solde du portefeuille)."
+    },
+    "jsonRpcTitle": "5. Appels JSON-RPC directs",
+    "jsonRpcDesc": "Vous pouvez aussi l'appeler directement avec curl, sans client MCP.",
+    "securityTitle": "6. Notes de sécurité",
+    "security1": "Votre clé d'API est comme un mot de passe — ne l'exposez jamais dans un dépôt public ou un journal de conversation. Si vous soupçonnez une fuite, révoquez-la immédiatement depuis la page des clés.",
+    "security2": "image_generation et create_topup_session dépensent ou déplacent de l'argent. Envisagez de configurer ces deux outils pour exiger une confirmation dans votre client IA.",
+    "security3": "Chaque requête est liée au compte associé à sa clé sk-gw-, avec les mêmes règles de concurrence et de facturation qu'un appel direct à l'API REST.",
+    "relatedTitle": "À découvrir",
+    "related": [
+      { "href": "/mcp-router", "label": "MCP Router & serveur" },
+      { "href": "/ai-router", "label": "Routeur d'API IA" },
+      { "href": "/pricing", "label": "Tarification au token" }
+    ]
   }
 }

@@ -7,7 +7,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { getMarketingOgImage, SITE_URL } from '@/lib/seo';
 
-const SITE_NAME = 'MUI Router';
+const SITE_NAME = 'MuiRouter';
 
 // Tailwind class 实际只用到 normal/medium/semibold/bold（400-700），
 // 砍掉未使用的 800 字重以缩小字体文件总体积。
@@ -46,7 +46,20 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       template: `%s | ${SITE_NAME}`,
     },
     description: t('description'),
-    keywords: ['AI API', 'OpenAI', 'Anthropic', 'Google AI', 'API Gateway', 'AI Models', 'ChatGPT', 'Claude', 'Gemini'],
+    keywords: [
+      'AI router',
+      'LLM router',
+      'AI API router',
+      'OpenAI-compatible API',
+      'OpenAI compatible router',
+      'LLM gateway',
+      'MCP server',
+      'AI API',
+      'OpenAI',
+      'Anthropic',
+      'Claude',
+      'Gemini',
+    ],
     openGraph: {
       type: 'website',
       siteName: SITE_NAME,

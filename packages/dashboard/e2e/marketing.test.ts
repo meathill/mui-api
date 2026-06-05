@@ -25,7 +25,7 @@ test.describe('营销页面', () => {
 
   test('首页 Header 按指定顺序展示入口', async ({ page }) => {
     await page.goto('/');
-    const logo = page.getByRole('link', { name: 'MUI Router', exact: true });
+    const logo = page.getByRole('link', { name: 'MuiRouter', exact: true });
     const navigation = page.getByRole('navigation');
     const pricing = navigation.getByRole('link', pricingLink);
     const blog = navigation.getByRole('link', blogLink);
