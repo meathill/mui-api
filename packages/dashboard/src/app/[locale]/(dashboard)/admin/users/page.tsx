@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon, SearchIcon } from 'lucide-react';
+import { SearchIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
@@ -12,65 +12,21 @@ import {
   AlertDialogPopup,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { PageHeader } from '@/components/page-header';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogClose,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogPopup,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { PageHeader } from '@/components/page-header';
 import { Link } from '@/i18n/navigation';
 import { api, type UserInfo } from '@/lib/api';
+import { type EditFormData, UserEditDialog } from './user-edit-dialog';
+import { type SortDirection, type SortField, UserTable } from './user-table';
 
 const PAGE_SIZE = 20;
-
-type SortField = 'email' | 'balance' | 'rateMultiplier' | 'createdAt';
-type SortDirection = 'asc' | 'desc';
-
-function SortIndicator({
-  field,
-  sortField,
-  sortDirection,
-}: {
-  field: SortField;
-  sortField: SortField | null;
-  sortDirection: SortDirection;
-}) {
-  if (sortField !== field) {
-    return <ArrowUpDownIcon className="inline ml-1 h-3 w-3 text-muted-foreground/40" />;
-  }
-  return sortDirection === 'desc' ? (
-    <ArrowDownIcon className="inline ml-1 h-3 w-3" />
-  ) : (
-    <ArrowUpIcon className="inline ml-1 h-3 w-3" />
-  );
-}
-
-interface EditFormData {
-  maxConcurrency: string;
-  rateMultiplier: string;
-}
 
 export default function UsersPage() {
   const t = useTranslations('adminUsers');
   const te = useTranslations('errors');
   const tc = useTranslations('common');
-
-  const SORTABLE_COLUMNS: { field: SortField; label: string; align?: string }[] = [
-    { field: 'email', label: t('colEmail') },
-    { field: 'balance', label: t('colBalance'), align: 'text-right' },
-    { field: 'rateMultiplier', label: t('colRate'), align: 'text-right' },
-    { field: 'createdAt', label: t('colCreatedAt') },
-  ];
 
   const [users, setUsers] = useState<UserInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -259,47 +215,15 @@ export default function UsersPage() {
       </AlertDialog>
 
       {/* 编辑弹窗 */}
-      <Dialog open={editDialogOpen} onOpenChange={setEditDialogOpen}>
-        <DialogBackdrop />
-        <DialogPopup>
-          <DialogHeader>
-            <DialogTitle>{t('editUser')}</DialogTitle>
-            <DialogDescription>{editingUser?.email}</DialogDescription>
-          </DialogHeader>
-          <form id="user-edit-form" onSubmit={handleEditSubmit} className="grid grid-cols-2 gap-4 px-6">
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1">{t('maxConcurrency')}</label>
-              <Input
-                type="number"
-                min="1"
-                max="100"
-                value={editForm.maxConcurrency}
-                onChange={(e) => setEditForm((prev) => ({ ...prev, maxConcurrency: e.target.value }))}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1">{t('rateMultiplier')}</label>
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                value={editForm.rateMultiplier}
-                onChange={(e) => setEditForm((prev) => ({ ...prev, rateMultiplier: e.target.value }))}
-                required
-              />
-              <p className="text-xs text-muted-foreground mt-1">{t('rateMultiplierHint')}</p>
-            </div>
-          </form>
-          <DialogFooter variant="bare">
-            {editMsg && <span className="text-sm text-muted-foreground mr-auto">{editMsg}</span>}
-            <DialogClose render={<Button variant="outline">{t('cancel')}</Button>} />
-            <Button type="submit" form="user-edit-form">
-              {t('update')}
-            </Button>
-          </DialogFooter>
-        </DialogPopup>
-      </Dialog>
+      <UserEditDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        editingUser={editingUser}
+        editForm={editForm}
+        onChangeField={(field, value) => setEditForm((prev) => ({ ...prev, [field]: value }))}
+        editMsg={editMsg}
+        onSubmit={handleEditSubmit}
+      />
 
       {/* 充值 */}
       <Card className="p-4 mb-4">
@@ -359,72 +283,15 @@ export default function UsersPage() {
         <p className="text-muted-foreground">{tc('loading')}</p>
       ) : (
         <>
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {SORTABLE_COLUMNS.map((col) => (
-                    <TableHead
-                      key={col.field}
-                      className={`cursor-pointer select-none hover:bg-muted/50 ${col.align ?? ''}`}
-                      onClick={() => handleSort(col.field)}
-                    >
-                      {col.label}
-                      <SortIndicator field={col.field} sortField={sortField} sortDirection={sortDirection} />
-                    </TableHead>
-                  ))}
-                  <TableHead className="text-right">{t('colConcurrency')}</TableHead>
-                  <TableHead className="text-center">{t('colStatus')}</TableHead>
-                  <TableHead className="text-center">{t('colActions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pagedUsers.map((user) => (
-                  <TableRow key={user.userId}>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell className="text-right font-mono">${user.balance.toFixed(4)}</TableCell>
-                    <TableCell className="text-right">
-                      {user.rateMultiplier !== 1 ? (
-                        <Badge variant="outline">{user.rateMultiplier}x</Badge>
-                      ) : (
-                        <span className="text-muted-foreground">1x</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-muted-foreground">
-                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      {user.concurrency}/{user.maxConcurrency}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      {user.isSuspended ? (
-                        <Badge variant="destructive">{t('suspended')}</Badge>
-                      ) : (
-                        <Badge variant="secondary">{t('normal')}</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-center space-x-1">
-                      <Button variant="ghost" size="xs" onClick={() => handleEdit(user)}>
-                        {t('edit')}
-                      </Button>
-                      {user.isSuspended && (
-                        <Button variant="ghost" size="xs" onClick={() => handleToggleSuspend(user)}>
-                          {t('unsuspend')}
-                        </Button>
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {pagedUsers.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                      {search ? t('noMatch') : t('empty')}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </Card>
+          <UserTable
+            users={pagedUsers}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+            onEdit={handleEdit}
+            onToggleSuspend={handleToggleSuspend}
+            hasSearch={!!search}
+          />
 
           {/* 分页 */}
           {sortedUsers.length > PAGE_SIZE && (

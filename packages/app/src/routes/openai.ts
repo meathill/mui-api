@@ -1,7 +1,5 @@
-import { type Context, Hono } from 'hono';
-import type { Model } from '../db/schema';
-import { authMiddleware, MIN_BALANCE } from '../middleware/auth';
-import type { ModelPricing } from '../services/billing-service';
+import { Hono } from 'hono';
+import { authMiddleware } from '../middleware/auth';
 import {
   callAiBinding,
   callGemini,
@@ -9,177 +7,25 @@ import {
   callOpenAIEndpoint,
   callXiaomiMiMo,
 } from '../services/provider-dispatch';
-import { createProxyServices, type ProxyServices } from '../services/service-factory';
-import { extractStreamUsage, extractUsage } from '../services/usage-extractor';
+import { createProxyServices } from '../services/service-factory';
+import { extractStreamUsage } from '../services/usage-extractor';
 import type { CloudflareBindings } from '../types';
+import {
+  appendFormEntry,
+  assertBillableAccess,
+  hasAnyTokens,
+  invalidRequest,
+  isResponse,
+  lookupModel,
+  processBilling,
+  proxyOpenAIImageResponse,
+  readJsonBody,
+} from './openai-helpers';
 
 const openai = new Hono<{ Bindings: CloudflareBindings }>();
-type OpenAIContext = Context<{ Bindings: CloudflareBindings }>;
-type JsonBody = Record<string, unknown>;
-type MultipartValue = string | File;
-type ModelLookup = {
-  modelConfig: Model;
-  upstreamModel: string;
-  modelPricing: ModelPricing;
-};
 
 // 应用认证中间件（包含并发控制）
 openai.use('/*', authMiddleware);
-
-function invalidRequest(c: OpenAIContext, message: string) {
-  return c.json({ error: { message, type: 'invalid_request_error' } }, 400);
-}
-
-async function readJsonBody(c: OpenAIContext): Promise<JsonBody | Response> {
-  try {
-    return await c.req.json<JsonBody>();
-  } catch {
-    return invalidRequest(c, '请求体必须是有效 JSON');
-  }
-}
-
-async function lookupModel(
-  c: OpenAIContext,
-  modelId: string,
-  services: ProxyServices,
-): Promise<ModelLookup | Response> {
-  const modelConfig = await services.modelCatalog.getById(modelId);
-  if (!modelConfig) {
-    return c.json({ error: { message: `未知模型: ${modelId}`, type: 'invalid_request_error' } }, 404);
-  }
-
-  return {
-    modelConfig,
-    upstreamModel: modelConfig.upstreamModelId ?? modelId,
-    modelPricing: toModelPricing(modelConfig),
-  };
-}
-
-function toModelPricing(model: Model): ModelPricing {
-  return {
-    inputPrice: model.inputPrice ?? 0,
-    outputPrice: model.outputPrice ?? 0,
-    markupRate: model.markupRate ?? 1.2,
-    cachedInputPrice: model.cachedInputPrice,
-    cacheWritePrice: model.cacheWritePrice,
-    longContextThresholdTokens: model.longContextThresholdTokens,
-    longContextInputPrice: model.longContextInputPrice,
-    longContextCachedInputPrice: model.longContextCachedInputPrice,
-    longContextCacheWritePrice: model.longContextCacheWritePrice,
-    longContextOutputPrice: model.longContextOutputPrice,
-  };
-}
-
-function isResponse(value: unknown): value is Response {
-  return value instanceof Response;
-}
-
-async function processBilling(
-  c: OpenAIContext,
-  services: ProxyServices,
-  provider: string,
-  response: Response,
-  modelId: string,
-  modelPricing: ModelLookup['modelPricing'],
-) {
-  const userId = c.get('userId');
-  const apiKeyId = c.get('apiKeyId');
-  const userRateMultiplier = c.get('rateMultiplier');
-
-  try {
-    const data = (await response.json()) as JsonBody;
-    const usage = extractUsage(provider, data);
-    if (usage && hasAnyTokens(usage)) {
-      const billing = await services.billingService.processUsage(
-        userId,
-        apiKeyId,
-        {
-          model: modelId,
-          inputTokens: usage.inputTokens,
-          cachedInputTokens: usage.cachedInputTokens,
-          cacheWriteTokens: usage.cacheWriteTokens,
-          outputTokens: usage.outputTokens,
-        },
-        modelPricing,
-        userRateMultiplier,
-        { useFreeQuota: true },
-      );
-      await services.alertService.checkAfterBilling(userId, billing.totalCost);
-    }
-  } catch (error) {
-    console.error('非流式计费失败:', error);
-  }
-}
-
-function hasAnyTokens(usage: {
-  inputTokens: number;
-  cachedInputTokens: number;
-  cacheWriteTokens: number;
-  outputTokens: number;
-}) {
-  return usage.inputTokens > 0 || usage.cachedInputTokens > 0 || usage.cacheWriteTokens > 0 || usage.outputTokens > 0;
-}
-
-async function assertBillableAccess(
-  c: OpenAIContext,
-  services: ProxyServices,
-  modelId: string,
-): Promise<Response | null> {
-  const balance = c.get('balance');
-  if (balance >= MIN_BALANCE) {
-    return null;
-  }
-
-  const freeQuota = await services.billingService.getFreeQuotaState(c.get('userId'), modelId);
-  if (freeQuota.eligible && freeQuota.remaining > 0) {
-    return null;
-  }
-
-  const freeQuotaMessage = freeQuota.enabled && !freeQuota.eligible ? `，模型 ${modelId} 不在免费额度范围内` : '';
-
-  return c.json(
-    {
-      error: {
-        message: `余额不足，当前余额: $${balance.toFixed(4)}${freeQuotaMessage}`,
-        type: 'insufficient_quota',
-      },
-    },
-    402,
-  );
-}
-
-async function proxyOpenAIImageResponse(
-  c: OpenAIContext,
-  services: ProxyServices,
-  upstream: Response,
-  modelId: string,
-  modelPricing: ModelLookup['modelPricing'],
-) {
-  if (!upstream.ok) {
-    const errText = await upstream.text();
-    return c.json(
-      {
-        error: {
-          message: `上游 openai 错误 (${upstream.status}): ${errText}`,
-          type: 'api_error',
-        },
-      },
-      502,
-    );
-  }
-
-  const [clientResp, billingResp] = [upstream.clone(), upstream];
-  c.executionCtx.waitUntil(processBilling(c, services, 'openai', billingResp, modelId, modelPricing));
-  return clientResp;
-}
-
-function appendFormEntry(form: FormData, key: string, value: MultipartValue) {
-  if (typeof value === 'string') {
-    form.append(key, value);
-    return;
-  }
-  form.append(key, value, value.name);
-}
 
 /**
  * POST /v1/chat/completions

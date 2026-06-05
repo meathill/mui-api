@@ -10,6 +10,8 @@ import type {
   TtsRequestBody,
 } from './playground-types';
 
+// 网络请求 / SSE 流读取已拆到 ./playground-api.ts
+
 export const MAX_HISTORY_ITEMS = 30;
 export const MAX_TTS_VOICE_SAMPLE_BYTES = 7_500_000;
 export const TTS_OUTPUT_FORMAT = 'wav';
@@ -99,11 +101,6 @@ const MIMO_V2_TTS_VOICES: TtsVoiceOption[] = [
   { id: 'default_zh', label: 'MiMo 中文女声' },
   { id: 'default_en', label: 'MiMo English female' },
 ];
-
-type ChatStreamChunk = {
-  choices?: Array<{ delta?: { content?: string } }>;
-  usage?: TokenUsagePayload;
-};
 
 export function getApiBase() {
   return process.env.NEXT_PUBLIC_API_BASE || '';
@@ -276,127 +273,4 @@ export async function fileToTtsVoiceDataUrl(file: File): Promise<string> {
   }
 
   return `data:${mimeType};base64,${btoa(binary)}`;
-}
-
-export function sendImageGenerationRequest(params: {
-  apiKey: string;
-  model: string;
-  prompt: string;
-  signal: AbortSignal;
-}) {
-  return fetch(`${getApiBase()}/v1/images/generations`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${params.apiKey}`,
-    },
-    body: JSON.stringify({
-      model: params.model,
-      prompt: params.prompt,
-      size: '1024x1024',
-      quality: 'low',
-      output_format: 'jpeg',
-      output_compression: 80,
-      moderation: 'low',
-    }),
-    signal: params.signal,
-  });
-}
-
-export function sendImageEditRequest(params: {
-  apiKey: string;
-  model: string;
-  prompt: string;
-  images: File[];
-  signal: AbortSignal;
-}) {
-  const form = new FormData();
-  form.append('model', params.model);
-  form.append('prompt', params.prompt);
-  form.append('quality', 'low');
-  form.append('output_format', 'jpeg');
-  form.append('output_compression', '80');
-  form.append('moderation', 'low');
-  for (const file of params.images) {
-    form.append('image[]', file, file.name);
-  }
-
-  return fetch(`${getApiBase()}/v1/images/edits`, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${params.apiKey}` },
-    body: form,
-    signal: params.signal,
-  });
-}
-
-export function sendChatRequest(params: { apiKey: string; model: string; prompt: string; signal: AbortSignal }) {
-  return fetch(`${getApiBase()}/v1/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${params.apiKey}`,
-    },
-    body: JSON.stringify({
-      model: params.model,
-      messages: [{ role: 'user', content: params.prompt }],
-      stream: true,
-    }),
-    signal: params.signal,
-  });
-}
-
-export function sendTtsRequest(params: { apiKey: string; body: TtsRequestBody; signal: AbortSignal }) {
-  return fetch(`${getApiBase()}/v1/chat/completions`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${params.apiKey}`,
-    },
-    body: JSON.stringify(params.body),
-    signal: params.signal,
-  });
-}
-
-export async function readChatStream(
-  res: Response,
-  handlers: {
-    onContent: (content: string) => void;
-    onUsage: (tokenInfo: TokenInfo) => void;
-  },
-) {
-  const reader = res.body?.getReader();
-  const decoder = new TextDecoder();
-  let fullResponse = '';
-  let pending = '';
-
-  if (!reader) return fullResponse;
-
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    const chunk = pending + decoder.decode(value, { stream: true });
-    const lines = chunk.split('\n');
-    pending = lines.pop() ?? '';
-
-    for (const line of lines) {
-      if (!line.startsWith('data: ')) continue;
-      const data = line.slice(6);
-      if (data === '[DONE]') continue;
-      try {
-        const parsed = JSON.parse(data) as ChatStreamChunk;
-        const content = parsed.choices?.[0]?.delta?.content;
-        if (content) {
-          fullResponse += content;
-          handlers.onContent(fullResponse);
-        }
-        const tokenInfo = toTokenInfo(parsed.usage);
-        if (tokenInfo) handlers.onUsage(tokenInfo);
-      } catch {
-        // 忽略单个 SSE 片段解析失败，后续片段仍可继续读取。
-      }
-    }
-  }
-
-  return fullResponse;
 }

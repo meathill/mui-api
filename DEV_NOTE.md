@@ -52,9 +52,32 @@
 - 计费日志仍记录真实请求成本，实际钱包只扣除抵扣后的 `chargedCost`，便于统计真实成本与运营补贴
 - Native provider 透传路由不使用免费额度，因为该路径无法可靠提前识别具体模型，避免绕过白名单准入
 
+### 计费定价矩阵
+
+**背景**：早期 `models` 表只有 `inputPrice` / `outputPrice`。接入 Anthropic cache 与长上下文分档后，定价扩展为「标准档 / 长上下文档 × 普通输入 / cache 命中输入 / cache 写入 / 输出」的矩阵，集中记录于此，避免口径散落各处。
+
+**定价字段**（均为「每 100 万 token 美元单价」，存于 `models` 表）：
+
+| token 类别 | 标准档 | 长上下文档 |
+|------------|--------|-----------|
+| 普通输入 | `inputPrice` | `longContextInputPrice` |
+| cache 命中输入 | `cachedInputPrice` | `longContextCachedInputPrice` |
+| cache 写入 | `cacheWritePrice` | `longContextCacheWritePrice` |
+| 输出 | `outputPrice` | `longContextOutputPrice` |
+
+**档位判定**：`contextSize = inputTokens + cachedInputTokens + cacheWriteTokens`；当配置了 `longContextThresholdTokens` 且 `contextSize` 超过阈值时走 `long_context` 档，否则 `standard`。
+
+**回退规则**（字段为 `null` = 未配置）：长上下文价缺失回退到同名标准价；`cachedInputPrice` / `cacheWritePrice` 缺失回退到 `inputPrice`。
+
+**计费公式**：`rawCost = Σ(各类 token × 对应单价) / 1e6`；`cost = rawCost × markupRate × userRateMultiplier`。
+
+**扣费与记账**：`chargedCost = max(0, cost − freeQuotaDeducted)`，KV 只扣 `chargedCost`；D1 `usage_logs` 记录完整 `cost`、`tier` 及四类 token，用于区分真实成本与运营补贴。
+
+**实现**：`billing-service.ts` 的 `calculateCost`（档位判定 + 回退）与 `processUsage`（免费额度 → KV 扣费 → D1 日志）。
+
 ### 图片模型计费粒度
 
-**现状**：`models` 表目前只有一组 `inputPrice` / `outputPrice`，但 OpenAI 图片模型可能区分文本输入 token 与图片输入 token 的单价。
+**现状**：定价矩阵已覆盖 cache 与长上下文分档（见上），但仍按单一 `inputPrice` 计所有输入 token，未区分文本输入 token 与图片输入 token 的单价——而 OpenAI 图片模型两者单价并不相同。
 
 **当前决策**：`gpt-image-2` 种子数据使用图片输入价作为 `inputPrice`，避免编辑图片时低估成本；纯文本生成场景会略高估输入成本，但图片输出通常占主要成本。
 
@@ -74,7 +97,7 @@
 **决策**：种子数据中 `xiaomi-mimo` 文本/多模态模型定价使用官方海外价格的 cache miss、`Input ≤ 256K` 档位；TTS 系列当前官方标记为限时免费，因此暂记为 `0 / 0`。
 
 **原因**：
-- 当前 `models` 表只有一组 `inputPrice` / `outputPrice`，不能表达 cache hit、长上下文分档或夜间折扣
+- `models` 表现已支持 cache 命中价与长上下文分档（见「计费定价矩阵」），但仍无法表达夜间折扣等时间相关定价
 - 选择 cache miss 基础档位能避免缓存命中假设带来的低估
 - `mimo-v2.5-pro` / `mimo-v2-pro` 在 256K-1M 输入区间存在更高档位，如果长上下文使用量明显增加，需要把模型计价扩展为上下文分段计费
 - `mimo-v2.5-tts`、`mimo-v2.5-tts-voiceclone`、`mimo-v2.5-tts-voicedesign`、`mimo-v2-tts` 的免费状态不是长期价格承诺，需要在官方结束免费后同步更新生产库模型价格

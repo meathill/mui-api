@@ -3,6 +3,8 @@
  * 所有请求走 Next.js API Route，直接操作共享 D1/KV
  */
 
+import { buildQuery } from './query';
+
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(path, {
     ...options,
@@ -32,12 +34,8 @@ export const adminApi = {
   getUsers: (cursor?: string) =>
     request<{ users: UserInfo[]; cursor: string | null }>(`/api/admin/users${cursor ? `?cursor=${cursor}` : ''}`),
 
-  getUser: (params: { email?: string; userId?: string }) => {
-    const query = new URLSearchParams();
-    if (params.email) query.set('email', params.email);
-    if (params.userId) query.set('userId', params.userId);
-    return request<{ user: UserInfo }>(`/api/admin/user?${query}`);
-  },
+  getUser: (params: { email?: string; userId?: string }) =>
+    request<{ user: UserInfo }>(`/api/admin/user?${buildQuery(params)}`),
 
   recharge: (email: string, amount: number, note?: string) =>
     request<{ success: boolean; userId: string; balance: number }>('/api/admin/recharge', {
@@ -51,13 +49,7 @@ export const adminApi = {
     endDate?: string;
     page?: number;
     pageSize?: number;
-  }) => {
-    const query = new URLSearchParams();
-    for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== '') query.set(key, String(value));
-    }
-    return request<{ logs: RechargeLogItem[]; pagination: Pagination }>(`/api/admin/recharge-logs?${query}`);
-  },
+  }) => request<{ logs: RechargeLogItem[]; pagination: Pagination }>(`/api/admin/recharge-logs?${buildQuery(params)}`),
 
   setConcurrency: (userId: string, maxConcurrency: number) =>
     request('/api/admin/set-concurrency', {
@@ -99,13 +91,8 @@ export const adminApi = {
 
   deleteModel: (id: string) => request(`/api/admin/models/${id}`, { method: 'DELETE' }),
 
-  getUsage: (params: UsageQueryParams) => {
-    const query = new URLSearchParams();
-    for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== '') query.set(key, String(value));
-    }
-    return request<{ logs: UsageLog[]; pagination: Pagination }>(`/api/admin/usage?${query}`);
-  },
+  getUsage: (params: UsageQueryParams) =>
+    request<{ logs: UsageLog[]; pagination: Pagination }>(`/api/admin/usage?${buildQuery(params)}`),
 
   getGlobalConfig: () => request<{ config: GlobalConfig }>('/api/admin/global-config'),
 
@@ -119,13 +106,8 @@ export const adminApi = {
 
   getUsageSummary: () => request<{ summary: UsageSummary }>('/api/admin/usage-summary'),
 
-  getStatistics: (params: StatisticsParams) => {
-    const query = new URLSearchParams();
-    for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== '') query.set(key, String(value));
-    }
-    return request<StatisticsResponse>(`/api/admin/statistics?${query}`);
-  },
+  getStatistics: (params: StatisticsParams) =>
+    request<StatisticsResponse>(`/api/admin/statistics?${buildQuery(params)}`),
 };
 
 // ==================== 用户 API ====================
@@ -152,13 +134,8 @@ export const userApi = {
       body: JSON.stringify({ keyId }),
     }),
 
-  getUsage: (params: Omit<UsageQueryParams, 'userId'>) => {
-    const query = new URLSearchParams();
-    for (const [key, value] of Object.entries(params)) {
-      if (value !== undefined && value !== '') query.set(key, String(value));
-    }
-    return request<{ logs: UsageLog[]; pagination: Pagination }>(`/api/user/usage?${query}`);
-  },
+  getUsage: (params: Omit<UsageQueryParams, 'userId'>) =>
+    request<{ logs: UsageLog[]; pagination: Pagination }>(`/api/user/usage?${buildQuery(params)}`),
 
   createTopUpCheckout: (amount: number, locale?: string) =>
     request<TopUpCheckoutResult>('/api/user/top-up/checkout', {

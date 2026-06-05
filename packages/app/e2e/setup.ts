@@ -41,6 +41,17 @@ await db.batch([
   ),
   db.prepare('CREATE INDEX IF NOT EXISTS idx_usage_stats_query ON usage_stats (granularity, period_start, period_end)'),
 
+  // OAuth 2.0 三件套（与 shared-db business-schema.ts 对齐；timestamp 列存 unix 秒）
+  db.prepare(
+    "CREATE TABLE IF NOT EXISTS oauth_clients (client_id TEXT PRIMARY KEY NOT NULL, client_secret_hash TEXT NOT NULL, name TEXT NOT NULL, owner_email TEXT, allowed_redirect_uris TEXT NOT NULL, allowed_scopes TEXT NOT NULL DEFAULT 'balance,llm', is_active INTEGER NOT NULL DEFAULT 1, created_at INTEGER DEFAULT (unixepoch()), updated_at INTEGER DEFAULT (unixepoch()))",
+  ),
+  db.prepare(
+    'CREATE TABLE IF NOT EXISTS oauth_codes (code_hash TEXT PRIMARY KEY NOT NULL, client_id TEXT NOT NULL, user_id TEXT NOT NULL, redirect_uri TEXT NOT NULL, scope TEXT NOT NULL, expires_at INTEGER NOT NULL, used INTEGER NOT NULL DEFAULT 0, created_at INTEGER DEFAULT (unixepoch()))',
+  ),
+  db.prepare(
+    'CREATE TABLE IF NOT EXISTS oauth_tokens (token_hash TEXT PRIMARY KEY NOT NULL, kind TEXT NOT NULL, pair_id TEXT NOT NULL, client_id TEXT NOT NULL, user_id TEXT NOT NULL, scope TEXT NOT NULL, expires_at INTEGER NOT NULL, created_at INTEGER DEFAULT (unixepoch()))',
+  ),
+
   // 种子数据：测试用户
   db.prepare(
     "INSERT OR IGNORE INTO user (id, name, email, email_verified, image, created_at, updated_at) VALUES ('test-user-1', 'test@example.com', 'test@example.com', 1, NULL, unixepoch(), unixepoch())",

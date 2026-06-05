@@ -13,6 +13,13 @@ import type {
   TokenUsagePayload,
   TtsApiResponse,
 } from './playground-types';
+import {
+  readChatStream,
+  sendChatRequest,
+  sendImageEditRequest,
+  sendImageGenerationRequest,
+  sendTtsRequest,
+} from './playground-api';
 import { PlaygroundView } from './playground-view';
 import {
   appendBuiltInPlaygroundModels,
@@ -28,11 +35,6 @@ import {
   MAX_HISTORY_ITEMS,
   MAX_TTS_VOICE_SAMPLE_BYTES,
   parseHistory,
-  readChatStream,
-  sendChatRequest,
-  sendImageEditRequest,
-  sendImageGenerationRequest,
-  sendTtsRequest,
   toAudioResult,
   toImageResult,
   toTokenInfo,

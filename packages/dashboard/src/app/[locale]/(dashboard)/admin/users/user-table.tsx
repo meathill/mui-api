@@ -1,0 +1,127 @@
+'use client';
+
+import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from 'lucide-react';
+import { useTranslations } from 'next-intl';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import type { UserInfo } from '@/lib/api';
+
+export type SortField = 'email' | 'balance' | 'rateMultiplier' | 'createdAt';
+export type SortDirection = 'asc' | 'desc';
+
+function SortIndicator({
+  field,
+  sortField,
+  sortDirection,
+}: {
+  field: SortField;
+  sortField: SortField | null;
+  sortDirection: SortDirection;
+}) {
+  if (sortField !== field) {
+    return <ArrowUpDownIcon className="inline ml-1 h-3 w-3 text-muted-foreground/40" />;
+  }
+  return sortDirection === 'desc' ? (
+    <ArrowDownIcon className="inline ml-1 h-3 w-3" />
+  ) : (
+    <ArrowUpIcon className="inline ml-1 h-3 w-3" />
+  );
+}
+
+export function UserTable({
+  users,
+  sortField,
+  sortDirection,
+  onSort,
+  onEdit,
+  onToggleSuspend,
+  hasSearch,
+}: {
+  users: UserInfo[];
+  sortField: SortField | null;
+  sortDirection: SortDirection;
+  onSort: (field: SortField) => void;
+  onEdit: (user: UserInfo) => void;
+  onToggleSuspend: (user: UserInfo) => void;
+  hasSearch: boolean;
+}) {
+  const t = useTranslations('adminUsers');
+
+  const SORTABLE_COLUMNS: { field: SortField; label: string; align?: string }[] = [
+    { field: 'email', label: t('colEmail') },
+    { field: 'balance', label: t('colBalance'), align: 'text-right' },
+    { field: 'rateMultiplier', label: t('colRate'), align: 'text-right' },
+    { field: 'createdAt', label: t('colCreatedAt') },
+  ];
+
+  return (
+    <Card>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {SORTABLE_COLUMNS.map((col) => (
+              <TableHead
+                key={col.field}
+                className={`cursor-pointer select-none hover:bg-muted/50 ${col.align ?? ''}`}
+                onClick={() => onSort(col.field)}
+              >
+                {col.label}
+                <SortIndicator field={col.field} sortField={sortField} sortDirection={sortDirection} />
+              </TableHead>
+            ))}
+            <TableHead className="text-right">{t('colConcurrency')}</TableHead>
+            <TableHead className="text-center">{t('colStatus')}</TableHead>
+            <TableHead className="text-center">{t('colActions')}</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {users.map((user) => (
+            <TableRow key={user.userId}>
+              <TableCell>{user.email}</TableCell>
+              <TableCell className="text-right font-mono">${user.balance.toFixed(4)}</TableCell>
+              <TableCell className="text-right">
+                {user.rateMultiplier !== 1 ? (
+                  <Badge variant="outline">{user.rateMultiplier}x</Badge>
+                ) : (
+                  <span className="text-muted-foreground">1x</span>
+                )}
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-'}
+              </TableCell>
+              <TableCell className="text-right">
+                {user.concurrency}/{user.maxConcurrency}
+              </TableCell>
+              <TableCell className="text-center">
+                {user.isSuspended ? (
+                  <Badge variant="destructive">{t('suspended')}</Badge>
+                ) : (
+                  <Badge variant="secondary">{t('normal')}</Badge>
+                )}
+              </TableCell>
+              <TableCell className="text-center space-x-1">
+                <Button variant="ghost" size="xs" onClick={() => onEdit(user)}>
+                  {t('edit')}
+                </Button>
+                {user.isSuspended && (
+                  <Button variant="ghost" size="xs" onClick={() => onToggleSuspend(user)}>
+                    {t('unsuspend')}
+                  </Button>
+                )}
+              </TableCell>
+            </TableRow>
+          ))}
+          {users.length === 0 && (
+            <TableRow>
+              <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                {hasSearch ? t('noMatch') : t('empty')}
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </Card>
+  );
+}

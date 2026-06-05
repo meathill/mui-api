@@ -1,15 +1,8 @@
 'use client';
 
-import {
-  ArrowDownIcon,
-  ArrowUpDownIcon,
-  ArrowUpIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-  SearchIcon,
-} from 'lucide-react';
+import { SearchIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AlertDialog,
   AlertDialogClose,
@@ -19,62 +12,14 @@ import {
   AlertDialogPopup,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Badge } from '@/components/ui/badge';
-import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
-import {
-  Dialog,
-  DialogBackdrop,
-  DialogClose,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogPopup,
-  DialogTitle,
-} from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { PageHeader } from '@/components/page-header';
 import { api, type ModelCreateInput, type ModelInfo } from '@/lib/api';
+import { EMPTY_FORM, type ModelFormData, ModelFormDialog } from './model-form-dialog';
+import { ModelTable, type SortDirection, type SortField } from './model-table';
 
-const PROVIDERS = ['openai', 'anthropic', 'google-ai-studio', 'workers-ai', 'xiaomi-mimo'];
 const PAGE_SIZE = 20;
-
-type SortField = 'id' | 'provider' | 'inputPrice' | 'outputPrice' | 'markupRate';
-type SortDirection = 'asc' | 'desc';
-
-interface ModelFormData {
-  id: string;
-  provider: string;
-  upstreamModelId: string;
-  inputPrice: string;
-  outputPrice: string;
-  markupRate: string;
-  // 空字符串表示未配置 / 缺省
-  cachedInputPrice: string;
-  cacheWritePrice: string;
-  longContextThresholdTokens: string;
-  longContextInputPrice: string;
-  longContextCachedInputPrice: string;
-  longContextCacheWritePrice: string;
-  longContextOutputPrice: string;
-}
-
-const EMPTY_FORM: ModelFormData = {
-  id: '',
-  provider: 'openai',
-  upstreamModelId: '',
-  inputPrice: '',
-  outputPrice: '',
-  markupRate: '1.2',
-  cachedInputPrice: '',
-  cacheWritePrice: '',
-  longContextThresholdTokens: '',
-  longContextInputPrice: '',
-  longContextCachedInputPrice: '',
-  longContextCacheWritePrice: '',
-  longContextOutputPrice: '',
-};
 
 function parseOptionalNumber(v: string): number | null {
   const trimmed = v.trim();
@@ -83,37 +28,10 @@ function parseOptionalNumber(v: string): number | null {
   return Number.isFinite(num) ? num : null;
 }
 
-function SortIndicator({
-  field,
-  sortField,
-  sortDirection,
-}: {
-  field: SortField;
-  sortField: SortField | null;
-  sortDirection: SortDirection;
-}) {
-  if (sortField !== field) {
-    return <ArrowUpDownIcon className="inline ml-1 h-3 w-3 text-muted-foreground/40" />;
-  }
-  return sortDirection === 'desc' ? (
-    <ArrowDownIcon className="inline ml-1 h-3 w-3" />
-  ) : (
-    <ArrowUpIcon className="inline ml-1 h-3 w-3" />
-  );
-}
-
 export default function ModelsPage() {
   const t = useTranslations('adminModels');
   const te = useTranslations('errors');
   const tc = useTranslations('common');
-
-  const SORTABLE_COLUMNS: { field: SortField; label: string; align?: string }[] = [
-    { field: 'id', label: t('colModelId') },
-    { field: 'provider', label: t('colProvider') },
-    { field: 'inputPrice', label: t('colInputPrice'), align: 'text-right' },
-    { field: 'outputPrice', label: t('colOutputPrice'), align: 'text-right' },
-    { field: 'markupRate', label: t('colMarkupRate'), align: 'text-right' },
-  ];
 
   const [models, setModels] = useState<ModelInfo[]>([]);
   const [loading, setLoading] = useState(true);
@@ -243,7 +161,7 @@ export default function ModelsPage() {
     setFormMsg('');
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setFormMsg('');
     const payload: ModelCreateInput = {
@@ -320,184 +238,17 @@ export default function ModelsPage() {
       </div>
 
       {/* 编辑/新增弹窗 */}
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogBackdrop />
-        <DialogPopup>
-          <DialogHeader>
-            <DialogTitle>{editingId ? t('editTitle', { id: editingId }) : t('addTitle')}</DialogTitle>
-            <DialogDescription>{t('formDesc')}</DialogDescription>
-          </DialogHeader>
-          <form id="model-form" onSubmit={handleSubmit} className="grid grid-cols-2 gap-4 px-6">
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1">{t('modelId')}</label>
-              <Input
-                value={form.id}
-                onChange={(e) => updateField('id', e.target.value)}
-                required
-                disabled={!!editingId}
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1">{t('provider')}</label>
-              <select
-                value={form.provider}
-                onChange={(e) => updateField('provider', e.target.value)}
-                className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors"
-              >
-                {PROVIDERS.map((p) => (
-                  <option key={p} value={p}>
-                    {p}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="col-span-2">
-              <label className="block text-xs text-muted-foreground mb-1">{t('upstreamModelId')}</label>
-              <Input
-                value={form.upstreamModelId}
-                onChange={(e) => updateField('upstreamModelId', e.target.value)}
-                placeholder={t('upstreamPlaceholder')}
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1">{t('inputPrice')}</label>
-              <Input
-                type="number"
-                step="0.001"
-                min="0"
-                value={form.inputPrice}
-                onChange={(e) => updateField('inputPrice', e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1">{t('outputPrice')}</label>
-              <Input
-                type="number"
-                step="0.001"
-                min="0"
-                value={form.outputPrice}
-                onChange={(e) => updateField('outputPrice', e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label className="block text-xs text-muted-foreground mb-1">{t('markupRate')}</label>
-              <Input
-                type="number"
-                step="0.01"
-                min="0.01"
-                value={form.markupRate}
-                onChange={(e) => updateField('markupRate', e.target.value)}
-              />
-            </div>
-
-            {/* 高级定价：cache 折扣 + 长上下文档位，留空 = 未启用 */}
-            <div className="col-span-2 -mx-6 mt-2 border-t pt-3 px-6">
-              <button
-                type="button"
-                onClick={() => setAdvancedOpen((v) => !v)}
-                className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-              >
-                {advancedOpen ? <ChevronDownIcon className="h-3 w-3" /> : <ChevronRightIcon className="h-3 w-3" />}
-                {t('advancedPricing')}
-              </button>
-              <p className="text-xs text-muted-foreground mt-1">{t('advancedHint')}</p>
-            </div>
-
-            {advancedOpen && (
-              <>
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">{t('cachedInputPrice')}</label>
-                  <Input
-                    type="number"
-                    step="0.0001"
-                    min="0"
-                    value={form.cachedInputPrice}
-                    onChange={(e) => updateField('cachedInputPrice', e.target.value)}
-                    placeholder={t('emptyMeansDisabled')}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">{t('cacheWritePrice')}</label>
-                  <Input
-                    type="number"
-                    step="0.0001"
-                    min="0"
-                    value={form.cacheWritePrice}
-                    onChange={(e) => updateField('cacheWritePrice', e.target.value)}
-                    placeholder={t('anthropicOnly')}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-xs text-muted-foreground mb-1">{t('longContextThresholdTokens')}</label>
-                  <Input
-                    type="number"
-                    step="1"
-                    min="1"
-                    value={form.longContextThresholdTokens}
-                    onChange={(e) => updateField('longContextThresholdTokens', e.target.value)}
-                    placeholder={t('thresholdPlaceholder')}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">{t('longContextInputPrice')}</label>
-                  <Input
-                    type="number"
-                    step="0.0001"
-                    min="0"
-                    value={form.longContextInputPrice}
-                    onChange={(e) => updateField('longContextInputPrice', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">{t('longContextOutputPrice')}</label>
-                  <Input
-                    type="number"
-                    step="0.0001"
-                    min="0"
-                    value={form.longContextOutputPrice}
-                    onChange={(e) => updateField('longContextOutputPrice', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">{t('longContextCachedInputPrice')}</label>
-                  <Input
-                    type="number"
-                    step="0.0001"
-                    min="0"
-                    value={form.longContextCachedInputPrice}
-                    onChange={(e) => updateField('longContextCachedInputPrice', e.target.value)}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs text-muted-foreground mb-1">{t('longContextCacheWritePrice')}</label>
-                  <Input
-                    type="number"
-                    step="0.0001"
-                    min="0"
-                    value={form.longContextCacheWritePrice}
-                    onChange={(e) => updateField('longContextCacheWritePrice', e.target.value)}
-                  />
-                </div>
-              </>
-            )}
-          </form>
-          <DialogFooter variant="bare">
-            {formMsg && <span className="text-sm text-muted-foreground mr-auto">{formMsg}</span>}
-            <DialogClose
-              render={
-                <Button type="button" variant="outline">
-                  {t('cancel')}
-                </Button>
-              }
-            />
-            <Button type="submit" form="model-form">
-              {editingId ? t('update') : t('create')}
-            </Button>
-          </DialogFooter>
-        </DialogPopup>
-      </Dialog>
+      <ModelFormDialog
+        open={dialogOpen}
+        onOpenChange={setDialogOpen}
+        editingId={editingId}
+        form={form}
+        onUpdateField={updateField}
+        advancedOpen={advancedOpen}
+        onToggleAdvanced={() => setAdvancedOpen((v) => !v)}
+        formMsg={formMsg}
+        onSubmit={handleSubmit}
+      />
 
       {/* 删除确认弹窗 */}
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
@@ -533,60 +284,15 @@ export default function ModelsPage() {
         <p className="text-muted-foreground">{tc('loading')}</p>
       ) : (
         <>
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  {SORTABLE_COLUMNS.map((col) => (
-                    <TableHead
-                      key={col.field}
-                      className={`cursor-pointer select-none hover:bg-muted/50 ${col.align ?? ''}`}
-                      onClick={() => handleSort(col.field)}
-                    >
-                      {col.label}
-                      <SortIndicator field={col.field} sortField={sortField} sortDirection={sortDirection} />
-                    </TableHead>
-                  ))}
-                  <TableHead>{t('colUpstream')}</TableHead>
-                  <TableHead className="text-center">{t('colActions')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {pagedModels.map((model) => (
-                  <TableRow key={model.id}>
-                    <TableCell className="font-mono text-xs">{model.id}</TableCell>
-                    <TableCell>
-                      <Badge variant="secondary">{model.provider}</Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-mono">${model.inputPrice?.toFixed(2) ?? '-'}</TableCell>
-                    <TableCell className="text-right font-mono">${model.outputPrice?.toFixed(2) ?? '-'}</TableCell>
-                    <TableCell className="text-right">{model.markupRate?.toFixed(2) ?? '-'}x</TableCell>
-                    <TableCell className="text-muted-foreground text-xs">{model.upstreamModelId || '-'}</TableCell>
-                    <TableCell className="text-center space-x-1">
-                      <Button variant="ghost" size="xs" onClick={() => handleEdit(model)}>
-                        {t('edit')}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="xs"
-                        className="text-destructive"
-                        onClick={() => handleDeleteClick(model.id)}
-                      >
-                        {t('delete')}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {pagedModels.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
-                      {search ? t('noMatch') : t('empty')}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </Card>
+          <ModelTable
+            models={pagedModels}
+            sortField={sortField}
+            sortDirection={sortDirection}
+            onSort={handleSort}
+            onEdit={handleEdit}
+            onDelete={handleDeleteClick}
+            hasSearch={!!search}
+          />
 
           {/* 分页 */}
           {sortedModels.length > PAGE_SIZE && (
