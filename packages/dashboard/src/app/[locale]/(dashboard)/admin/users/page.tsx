@@ -58,15 +58,6 @@ export default function UsersPage() {
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  // userId -> email 映射
-  const _userMap = useMemo(() => {
-    const map = new Map<string, string>();
-    for (const u of users) {
-      map.set(u.userId, u.email);
-    }
-    return map;
-  }, [users]);
-
   // 数据处理流水线：搜索 → 排序 → 分页
   const filteredUsers = useMemo(() => {
     if (!search.trim()) return users;
@@ -183,13 +174,9 @@ export default function UsersPage() {
     }
   }
 
-  async function handleToggleSuspend(user: UserInfo) {
+  async function handleUnsuspend(user: UserInfo) {
     try {
-      if (user.isSuspended) {
-        await api.unsuspendUser(user.userId);
-      } else {
-        await api.unsuspendUser(user.userId);
-      }
+      await api.unsuspendUser(user.userId);
       loadUsers();
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : te('operationFailed'));
@@ -289,7 +276,7 @@ export default function UsersPage() {
             sortDirection={sortDirection}
             onSort={handleSort}
             onEdit={handleEdit}
-            onToggleSuspend={handleToggleSuspend}
+            onUnsuspend={handleUnsuspend}
             hasSearch={!!search}
           />
 

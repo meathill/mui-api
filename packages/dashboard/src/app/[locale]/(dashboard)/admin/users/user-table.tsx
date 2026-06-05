@@ -36,7 +36,7 @@ export function UserTable({
   sortDirection,
   onSort,
   onEdit,
-  onToggleSuspend,
+  onUnsuspend,
   hasSearch,
 }: {
   users: UserInfo[];
@@ -44,7 +44,7 @@ export function UserTable({
   sortDirection: SortDirection;
   onSort: (field: SortField) => void;
   onEdit: (user: UserInfo) => void;
-  onToggleSuspend: (user: UserInfo) => void;
+  onUnsuspend: (user: UserInfo) => void;
   hasSearch: boolean;
 }) {
   const t = useTranslations('adminUsers');
@@ -106,7 +106,7 @@ export function UserTable({
                   {t('edit')}
                 </Button>
                 {user.isSuspended && (
-                  <Button variant="ghost" size="xs" onClick={() => onToggleSuspend(user)}>
+                  <Button variant="ghost" size="xs" onClick={() => onUnsuspend(user)}>
                     {t('unsuspend')}
                   </Button>
                 )}
