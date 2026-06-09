@@ -88,4 +88,36 @@ describe('POST /v1/messages（Anthropic 原生）', () => {
       expect(userData?.balance).toBeLessThan(10);
     });
   });
+
+  it('用 x-api-key 鉴权也能调用（Anthropic SDK 默认头）', async () => {
+    const userId = `test-msg-xkey-${Date.now()}`;
+    const xKey = await seedApiKey(userId, 10);
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+        Response.json({
+          id: 'msg_x',
+          type: 'message',
+          role: 'assistant',
+          model: 'claude-sonnet-4-20250514',
+          content: [{ type: 'text', text: 'pong' }],
+          stop_reason: 'end_turn',
+          usage: { input_tokens: 10, output_tokens: 5 },
+        }),
+      ),
+    );
+
+    const res = await SELF.fetch('http://localhost/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': xKey, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 16,
+        messages: [{ role: 'user', content: 'ping' }],
+      }),
+    });
+
+    expect(res.status).toBe(200);
+  });
 });

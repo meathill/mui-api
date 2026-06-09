@@ -23,13 +23,17 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
   const allowFreeQuotaFallback = options.allowFreeQuotaFallback ?? true;
 
   return async function authMiddleware(c: Context<{ Bindings: CloudflareBindings }>, next: Next) {
+    // 支持两种鉴权头：Authorization: Bearer（OpenAI 兼容客户端 / Claude Code 的 ANTHROPIC_AUTH_TOKEN）
+    // 与 x-api-key（Anthropic 原生 SDK 默认头）。统一取出 sk-gw- / mr_at_ key。
     const authHeader = c.req.header('Authorization');
+    const apiKey = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : c.req.header('x-api-key');
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return c.json({ error: { message: '缺少 Authorization header', type: 'invalid_request_error' } }, 401);
+    if (!apiKey) {
+      return c.json(
+        { error: { message: '缺少 Authorization header 或 x-api-key', type: 'invalid_request_error' } },
+        401,
+      );
     }
-
-    const apiKey = authHeader.substring(7);
 
     // 前缀校验：保留 spec 行为——格式不对返回 invalid_request_error，
     // 反之（前缀对但 KV/DB 查不到）算 invalid_api_key。两类区分对客户端友好。
