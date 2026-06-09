@@ -3,7 +3,8 @@
  * - openai          → openai SDK + AI Gateway (CF_AIG_TOKEN 鉴权)
  * - google-ai-studio → @google/genai SDK + AI Gateway (CF_AIG_TOKEN 鉴权)
  * - xiaomi-mimo     → fetch + Xiaomi MiMo OpenAI 兼容接口（直连，不走 AI Gateway）
- * - 其余 (anthropic / workers-ai / 将来新增) → env.AI.run + gateway option
+ * - anthropic       → fetch + AI Gateway compat 端点（Unified Billing 代付，返回 OpenAI 形）
+ * - workers-ai      → env.AI.run + gateway option
  */
 
 import { GoogleGenAI } from '@google/genai';
@@ -123,10 +124,36 @@ export async function callGemini(env: CloudflareBindings, upstreamModel: string,
 }
 
 /**
- * env.AI.run 调用（anthropic / workers-ai / 将来的其它 CF 代付费 provider）
- * 调用方需按上游原生 shape 发 body
- * - anthropic/*：{ messages, max_tokens, system?, stream? } — Anthropic Messages 格式
- * - @cf/*：Workers AI 各模型自己的 input schema
+ * Anthropic via CF AI Gateway compat 端点（OpenAI 兼容）—— Unified Billing 代付。
+ * 返回 OpenAI chat.completion 形（usage 用 prompt_tokens/completion_tokens）。
+ * 鉴权：unified 仅 cf-aig-authorization；带 Authorization 会被 compat 当作 Anthropic key（→401）。
+ * BYOK：按 OpenAI 兼容惯例用 Authorization: Bearer <ANTHROPIC_API_KEY>（当前组织被禁用，未实测）。
+ */
+export async function callAnthropicCompat(
+  env: CloudflareBindings,
+  upstreamModel: string,
+  body: AnyBody,
+): Promise<Response> {
+  const headers: Record<string, string> = {
+    'content-type': 'application/json',
+    'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}`,
+  };
+  if (env.ANTHROPIC_CREDENTIAL_MODE === 'byok') {
+    if (!env.ANTHROPIC_API_KEY) {
+      throw new Error('ANTHROPIC_CREDENTIAL_MODE=byok 但缺少 ANTHROPIC_API_KEY');
+    }
+    headers.authorization = `Bearer ${env.ANTHROPIC_API_KEY}`;
+  }
+  return fetch(`${aiGatewayBase(env, 'compat')}/chat/completions`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify({ ...body, model: `anthropic/${upstreamModel}` }),
+  });
+}
+
+/**
+ * env.AI.run 调用（workers-ai；@cf/* 各模型自己的 input schema）
+ * 注：anthropic 已改走 callAnthropicCompat（compat 端点 + Unified Billing），不再走这里
  */
 export async function callAiBinding(env: CloudflareBindings, upstreamModel: string, body: AnyBody): Promise<Response> {
   const _isStream = body.stream === true;

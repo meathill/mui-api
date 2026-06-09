@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth';
 import {
   callAiBinding,
+  callAnthropicCompat,
   callGemini,
   callOpenAI,
   callOpenAIEndpoint,
@@ -57,12 +58,17 @@ openai.post('/chat/completions', async (c) => {
 
   try {
     let upstream: Response;
+    // 计费/usage 解析用的 provider：anthropic 走 compat 端点返回 OpenAI 形 usage，故按 openai 解析
+    let billingProvider = provider;
     if (provider === 'openai') {
       upstream = await callOpenAI(c.env, upstreamBody);
     } else if (provider === 'xiaomi-mimo') {
       upstream = await callXiaomiMiMo(c.env, upstreamBody);
     } else if (provider === 'google-ai-studio') {
       upstream = await callGemini(c.env, upstreamModel, upstreamBody);
+    } else if (provider === 'anthropic') {
+      upstream = await callAnthropicCompat(c.env, upstreamModel, upstreamBody);
+      billingProvider = 'openai';
     } else {
       upstream = await callAiBinding(c.env, upstreamModel, upstreamBody);
     }
@@ -86,7 +92,7 @@ openai.post('/chat/completions', async (c) => {
 
     if (isSse && upstream.body) {
       const [clientStream, billingStream] = upstream.body.tee();
-      processStreamBilling(c, services, provider, billingStream, modelId, modelPricing);
+      processStreamBilling(c, services, billingProvider, billingStream, modelId, modelPricing);
       return new Response(clientStream, {
         status: upstream.status,
         headers: upstream.headers,
@@ -97,7 +103,7 @@ openai.post('/chat/completions', async (c) => {
     const [clientResp, billingResp] = [upstream.clone(), upstream];
     c.executionCtx.waitUntil(
       (async () => {
-        await processBilling(c, services, provider, billingResp, modelId, modelPricing);
+        await processBilling(c, services, billingProvider, billingResp, modelId, modelPricing);
       })(),
     );
     return clientResp;
