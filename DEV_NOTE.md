@@ -90,7 +90,19 @@
 **实现**：
 - **OpenAI / Google AI Studio**：继续走 CF AI Gateway，由其 Stored Keys 注入真实的 API Key。
 - **Xiaomi MiMo**：不走 CF AI Gateway，直接用 `MIMO_API_KEY` 请求 OpenAI 兼容接口，默认 base URL 为 `https://api.xiaomimimo.com/v1`，可通过 `MIMO_BASE_URL` 覆盖。Provider 标识为 `xiaomi-mimo`，计费 usage 按 OpenAI 兼容响应解析。
-- **Anthropic / Workers AI (等免 Key 渠道)**：不再维护它们在 Gateway 中的 Key 映射，而是直接走 `env.AI.run`（利用 Workers AI 的原生 binding 及内置兼容端点）。这允许项目无缝调用 `claude-3-5-sonnet-latest` 和 `@cf/meta/llama-3.1-8b-instruct` 而不需要自己付费买 Key，只需为 Workers AI 使用量计费。通过配置 `gateway: { id: env.CF_GATEWAY_ID }`，依然可以保留对这些请求的 Gateway 监控面板统计。
+- **Anthropic (Claude)**：经 CF AI Gateway 的 **Unified Billing** 由 Cloudflare 代付（充值 CF credits，无需自有 Anthropic 账号）。两条对外面：原生 `/v1/messages` 走 provider-native 透传（`proxyNative`，`cf-aig-authorization` + `Authorization: Bearer CF_TOKEN`，返回 Anthropic 原生 usage）；OpenAI 兼容 `/v1/chat/completions` 走 compat 端点（`callAnthropicCompat`，**仅** `cf-aig-authorization`，model 带 `anthropic/` 前缀，返回 OpenAI 形 usage）。upstreamModelId 用 Anthropic 规范连字符 ID（如 `claude-haiku-4-5`）。
+  - **早期误区订正**：曾以为 Claude 可走 `env.AI.run`（Workers AI binding）「免 Key、按 Workers AI 计费」——这是错的：Workers AI 不托管 Claude，且 Workers AI 模型走 Gateway 也不计入 Unified Billing。Claude 必须走 Unified Billing 代付。
+- **Workers AI (`@cf/*`)**：走 `env.AI.run` + `gateway: { id }`，按 Workers AI 用量（neuron）计费，保留 Gateway 监控。
+
+### 只有 Claude 走 Unified Billing（防误烧 credits）+ BYOK 开关
+
+**背景**：其它 provider 的 key 容易获得（OpenAI/Gemini 走 Gateway Stored Keys 自付、MiMo 直连自有 key），只有 Claude 因账号门槛走 CF 代付。Unified Billing 有 5% 充值费与 200 req/min/网关 限速，必须严格限定只有 Claude 用。
+
+**决策**：
+- `gateway-service.ts` 的代付凭证注入改为**显式 allow-list** `UNIFIED_BILLING_PROVIDERS = {anthropic}`（取代原来的反向 deny-list `SELF_PAID_PROVIDERS`）。默认「未知 provider → 自付」，杜绝将来新增 provider 忘记排除而静默落入代付烧 credits。单测断言 openai/google-ai-studio/workers-ai 均不被注入代付凭证。
+- **BYOK 开关** `ANTHROPIC_CREDENTIAL_MODE`（`unified` 默认 / `byok`）：byok 时原生路注入 `x-api-key`、compat 路注入 `Authorization: Bearer ANTHROPIC_API_KEY`，且**绝不带** `Authorization: Bearer CF_TOKEN`（带了会触发代付 / 被 compat 当成 key 报 401）。
+- **计费经济性**：Claude `markupRate` = 1.1，覆盖 CF 5% 充值费 + Stripe 手续费，不赚不亏（本服务为私域开发者辅助工具，不以盈利为目的）。
+- **现状提醒**：作者自有 Anthropic 组织当前被禁用（`This organization has been disabled`），故 BYOK 暂不可用、未实测；unified 主线不受影响。
 
 ### Xiaomi MiMo 定价记录
 
@@ -171,7 +183,10 @@ API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0）
 ### 必需的 Secrets
 
 **App (packages/app)**：
-- `CF_AIG_TOKEN` — CF AI Gateway 认证 token
+- `CF_AIG_TOKEN` — CF AI Gateway 网关认证 token（cf-aig-authorization）
+- `CF_TOKEN` — CF API Token，Claude Unified Billing 代付凭证（原生透传端点用）
+- `ANTHROPIC_CREDENTIAL_MODE` — `unified`（默认）/ `byok`，可选；切自有 Anthropic key 时设 `byok`
+- `ANTHROPIC_API_KEY` — 自有 Anthropic key，仅 `byok` 模式需要（可选）
 - `MIMO_API_KEY` — Xiaomi MiMo API Key，仅启用 `xiaomi-mimo` 模型时需要
 - `ADMIN_SECRET` — 管理接口认证
 - `ADMIN_EMAIL` — 告警接收邮箱
