@@ -69,6 +69,12 @@
     "step3Desc": "Base URLを置き換えるだけ — 他のコード変更は不要。"
   },
   "code": {
+    "nativeTitle": "残高で Claude Code を動かすことも",
+    "nativeSubtitle": "Claude Code や Anthropic SDK を MuiRouter に向けるだけ — Anthropic アカウント不要",
+    "nativeFilename": "ターミナル",
+    "nativeComment": "# Claude Code を MuiRouter に向ける — ネイティブ /v1/messages",
+    "nativeRunComment": "# MuiRouter の残高で Claude を実行",
+    "nativeFootnote": "Anthropic SDK でも動作します — ANTHROPIC_BASE_URL を設定し、sk-gw- キーを使うだけ。",
     "title": "統合はこんなに簡単",
     "subtitle": "すでにOpenAI SDKをお使いですか？2行変えるだけ",
     "filename": "example.py",
@@ -780,6 +786,10 @@
       {
         "question": "OpenAI 互換ですか？",
         "answer": "はい。OpenAI SDK の Base URL を MuiRouter に向けるだけで、既存のコードをそのまま使えます。詳しくは OpenAI 互換ルーターのページをご覧ください。"
+      },
+      {
+        "question": "Claude Code や Anthropic SDK を MuiRouter で使えますか？",
+        "answer": "はい。MuiRouter は Anthropic ネイティブの /v1/messages エンドポイントを提供します。ANTHROPIC_BASE_URL を MuiRouter に設定し、sk-gw- キーを使えば、Claude Code・Anthropic SDK・あらゆる Anthropic ネイティブクライアントが、Anthropic アカウントなしで MuiRouter の残高で動作します。"
       }
     ]
   },

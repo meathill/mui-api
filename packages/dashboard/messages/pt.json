@@ -69,6 +69,12 @@
     "step3Desc": "Substitua o Base URL — nenhuma outra alteração de código necessária."
   },
   "code": {
+    "nativeTitle": "Ou rode o Claude Code com seu saldo",
+    "nativeSubtitle": "Aponte o Claude Code ou o SDK da Anthropic para o MuiRouter — sem conta na Anthropic",
+    "nativeFilename": "terminal",
+    "nativeComment": "# Aponte o Claude Code para o MuiRouter — /v1/messages nativo",
+    "nativeRunComment": "# roda o Claude com seu saldo do MuiRouter",
+    "nativeFootnote": "Funciona com o SDK da Anthropic também — defina ANTHROPIC_BASE_URL e use sua chave sk-gw-.",
     "title": "A integração é simples assim",
     "subtitle": "Já usa o SDK OpenAI? Mude apenas duas linhas",
     "filename": "example.py",
@@ -780,6 +786,10 @@
       {
         "question": "É compatível com OpenAI?",
         "answer": "Sim. Aponte o Base URL do SDK OpenAI para o MuiRouter e mantenha seu código existente. Consulte a página do router compatível com OpenAI para saber mais."
+      },
+      {
+        "question": "Posso usar o Claude Code ou o SDK da Anthropic com o MuiRouter?",
+        "answer": "Sim. O MuiRouter expõe um endpoint nativo da Anthropic /v1/messages. Defina ANTHROPIC_BASE_URL para o MuiRouter e use sua chave sk-gw-: o Claude Code, o SDK da Anthropic e qualquer cliente nativo da Anthropic rodam com seu saldo do MuiRouter, sem conta na Anthropic."
       }
     ]
   },

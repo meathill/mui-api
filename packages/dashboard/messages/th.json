@@ -69,6 +69,12 @@
     "step3Desc": "เปลี่ยน Base URL — ไม่ต้องแก้ไขโค้ดอื่น"
   },
   "code": {
+    "nativeTitle": "หรือรัน Claude Code ด้วยยอดเงินของคุณ",
+    "nativeSubtitle": "ชี้ Claude Code หรือ Anthropic SDK มาที่ MuiRouter — ไม่ต้องมีบัญชี Anthropic",
+    "nativeFilename": "terminal",
+    "nativeComment": "# ชี้ Claude Code มาที่ MuiRouter — /v1/messages ดั้งเดิม",
+    "nativeRunComment": "# รัน Claude ด้วยยอดเงิน MuiRouter ของคุณ",
+    "nativeFootnote": "ใช้กับ Anthropic SDK ได้เช่นกัน — ตั้งค่า ANTHROPIC_BASE_URL แล้วใช้คีย์ sk-gw- ของคุณ",
     "title": "การเชื่อมต่อง่ายแค่นี้",
     "subtitle": "ใช้ OpenAI SDK อยู่แล้ว? แค่เปลี่ยนสองบรรทัด",
     "filename": "example.py",
@@ -780,6 +786,10 @@
       {
         "question": "รองรับ OpenAI ไหม?",
         "answer": "รองรับ ชี้ Base URL ของ OpenAI SDK ไปที่ MuiRouter แล้วใช้โค้ดเดิมของคุณได้ ดูเพิ่มเติมได้ที่หน้าเราเตอร์ที่รองรับ OpenAI"
+      },
+      {
+        "question": "ใช้ Claude Code หรือ Anthropic SDK กับ MuiRouter ได้ไหม?",
+        "answer": "ได้ MuiRouter มีเอนด์พอยต์ Anthropic ดั้งเดิม /v1/messages เพียงตั้งค่า ANTHROPIC_BASE_URL ให้ชี้มาที่ MuiRouter แล้วใช้คีย์ sk-gw- ของคุณ — Claude Code, Anthropic SDK และไคลเอนต์ Anthropic ดั้งเดิมทุกตัวจะทำงานด้วยยอดเงิน MuiRouter ของคุณ โดยไม่ต้องมีบัญชี Anthropic"
       }
     ]
   },

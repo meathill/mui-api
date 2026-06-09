@@ -69,6 +69,12 @@
     "step3Desc": "替换 Base URL，现有代码无需任何修改。"
   },
   "code": {
+    "nativeTitle": "也能用你的余额跑 Claude Code",
+    "nativeSubtitle": "把 Claude Code 或 Anthropic SDK 指向 MuiRouter——无需 Anthropic 账号",
+    "nativeFilename": "终端",
+    "nativeComment": "# 把 Claude Code 指向 MuiRouter——原生 /v1/messages",
+    "nativeRunComment": "# 用你的 MuiRouter 余额跑 Claude",
+    "nativeFootnote": "Anthropic SDK 同样适用——设置 ANTHROPIC_BASE_URL，用你的 sk-gw- key。",
     "title": "接入就是这么简单",
     "subtitle": "已有 OpenAI SDK 代码？只需修改两行",
     "filename": "example.py",
@@ -780,6 +786,10 @@
       {
         "question": "它是 OpenAI 兼容的吗？",
         "answer": "是的。把 OpenAI SDK 的 Base URL 指向 MuiRouter，沿用现有代码即可。详见 OpenAI 兼容路由页面。"
+      },
+      {
+        "question": "可以用 Claude Code 或 Anthropic SDK 接入 MuiRouter 吗？",
+        "answer": "可以。MuiRouter 提供 Anthropic 原生 /v1/messages 端点。把 ANTHROPIC_BASE_URL 指向 MuiRouter，用你的 sk-gw- key——Claude Code、Anthropic SDK 以及任何 Anthropic 原生客户端都能用你的 MuiRouter 余额跑，无需 Anthropic 账号。"
       }
     ]
   },
