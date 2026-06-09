@@ -8,16 +8,15 @@ import {
   callXiaomiMiMo,
 } from '../services/provider-dispatch';
 import { createProxyServices } from '../services/service-factory';
-import { extractStreamUsage } from '../services/usage-extractor';
 import type { CloudflareBindings } from '../types';
 import {
   appendFormEntry,
   assertBillableAccess,
-  hasAnyTokens,
   invalidRequest,
   isResponse,
   lookupModel,
   processBilling,
+  processStreamBilling,
   proxyOpenAIImageResponse,
   readJsonBody,
 } from './openai-helpers';
@@ -33,9 +32,6 @@ openai.use('/*', authMiddleware);
  * 调用方需按目标 provider 原生 shape 构造请求体（OpenAI / Xiaomi MiMo / Anthropic Messages / Gemini generateContent / Workers AI）
  */
 openai.post('/chat/completions', async (c) => {
-  const userId = c.get('userId');
-  const apiKeyId = c.get('apiKeyId');
-  const userRateMultiplier = c.get('rateMultiplier');
   const body = await readJsonBody(c);
   if (isResponse(body)) return body;
 
@@ -90,32 +86,7 @@ openai.post('/chat/completions', async (c) => {
 
     if (isSse && upstream.body) {
       const [clientStream, billingStream] = upstream.body.tee();
-      c.executionCtx.waitUntil(
-        (async () => {
-          try {
-            const usage = await extractStreamUsage(provider, new Response(billingStream));
-            if (usage && hasAnyTokens(usage)) {
-              const billing = await services.billingService.processUsage(
-                userId,
-                apiKeyId,
-                {
-                  model: modelId,
-                  inputTokens: usage.inputTokens,
-                  cachedInputTokens: usage.cachedInputTokens,
-                  cacheWriteTokens: usage.cacheWriteTokens,
-                  outputTokens: usage.outputTokens,
-                },
-                modelPricing,
-                userRateMultiplier,
-                { useFreeQuota: true },
-              );
-              await services.alertService.checkAfterBilling(userId, billing.totalCost);
-            }
-          } catch (error) {
-            console.error('流式计费失败:', error);
-          }
-        })(),
-      );
+      processStreamBilling(c, services, provider, billingStream, modelId, modelPricing);
       return new Response(clientStream, {
         status: upstream.status,
         headers: upstream.headers,

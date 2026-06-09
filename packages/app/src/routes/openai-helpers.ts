@@ -3,7 +3,7 @@ import type { Model } from '../db/schema';
 import { MIN_BALANCE } from '../middleware/auth';
 import type { ModelPricing } from '../services/billing-service';
 import type { ProxyServices } from '../services/service-factory';
-import { extractUsage } from '../services/usage-extractor';
+import { extractStreamUsage, extractUsage } from '../services/usage-extractor';
 import type { CloudflareBindings } from '../types';
 
 /**
@@ -103,6 +103,49 @@ export async function processBilling(
   } catch (error) {
     console.error('非流式计费失败:', error);
   }
+}
+
+/**
+ * 流式计费：从 tee 出来的 billingStream 抽取 usage 并异步扣费。
+ * openai.ts（/chat/completions）与 anthropic.ts（/messages）共用。
+ */
+export function processStreamBilling(
+  c: OpenAIContext,
+  services: ProxyServices,
+  provider: string,
+  billingStream: ReadableStream<Uint8Array>,
+  modelId: string,
+  modelPricing: ModelLookup['modelPricing'],
+): void {
+  const userId = c.get('userId');
+  const apiKeyId = c.get('apiKeyId');
+  const userRateMultiplier = c.get('rateMultiplier');
+  c.executionCtx.waitUntil(
+    (async () => {
+      try {
+        const usage = await extractStreamUsage(provider, new Response(billingStream));
+        if (usage && hasAnyTokens(usage)) {
+          const billing = await services.billingService.processUsage(
+            userId,
+            apiKeyId,
+            {
+              model: modelId,
+              inputTokens: usage.inputTokens,
+              cachedInputTokens: usage.cachedInputTokens,
+              cacheWriteTokens: usage.cacheWriteTokens,
+              outputTokens: usage.outputTokens,
+            },
+            modelPricing,
+            userRateMultiplier,
+            { useFreeQuota: true },
+          );
+          await services.alertService.checkAfterBilling(userId, billing.totalCost);
+        }
+      } catch (error) {
+        console.error('流式计费失败:', error);
+      }
+    })(),
+  );
 }
 
 export function hasAnyTokens(usage: {
