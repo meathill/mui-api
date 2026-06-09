@@ -209,14 +209,15 @@ export const SEED_MODELS: NewModel[] = [
     longContextOutputPrice: null,
   },
 
-  // Anthropic (Claude) — 通过 CF Workers AI 代付费，upstream 使用 CF 的点号命名
+  // Anthropic (Claude) — 经 CF AI Gateway Unified Billing 代付（CF_TOKEN）；
+  // upstreamModelId 用 Anthropic 规范连字符 ID（已 smoke 实测 CF 原生端点可用）。markupRate 1.1：覆盖 CF 5% 充值费 + Stripe，不赚不亏。
   {
     id: 'claude-opus-4-7',
     provider: 'anthropic',
-    upstreamModelId: 'claude-opus-4.7',
+    upstreamModelId: 'claude-opus-4-7',
     inputPrice: 5,
     outputPrice: 25,
-    markupRate: 1.2,
+    markupRate: 1.1,
     ...anthropicCache(5),
     longContextThresholdTokens: null,
     longContextInputPrice: null,
@@ -227,10 +228,10 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-opus-4-6',
     provider: 'anthropic',
-    upstreamModelId: 'claude-opus-4.6',
+    upstreamModelId: 'claude-opus-4-6',
     inputPrice: 5,
     outputPrice: 25,
-    markupRate: 1.2,
+    markupRate: 1.1,
     ...anthropicCache(5),
     longContextThresholdTokens: null,
     longContextInputPrice: null,
@@ -241,10 +242,10 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-sonnet-4-6',
     provider: 'anthropic',
-    upstreamModelId: 'claude-sonnet-4.6',
+    upstreamModelId: 'claude-sonnet-4-6',
     inputPrice: 3,
     outputPrice: 15,
-    markupRate: 1.2,
+    markupRate: 1.1,
     ...anthropicCache(3),
     longContextThresholdTokens: null,
     longContextInputPrice: null,
@@ -255,10 +256,10 @@ export const SEED_MODELS: NewModel[] = [
   {
     id: 'claude-haiku-4-5',
     provider: 'anthropic',
-    upstreamModelId: 'claude-haiku-4.5',
+    upstreamModelId: 'claude-haiku-4-5',
     inputPrice: 1,
     outputPrice: 5,
-    markupRate: 1.2,
+    markupRate: 1.1,
     ...anthropicCache(1),
     longContextThresholdTokens: null,
     longContextInputPrice: null,
