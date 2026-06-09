@@ -15,6 +15,11 @@ export interface CloudflareBindings {
   AI: Ai;
   MIMO_API_KEY?: string;
   MIMO_BASE_URL?: string;
+  // Anthropic / Claude 接入（Cloudflare Unified Billing）
+  // unified（默认）：经 CF AI Gateway 代付，扣 CF credits，无需自有 Anthropic 账号
+  // byok：注入自有 ANTHROPIC_API_KEY 自付（注意：当前组织被禁用，BYOK 暂不可用）
+  ANTHROPIC_CREDENTIAL_MODE?: 'unified' | 'byok';
+  ANTHROPIC_API_KEY?: string;
   DEFAULT_MAX_CONCURRENCY?: string; // 默认 "3"
   // Stripe 充值
   STRIPE_SECRET_KEY?: string;
