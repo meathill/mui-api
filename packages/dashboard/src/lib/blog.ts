@@ -43,6 +43,118 @@ type BlogPost = {
 
 export const BLOG_POSTS = [
   {
+    slug: 'claude-fable-5',
+    href: '/blog/claude-fable-5',
+    publishedAt: '2026-06-10',
+    sourcePublishedAt: '2026-06-09',
+    readingMinutes: 7,
+    translations: {
+      en: {
+        title: "Claude Fable 5 Is Here: Anthropic's Public Mythos-Class Model, with Safety Built In",
+        description:
+          'Anthropic released Claude Fable 5, the public, safety-routed version of its Mythos-class frontier model. Here is what shipped — two-tier Fable 5 / Mythos 5, a classifier-plus-Opus-4.8 fallback, and $10/$50 pricing — and what it means if you build with AI.',
+        tags: ['Claude Fable 5', 'Anthropic', 'AI models'],
+      },
+      zh: {
+        title: 'Claude Fable 5 来了：Anthropic 面向公众的 Mythos 级模型，安全内建',
+        description:
+          'Anthropic 发布了 Claude Fable 5——其 Mythos 级前沿模型「带安全路由」的公开版本。本文梳理这次发布的关键：Fable 5 / Mythos 5 双档、分类器 + Opus 4.8 兜底、$10/$50 定价，以及它对开发者意味着什么。',
+        tags: ['Claude Fable 5', 'Anthropic', 'AI 模型'],
+      },
+      // fr/es/pt/de/th/ja 暂用英文占位（路由回退 en MDX），补译时替换。
+      fr: {
+        title: "Claude Fable 5 Is Here: Anthropic's Public Mythos-Class Model, with Safety Built In",
+        description:
+          'Anthropic released Claude Fable 5, the public, safety-routed version of its Mythos-class frontier model. Here is what shipped — two-tier Fable 5 / Mythos 5, a classifier-plus-Opus-4.8 fallback, and $10/$50 pricing — and what it means if you build with AI.',
+        tags: ['Claude Fable 5', 'Anthropic', 'AI models'],
+      },
+      es: {
+        title: "Claude Fable 5 Is Here: Anthropic's Public Mythos-Class Model, with Safety Built In",
+        description:
+          'Anthropic released Claude Fable 5, the public, safety-routed version of its Mythos-class frontier model. Here is what shipped — two-tier Fable 5 / Mythos 5, a classifier-plus-Opus-4.8 fallback, and $10/$50 pricing — and what it means if you build with AI.',
+        tags: ['Claude Fable 5', 'Anthropic', 'AI models'],
+      },
+      pt: {
+        title: "Claude Fable 5 Is Here: Anthropic's Public Mythos-Class Model, with Safety Built In",
+        description:
+          'Anthropic released Claude Fable 5, the public, safety-routed version of its Mythos-class frontier model. Here is what shipped — two-tier Fable 5 / Mythos 5, a classifier-plus-Opus-4.8 fallback, and $10/$50 pricing — and what it means if you build with AI.',
+        tags: ['Claude Fable 5', 'Anthropic', 'AI models'],
+      },
+      de: {
+        title: "Claude Fable 5 Is Here: Anthropic's Public Mythos-Class Model, with Safety Built In",
+        description:
+          'Anthropic released Claude Fable 5, the public, safety-routed version of its Mythos-class frontier model. Here is what shipped — two-tier Fable 5 / Mythos 5, a classifier-plus-Opus-4.8 fallback, and $10/$50 pricing — and what it means if you build with AI.',
+        tags: ['Claude Fable 5', 'Anthropic', 'AI models'],
+      },
+      th: {
+        title: "Claude Fable 5 Is Here: Anthropic's Public Mythos-Class Model, with Safety Built In",
+        description:
+          'Anthropic released Claude Fable 5, the public, safety-routed version of its Mythos-class frontier model. Here is what shipped — two-tier Fable 5 / Mythos 5, a classifier-plus-Opus-4.8 fallback, and $10/$50 pricing — and what it means if you build with AI.',
+        tags: ['Claude Fable 5', 'Anthropic', 'AI models'],
+      },
+      ja: {
+        title: "Claude Fable 5 Is Here: Anthropic's Public Mythos-Class Model, with Safety Built In",
+        description:
+          'Anthropic released Claude Fable 5, the public, safety-routed version of its Mythos-class frontier model. Here is what shipped — two-tier Fable 5 / Mythos 5, a classifier-plus-Opus-4.8 fallback, and $10/$50 pricing — and what it means if you build with AI.',
+        tags: ['Claude Fable 5', 'Anthropic', 'AI models'],
+      },
+    },
+    sources: [
+      {
+        url: 'https://www.anthropic.com/news/claude-fable-5-mythos-5',
+        labels: {
+          en: 'Anthropic: Claude Fable 5 and Claude Mythos 5',
+          zh: 'Anthropic：Claude Fable 5 与 Claude Mythos 5 公告',
+          fr: 'Anthropic: Claude Fable 5 and Claude Mythos 5',
+          es: 'Anthropic: Claude Fable 5 and Claude Mythos 5',
+          pt: 'Anthropic: Claude Fable 5 and Claude Mythos 5',
+          de: 'Anthropic: Claude Fable 5 and Claude Mythos 5',
+          th: 'Anthropic: Claude Fable 5 and Claude Mythos 5',
+          ja: 'Anthropic: Claude Fable 5 and Claude Mythos 5',
+        },
+      },
+      {
+        url: 'https://aws.amazon.com/blogs/aws/anthropic-claude-fable-5-on-aws-mythos-class-capabilities-with-built-in-safeguards-now-available/',
+        labels: {
+          en: 'Claude Fable 5 on Amazon Bedrock (AWS)',
+          zh: 'Amazon Bedrock 上的 Claude Fable 5（AWS）',
+          fr: 'Claude Fable 5 on Amazon Bedrock (AWS)',
+          es: 'Claude Fable 5 on Amazon Bedrock (AWS)',
+          pt: 'Claude Fable 5 on Amazon Bedrock (AWS)',
+          de: 'Claude Fable 5 on Amazon Bedrock (AWS)',
+          th: 'Claude Fable 5 on Amazon Bedrock (AWS)',
+          ja: 'Claude Fable 5 on Amazon Bedrock (AWS)',
+        },
+      },
+      {
+        url: 'https://techcrunch.com/2026/06/09/anthropic-released-claude-fable-5-its-most-powerful-model-publicly-days-after-warning-ai-is-getting-too-dangerous/',
+        labels: {
+          en: 'TechCrunch: Anthropic releases Claude Fable 5',
+          zh: 'TechCrunch：Anthropic 发布 Claude Fable 5',
+          fr: 'TechCrunch: Anthropic releases Claude Fable 5',
+          es: 'TechCrunch: Anthropic releases Claude Fable 5',
+          pt: 'TechCrunch: Anthropic releases Claude Fable 5',
+          de: 'TechCrunch: Anthropic releases Claude Fable 5',
+          th: 'TechCrunch: Anthropic releases Claude Fable 5',
+          ja: 'TechCrunch: Anthropic releases Claude Fable 5',
+        },
+      },
+      {
+        url: 'https://www.cnbc.com/2026/06/09/anthropic-mythos-claude-fable-5.html',
+        labels: {
+          en: 'CNBC: Anthropic releases Mythos-class Claude Fable 5',
+          zh: 'CNBC：Anthropic 发布 Mythos 级 Claude Fable 5',
+          fr: 'CNBC: Anthropic releases Mythos-class Claude Fable 5',
+          es: 'CNBC: Anthropic releases Mythos-class Claude Fable 5',
+          pt: 'CNBC: Anthropic releases Mythos-class Claude Fable 5',
+          de: 'CNBC: Anthropic releases Mythos-class Claude Fable 5',
+          th: 'CNBC: Anthropic releases Mythos-class Claude Fable 5',
+          ja: 'CNBC: Anthropic releases Mythos-class Claude Fable 5',
+        },
+      },
+    ],
+  },
+  {
     slug: 'gpt-5-5',
     href: '/blog/gpt-5-5',
     publishedAt: '2026-04-24',
