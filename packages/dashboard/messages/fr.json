@@ -320,7 +320,14 @@
     "historyHint": "Saved in this browser only. Image binaries are not stored to avoid filling local storage.",
     "clearHistory": "Clear history",
     "emptyHistory": "No saved runs yet.",
-    "imageCount": "{count} image(s)"
+    "imageCount": "{count} image(s)",
+    "selectModel": "Sélectionner un modèle",
+    "searchModels": "Rechercher des modèles…",
+    "noModelsFound": "Aucun modèle trouvé",
+    "tagLongContext": "Contexte long",
+    "tagCaching": "Cache",
+    "priceLabel": "Entrée {input} / Sortie {output} par 1M tokens",
+    "priceFree": "Gratuit"
   },
   "adminModels": {
     "title": "Gestion des modèles",

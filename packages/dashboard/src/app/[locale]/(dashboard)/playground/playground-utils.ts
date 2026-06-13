@@ -106,6 +106,79 @@ export function getApiBase() {
   return process.env.NEXT_PUBLIC_API_BASE || '';
 }
 
+// ---- 模型展示元数据（从已有字段派生，无需数据库新增字段）----
+
+/** provider 显示名（品牌专有名词，硬编码不走 i18n）。 */
+export const PROVIDER_LABELS: Record<string, string> = {
+  openai: 'OpenAI',
+  anthropic: 'Anthropic',
+  'google-ai-studio': 'Google',
+  'workers-ai': 'Workers AI',
+  'xiaomi-mimo': 'Xiaomi MiMo',
+};
+
+/** 分组展示顺序；未列出的 provider 追加到末尾，保证新 provider 不会被丢弃。 */
+export const PROVIDER_ORDER: readonly string[] = [
+  'anthropic',
+  'openai',
+  'google-ai-studio',
+  'workers-ai',
+  'xiaomi-mimo',
+];
+
+export type ModelGroup = {
+  provider: string;
+  items: string[];
+};
+
+/** 按 provider 把模型分组，组内保留原顺序，组间按 PROVIDER_ORDER 排序。 */
+export function groupModelsByProvider(models: ModelInfo[]): ModelGroup[] {
+  const idsByProvider = new Map<string, string[]>();
+  for (const model of models) {
+    const ids = idsByProvider.get(model.provider) ?? [];
+    ids.push(model.id);
+    idsByProvider.set(model.provider, ids);
+  }
+
+  const groups: ModelGroup[] = [];
+  for (const provider of PROVIDER_ORDER) {
+    const items = idsByProvider.get(provider);
+    if (items) {
+      groups.push({ provider, items });
+      idsByProvider.delete(provider);
+    }
+  }
+  for (const [provider, items] of idsByProvider) {
+    groups.push({ provider, items });
+  }
+  return groups;
+}
+
+/** 返回模型能力标签的 i18n key 列表（成品文案由组件用 t() 渲染）。 */
+export function getModelCapabilityTagKeys(model: ModelInfo): string[] {
+  const keys: string[] = [];
+  if (model.longContextThresholdTokens != null) {
+    keys.push('tagLongContext');
+  }
+  if (model.cachedInputPrice != null) {
+    keys.push('tagCaching');
+  }
+  return keys;
+}
+
+/** 取基础输入/输出价（单位：美元/百万 tokens）；任一缺失返回 null。 */
+export function getModelPrice(model: ModelInfo): { input: number; output: number } | null {
+  if (model.inputPrice == null || model.outputPrice == null) {
+    return null;
+  }
+  return { input: model.inputPrice, output: model.outputPrice };
+}
+
+/** 价格数字格式化（JS 已天然去尾零：3 / 1.25 / 0.05）。 */
+export function formatModelPrice(value: number): string {
+  return `$${value}`;
+}
+
 export function isImageModel(model: ModelInfo) {
   return model.id.includes('image') || Boolean(model.upstreamModelId?.includes('image'));
 }

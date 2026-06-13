@@ -8,6 +8,7 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsList, TabsPanel, TabsTab } from '@/components/ui/tabs';
 import type { ModelInfo } from '@/lib/api';
+import { ModelPicker } from './model-picker';
 import {
   AudioResultView,
   Field,
@@ -87,21 +88,11 @@ export function PlaygroundView(props: PlaygroundViewProps) {
           <div className="space-y-3">
             <div className="grid gap-3 md:grid-cols-2">
               <Field label={t('model')}>
-                <select
+                <ModelPicker
+                  models={props.visibleModels}
                   value={props.selectedModel}
-                  onChange={(event) => props.onModelChange(event.target.value)}
-                  className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs transition-colors"
-                >
-                  {props.visibleModels.length === 0 ? (
-                    <option value="">{t('noModels')}</option>
-                  ) : (
-                    props.visibleModels.map((model) => (
-                      <option key={model.id} value={model.id}>
-                        {model.id} ({model.provider})
-                      </option>
-                    ))
-                  )}
-                </select>
+                  onValueChange={props.onModelChange}
+                />
               </Field>
 
               <Field label={t('apiKey')}>

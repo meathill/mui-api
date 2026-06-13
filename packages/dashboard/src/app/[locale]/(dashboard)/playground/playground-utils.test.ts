@@ -3,7 +3,11 @@ import type { ModelInfo } from '@/lib/api';
 import {
   appendBuiltInPlaygroundModels,
   buildTtsRequestBody,
+  formatModelPrice,
+  getModelCapabilityTagKeys,
+  getModelPrice,
   getTtsVoiceSampleMimeType,
+  groupModelsByProvider,
   isImageModel,
   isTtsModel,
   toAudioResult,
@@ -110,5 +114,67 @@ describe('playground TTS helpers', () => {
     expect(getTtsVoiceSampleMimeType(new File(['x'], 'voice.wav', { type: 'audio/x-wav' }))).toBe('audio/wav');
     expect(getTtsVoiceSampleMimeType(new File(['x'], 'voice.mp3', { type: 'audio/mp3' }))).toBe('audio/mpeg');
     expect(getTtsVoiceSampleMimeType(new File(['x'], 'voice.ogg', { type: 'audio/ogg' }))).toBeNull();
+  });
+});
+
+function makeModel(id: string, overrides: Partial<ModelInfo> = {}): ModelInfo {
+  return {
+    id,
+    provider: 'openai',
+    upstreamModelId: id,
+    inputPrice: null,
+    outputPrice: null,
+    markupRate: 1.2,
+    cachedInputPrice: null,
+    cacheWritePrice: null,
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+    ...overrides,
+  };
+}
+
+describe('playground 模型展示元数据 helpers', () => {
+  it('按 PROVIDER_ORDER 分组，未知 provider 追加到末尾', () => {
+    const groups = groupModelsByProvider([
+      makeModel('gpt-5', { provider: 'openai' }),
+      makeModel('claude-x', { provider: 'anthropic' }),
+      makeModel('mystery-1', { provider: 'mystery' }),
+      makeModel('claude-y', { provider: 'anthropic' }),
+    ]);
+
+    expect(groups.map((group) => group.provider)).toEqual(['anthropic', 'openai', 'mystery']);
+    expect(groups[0].items).toEqual(['claude-x', 'claude-y']);
+    expect(groups[1].items).toEqual(['gpt-5']);
+    expect(groups[2].items).toEqual(['mystery-1']);
+  });
+
+  it('能力标签按字段派生：长上下文 / 缓存', () => {
+    expect(getModelCapabilityTagKeys(makeModel('a'))).toEqual([]);
+    expect(getModelCapabilityTagKeys(makeModel('b', { longContextThresholdTokens: 200000 }))).toEqual([
+      'tagLongContext',
+    ]);
+    expect(getModelCapabilityTagKeys(makeModel('c', { cachedInputPrice: 0.3 }))).toEqual(['tagCaching']);
+    expect(
+      getModelCapabilityTagKeys(makeModel('d', { longContextThresholdTokens: 256000, cachedInputPrice: 0.1 })),
+    ).toEqual(['tagLongContext', 'tagCaching']);
+  });
+
+  it('cachedInputPrice 为 0 也算支持缓存（区别于 null）', () => {
+    expect(getModelCapabilityTagKeys(makeModel('zero', { cachedInputPrice: 0 }))).toEqual(['tagCaching']);
+  });
+
+  it('getModelPrice 取基础价；任一缺失返回 null', () => {
+    expect(getModelPrice(makeModel('p', { inputPrice: 3, outputPrice: 15 }))).toEqual({ input: 3, output: 15 });
+    expect(getModelPrice(makeModel('free', { inputPrice: 0, outputPrice: 0 }))).toEqual({ input: 0, output: 0 });
+    expect(getModelPrice(makeModel('partial', { inputPrice: 3, outputPrice: null }))).toBeNull();
+  });
+
+  it('formatModelPrice 去尾零并加美元符号', () => {
+    expect(formatModelPrice(3)).toBe('$3');
+    expect(formatModelPrice(1.25)).toBe('$1.25');
+    expect(formatModelPrice(0.05)).toBe('$0.05');
   });
 });

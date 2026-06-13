@@ -320,7 +320,14 @@
     "historyHint": "仅保存在当前浏览器。为避免占满本地存储，图片二进制不会写入记录。",
     "clearHistory": "清空记录",
     "emptyHistory": "暂无保存记录。",
-    "imageCount": "{count} 张图片"
+    "imageCount": "{count} 张图片",
+    "selectModel": "选择模型",
+    "searchModels": "搜索模型…",
+    "noModelsFound": "未找到模型",
+    "tagLongContext": "长上下文",
+    "tagCaching": "缓存",
+    "priceLabel": "输入 {input} / 输出 {output} 每百万 tokens",
+    "priceFree": "免费"
   },
   "adminModels": {
     "title": "模型管理",

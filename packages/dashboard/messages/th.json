@@ -320,7 +320,14 @@
     "historyHint": "Saved in this browser only. Image binaries are not stored to avoid filling local storage.",
     "clearHistory": "Clear history",
     "emptyHistory": "No saved runs yet.",
-    "imageCount": "{count} image(s)"
+    "imageCount": "{count} image(s)",
+    "selectModel": "เลือกโมเดล",
+    "searchModels": "ค้นหาโมเดล…",
+    "noModelsFound": "ไม่พบโมเดล",
+    "tagLongContext": "บริบทยาว",
+    "tagCaching": "แคช",
+    "priceLabel": "อินพุต {input} / เอาต์พุต {output} ต่อ 1M โทเค็น",
+    "priceFree": "ฟรี"
   },
   "adminModels": {
     "title": "จัดการโมเดล",

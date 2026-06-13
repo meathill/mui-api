@@ -320,7 +320,14 @@
     "historyHint": "Saved in this browser only. Image binaries are not stored to avoid filling local storage.",
     "clearHistory": "Clear history",
     "emptyHistory": "No saved runs yet.",
-    "imageCount": "{count} image(s)"
+    "imageCount": "{count} image(s)",
+    "selectModel": "モデルを選択",
+    "searchModels": "モデルを検索…",
+    "noModelsFound": "モデルが見つかりません",
+    "tagLongContext": "ロングコンテキスト",
+    "tagCaching": "キャッシュ",
+    "priceLabel": "入力 {input} / 出力 {output}（100万トークンあたり）",
+    "priceFree": "無料"
   },
   "adminModels": {
     "title": "モデル管理",
