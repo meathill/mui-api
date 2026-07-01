@@ -46,7 +46,7 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
     const concurrencyService = new ConcurrencyService(c.env);
 
     // 同时支持 PAT (sk-gw-*) 与 OAuth access_token (mr_at_*)。详见 bearer-validator.ts。
-    const validation = await validateBearer(c.env, apiKey);
+    const validation = await validateBearer(c.env, apiKey, c.get('db'));
     if (!validation) {
       return c.json({ error: { message: '无效的 API Key', type: 'invalid_api_key' } }, 401);
     }

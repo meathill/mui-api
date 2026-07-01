@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { createDb, models } from '../db';
+import { models } from '../db';
 import { readAuthMiddleware } from '../middleware/read-auth';
 import { createTopupSession } from '../services/stripe-service';
 import { getBalanceSnapshot, listRecharges, listUsage } from '../services/wallet-query-service';
@@ -17,7 +17,7 @@ function specError(c: any, status: number, error: string, message: string) {
  */
 v1User.get('/balance', readAuthMiddleware, async (c) => {
   const userId = c.get('userId');
-  const db = createDb(c.env.DB);
+  const db = c.get('db');
   const snapshot = await getBalanceSnapshot(db, userId, c.env.KV);
   return c.json(snapshot);
 });
@@ -27,7 +27,7 @@ v1User.get('/balance', readAuthMiddleware, async (c) => {
  */
 v1User.get('/usage', readAuthMiddleware, async (c) => {
   const userId = c.get('userId');
-  const db = createDb(c.env.DB);
+  const db = c.get('db');
   const result = await listUsage(db, userId, {
     limit: c.req.query('limit'),
     cursor: c.req.query('cursor'),
@@ -43,7 +43,7 @@ v1User.get('/usage', readAuthMiddleware, async (c) => {
  */
 v1User.get('/recharges', readAuthMiddleware, async (c) => {
   const userId = c.get('userId');
-  const db = createDb(c.env.DB);
+  const db = c.get('db');
   const result = await listRecharges(db, userId, {
     limit: c.req.query('limit'),
     cursor: c.req.query('cursor'),
@@ -56,7 +56,7 @@ v1User.get('/recharges', readAuthMiddleware, async (c) => {
  * 注：标准的 GET /v1/models（OpenAI 兼容）保留在 openai 子应用上，需要 sk-gw- 鉴权，行为不变。
  */
 v1User.get('/public-models', async (c) => {
-  const db = createDb(c.env.DB);
+  const db = c.get('db');
   const rows = await db.select().from(models);
   return c.json({
     items: rows.map((m) => ({
@@ -98,7 +98,7 @@ v1User.post('/topup-sessions', readAuthMiddleware, async (c) => {
   }
 
   try {
-    const result = await createTopupSession(c.env, createDb(c.env.DB), {
+    const result = await createTopupSession(c.env, c.get('db'), {
       userId,
       amountCents: parsed.data.amount_cents,
       currency: (parsed.data.currency ?? 'usd').toLowerCase(),

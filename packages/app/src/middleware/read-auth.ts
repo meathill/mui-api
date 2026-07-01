@@ -22,7 +22,7 @@ export async function readAuthMiddleware(c: Context<{ Bindings: CloudflareBindin
     return spec401(c, '缺少 Authorization header');
   }
   const apiKey = authHeader.substring(7).trim();
-  const result = await validateBearer(c.env, apiKey);
+  const result = await validateBearer(c.env, apiKey, c.get('db'));
   if (!result) {
     return spec401(c);
   }

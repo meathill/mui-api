@@ -1,7 +1,18 @@
+import type { Context, Next } from 'hono';
 import { Hono } from 'hono';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { Database } from '../db';
 import { hashApiKey } from '../lib/crypto';
 import { authMiddleware, paidAuthMiddleware } from './auth';
+
+/**
+ * 生产环境里 db 由全局 d1-session 中间件注入（见 index.tsx），这里手搭的 app 没有那条链，
+ * 补一个 stub 让 c.get('db') 有值。这些用例只走 sk-gw-*（KV）路径，db 本身不会被解引用。
+ */
+async function stubDbMiddleware(c: Context, next: Next) {
+  c.set('db', {} as unknown as Database);
+  await next();
+}
 
 interface StoredValue {
   value: string;
@@ -208,6 +219,7 @@ describe('authMiddleware', () => {
     await seedAuthState(kv, 'user-1', 'sk-gw-test-json');
 
     const app = new Hono();
+    app.use('*', stubDbMiddleware);
     app.use('*', authMiddleware);
     app.get('/ok', (c) => c.json({ ok: true }));
 
@@ -240,6 +252,7 @@ describe('authMiddleware', () => {
     await seedAuthState(kv, 'user-1', 'sk-gw-test-throw');
 
     const app = new Hono();
+    app.use('*', stubDbMiddleware);
     app.use('*', authMiddleware);
     app.get('/boom', () => {
       throw new Error('boom');
@@ -270,6 +283,7 @@ describe('authMiddleware', () => {
     await seedAuthState(kv, 'user-1', 'sk-gw-test-stream');
 
     const app = new Hono();
+    app.use('*', stubDbMiddleware);
     app.use('*', authMiddleware);
     app.get('/stream', (c) =>
       c.body(
@@ -309,6 +323,7 @@ describe('authMiddleware', () => {
     await seedAuthState(kv, 'user-1', 'sk-gw-test-cancel');
 
     const app = new Hono();
+    app.use('*', stubDbMiddleware);
     app.use('*', authMiddleware);
     app.get('/cancel', (c) =>
       c.body(
@@ -352,6 +367,7 @@ describe('authMiddleware', () => {
     await seedFreeQuotaConfig(kv);
 
     const app = new Hono();
+    app.use('*', stubDbMiddleware);
     app.use('*', authMiddleware);
     app.get('/v1/test', (c) => c.json({ ok: true }));
 
@@ -379,6 +395,7 @@ describe('authMiddleware', () => {
     await seedFreeQuotaConfig(kv);
 
     const app = new Hono();
+    app.use('*', stubDbMiddleware);
     app.use('*', paidAuthMiddleware);
     app.post('/providers/openai/chat/completions', (c) => c.json({ ok: true }));
 

@@ -31,7 +31,7 @@ anthropic.post('/messages', authMiddleware, async (c) => {
   }
 
   const modelId = body.model as string;
-  const services = createProxyServices(c.env);
+  const services = createProxyServices(c.env, c.get('db'));
   const lookup = await lookupModel(c, modelId, services);
   if (isResponse(lookup)) return lookup;
   const { modelConfig, upstreamModel, modelPricing } = lookup;

@@ -31,6 +31,14 @@
 - `stats:daily:{date}` / `stats:monthly:{month}` — 全局花费统计（带 TTL）
 - `spending:user:{userId}:{month}` — 用户月度花费（TTL 35 天）
 
+### D1 Read Replication（Sessions API）
+
+**决策**：`packages/app` 全局中间件（`src/middleware/d1-session.ts`）在每个请求开始时创建 `env.DB.withSession('first-unconstrained')`，通过 Hono context（`c.get('db')`）供该请求内所有 DB 访问复用；`packages/dashboard` 更简单，因为 `getDb()`（`src/lib/db.ts`）本来就是全仓库唯一入口，直接在里面包一层 session 即可，不需要 Next.js 中间件或跨请求 context 穿线。
+
+**一致性策略：不做跨请求 bookmark 回传**。原因：余额真账本不在 D1（在 `WalletDO`），D1 里能读到的东西（`usage_logs`、`recharge_logs`、`lifetime_*` 聚合统计、`oauth_tokens` 校验）都是审计/统计类数据，副本延迟（通常亚秒级）造成的短暂陈旧对这些只读端点几乎无感知。本身是公开的 OpenAI 兼容 API，第三方 SDK 也不会配合回传自定义 bookmark header。
+
+**类型兼容性**：drizzle-orm@0.45.1 的 `AnyD1Database` 类型未收录 `D1DatabaseSession`，但两者在 `prepare`/`batch` 上结构兼容（drizzle 的 D1 session 实现只调用这两个方法），`db/index.ts` 的 `createDb()` 内部做了一次 cast，是安全的。
+
 ### 异步计费（waitUntil）
 
 **决策**：计费在响应返回后异步执行，不阻塞 API 响应。

@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { createDb } from './db';
 import { ConcurrencyLimiterDO } from './durable-objects/concurrency-limiter';
+import { d1SessionMiddleware } from './middleware/d1-session';
 import { loggerMiddleware } from './middleware/logger';
 import { renderer } from './renderer';
 import admin from './routes/admin';
@@ -19,6 +20,7 @@ const app = new Hono<{ Bindings: CloudflareBindings }>();
 
 // 全局中间件
 app.use('*', loggerMiddleware);
+app.use('*', d1SessionMiddleware);
 app.use(
   '*',
   cors({

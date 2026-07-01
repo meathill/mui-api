@@ -26,7 +26,7 @@ providers.all('/:provider{.+}/*', async (c) => {
   const userId = c.get('userId');
   const apiKeyId = c.get('apiKeyId');
   const userRateMultiplier = c.get('rateMultiplier');
-  const { billingService, alertService, gatewayService } = createProxyServices(c.env);
+  const { billingService, alertService, gatewayService } = createProxyServices(c.env, c.get('db'));
 
   try {
     const fullPath = c.req.path;

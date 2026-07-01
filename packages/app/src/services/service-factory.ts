@@ -1,4 +1,4 @@
-import { createDb, type Database } from '../db';
+import type { Database } from '../db';
 import type { CloudflareBindings } from '../types';
 import { AlertService } from './alert-service';
 import { BillingService } from './billing-service';
@@ -20,8 +20,7 @@ export interface ProxyServices {
  * 创建代理路由所需的全部服务实例
  * 用于 openai.ts 和 providers.ts
  */
-export function createProxyServices(env: CloudflareBindings): ProxyServices {
-  const db = createDb(env.DB);
+export function createProxyServices(env: CloudflareBindings, db: Database): ProxyServices {
   const defaultMaxConcurrency = Number(env.DEFAULT_MAX_CONCURRENCY) || 3;
   const kvService = new KVService(env.KV, defaultMaxConcurrency);
   const billingService = new BillingService(kvService, db);

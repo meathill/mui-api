@@ -44,7 +44,7 @@ openai.post('/chat/completions', async (c) => {
   }
 
   const modelId = body.model as string;
-  const services = createProxyServices(c.env);
+  const services = createProxyServices(c.env, c.get('db'));
   const lookup = await lookupModel(c, modelId, services);
   if (isResponse(lookup)) return lookup;
   const { modelConfig, upstreamModel, modelPricing } = lookup;
@@ -130,7 +130,7 @@ openai.post('/images/generations', async (c) => {
   }
 
   const modelId = body.model;
-  const services = createProxyServices(c.env);
+  const services = createProxyServices(c.env, c.get('db'));
   const lookup = await lookupModel(c, modelId, services);
   if (isResponse(lookup)) return lookup;
   const { modelConfig, upstreamModel, modelPricing } = lookup;
@@ -189,7 +189,7 @@ openai.post('/images/edits', async (c) => {
     return invalidRequest(c, '缺少 prompt 参数');
   }
 
-  const services = createProxyServices(c.env);
+  const services = createProxyServices(c.env, c.get('db'));
   const lookup = await lookupModel(c, modelValue, services);
   if (isResponse(lookup)) return lookup;
   const { modelConfig, upstreamModel, modelPricing } = lookup;
@@ -232,7 +232,7 @@ openai.post('/images/edits', async (c) => {
  * 列出可用模型
  */
 openai.get('/models', async (c) => {
-  const services = createProxyServices(c.env);
+  const services = createProxyServices(c.env, c.get('db'));
   const all = await services.modelCatalog.getAll();
   return c.json({
     object: 'list',

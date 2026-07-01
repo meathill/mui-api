@@ -1,5 +1,6 @@
 import { type ExecutionContext, Hono } from 'hono';
-import { createDb, models } from '../db';
+import type { Database } from '../db';
+import { models } from '../db';
 import { readAuthMiddleware } from '../middleware/read-auth';
 import { createTopupSession } from '../services/stripe-service';
 import { getBalanceSnapshot, listRecharges, listUsage } from '../services/wallet-query-service';
@@ -24,7 +25,7 @@ interface ToolDef {
   name: string;
   description: string;
   inputSchema: Record<string, unknown>;
-  handler: (env: CloudflareBindings, userId: string, args: any) => Promise<unknown>;
+  handler: (env: CloudflareBindings, db: Database, userId: string, args: any) => Promise<unknown>;
 }
 
 const tools: ToolDef[] = [
@@ -32,7 +33,7 @@ const tools: ToolDef[] = [
     name: 'get_balance',
     description: '查询当前 API key 所属用户的钱包余额、累计充值与累计消费。',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
-    handler: async (env, userId) => getBalanceSnapshot(createDb(env.DB), userId, env.KV),
+    handler: async (env, db, userId) => getBalanceSnapshot(db, userId, env.KV),
   },
   {
     name: 'get_usage',
@@ -48,8 +49,8 @@ const tools: ToolDef[] = [
       },
       additionalProperties: false,
     },
-    handler: async (env, userId, args) =>
-      listUsage(createDb(env.DB), userId, {
+    handler: async (env, db, userId, args) =>
+      listUsage(db, userId, {
         limit: args?.limit != null ? String(args.limit) : undefined,
         cursor: args?.cursor,
         model: args?.model,
@@ -68,8 +69,8 @@ const tools: ToolDef[] = [
       },
       additionalProperties: false,
     },
-    handler: async (env, userId, args) =>
-      listRecharges(createDb(env.DB), userId, {
+    handler: async (env, db, userId, args) =>
+      listRecharges(db, userId, {
         limit: args?.limit != null ? String(args.limit) : undefined,
         cursor: args?.cursor,
       }),
@@ -78,8 +79,8 @@ const tools: ToolDef[] = [
     name: 'list_models',
     description: '列出 muirouter 当前支持的所有模型及其计价。',
     inputSchema: { type: 'object', properties: {}, additionalProperties: false },
-    handler: async (env) => {
-      const rows = await createDb(env.DB).select().from(models);
+    handler: async (_env, db) => {
+      const rows = await db.select().from(models);
       return {
         items: rows.map((m) => ({
           id: m.id,
@@ -105,8 +106,8 @@ const tools: ToolDef[] = [
       },
       additionalProperties: false,
     },
-    handler: async (env, userId, args) =>
-      createTopupSession(env, createDb(env.DB), {
+    handler: async (env, db, userId, args) =>
+      createTopupSession(env, db, {
         userId,
         amountCents: Number(args.amount_cents),
         currency: String(args.currency ?? 'usd').toLowerCase(),
@@ -149,7 +150,7 @@ mcp.post('/', readAuthMiddleware, async (c) => {
   } catch {
     return c.json({ jsonrpc: '2.0', id: null, error: { code: -32700, message: 'Parse error' } });
   }
-  return c.json(await dispatch(c.env, c.executionCtx as ExecutionContext, userId, rawAuth, body));
+  return c.json(await dispatch(c.env, c.get('db'), c.executionCtx as ExecutionContext, userId, rawAuth, body));
 });
 
 // MCP discovery endpoint (some clients GET /mcp first)
@@ -187,6 +188,7 @@ async function callImageGeneration(
 
 async function dispatch(
   env: CloudflareBindings,
+  db: Database,
   ctx: ExecutionContext,
   userId: string,
   rawAuth: string | undefined,
@@ -239,7 +241,7 @@ async function dispatch(
             isError: !result.ok,
           });
         }
-        const result = await tool.handler(env, userId, args);
+        const result = await tool.handler(env, db, userId, args);
         return ok({
           content: [{ type: 'text', text: JSON.stringify(result) }],
           structuredContent: result,

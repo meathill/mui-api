@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { createDb, rechargeLogs } from '../../db';
+import { rechargeLogs } from '../../db';
 import { generateId } from '../../lib/crypto';
 import { internalError, notFound, zodErrorToApiError } from '../../lib/errors';
 import { GetUserSchema, RechargeSchema, SetConcurrencySchema } from '../../lib/validators';
@@ -66,7 +66,7 @@ users.post('/recharge', async (c) => {
     apiKey: c.env.RESEND_API_KEY,
     fromEmail: c.env.FROM_EMAIL,
   });
-  const db = createDb(c.env.DB);
+  const db = c.get('db');
 
   try {
     let userId = await kvService.findUserByEmail(email);

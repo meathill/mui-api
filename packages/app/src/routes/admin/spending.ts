@@ -1,6 +1,5 @@
 import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
 import { Hono } from 'hono';
-import { createDb } from '../../db';
 import { rechargeLogs, spendingLimits, usageLogs } from '../../db/schema';
 import { badRequest, zodErrorToApiError } from '../../lib/errors';
 import { GlobalConfigSchema, SpendingLimitSchema, UsageQuerySchema } from '../../lib/validators';
@@ -24,7 +23,7 @@ spending.post('/set-spending-limit', async (c) => {
   }
 
   const { userId, monthlyLimit, alertThreshold } = result.data;
-  const db = createDb(c.env.DB);
+  const db = c.get('db');
 
   await db
     .insert(spendingLimits)
@@ -57,7 +56,7 @@ spending.post('/unsuspend-user', async (c) => {
     return badRequest(c, 'userId 不能为空');
   }
 
-  const db = createDb(c.env.DB);
+  const db = c.get('db');
   const kvService = new KVService(c.env.KV);
 
   await kvService.unsuspendUser(userId);
@@ -140,7 +139,7 @@ spending.get('/usage', async (c) => {
   }
 
   const { userId, modelId, startDate, endDate, page, pageSize } = result.data;
-  const db = createDb(c.env.DB);
+  const db = c.get('db');
 
   const conditions = [];
   if (userId) conditions.push(eq(usageLogs.userId, userId));
@@ -213,7 +212,7 @@ spending.get('/recharge-logs', async (c) => {
   const page = Math.max(1, Number(c.req.query('page')) || 1);
   const pageSize = Math.min(100, Math.max(1, Number(c.req.query('pageSize')) || 20));
 
-  const db = createDb(c.env.DB);
+  const db = c.get('db');
 
   const conditions = [];
   if (userId) conditions.push(eq(rechargeLogs.userId, userId));

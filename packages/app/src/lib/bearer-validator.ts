@@ -1,4 +1,4 @@
-import { createDb } from '../db';
+import type { Database } from '../db';
 import { KVService } from '../services/kv-service';
 import { ACCESS_TOKEN_PREFIX, resolveAccessToken } from '../services/oauth-token-service';
 import type { CloudflareBindings } from '../types';
@@ -25,9 +25,12 @@ export type BearerValidation = {
   scope: string | null;
 };
 
-export async function validateBearer(env: CloudflareBindings, raw: string): Promise<BearerValidation | null> {
+export async function validateBearer(
+  env: CloudflareBindings,
+  raw: string,
+  db: Database,
+): Promise<BearerValidation | null> {
   if (raw.startsWith(ACCESS_TOKEN_PREFIX)) {
-    const db = createDb(env.DB);
     const resolved = await resolveAccessToken(db, raw);
     if (!resolved) return null;
     const keyHash = await sha256Hex(raw);

@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm';
 import { Hono } from 'hono';
-import { createDb } from '../db';
+import type { Database } from '../db';
 import { users } from '../db/schema';
 import {
   authenticateClient,
@@ -48,7 +48,7 @@ oauth.post('/token', async (c) => {
     return c.json({ error: 'invalid_client', error_description: '缺少 client_id / client_secret' }, 401);
   }
 
-  const db = createDb(c.env.DB);
+  const db = c.get('db');
   const client = await authenticateClient(db, clientId, clientSecret);
   if (!client) {
     return c.json({ error: 'invalid_client', error_description: 'client 鉴权失败' }, 401);
@@ -120,7 +120,7 @@ oauth.post('/revoke', async (c) => {
   if (!token) {
     return c.json({ error: 'invalid_request', error_description: '缺少 token' }, 400);
   }
-  const db = createDb(c.env.DB);
+  const db = c.get('db');
   const client = await authenticateClient(db, clientId, clientSecret);
   if (!client) {
     return c.json({ error: 'invalid_client' }, 401);
@@ -131,7 +131,7 @@ oauth.post('/revoke', async (c) => {
 });
 
 async function loadUserInfo(
-  db: ReturnType<typeof createDb>,
+  db: Database,
   userId: string,
 ): Promise<{ id: string; email: string | null; username: string | null }> {
   const row = (
