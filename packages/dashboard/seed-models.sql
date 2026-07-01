@@ -1,3 +1,5 @@
+DELETE FROM models WHERE id = 'claude-fable-5';
+
 INSERT OR REPLACE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price, cache_write_price, long_context_threshold_tokens, long_context_input_price, long_context_cached_input_price, long_context_cache_write_price, long_context_output_price) VALUES
   ('gpt-5', 'openai', 'gpt-5', 1.25, 10, 1.2, 0.125, NULL, NULL, NULL, NULL, NULL, NULL),
   ('gpt-5-mini', 'openai', 'gpt-5-mini', 0.25, 2, 1.2, 0.025, NULL, NULL, NULL, NULL, NULL, NULL),
@@ -11,7 +13,6 @@ INSERT OR REPLACE INTO models (id, provider, upstream_model_id, input_price, out
   ('gemini-2.5-flash-lite', 'google-ai-studio', 'gemini-2.5-flash-lite', 0.1, 0.4, 1.2, 0.025, NULL, NULL, NULL, NULL, NULL, NULL),
   ('gemini-3-flash', 'google-ai-studio', 'gemini-3-flash-preview', 0.5, 3, 1.2, 0.125, NULL, NULL, NULL, NULL, NULL, NULL),
   ('claude-sonnet-5', 'anthropic', 'claude-sonnet-5', 2, 10, 1.1, 0.2, 2.5, NULL, NULL, NULL, NULL, NULL),
-  ('claude-fable-5', 'anthropic', 'claude-fable-5', 10, 50, 1.1, 1, 12.5, NULL, NULL, NULL, NULL, NULL),
   ('claude-opus-4-8', 'anthropic', 'claude-opus-4-8', 5, 25, 1.1, 0.5, 6.25, NULL, NULL, NULL, NULL, NULL),
   ('claude-opus-4-7', 'anthropic', 'claude-opus-4-7', 5, 25, 1.1, 0.5, 6.25, NULL, NULL, NULL, NULL, NULL),
   ('claude-opus-4-6', 'anthropic', 'claude-opus-4-6', 5, 25, 1.1, 0.5, 6.25, NULL, NULL, NULL, NULL, NULL),
