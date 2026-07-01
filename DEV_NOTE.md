@@ -104,6 +104,14 @@
 - **计费经济性**：Claude `markupRate` = 1.1，覆盖 CF 5% 充值费 + Stripe 手续费，不赚不亏（本服务为私域开发者辅助工具，不以盈利为目的）。
 - **现状提醒**：作者自有 Anthropic 组织当前被禁用（`This organization has been disabled`），故 BYOK 暂不可用、未实测；unified 主线不受影响。
 
+### Claude Sonnet 5 限时定价
+
+**决策**：`claude-sonnet-5` 种子数据按 Anthropic 发布时的限时价 $2/$10（input/output，`anthropicCache(2)` → cache read $0.2、write $2.5）录入，markup 1.1，与其它 Claude 型号一致。
+
+**原因**：Anthropic 官方公告明确该价格仅到 **2026-08-31**，2026-09-01 起涨回标准价 $3/$15（与 `claude-sonnet-4-6` 同价）。
+
+**待办**：2026-09-01 前后需要把 `packages/app/src/db/seed.ts` 里 `claude-sonnet-5` 的 `inputPrice`/`outputPrice` 改为 `3`/`15`、`anthropicCache(2)` 改为 `anthropicCache(3)`，重新生成 SQL 并应用到远程 D1，否则会一直按限时价对外结算，实际成本超过收费。
+
 ### Xiaomi MiMo 定价记录
 
 **决策**：种子数据中 `xiaomi-mimo` 文本/多模态模型定价使用官方海外价格的 cache miss、`Input ≤ 256K` 档位；TTS 系列当前官方标记为限时免费，因此暂记为 `0 / 0`。

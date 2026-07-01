@@ -212,6 +212,20 @@ export const SEED_MODELS: NewModel[] = [
   // Anthropic (Claude) — 经 CF AI Gateway Unified Billing 代付（CF_TOKEN）；
   // upstreamModelId 用 Anthropic 规范连字符 ID（已 smoke 实测 CF 原生端点可用）。markupRate 1.1：覆盖 CF 5% 充值费 + Stripe，不赚不亏。
   {
+    id: 'claude-sonnet-5',
+    provider: 'anthropic',
+    upstreamModelId: 'claude-sonnet-5',
+    inputPrice: 2,
+    outputPrice: 10,
+    markupRate: 1.1,
+    ...anthropicCache(2),
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
+  {
     id: 'claude-fable-5',
     provider: 'anthropic',
     upstreamModelId: 'claude-fable-5',

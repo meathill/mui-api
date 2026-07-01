@@ -1,0 +1,85 @@
+2026 年 6 月 30 日，Anthropic 发布了 Claude Sonnet 5——按官方说法，这是迄今为止最具代理（agentic）能力的 Sonnet 模型。卖点很直接：在编码和工具调用类能力上大幅逼近 Claude Opus 4.8，限时定价却比即将退场的 Sonnet 4.6 还要低。它现在已经是 Claude Free 和 Pro 计划的默认模型。
+
+这个组合才是这次发布真正的看点，而不是某一项跑分。过去几年，选择一直很直白：要么为前沿能力付 Opus 的钱，要么接受实打实的能力差距来省钱。Sonnet 5 是 Anthropic 想把这道选择题的落差大幅缩小的尝试。它是否真的做到了，取决于你在优化什么——也取决于你是否愿意越过标价，把定价细则看完，这一点已经有不止一位评测者提醒过。
+
+## Anthropic 实际发布了什么
+
+根据 Anthropic 的 [Claude Sonnet 5 发布公告](https://www.anthropic.com/news/claude-sonnet-5)和 [System Card](https://www.anthropic.com/claude-sonnet-5-system-card)，这次发布的核心是代理能力：规划多步骤任务、使用浏览器和终端等工具，并且比过去的 Sonnet 模型更少需要人工干预。
+
+- 模型 ID：`claude-sonnet-5`，可通过 API、Claude Code 和 Claude Platform 使用。
+- 已成为 Claude Free 和 Pro 计划的默认模型。
+- 已上线 Amazon Bedrock，与直连 API 并行。
+- 官方明确将其定位为「以更低成本运行原本需要更大模型才能完成的代理任务」。
+
+这个定位很关键：Anthropic 并没有把 Sonnet 5 包装成新的前沿能力上限，而是把它定位成「日常代理任务应该默认使用的模型」，把 Opus 4.8 留给那些真正还需要更强能力的任务。
+
+## 跑分：对比 Sonnet 4.6 和 Opus 4.8
+
+在推理、编码、工具使用和电脑操作这几项上，跑分都朝着同一个方向移动：
+
+| Benchmark | Sonnet 4.6 | Sonnet 5 | Opus 4.8 |
+| --- | ---: | ---: | ---: |
+| Agentic coding (SWE-bench Pro) | 58.1% | 63.2% | 69.2% |
+| Terminal-Bench 2.1 | 67.0% | 80.4% | — |
+| Computer use (OSWorld-Verified) | 78.5% | 81.2% | — |
+| Humanity's Last Exam（带工具） | 46.8% | 57.4% | 57.9% |
+| 知识工作 (GDPval-AA v2) | — | 1,618 | 1,615 |
+
+有两点值得单独说。第一，Terminal-Bench 提升了 13 个百分点，是单项里涨幅最大的，这也印证了 Anthropic 把 Sonnet 5 定位成「代理优先」而非「通用知识升级」的说法。第二，在 GDPval-AA v2 上，Sonnet 5 以 1,618 分反超了 Opus 4.8 的 1,615 分。差距很小，也只是单项跑分，但「更便宜的模型在任何一项上反超旗舰」并不常见，如果你的工作负载更偏结构化知识工作而非纯代理编码，这一点值得留意。
+
+具体到 SWE-bench Pro，Sonnet 5 仍落后 Opus 4.8 六个百分点。在你默认把所有编码任务都路由到这个更便宜的模型之前，这个差距值得记在心里。
+
+## 独立评测怎么说
+
+Anthropic 自己的数据只是一部分。以下是评测者们实际用起来之后的发现：
+
+**[CodeRabbit](https://www.coderabbit.ai/blog/claude-sonnet-5-review)** 专门针对写代码和代码审查做了测试，认为它是这个级别里写代码能力最强的模型——倾向于先写测试，再照着测试实现功能，最后跑一遍确认无误才算完成。但审查方面的数据喜忧参半：评论精准度明显提升（从约 29% 提到 38–40%），但代码审查的抓 bug 率却降到了约 50–51%，低于 Sonnet 4.6 57%–63% 的区间。他们的建议是用中等推理 effort 运行——拉到最高档基本上是成本翻倍，却没有多抓到 bug。
+
+**[Simon Willison](https://simonwillison.net/2026/Jun/30/claude-sonnet-5/)** 指出了一个最容易在不做功课的情况下被坑到的细节：Sonnet 5 换了新的分词器，同样的英文文本产生的 token 数比 Sonnet 4.6 多出约 30%。中文文本基本不受影响，但对英文为主的 prompt 来说，标价没变，实际成本却可能实打实地涨了。他还提到 Sonnet 5 不再接受 `temperature`、`top_p`、`top_k` 这几个采样参数——如果你的集成依赖它们，值得提前检查。
+
+**媒体报道**（TechCrunch 等）把重点放在了价格故事上——「更便宜地跑 agent」——并将这次发布视为 Anthropic 在广受关注的 IPO 进程中缩小与 Opus 差距、同时扩大规模的一步。报道里引用的早期用户对任务完成度评价不错：Zapier 的一名工程师提到它能端到端完成复杂任务，Lovable 的联合创始人则提到它能稳定、干净地拒绝不安全请求。
+
+**[MarkTechPost 的跑分对比](https://www.marktechpost.com/2026/06/30/anthropic-claude-sonnet-5-vs-sonnet-4-6-vs-opus-4-8-agentic-coding-benchmarks-api-pricing-and-cost-performance-tradeoffs-compared/)** 给出的不是一刀切的结论，而是路由策略建议：大多数任务用低到中等 effort 跑 Sonnet 5，精度关键的任务留给 Opus 4.8。他们发现在最高 effort 档位下，Sonnet 5 的成本可能反超 Opus 4.8，却换不来相应的精度提升——所有旋钮都拧到最大时，「便宜」这个优势就不成立了。
+
+各方独立评测的共识是：写代码、执行任务的能力很强；抓细微 bug 的能力有所退步（但不算崩盘）；「更便宜」这件事只有在你真的测过自己的 token 用量之后才成立，不能只信标价。
+
+## 价格，以及它的隐藏条款
+
+Anthropic 给 Sonnet 5 的定价很激进，但是有时间表的：
+
+| 模型 | Input | Output |
+| --- | ---: | ---: |
+| `claude-sonnet-5`（限时价，至 2026-08-31） | $2 / 1M tokens | $10 / 1M tokens |
+| `claude-sonnet-5`（标准价，2026-09-01 起） | $3 / 1M tokens | $15 / 1M tokens |
+| `claude-sonnet-4-6` | $3 / 1M tokens | $15 / 1M tokens |
+| `claude-opus-4-8` | $5 / 1M tokens | $25 / 1M tokens |
+
+即便按标准价算，Sonnet 5 也只是和 Sonnet 4.6 的标价打平，但各项能力都有明显提升——这部分卖点是站得住的。但 Willison 发现的分词器问题意味着，真正该比较的不是单 token 价格，而是「完成一个任务的价格」；从 Sonnet 4.6 迁移过来的英文为主的工作负载，无论是不是限时价，都应该预期 token 数量会有实打实的上涨。Anthropic 标准的 prompt caching 依然适用——cache 命中大幅折扣，cache 写入有一次性加价——所以老规矩，别只靠标价心算，去自己的账单面板确认真实数字。
+
+## 安全性
+
+Anthropic 表示 Sonnet 5 的不良行为率低于 Sonnet 4.6——更少配合滥用、更少欺骗行为——在拒绝恶意请求和抵御 prompt-injection 劫持方面也更稳定。安全防护默认开启。
+
+它的网络安全能力被刻意压低，落后于 Opus 4.8：在 Anthropic 自己的测试中，Sonnet 5 从未完整开发出一个可用的漏洞利用。对大多数使用场景来说，这是设计选择而非短板——和 Claude Fable 5 的「分类器 + 兜底」思路是同一套逻辑：前沿级能力被限制访问，而面向大众发布的模型自带护栏。
+
+## 这对开发者意味着什么
+
+- 按「完成一个任务的成本」而不是「单 token 成本」来衡量——分词器的变化意味着只看标价会被误导，英文为主的工作负载尤其如此。
+- 在自己真实的 prompt 上重新测一遍 token 数，再判断 Sonnet 5 相对 Sonnet 4.6 是不是真的划算。
+- 检查你的集成是否依赖 `temperature`、`top_p` 或 `top_k`——Sonnet 5 不再接受这几个参数。
+- 从中等推理 effort 起步。CodeRabbit 和 MarkTechPost 都发现最高档位只增加成本，精度提升跟不上。
+- 精度关键的任务继续路由给 Opus 4.8——Sonnet 5 缩小了差距，但没有完全填平，尤其是在需要抓细微 bug 的代码审查这类任务上。
+
+## 这对 MuiRouter 用户意味着什么
+
+MuiRouter 围绕一个简单想法构建：一个 API key、一种集成模式，以及更清晰的方式来路由访问主流 AI 模型。像 Sonnet 5 这样的发布——更便宜、更强，但定价和分词器上都有需要留意的细节——正是统一网关应该替你扛下来的那种变化。
+
+我们已经把 `claude-sonnet-5` 加入 MuiRouter 目录，按 Anthropic 公布的限时价配置。你的应用集成不需要任何改动；模型本身、定价，以及 2026-09-01 的计划涨价，都在网关背后统一处理。
+
+一如既往，请在自己的账号上端到端确认之后，再把 `claude-sonnet-5` 视为可用——真正的路由仍取决于上游可用性。抛开这条提醒，这正是「保持集成稳定」最能体现价值的一类发布：定价和分词器这些细节，本来就不该由你自己去一个个模型手动追踪。
+
+## 结论
+
+Claude Sonnet 5 在代理和编码任务上是一次实打实的进步，价格在纸面上甚至比自己的前代还低。跑分和独立评测都支持这个结论——但有两点值得记住：代码审查的抓 bug 能力小幅退步，即便评论质量更高了；新的分词器意味着「更便宜」需要按完成任务的成本去验证，而不是看到 token 单价下降就信了。
+
+如果你用 AI 做开发，现在就值得拿自己真实的工作负载去测一测。如果你在迁移英文为主的 prompt，要为分词器变化预留成本空间；从中等 effort 开始；最高风险的任务继续交给 Opus 4.8，直到 Sonnet 5 在你自己的数字上证明了自己。

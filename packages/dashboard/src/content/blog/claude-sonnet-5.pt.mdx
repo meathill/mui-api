@@ -1,0 +1,85 @@
+Em 30 de junho de 2026, a Anthropic lançou o Claude Sonnet 5, que ela chama de o modelo Sonnet mais agêntico até agora. A proposta é direta: desempenho agêntico em codificação e uso de ferramentas que fecha a maior parte da distância em relação ao Claude Opus 4.8, com um preço promocional de lançamento que fica abaixo até do Sonnet 4.6, que está saindo de linha. Ele agora é o modelo padrão nos planos Free e Pro do Claude.
+
+Essa combinação é a verdadeira novidade aqui, mais do que qualquer benchmark isolado. Durante anos, o trade-off foi direto — pagar os preços do Opus pela capacidade de ponta, ou aceitar uma diferença real de capacidade para economizar. O Sonnet 5 é a tentativa da Anthropic de tornar esse trade-off muito menor. Se ela terá sucesso depende do que você está otimizando e, como mais de um revisor apontou, de ler os detalhes de preço além do número em destaque.
+
+## O que a Anthropic realmente lançou
+
+De acordo com o [anúncio do Claude Sonnet 5](https://www.anthropic.com/news/claude-sonnet-5) e o [system card](https://www.anthropic.com/claude-sonnet-5-system-card) da Anthropic, o lançamento é centrado na capacidade agêntica: planejar trabalho em múltiplas etapas, usar ferramentas como navegadores e terminais, e operar com menos supervisão manual do que os modelos Sonnet anteriores exigiam.
+
+- ID do modelo: `claude-sonnet-5`, disponível pela API, pelo Claude Code e pela Claude Platform.
+- Agora é o modelo padrão para os planos Free e Pro do Claude.
+- Já disponível na Amazon Bedrock, além da API direta.
+- Posicionado explicitamente como uma forma mais barata de executar cargas de trabalho agênticas que antes exigiam um modelo maior.
+
+O enquadramento importa: a Anthropic não está vendendo o Sonnet 5 como um novo teto de fronteira. Está vendendo como o modelo que você deveria usar por padrão para trabalho de agentes, com o Opus 4.8 reservado para as tarefas que ainda precisam de mais.
+
+## Como ele se compara ao Sonnet 4.6 e ao Opus 4.8 em benchmarks
+
+Os números em destaque se movem na mesma direção em raciocínio, codificação, uso de ferramentas e uso de computador:
+
+| Benchmark | Sonnet 4.6 | Sonnet 5 | Opus 4.8 |
+| --- | ---: | ---: | ---: |
+| Codificação agêntica (SWE-bench Pro) | 58.1% | 63.2% | 69.2% |
+| Terminal-Bench 2.1 | 67.0% | 80.4% | — |
+| Uso de computador (OSWorld-Verified) | 78.5% | 81.2% | — |
+| Humanity's Last Exam (com ferramentas) | 46.8% | 57.4% | 57.9% |
+| Trabalho de conhecimento (GDPval-AA v2) | — | 1,618 | 1,615 |
+
+Dois pontos se destacam. Primeiro, o salto no Terminal-Bench — 13 pontos — é o maior movimento isolado, o que está alinhado com o enquadramento da Anthropic do Sonnet 5 como um lançamento voltado primeiro para agentes, em vez de uma atualização geral de conhecimento. Segundo, no GDPval-AA v2, o Sonnet 5 na verdade ultrapassa o Opus 4.8, 1,618 a 1,615. É uma margem estreita em um único benchmark, mas é um caso raro do modelo mais barato superando o carro-chefe em qualquer coisa, e vale a pena saber disso se sua carga de trabalho se parecer mais com trabalho de conhecimento estruturado do que com codificação agêntica pura.
+
+Especificamente no SWE-bench Pro, o Sonnet 5 ainda fica seis pontos atrás do Opus 4.8. Essa é a diferença a se ter em mente antes de rotear toda tarefa de codificação para o modelo mais barato por padrão.
+
+## O que dizem as análises independentes
+
+Os números da própria Anthropic são um ponto de dados. Eis o que os revisores encontraram depois de colocar o Sonnet 5 para trabalhar:
+
+**[CodeRabbit](https://www.coderabbit.ai/blog/claude-sonnet-5-review)**, testando especificamente para escrita e revisão de código, o chamou de o modelo mais capaz em sua categoria para escrever código — ele tende a escrever os testes primeiro, construir a implementação em cima deles e então rodar tudo antes de considerar a tarefa concluída. Mas os números de revisão foram mistos: a precisão dos comentários melhorou visivelmente (de aproximadamente 29% para 38–40%), mas a taxa de detecção de bugs na revisão de código caiu para cerca de 50–51%, abaixo da faixa de altos 50% a baixos 60% que o Sonnet 4.6 registrava. A recomendação deles é rodar com esforço de raciocínio médio — subir para o nível de esforço mais alto praticamente dobra o custo sem encontrar mais bugs.
+
+**[Simon Willison](https://simonwillison.net/2026/Jun/30/claude-sonnet-5/)** sinalizou o detalhe com mais chance de pegar quem migra sem verificar: o Sonnet 5 vem com um novo tokenizador, e o mesmo texto em inglês agora produz aproximadamente 30% mais tokens do que produzia no Sonnet 4.6. O texto em chinês é pouco afetado, mas para prompts predominantemente em inglês, isso é um aumento real de custo escondido atrás de um preço em destaque que não mudou. Ele também observou que o Sonnet 5 não aceita mais os parâmetros de amostragem `temperature`, `top_p` ou `top_k` — vale a pena verificar se sua integração depende deles.
+
+**A cobertura da imprensa** (TechCrunch e outros) apostou na narrativa de preços — "uma forma mais barata de rodar agentes" — e enquadrou o lançamento como parte do esforço da Anthropic para reduzir a distância em relação ao Opus enquanto a empresa se expande antes de um IPO amplamente noticiado. Early adopters citados nessa cobertura foram positivos quanto à conclusão de tarefas: um engenheiro da Zapier descreveu o modelo terminando tarefas complexas de ponta a ponta, e um cofundador da Lovable apontou recusas consistentemente limpas a solicitações inseguras.
+
+**A comparação de benchmarks da [MarkTechPost](https://www.marktechpost.com/2026/06/30/anthropic-claude-sonnet-5-vs-sonnet-4-6-vs-opus-4-8-agentic-coding-benchmarks-api-pricing-and-cost-performance-tradeoffs-compared/)** chegou a uma recomendação de roteamento em vez de um veredito genérico: enviar a maior parte do trabalho para o Sonnet 5 com esforço baixo a médio, e manter o Opus 4.8 para tarefas em que a precisão é crítica. No nível de esforço mais alto, eles descobriram que o custo do Sonnet 5 pode superar o do Opus 4.8 sem um ganho correspondente de precisão — a opção barata deixa de ser barata se você levar cada configuração ao máximo.
+
+O tema consistente entre as análises independentes: forte para construir e executar, um passo atrás (não um colapso) para detectar bugs sutis, e mais barato apenas se você realmente medir seu uso de tokens em vez de confiar no preço de etiqueta.
+
+## Preços — e a pegadinha nas letras miúdas
+
+A Anthropic está precificando o Sonnet 5 de forma agressiva, mas com um cronograma:
+
+| Modelo | Entrada | Saída |
+| --- | ---: | ---: |
+| `claude-sonnet-5` (preço promocional, até 2026-08-31) | $2 / 1M tokens | $10 / 1M tokens |
+| `claude-sonnet-5` (preço padrão, a partir de 2026-09-01) | $3 / 1M tokens | $15 / 1M tokens |
+| `claude-sonnet-4-6` | $3 / 1M tokens | $15 / 1M tokens |
+| `claude-opus-4-8` | $5 / 1M tokens | $25 / 1M tokens |
+
+Mesmo no preço padrão, o Sonnet 5 iguala a taxa em destaque do Sonnet 4.6 enquanto pontua significativamente mais alto em praticamente tudo — essa parte da proposta se sustenta. Mas a descoberta de Willison sobre o tokenizador significa que a comparação real não é o preço por token, é o preço por tarefa concluída, e cargas de trabalho predominantemente em inglês devem esperar um aumento real na contagem de tokens ao migrar do Sonnet 4.6, preço promocional ou não. O cache de prompts padrão da Anthropic ainda se aplica sobre isso — leituras em cache são cobradas com um desconto acentuado, gravações em cache carregam um prêmio único — então, como sempre, confirme o número real no seu próprio painel de faturamento em vez de fazer a conta apenas a partir do preço em destaque.
+
+## Segurança
+
+A Anthropic relata que o Sonnet 5 apresenta taxas mais baixas de comportamento indesejável do que o Sonnet 4.6 — menos cooperação com uso indevido, menos engano — e é mais consistente em recusar solicitações maliciosas e resistir a tentativas de sequestro por prompt-injection. As proteções de segurança vêm ativadas por padrão.
+
+Sua capacidade em cibersegurança fica deliberadamente atrás da do Opus 4.8: nos próprios testes da Anthropic, o Sonnet 5 nunca desenvolveu completamente um exploit funcional de ponta a ponta. Essa é uma escolha de design, não uma deficiência, para a maioria dos casos de uso — é a mesma lógica por trás da abordagem de classificador mais fallback do Claude Fable 5: a capacidade de nível de fronteira fica bloqueada, e o modelo de disponibilidade geral já sai de fábrica com as proteções incorporadas.
+
+## O que isso significa para desenvolvedores
+
+- Meça o custo por tarefa concluída, não o custo por token — a mudança no tokenizador significa que o preço de etiqueta sozinho vai te enganar, especialmente em cargas de trabalho predominantemente em inglês.
+- Refaça suas contagens de tokens em prompts reais antes de assumir que o Sonnet 5 é uma vitória de custo direta em relação ao Sonnet 4.6.
+- Verifique se sua integração depende de `temperature`, `top_p` ou `top_k` — o Sonnet 5 não os aceita.
+- Comece com esforço de raciocínio médio. Tanto a CodeRabbit quanto a MarkTechPost descobriram que o nível de esforço mais alto adiciona custo sem um ganho correspondente de precisão.
+- Mantenha o Opus 4.8 no seu roteamento para trabalho em que a precisão é crítica — o Sonnet 5 reduz a distância, mas não a fecha, especialmente em tarefas como revisão cuidadosa de código, em que detectar bugs sutis é o que mais importa.
+
+## O que isso significa para usuários do MuiRouter
+
+O MuiRouter é construído em torno de uma ideia simples: uma chave de API, um padrão de integração único, e uma forma mais clara de rotear o acesso aos principais modelos de IA. Um lançamento como o Sonnet 5 — mais barato, mais forte, mas com ressalvas de preço e tokenizador que vale a pena acompanhar — é exatamente o tipo de mudança que um gateway unificado existe para absorver por você.
+
+Adicionamos o `claude-sonnet-5` ao catálogo do MuiRouter na taxa promocional de lançamento publicada pela Anthropic. Sua integração não muda; o modelo, seu preço e o aumento programado para 2026-09-01 são todos tratados por trás do gateway.
+
+Como sempre, trate o `claude-sonnet-5` como disponível apenas depois de confirmá-lo de ponta a ponta na sua própria conta — o roteamento real ainda depende da disponibilidade upstream. Ressalva à parte, este é exatamente o tipo de lançamento em que manter sua integração estável compensa: os detalhes de preço e tokenizador são exatamente o tipo de coisa que você não quer acompanhar manualmente em cada modelo que usa.
+
+## Em resumo
+
+O Claude Sonnet 5 é um avanço legítimo para trabalho agêntico e de codificação, a um preço que, no papel, fica abaixo até do seu próprio antecessor. Os benchmarks confirmam isso, assim como os revisores independentes — com duas ressalvas que vale a pena lembrar: a detecção de bugs na revisão de código deu um pequeno passo atrás mesmo com os comentários ficando mais precisos, e o novo tokenizador significa que "mais barato" precisa ser medido por tarefa concluída, não por token, antes de você acreditar nisso.
+
+Se você constrói com IA, vale a pena testar isso contra suas cargas de trabalho reais agora. Reserve orçamento para a mudança do tokenizador se você estiver migrando prompts predominantemente em inglês, comece com esforço médio, e mantenha o roteamento do seu trabalho de maior risco para o Opus 4.8 até que o Sonnet 5 tenha se provado nos seus próprios números.

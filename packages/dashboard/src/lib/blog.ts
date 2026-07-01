@@ -43,6 +43,130 @@ type BlogPost = {
 
 export const BLOG_POSTS = [
   {
+    slug: 'claude-sonnet-5',
+    href: '/blog/claude-sonnet-5',
+    publishedAt: '2026-07-01',
+    sourcePublishedAt: '2026-06-30',
+    readingMinutes: 8,
+    translations: {
+      en: {
+        title: "Claude Sonnet 5 Is Here: Anthropic's Most Agentic Sonnet Yet Closes the Gap to Opus 4.8",
+        description:
+          'Anthropic released Claude Sonnet 5 on June 30, 2026, pricing agentic coding and tool-use performance close to Opus 4.8 well below Opus rates. Here is what shipped, what independent reviews and benchmarks say, the pricing catch worth knowing about, and what it means if you build with AI.',
+        tags: ['Claude Sonnet 5', 'Anthropic', 'AI models'],
+      },
+      zh: {
+        title: 'Claude Sonnet 5 来了：Anthropic 最能干的 Sonnet，性能逼近 Opus 4.8，价格却便宜一大截',
+        description:
+          '2026 年 6 月 30 日，Anthropic 发布 Claude Sonnet 5——目前最具代理能力的 Sonnet 模型，在编码和工具调用等基准上逼近 Opus 4.8，价格却低得多。本文汇总官方数据与独立评测（CodeRabbit、Simon Willison 等），梳理定价里的隐藏条款，以及它对开发者和 MuiRouter 用户意味着什么。',
+        tags: ['Claude Sonnet 5', 'Anthropic', 'AI 模型'],
+      },
+      fr: {
+        title: "Claude Sonnet 5 est là : le Sonnet le plus agentique d'Anthropic comble l'écart avec Opus 4.8",
+        description:
+          "Anthropic a lancé Claude Sonnet 5 le 30 juin 2026, avec des performances en codage agentique et en utilisation d'outils proches d'Opus 4.8, à un tarif bien inférieur. Voici ce qui a été publié, ce que disent les benchmarks et les avis indépendants, le piège tarifaire à connaître, et ce que cela signifie si vous développez avec l'IA.",
+        tags: ['Claude Sonnet 5', 'Anthropic', 'Modèles IA'],
+      },
+      es: {
+        title: 'Claude Sonnet 5 ya está aquí: el Sonnet más agéntico de Anthropic acorta la distancia con Opus 4.8',
+        description:
+          'Anthropic lanzó Claude Sonnet 5 el 30 de junio de 2026, con un rendimiento en codificación agéntica y uso de herramientas cercano a Opus 4.8, a un precio muy inferior. Esto es lo que se lanzó, lo que dicen los benchmarks y las reseñas independientes, la trampa de precios que conviene conocer, y qué significa si construyes con IA.',
+        tags: ['Claude Sonnet 5', 'Anthropic', 'Modelos de IA'],
+      },
+      pt: {
+        title: 'Claude Sonnet 5 chegou: o Sonnet mais agêntico da Anthropic encurta a distância para o Opus 4.8',
+        description:
+          'A Anthropic lançou o Claude Sonnet 5 em 30 de junho de 2026, com desempenho em codificação agêntica e uso de ferramentas próximo ao Opus 4.8, a um preço bem menor. Veja o que foi lançado, o que dizem os benchmarks e as análises independentes, a pegadinha de preço que vale conhecer, e o que isso significa para quem constrói com IA.',
+        tags: ['Claude Sonnet 5', 'Anthropic', 'Modelos de IA'],
+      },
+      de: {
+        title: 'Claude Sonnet 5 ist da: Anthropics bislang agentischstes Sonnet-Modell schließt die Lücke zu Opus 4.8',
+        description:
+          'Anthropic hat am 30. Juni 2026 Claude Sonnet 5 veröffentlicht, mit einer Leistung bei agentischem Coding und Tool-Nutzung nahe an Opus 4.8, aber zu einem deutlich niedrigeren Preis. Hier erfährst du, was veröffentlicht wurde, was Benchmarks und unabhängige Reviews sagen, welchen Haken die Preisgestaltung hat, und was das bedeutet, wenn du mit KI baust.',
+        tags: ['Claude Sonnet 5', 'Anthropic', 'KI-Modelle'],
+      },
+      th: {
+        title: 'Claude Sonnet 5 มาแล้ว: Sonnet ที่มีความสามารถเชิง agentic มากที่สุดของ Anthropic ที่ไล่ตามช่องว่างกับ Opus 4.8 ทัน',
+        description:
+          'Anthropic เปิดตัว Claude Sonnet 5 เมื่อวันที่ 30 มิถุนายน 2026 ด้วยประสิทธิภาพด้าน agentic coding และการใช้เครื่องมือที่ใกล้เคียง Opus 4.8 ในราคาที่ต่ำกว่ามาก บทความนี้สรุปสิ่งที่เปิดตัว ผลเบนช์มาร์กและรีวิวอิสระ ข้อควรระวังด้านราคาที่ควรรู้ และความหมายสำหรับคนที่สร้างแอปด้วย AI',
+        tags: ['Claude Sonnet 5', 'Anthropic', 'โมเดล AI'],
+      },
+      ja: {
+        title: 'Claude Sonnet 5 登場：Anthropic史上最もエージェント的な Sonnet が Opus 4.8 との差を縮める',
+        description:
+          'Anthropic は 2026 年 6 月 30 日に Claude Sonnet 5 を公開しました。agentic coding やツール利用の性能は Opus 4.8 に迫りながら、価格ははるかに安く抑えられています。公開内容、ベンチマークと独立レビューの評価、知っておくべき価格の落とし穴、そして AI で開発する人にとっての意味をまとめます。',
+        tags: ['Claude Sonnet 5', 'Anthropic', 'AI モデル'],
+      },
+    },
+    sources: [
+      {
+        url: 'https://www.anthropic.com/news/claude-sonnet-5',
+        labels: {
+          en: 'Anthropic: Claude Sonnet 5 announcement',
+          zh: 'Anthropic：Claude Sonnet 5 发布公告',
+          fr: 'Anthropic : annonce de Claude Sonnet 5',
+          es: 'Anthropic: anuncio de Claude Sonnet 5',
+          pt: 'Anthropic: anúncio do Claude Sonnet 5',
+          de: 'Anthropic: Ankündigung von Claude Sonnet 5',
+          th: 'Anthropic: ประกาศเปิดตัว Claude Sonnet 5',
+          ja: 'Anthropic：Claude Sonnet 5 発表',
+        },
+      },
+      {
+        url: 'https://www.anthropic.com/claude-sonnet-5-system-card',
+        labels: {
+          en: 'Claude Sonnet 5 System Card',
+          zh: 'Claude Sonnet 5 System Card（系统卡）',
+          fr: 'System Card de Claude Sonnet 5',
+          es: 'System Card de Claude Sonnet 5',
+          pt: 'System Card do Claude Sonnet 5',
+          de: 'Claude Sonnet 5 System Card',
+          th: 'System Card ของ Claude Sonnet 5',
+          ja: 'Claude Sonnet 5 System Card',
+        },
+      },
+      {
+        url: 'https://techcrunch.com/2026/06/30/anthropic-launches-claude-sonnet-5-as-a-cheaper-way-to-run-agents/',
+        labels: {
+          en: 'TechCrunch: Anthropic launches Claude Sonnet 5 as a cheaper way to run agents',
+          zh: 'TechCrunch：Anthropic 发布 Claude Sonnet 5，更便宜地运行 agent',
+          fr: 'TechCrunch : Anthropic lance Claude Sonnet 5, un moyen moins coûteux de faire tourner des agents',
+          es: 'TechCrunch: Anthropic lanza Claude Sonnet 5 como una forma más barata de ejecutar agentes',
+          pt: 'TechCrunch: Anthropic lança o Claude Sonnet 5 como uma forma mais barata de rodar agentes',
+          de: 'TechCrunch: Anthropic bringt Claude Sonnet 5 als günstigeren Weg, Agenten zu betreiben',
+          th: 'TechCrunch: Anthropic เปิดตัว Claude Sonnet 5 ทางเลือกรัน agent ที่ถูกกว่า',
+          ja: 'TechCrunch：Anthropic、エージェントをより安く動かす Claude Sonnet 5 を発表',
+        },
+      },
+      {
+        url: 'https://www.coderabbit.ai/blog/claude-sonnet-5-review',
+        labels: {
+          en: 'CodeRabbit: Claude Sonnet 5 review',
+          zh: 'CodeRabbit：Claude Sonnet 5 评测',
+          fr: 'CodeRabbit : avis sur Claude Sonnet 5',
+          es: 'CodeRabbit: reseña de Claude Sonnet 5',
+          pt: 'CodeRabbit: análise do Claude Sonnet 5',
+          de: 'CodeRabbit: Claude Sonnet 5 im Test',
+          th: 'CodeRabbit: รีวิว Claude Sonnet 5',
+          ja: 'CodeRabbit：Claude Sonnet 5 レビュー',
+        },
+      },
+      {
+        url: 'https://simonwillison.net/2026/Jun/30/claude-sonnet-5/',
+        labels: {
+          en: "Simon Willison: What's new in Claude Sonnet 5",
+          zh: 'Simon Willison：Claude Sonnet 5 有什么新变化',
+          fr: 'Simon Willison : les nouveautés de Claude Sonnet 5',
+          es: 'Simon Willison: novedades de Claude Sonnet 5',
+          pt: 'Simon Willison: as novidades do Claude Sonnet 5',
+          de: 'Simon Willison: Was ist neu bei Claude Sonnet 5',
+          th: 'Simon Willison: มีอะไรใหม่ใน Claude Sonnet 5',
+          ja: 'Simon Willison：Claude Sonnet 5 の新機能',
+        },
+      },
+    ],
+  },
+  {
     slug: 'claude-fable-5',
     href: '/blog/claude-fable-5',
     publishedAt: '2026-06-10',
