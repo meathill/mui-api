@@ -24,7 +24,7 @@ const components: MDXComponents = {
   ),
   ul: ({ className, ...props }) => (
     <ul
-      className={['mt-5 grid gap-3 pl-5 text-base leading-8 text-muted-foreground', className]
+      className={['mt-5 list-disc space-y-3 pl-5 text-base leading-8 text-muted-foreground', className]
         .filter(Boolean)
         .join(' ')}
       {...props}
@@ -32,7 +32,7 @@ const components: MDXComponents = {
   ),
   ol: ({ className, ...props }) => (
     <ol
-      className={['mt-5 grid gap-3 pl-5 text-base leading-8 text-muted-foreground', className]
+      className={['mt-5 list-decimal space-y-3 pl-5 text-base leading-8 text-muted-foreground', className]
         .filter(Boolean)
         .join(' ')}
       {...props}
@@ -51,7 +51,7 @@ const components: MDXComponents = {
     />
   ),
   table: ({ className, ...props }) => (
-    <div className="mt-8 overflow-x-auto rounded-lg border border-border">
+    <div className="mt-8 overflow-x-auto rounded-lg border border-border [&_tbody_tr:last-child_td]:border-b-0">
       <table className={['w-full min-w-[38rem] text-left text-sm', className].filter(Boolean).join(' ')} {...props} />
     </div>
   ),
@@ -66,9 +66,7 @@ const components: MDXComponents = {
   ),
   td: ({ className, ...props }) => (
     <td
-      className={['border-b border-border px-4 py-3 text-muted-foreground last:border-b-0', className]
-        .filter(Boolean)
-        .join(' ')}
+      className={['border-b border-border px-4 py-3 text-muted-foreground', className].filter(Boolean).join(' ')}
       {...props}
     />
   ),
