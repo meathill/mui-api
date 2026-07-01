@@ -17,6 +17,15 @@ export function getMarketingOgImage(locale: string) {
   };
 }
 
+export function getBlogPostOgImage(slug: string, locale: string) {
+  return {
+    url: `${SITE_URL}${getLocalizedPath(`/blog/${slug}/og-image`, locale)}`,
+    width: MARKETING_OG_IMAGE_SIZE.width,
+    height: MARKETING_OG_IMAGE_SIZE.height,
+    alt: `${SITE_NAME} Blog`,
+  };
+}
+
 export function getLocalizedPath(href: string, locale: string): string {
   if (locale === defaultLocale) {
     return href;

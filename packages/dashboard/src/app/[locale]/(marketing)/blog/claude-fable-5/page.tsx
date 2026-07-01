@@ -5,7 +5,7 @@ import type { ComponentType } from 'react';
 import type { Locale } from '@/i18n/config';
 import { Link } from '@/i18n/navigation';
 import { getBlogPost, getLocalizedBlogPost } from '@/lib/blog';
-import { buildMetadata, getLocalizedPath, getResolvedLocale, SITE_URL } from '@/lib/seo';
+import { buildMetadata, getBlogPostOgImage, getLocalizedPath, getResolvedLocale, SITE_URL } from '@/lib/seo';
 
 const POST_SLUG = 'claude-fable-5';
 
@@ -50,6 +50,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     description: localizedPost.description,
     locale: resolvedLocale,
     ogType: 'article',
+    ogImage: getBlogPostOgImage(POST_SLUG, resolvedLocale),
   });
 }
 
