@@ -3,13 +3,15 @@ import { eq } from 'drizzle-orm';
 import type Stripe from 'stripe';
 import { stripeTopupSessions } from '@/db/app-schema';
 import { getDb } from '@/lib/db';
-import { createUser, getUserData, type KVUserData, type KVUserMetadata, setUserData } from '@/lib/kv';
+import { getUserData, type KVUserData, type KVUserMetadata } from '@/lib/kv';
 import { TOP_UP_CURRENCY, type TopUpSessionState } from '@/lib/top-up';
+import { createWalletUser, setWalletMetadata } from '@/lib/wallet-do';
 import type { SessionUser, StripeTopUpMetadata } from './types';
 import { getStripeObjectId } from './utils';
 
 export async function ensureUserRecord(
   kv: KVNamespace,
+  wallet: DurableObjectNamespace,
   userId: string,
   email: string,
 ): Promise<{ data: KVUserData; metadata: KVUserMetadata }> {
@@ -21,20 +23,16 @@ export async function ensureUserRecord(
     };
   }
 
-  await createUser(kv, userId, email);
-  const created = await getUserData(kv, userId);
-  if (!created.data || !created.metadata) {
-    throw new Error('初始化用户余额记录失败');
-  }
-
-  return {
-    data: created.data,
-    metadata: created.metadata,
-  };
+  return createWalletUser(wallet, userId, email);
 }
 
-export async function ensureStripeCustomerId(stripe: Stripe, kv: KVNamespace, user: SessionUser): Promise<string> {
-  const existing = await ensureUserRecord(kv, user.id, user.email);
+export async function ensureStripeCustomerId(
+  stripe: Stripe,
+  kv: KVNamespace,
+  wallet: DurableObjectNamespace,
+  user: SessionUser,
+): Promise<string> {
+  const existing = await ensureUserRecord(kv, wallet, user.id, user.email);
   if (existing.metadata.stripeCustomerId) {
     return existing.metadata.stripeCustomerId;
   }
@@ -47,10 +45,7 @@ export async function ensureStripeCustomerId(stripe: Stripe, kv: KVNamespace, us
     name: user.name,
   });
 
-  await setUserData(kv, user.id, existing.data, {
-    ...existing.metadata,
-    stripeCustomerId: customer.id,
-  });
+  await setWalletMetadata(wallet, user.id, { stripeCustomerId: customer.id });
 
   return customer.id;
 }

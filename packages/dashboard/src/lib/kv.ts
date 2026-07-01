@@ -77,42 +77,6 @@ export async function getUserData(
   return { data: result.value, metadata: result.metadata };
 }
 
-export async function setUserData(
-  kv: KVNamespace,
-  userId: string,
-  data: KVUserData,
-  metadata: KVUserMetadata,
-): Promise<void> {
-  await kv.put(`${USER_KEY_PREFIX}${userId}`, JSON.stringify(data), { metadata });
-}
-
-export async function createUser(
-  kv: KVNamespace,
-  userId: string,
-  email: string,
-  initialBalance: number = 0,
-): Promise<void> {
-  const data: KVUserData = { balance: initialBalance, concurrency: 0 };
-  const metadata: KVUserMetadata = { email, createdAt: new Date().toISOString() };
-  await setUserData(kv, userId, data, metadata);
-}
-
-export async function addBalance(kv: KVNamespace, userId: string, amount: number): Promise<number> {
-  const { data, metadata } = await getUserData(kv, userId);
-  if (!data || !metadata) throw new Error('用户不存在');
-  data.balance += amount;
-  await setUserData(kv, userId, data, metadata);
-  return data.balance;
-}
-
-export async function unsuspendUser(kv: KVNamespace, userId: string): Promise<void> {
-  const { data, metadata } = await getUserData(kv, userId);
-  if (data && metadata) {
-    data.isSuspended = false;
-    await setUserData(kv, userId, data, metadata);
-  }
-}
-
 // ==================== API Key ====================
 
 export async function listUserApiKeys(

@@ -9,6 +9,10 @@
       {
         "name": "CONCURRENCY_LIMITER",
         "class_name": "ConcurrencyLimiterDO"
+      },
+      {
+        "name": "WALLET",
+        "class_name": "WalletDO"
       }
     ]
   },
@@ -39,6 +43,10 @@
     {
       "tag": "v1",
       "new_sqlite_classes": ["ConcurrencyLimiterDO"]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": ["WalletDO"]
     }
   ],
   "triggers": {

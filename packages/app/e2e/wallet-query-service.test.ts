@@ -2,7 +2,6 @@ import { env } from 'cloudflare:test';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { createDb } from '../src/db';
 import { rechargeLogs, usageLogs, users, wallets } from '../src/db/schema';
-import { KVService } from '../src/services/kv-service';
 import { getBalanceSnapshot, listRecharges, listUsage } from '../src/services/wallet-query-service';
 
 /**
@@ -59,7 +58,9 @@ describe('getBalanceSnapshot', () => {
   });
 
   it('有 KV 用户时余额以 KV 为准', async () => {
-    await new KVService(env.KV).createUser(USER_ID, 'wallet-u1@example.com', 99);
+    await env.KV.put(`user:${USER_ID}`, JSON.stringify({ balance: 99, concurrency: 0 }), {
+      metadata: { email: 'wallet-u1@example.com', createdAt: new Date().toISOString() },
+    });
     const snap = await getBalanceSnapshot(db, USER_ID, env.KV);
     expect(snap.balance_cents).toBe(9900);
   });

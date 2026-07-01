@@ -14,6 +14,11 @@
       {
         "name": "NEXT_CACHE_DO_QUEUE",
         "class_name": "DOQueueHandler"
+      },
+      {
+        "name": "WALLET",
+        "class_name": "WalletDO",
+        "script_name": "mui-api"
       }
     ]
   },

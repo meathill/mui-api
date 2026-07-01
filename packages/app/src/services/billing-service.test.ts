@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { GlobalConfig } from './alert-service';
 import { BillingService, type ModelPricing, type UsageInfo } from './billing-service';
 import type { KVService } from './kv-service';
+import type { WalletService } from './wallet-service';
 
 // Mock Database
 const mockDb = {
@@ -30,39 +31,33 @@ function makeUsage(partial: Partial<UsageInfo> & { model: string }): UsageInfo {
   };
 }
 
-function createMockKV(
+function createMockServices(
   initialData: { balance: number; concurrency: number; freeQuotaUsed?: number },
   globalConfig: GlobalConfig | null,
 ) {
   let data = { ...initialData };
+  const metadata = { email: 'test@example.com', createdAt: '2026-04-29T00:00:00.000Z' };
 
   return {
     data: () => data,
-    service: {
-      async deductBalance(_userId: string, amount: number) {
-        data = { ...data, balance: Math.max(0, data.balance - amount) };
-        return true;
-      },
+    kvService: {
       async getGlobalConfig() {
         return globalConfig;
       },
       async getUser() {
-        return {
-          data,
-          metadata: {
-            email: 'test@example.com',
-            createdAt: '2026-04-29T00:00:00.000Z',
-          },
-        };
+        return { data, metadata };
+      },
+    } as unknown as KVService,
+    walletService: {
+      async deduct(_userId: string, amount: number) {
+        data = { ...data, balance: Math.max(0, data.balance - amount) };
+        return { data, metadata };
       },
       async consumeFreeQuota(_userId: string, amount: number) {
         data = { ...data, freeQuotaUsed: Math.max(0, (data.freeQuotaUsed ?? 0) + amount) };
-        return data.freeQuotaUsed;
+        return { data, metadata };
       },
-      async setUser(_userId: string, nextData: typeof data) {
-        data = { ...nextData };
-      },
-    } as unknown as KVService,
+    } as unknown as WalletService,
   };
 }
 
@@ -83,7 +78,7 @@ function createGlobalConfig(modelIds: string[]): GlobalConfig {
 describe('BillingService', () => {
   describe('calculateCost', () => {
     it('兜底定价：gpt-4o 无 cache 无 tier', () => {
-      const service = new BillingService(null as never, mockDb as never);
+      const service = new BillingService(null as never, mockDb as never, null as never);
       const { cost, tier } = service.calculateCost(
         makeUsage({ model: 'gpt-4o', inputTokens: 1000, outputTokens: 500 }),
       );
@@ -93,7 +88,7 @@ describe('BillingService', () => {
     });
 
     it('兜底定价：gpt-4o-mini', () => {
-      const service = new BillingService(null as never, mockDb as never);
+      const service = new BillingService(null as never, mockDb as never, null as never);
       const { cost, tier } = service.calculateCost(
         makeUsage({ model: 'gpt-4o-mini', inputTokens: 10000, outputTokens: 5000 }),
       );
@@ -103,7 +98,7 @@ describe('BillingService', () => {
     });
 
     it('未知模型回退 gpt-4o-mini 兜底', () => {
-      const service = new BillingService(null as never, mockDb as never);
+      const service = new BillingService(null as never, mockDb as never, null as never);
       const { cost } = service.calculateCost(
         makeUsage({ model: 'unknown-model', inputTokens: 1000, outputTokens: 500 }),
       );
@@ -111,7 +106,7 @@ describe('BillingService', () => {
     });
 
     it('cached_input_price 命中折扣', () => {
-      const service = new BillingService(null as never, mockDb as never);
+      const service = new BillingService(null as never, mockDb as never, null as never);
       const pricing: ModelPricing = {
         inputPrice: 10,
         outputPrice: 0,
@@ -127,7 +122,7 @@ describe('BillingService', () => {
     });
 
     it('cachedInputPrice 为 null 时回退 inputPrice', () => {
-      const service = new BillingService(null as never, mockDb as never);
+      const service = new BillingService(null as never, mockDb as never, null as never);
       const pricing: ModelPricing = { inputPrice: 10, outputPrice: 0, markupRate: 1, cachedInputPrice: null };
       const { cost } = service.calculateCost(
         makeUsage({ model: 'm', inputTokens: 500_000, cachedInputTokens: 500_000 }),
@@ -138,7 +133,7 @@ describe('BillingService', () => {
     });
 
     it('anthropic cache_write_price 命中加价', () => {
-      const service = new BillingService(null as never, mockDb as never);
+      const service = new BillingService(null as never, mockDb as never, null as never);
       const pricing: ModelPricing = {
         inputPrice: 10,
         outputPrice: 0,
@@ -155,7 +150,7 @@ describe('BillingService', () => {
     });
 
     it('长上下文档位：跨阈值后切换 longContext 价', () => {
-      const service = new BillingService(null as never, mockDb as never);
+      const service = new BillingService(null as never, mockDb as never, null as never);
       const pricing: ModelPricing = {
         inputPrice: 2.5,
         outputPrice: 15,
@@ -176,7 +171,7 @@ describe('BillingService', () => {
     });
 
     it('未跨阈值：使用 standard 价', () => {
-      const service = new BillingService(null as never, mockDb as never);
+      const service = new BillingService(null as never, mockDb as never, null as never);
       const pricing: ModelPricing = {
         inputPrice: 2.5,
         outputPrice: 15,
@@ -195,7 +190,7 @@ describe('BillingService', () => {
     });
 
     it('长上下文 + cache：cached + write + output 都用长档价', () => {
-      const service = new BillingService(null as never, mockDb as never);
+      const service = new BillingService(null as never, mockDb as never, null as never);
       const pricing: ModelPricing = {
         inputPrice: 2.5,
         outputPrice: 15,
@@ -225,7 +220,7 @@ describe('BillingService', () => {
     });
 
     it('longContextThresholdTokens 为 null：永远 standard', () => {
-      const service = new BillingService(null as never, mockDb as never);
+      const service = new BillingService(null as never, mockDb as never, null as never);
       const pricing: ModelPricing = {
         inputPrice: 10,
         outputPrice: 0,
@@ -239,11 +234,11 @@ describe('BillingService', () => {
 
   describe('processUsage free quota', () => {
     it('白名单模型先抵扣免费额度，不扣余额', async () => {
-      const kv = createMockKV(
+      const services = createMockServices(
         { balance: 1, concurrency: 0, freeQuotaUsed: 0.25 },
         createGlobalConfig(['mimo-v2.5-pro']),
       );
-      const service = new BillingService(kv.service, mockDb as never);
+      const service = new BillingService(services.kvService, mockDb as never, services.walletService);
 
       const result = await service.processUsage(
         'user-1',
@@ -258,16 +253,16 @@ describe('BillingService', () => {
       expect(result.freeQuotaDeducted).toBeCloseTo(0.5, 5);
       expect(result.chargedCost).toBe(0);
       expect(result.tier).toBe('standard');
-      expect(kv.data().balance).toBe(1);
-      expect(kv.data().freeQuotaUsed).toBeCloseTo(0.75, 5);
+      expect(services.data().balance).toBe(1);
+      expect(services.data().freeQuotaUsed).toBeCloseTo(0.75, 5);
     });
 
     it('免费额度不足时只扣除剩余部分', async () => {
-      const kv = createMockKV(
+      const services = createMockServices(
         { balance: 1, concurrency: 0, freeQuotaUsed: 0.9 },
         createGlobalConfig(['mimo-v2.5-pro']),
       );
-      const service = new BillingService(kv.service, mockDb as never);
+      const service = new BillingService(services.kvService, mockDb as never, services.walletService);
 
       const result = await service.processUsage(
         'user-1',
@@ -280,13 +275,16 @@ describe('BillingService', () => {
 
       expect(result.freeQuotaDeducted).toBeCloseTo(0.1, 5);
       expect(result.chargedCost).toBeCloseTo(0.4, 5);
-      expect(kv.data().balance).toBeCloseTo(0.6, 5);
-      expect(kv.data().freeQuotaUsed).toBe(1);
+      expect(services.data().balance).toBeCloseTo(0.6, 5);
+      expect(services.data().freeQuotaUsed).toBe(1);
     });
 
     it('非白名单模型不使用免费额度', async () => {
-      const kv = createMockKV({ balance: 1, concurrency: 0, freeQuotaUsed: 0 }, createGlobalConfig(['mimo-v2.5-pro']));
-      const service = new BillingService(kv.service, mockDb as never);
+      const services = createMockServices(
+        { balance: 1, concurrency: 0, freeQuotaUsed: 0 },
+        createGlobalConfig(['mimo-v2.5-pro']),
+      );
+      const service = new BillingService(services.kvService, mockDb as never, services.walletService);
 
       const result = await service.processUsage(
         'user-1',
@@ -299,8 +297,8 @@ describe('BillingService', () => {
 
       expect(result.freeQuotaDeducted).toBe(0);
       expect(result.chargedCost).toBeCloseTo(0.5, 5);
-      expect(kv.data().balance).toBeCloseTo(0.5, 5);
-      expect(kv.data().freeQuotaUsed).toBe(0);
+      expect(services.data().balance).toBeCloseTo(0.5, 5);
+      expect(services.data().freeQuotaUsed).toBe(0);
     });
   });
 });

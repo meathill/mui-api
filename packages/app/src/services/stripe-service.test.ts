@@ -19,12 +19,42 @@ vi.mock('stripe', () => {
   return { default: StripeMock };
 });
 
+function makeWalletBinding() {
+  const addSpy = vi.fn<(userId: string, amount: number) => void>();
+
+  return {
+    addSpy,
+    namespace: {
+      idFromName(name: string) {
+        return { name } as DurableObjectId;
+      },
+      get(_id: DurableObjectId) {
+        return {
+          async fetch(input: RequestInfo | URL, init?: RequestInit) {
+            const url = new URL(typeof input === 'string' ? input : input.toString());
+            const body = JSON.parse(String(init?.body ?? '{}')) as { amount: number };
+            if (url.pathname === '/add') {
+              addSpy(init?.headers ? (init.headers as Record<string, string>)['x-user-id'] : '', body.amount);
+            }
+            return Response.json({
+              ok: true,
+              data: { balance: 30, concurrency: 0 },
+              metadata: { email: '', createdAt: '2026-04-29T00:00:00.000Z' },
+            });
+          },
+        } as DurableObjectStub;
+      },
+    } as DurableObjectNamespace,
+  };
+}
+
 function makeEnv(overrides: Record<string, unknown> = {}): CloudflareBindings {
   return {
     STRIPE_SECRET_KEY: 'sk_test',
     STRIPE_WEBHOOK_SECRET: 'whsec_test',
     BASE_URL: 'https://app',
     KV: { getWithMetadata: async () => ({ value: null, metadata: null }) },
+    WALLET: makeWalletBinding().namespace,
     ...overrides,
   } as unknown as CloudflareBindings;
 }
@@ -152,13 +182,16 @@ describe('handleStripeWebhook 校验与分支', () => {
 
   it('happy path：累加钱包 + 写 recharge_logs + 标记 session', async () => {
     const { db, spies } = makeDb({ walletUpdateReturning: [{ balance: 30 }] });
-    const res = await handleStripeWebhook(makeEnv(), db, 'body', 'sig');
+    const wallet = makeWalletBinding();
+    const res = await handleStripeWebhook(makeEnv({ WALLET: wallet.namespace }), db, 'body', 'sig');
     expect(res.status).toBe(200);
     expect(res.body.processed).toBe(true);
     expect(spies.walletUpdateSet).toHaveBeenCalledTimes(1);
     expect(spies.rechargeInsert).toHaveBeenCalledTimes(1);
     expect(spies.rechargeInsert.mock.calls[0][0]).toMatchObject({ userId: 'u1', amount: 10, source: 'stripe' });
     expect(spies.sessionUpdateSet.mock.calls[0][0]).toMatchObject({ status: 'completed', balanceAfter: 30 });
+    // WalletDO 是唯一权威写者：D1 wallets 累加之外，还要通过 WalletService.add() 同步 KV 镜像
+    expect(wallet.addSpy).toHaveBeenCalledWith('u1', 10);
   });
 });
 

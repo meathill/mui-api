@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { spendingLimits } from '@/db/app-schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
-import { getKV, unsuspendUser } from '@/lib/kv';
+import { getWallet, unsuspendWalletUser } from '@/lib/wallet-do';
 
 /**
  * POST /api/admin/unsuspend-user — 解除用户暂停
@@ -19,8 +19,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'userId 不能为空' }, { status: 400 });
     }
 
-    const kv = await getKV();
-    await unsuspendUser(kv, userId);
+    const wallet = await getWallet();
+    await unsuspendWalletUser(wallet, userId);
 
     const db = await getDb();
     await db

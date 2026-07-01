@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
-import { getKV, getUserData, setUserData } from '@/lib/kv';
+import { getKV, getUserData } from '@/lib/kv';
+import { getWallet, setWalletMetadata } from '@/lib/wallet-do';
 
 /**
  * POST /api/admin/set-rate-multiplier — 设置用户费率倍率
@@ -25,8 +26,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: '用户不存在' }, { status: 404 });
     }
 
-    metadata.rateMultiplier = rateMultiplier;
-    await setUserData(kv, userId, data, metadata);
+    const wallet = await getWallet();
+    await setWalletMetadata(wallet, userId, { rateMultiplier });
 
     return NextResponse.json({ success: true, userId, rateMultiplier });
   } catch (error) {

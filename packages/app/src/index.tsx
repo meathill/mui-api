@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { createDb } from './db';
 import { ConcurrencyLimiterDO } from './durable-objects/concurrency-limiter';
+import { WalletDO } from './durable-objects/wallet';
 import { d1SessionMiddleware } from './middleware/d1-session';
 import { loggerMiddleware } from './middleware/logger';
 import { renderer } from './renderer';
@@ -81,4 +82,4 @@ export default {
   },
 };
 
-export { ConcurrencyLimiterDO };
+export { ConcurrencyLimiterDO, WalletDO };

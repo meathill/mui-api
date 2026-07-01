@@ -2,8 +2,9 @@ import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { and, eq } from 'drizzle-orm';
 import { rechargeLogs, stripeTopupSessions } from '@/db/app-schema';
 import { getDb } from '@/lib/db';
-import { addBalance, getKV } from '@/lib/kv';
+import { getKV } from '@/lib/kv';
 import { getStripeClient } from '@/lib/stripe';
+import { addWalletBalance, getWallet } from '@/lib/wallet-do';
 import {
   deriveTopUpStatus,
   parseTopUpAmount,
@@ -47,7 +48,8 @@ export async function createTopUpCheckoutSession(params: {
   const stripe = getStripeClient(env.STRIPE_SECRET_KEY);
   const db = await getDb();
   const kv = await getKV();
-  const customerId = await ensureStripeCustomerId(stripe, kv, params.user);
+  const wallet = await getWallet();
+  const customerId = await ensureStripeCustomerId(stripe, kv, wallet, params.user);
   const metadata = buildStripeMetadata({ amount, user: params.user });
   const successUrl = buildReturnUrl(params.origin, locale, '/app', {
     session_id: '{CHECKOUT_SESSION_ID}',
@@ -235,8 +237,9 @@ export async function fulfillTopUpCheckoutSession(checkoutSessionId: string): Pr
       return 'credited';
     }
 
-    await ensureUserRecord(kv, metadata.userId, metadata.userEmail);
-    const newBalance = await addBalance(kv, metadata.userId, metadata.amount);
+    await ensureUserRecord(kv, env.WALLET, metadata.userId, metadata.userEmail);
+    const { data: walletData } = await addWalletBalance(env.WALLET, metadata.userId, metadata.amount);
+    const newBalance = walletData.balance;
 
     await db.insert(rechargeLogs).values({
       id: crypto.randomUUID(),

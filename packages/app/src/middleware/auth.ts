@@ -8,6 +8,7 @@ import {
   DEFAULT_CONCURRENCY_REFRESH_INTERVAL_MS,
 } from '../services/concurrency-service';
 import { KVService } from '../services/kv-service';
+import { WalletService } from '../services/wallet-service';
 import type { CloudflareBindings, KVUserData } from '../types';
 
 export const MIN_BALANCE = 0.01;
@@ -55,9 +56,8 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
     // 获取用户数据，如果 KV 中不存在则自动初始化（余额为 0）
     let { data, metadata } = await kvService.getUser(userId);
     if (!data) {
-      data = { balance: 0, concurrency: 0, isSuspended: false };
-      metadata = { email: '', createdAt: new Date().toISOString() };
-      await kvService.setUser(userId, data, metadata);
+      const walletService = new WalletService(c.env);
+      ({ data, metadata } = await walletService.create(userId, ''));
     }
 
     // 检查全局服务暂停状态

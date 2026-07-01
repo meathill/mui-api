@@ -5,7 +5,7 @@ import { rechargeLogs, stripeTopupSessions, wallets } from '../db';
 import { generateId } from '../lib/crypto';
 import { fromCents } from '../lib/money';
 import type { CloudflareBindings } from '../types';
-import { KVService } from './kv-service';
+import { WalletService } from './wallet-service';
 
 interface CreateTopupArgs {
   userId: string;
@@ -169,16 +169,14 @@ export async function handleStripeWebhook(
     })
     .where(eq(stripeTopupSessions.checkoutSessionId, sessionId));
 
-  // 4) KV 余额同步（若已存在 KV 用户）
+  // 4) 钱包同步：WalletDO 是 user:{userId} 记录的唯一权威写者，同时会自动维护 KV 展示镜像。
+  // 若用户还没有任何钱包记录（理论上不会发生——发起充值前必然已通过 API/dashboard 触发过懒初始化），
+  // 静默跳过，不让 webhook 因此 500 给 Stripe 触发无意义重试。
   try {
-    const kv = new KVService(env.KV);
-    const { data, metadata } = await kv.getUser(userId);
-    if (data && metadata) {
-      data.balance = balanceAfter ?? data.balance + amount;
-      await kv.setUser(userId, data, metadata);
-    }
+    const walletService = new WalletService(env);
+    await walletService.add(userId, amount);
   } catch (err) {
-    console.error('Stripe webhook KV 同步失败:', err);
+    console.error('Stripe webhook 钱包同步失败:', err);
   }
 
   return { status: 200, body: { received: true, processed: true } };

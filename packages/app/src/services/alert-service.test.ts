@@ -7,7 +7,12 @@ function createMockKvService() {
     incrementGlobalSpending: vi.fn().mockResolvedValue(0),
     getGlobalConfig: vi.fn().mockResolvedValue(null),
     setGlobalConfig: vi.fn(),
-    suspendUser: vi.fn(),
+  };
+}
+
+function createMockWalletService() {
+  return {
+    suspend: vi.fn(),
   };
 }
 
@@ -38,13 +43,21 @@ describe('AlertService', () => {
   let kvService: ReturnType<typeof createMockKvService>;
   let db: ReturnType<typeof createMockDb>;
   let emailService: ReturnType<typeof createMockEmailService>;
+  let walletService: ReturnType<typeof createMockWalletService>;
   let service: AlertService;
 
   beforeEach(() => {
     kvService = createMockKvService();
     db = createMockDb();
     emailService = createMockEmailService();
-    service = new AlertService(kvService as never, db as never, emailService as never, 'admin@test.com');
+    walletService = createMockWalletService();
+    service = new AlertService(
+      kvService as never,
+      db as never,
+      emailService as never,
+      'admin@test.com',
+      walletService as never,
+    );
   });
 
   describe('checkAfterBilling', () => {
@@ -72,7 +85,7 @@ describe('AlertService', () => {
 
       await service.checkAfterBilling('user-1', 1);
 
-      expect(kvService.suspendUser).toHaveBeenCalledWith('user-1');
+      expect(walletService.suspend).toHaveBeenCalledWith('user-1');
       expect(emailService.sendAlertEmail).toHaveBeenCalled();
     });
 
@@ -94,7 +107,7 @@ describe('AlertService', () => {
 
       await service.checkAfterBilling('user-1', 5);
 
-      expect(kvService.suspendUser).not.toHaveBeenCalled();
+      expect(walletService.suspend).not.toHaveBeenCalled();
       expect(emailService.sendAlertEmail).toHaveBeenCalled();
     });
 

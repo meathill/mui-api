@@ -4,6 +4,7 @@ import { rechargeLogs, spendingLimits, usageLogs } from '../../db/schema';
 import { badRequest, zodErrorToApiError } from '../../lib/errors';
 import { GlobalConfigSchema, SpendingLimitSchema, UsageQuerySchema } from '../../lib/validators';
 import { KVService } from '../../services/kv-service';
+import { WalletService } from '../../services/wallet-service';
 import type { CloudflareBindings } from '../../types';
 
 const spending = new Hono<{ Bindings: CloudflareBindings }>();
@@ -57,9 +58,9 @@ spending.post('/unsuspend-user', async (c) => {
   }
 
   const db = c.get('db');
-  const kvService = new KVService(c.env.KV);
+  const walletService = new WalletService(c.env);
 
-  await kvService.unsuspendUser(userId);
+  await walletService.unsuspend(userId);
 
   await db
     .update(spendingLimits)

@@ -6,7 +6,8 @@ import { user as userTable } from '@/db/schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
 import { createEmailService } from '@/lib/email';
-import { addBalance, createUser, getKV, getUserData } from '@/lib/kv';
+import { getKV, getUserData } from '@/lib/kv';
+import { addWalletBalance, createWalletUser } from '@/lib/wallet-do';
 
 /**
  * POST /api/admin/recharge — 充值
@@ -48,8 +49,8 @@ export async function POST(request: Request) {
     const { data } = await getUserData(kv, userId);
 
     if (!data) {
-      // 用户已注册但 KV 中没有数据（首次充值），初始化 KV
-      await createUser(kv, userId, email, amount);
+      // 用户已注册但 KV 中没有数据（首次充值），初始化钱包
+      await createWalletUser(env.WALLET, userId, email, amount);
 
       await db.insert(rechargeLogs).values({
         id: crypto.randomUUID(),
@@ -72,7 +73,8 @@ export async function POST(request: Request) {
     }
 
     // 老用户充值
-    const newBalance = await addBalance(kv, userId, amount);
+    const { data: walletData } = await addWalletBalance(env.WALLET, userId, amount);
+    const newBalance = walletData.balance;
 
     await db.insert(rechargeLogs).values({
       id: crypto.randomUUID(),

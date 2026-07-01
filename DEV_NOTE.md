@@ -16,20 +16,34 @@
 
 ### KV + D1 + Durable Object 分层存储
 
-**决策**：用户配置和展示镜像放 KV，并发准入放 Durable Object，持久化/可查询数据放 D1。
+**决策**：用户配置和展示镜像放 KV，并发准入 / 钱包账本放 Durable Object，持久化/可查询数据放 D1。
 
 | 存储 | 用途 | 原因 |
 |------|------|------|
-| KV | 用户余额、API Key hash 验证、并发展示镜像、花费统计 | 每次请求都要读，需要亚 60ms 延迟 |
-| Durable Object | 每用户活跃 lease、并发准入、过期清理 | 同一用户状态天然串行，避免 KV 读改写竞争 |
+| KV | `user:{userId}` 记录的只读展示镜像、API Key hash 验证、花费统计 | 每次请求都要读，需要亚 60ms 延迟；由 `WalletDO`/`ConcurrencyLimiterDO` 写回，业务代码不再直接写 |
+| Durable Object | `ConcurrencyLimiterDO`：每用户活跃 lease、并发准入、过期清理；`WalletDO`：余额/免费额度/暂停状态/metadata 的唯一写者 | 同一用户状态天然串行，避免并发读改写丢更新（详见下面「钱包账本迁移到 Durable Object」） |
 | D1 | 用户账户、使用日志、模型定价、花费限额、better-auth 表 | 需要 SQL 查询、聚合、关联 |
 
 **KV Key 命名约定**：
-- `user:{userId}` — 用户数据（余额、并发等）
+- `user:{userId}` — 用户数据（余额、并发等），只读镜像，唯一写者是 `WalletDO`
 - `apikey:{keyHash}` — API Key 到 userId 的映射
 - `config:global` — 全局配置（每日/每月花费上限、服务暂停标志）
 - `stats:daily:{date}` / `stats:monthly:{month}` — 全局花费统计（带 TTL）
 - `spending:user:{userId}:{month}` — 用户月度花费（TTL 35 天）
+
+### 钱包账本迁移到 Durable Object（WalletDO）
+
+**背景**：早期实现里 `KVService.deductBalance/addBalance/consumeFreeQuota/suspendUser/unsuspendUser`（以及 dashboard 里独立复制的一份等价逻辑）都是对 `user:{userId}` 这条 KV 记录的读-改-写，不是原子操作。`ConcurrencyLimiterDO` 允许每用户最多 `maxConcurrency`（默认 3）个并发请求，意味着并发扣费时后写覆盖先写、静默丢失扣费是设计上就会触发的场景，不是理论边界情况。由于 `Math.max(0, ...)` 兜底，丢失的扣费只会让余额虚高（少扣钱），是持续的收入损失。
+
+**决策**：新建 `WalletDO`（`packages/app/src/durable-objects/wallet.ts`），按 `idFromName(userId)` 分区，成为 `user:{userId}` 这条 KV 记录（`data` + `metadata` 两部分）的唯一写者。`packages/app` 和 `packages/dashboard`（跨 Worker 绑定，`script_name: "mui-api"`）都通过它读写余额，KV 变成两边共用的只读展示镜像。
+
+**为什么不合并进 `ConcurrencyLimiterDO`**：职责分离（并发租约 vs 财务账本），避免让一个已经稳定在生产跑的类风险敞口变大；且合并不会带来正确性上的好处——DO 调用的串行化保证跟是否合并成一个类无关。
+
+**自愈式迁移**：不做一次性 batch 迁移脚本。`WalletDO` 实例第一次收到请求时，若自己的 storage 还没有数据，从当前 KV 镜像 adopt 一次再继续。零停机，不会漏迁移任何用户。
+
+**踩过的坑：`blockConcurrencyWhile` 用在哪一层**。最初的实现只在「首次 bootstrap（从 KV adopt）」这一步加了 `blockConcurrencyWhile`，以为 DO 的「一次只处理一个请求」保证会自动覆盖后续的稳态读-改-写。写了一个真并发的回归测试（`e2e/wallet-concurrency.test.ts`，用 `cloudflare:test` 的真实 DO 运行时对同一实例并发发起多个 `/deduct`）才发现：**DO 的 input/output gate 只保护 `ctx.storage` 操作之间的互斥**，一旦某个请求在两次 storage 操作之间 `await` 了外部 I/O（这里是 KV 读/写），其它并发请求就能插进来读到同一份旧值——稳态的读-改-写照样会丢更新，不只是首次 bootstrap。最终修复：把「读 storage → 应用变更 → 写 storage」整体包进 `blockConcurrencyWhile`（这段本身不含任何外部 I/O，符合官方「不要跨外部 I/O 持锁」的准则），KV 镜像同步放到锁外——镜像只是展示副本，偶尔与其它并发请求交错不影响 storage 里的权威账本。**教训：写涉及 DO 并发正确性的代码时，必须用真实 DO 运行时的并发测试验证，纯 mock 的单测测不出真正的并发语义。**
+
+**本地开发限制**：`packages/dashboard`（Next.js / OpenNext，`next dev`）和 `packages/app`（`@cloudflare/vite-plugin`，`vite dev`）是两个独立的本地 dev 进程，不共享跨 Worker 的 service/DO 绑定发现机制。本地同时跑两个 dev server 时，dashboard 侧调用 `env.WALLET`（跨 Worker 绑定到 `mui-api`）会收到 "Service Unavailable"——这是本地工具链的已知限制，不是代码 bug；两个 Worker 都部署到 Cloudflare 后，跨 Worker DO 绑定按标准机制工作。本地要完整验证 dashboard 侧钱包写路径，需要用单个 `wrangler dev` 进程加载两份 config（未配置），或直接在预发环境验证。
 
 ### D1 Read Replication（Sessions API）
 
@@ -46,7 +60,7 @@
 **实现**：
 - 非流式：从 JSON response body 提取 usage
 - 流式：用 `tee()` 分流 body，一份给客户端，一份给计费处理器
-- 通过 `c.executionCtx.waitUntil()` 执行计费管道：计算费用 → KV 扣余额 → D1 记日志 → 告警检查
+- 通过 `c.executionCtx.waitUntil()` 执行计费管道：计算费用 → `WalletDO` 扣余额 → D1 记日志 → 告警检查
 
 **注意**：计费崩溃不影响已发送的响应。需要依赖告警系统发现计费异常。
 

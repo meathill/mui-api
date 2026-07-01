@@ -1,7 +1,15 @@
-import { SELF } from 'cloudflare:test';
+import { env, SELF } from 'cloudflare:test';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const ADMIN_SECRET = 'test-admin-secret';
+
+function stubEmailFetch(): ReturnType<typeof vi.fn> {
+  // 充值/告警流程会通过全局 fetch 调用 Resend 发邮件（已改为 waitUntil 异步）。
+  // e2e 不应依赖外网/代理，也不应发真实邮件，故 stub 掉全局 fetch。
+  const fetchMock = vi.fn(async () => Response.json({ id: 'test-email-id' }));
+  vi.stubGlobal('fetch', fetchMock);
+  return fetchMock;
+}
 
 describe('管理员接口', () => {
   describe('认证', () => {
@@ -63,12 +71,9 @@ describe('管理员接口', () => {
       vi.unstubAllGlobals();
     });
 
-    it('可以给用户充值', async () => {
-      // 充值流程会通过全局 fetch 调用 Resend 发邮件（已改为 waitUntil 异步）。
-      // e2e 不应依赖外网/代理，也不应发真实邮件，故 stub 掉全局 fetch。
+    it('可以给用户充值（新用户，经 WalletDO 初始化）', async () => {
       // 注：vi.mock('resend') 在 workers 池里无法拦截被测 Worker 的模块图，stub 全局 fetch 才有效。
-      const fetchMock = vi.fn(async () => Response.json({ id: 'test-email-id' }));
-      vi.stubGlobal('fetch', fetchMock);
+      const fetchMock = stubEmailFetch();
 
       const res = await SELF.fetch('http://localhost/admin/recharge', {
         method: 'POST',
@@ -82,8 +87,52 @@ describe('管理员接口', () => {
         }),
       });
       expect(res.status).toBe(200);
+      const body = await res.json<{ isNewUser: boolean; balance: number }>();
+      expect(body.isNewUser).toBe(true);
+      expect(body.balance).toBe(5);
       // 等待 waitUntil 里的邮件发送命中 stub，确保在 unstub 前完成、不泄漏到真实网络
       await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled());
+    });
+
+    it('二次充值走已有用户分支，余额通过 WalletDO 正确累加', async () => {
+      stubEmailFetch();
+      const email = 'repeat-recharge@example.com';
+
+      const first = await SELF.fetch('http://localhost/admin/recharge', {
+        method: 'POST',
+        headers: { 'X-Admin-Secret': ADMIN_SECRET, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, amount: 10 }),
+      });
+      expect(first.status).toBe(200);
+
+      const second = await SELF.fetch('http://localhost/admin/recharge', {
+        method: 'POST',
+        headers: { 'X-Admin-Secret': ADMIN_SECRET, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, amount: 7 }),
+      });
+      expect(second.status).toBe(200);
+      const body = await second.json<{ isNewUser: boolean; balance: number }>();
+      expect(body.isNewUser).toBe(false);
+      expect(body.balance).toBe(17);
+    });
+  });
+
+  describe('账户暂停/恢复', () => {
+    it('可以解除用户暂停', async () => {
+      const userId = 'admin-unsuspend-user';
+      await env.KV.put(`user:${userId}`, JSON.stringify({ balance: 10, concurrency: 0, isSuspended: true }), {
+        metadata: { email: `${userId}@test.com`, createdAt: new Date().toISOString() },
+      });
+
+      const res = await SELF.fetch('http://localhost/admin/unsuspend-user', {
+        method: 'POST',
+        headers: { 'X-Admin-Secret': ADMIN_SECRET, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
+      expect(res.status).toBe(200);
+      const mirrored = await env.KV.get<{ isSuspended: boolean }>(`user:${userId}`, 'json');
+      expect(mirrored?.isSuspended).toBe(false);
     });
   });
 });

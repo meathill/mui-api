@@ -5,6 +5,7 @@ import { internalError, notFound, zodErrorToApiError } from '../../lib/errors';
 import { GetUserSchema, RechargeSchema, SetConcurrencySchema } from '../../lib/validators';
 import { EmailService } from '../../services/email-service';
 import { KVService } from '../../services/kv-service';
+import { WalletService } from '../../services/wallet-service';
 import type { CloudflareBindings } from '../../types';
 
 const users = new Hono<{ Bindings: CloudflareBindings }>();
@@ -62,6 +63,7 @@ users.post('/recharge', async (c) => {
   const { email, amount, note } = result.data;
   const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
   const kvService = new KVService(c.env.KV, defaultMaxConcurrency);
+  const walletService = new WalletService(c.env);
   const emailService = new EmailService({
     apiKey: c.env.RESEND_API_KEY,
     fromEmail: c.env.FROM_EMAIL,
@@ -73,7 +75,7 @@ users.post('/recharge', async (c) => {
 
     if (!userId) {
       userId = generateId();
-      await kvService.createUser(userId, email, amount);
+      await walletService.create(userId, email, amount);
 
       await db.insert(rechargeLogs).values({
         id: generateId(),
@@ -97,7 +99,8 @@ users.post('/recharge', async (c) => {
       });
     }
 
-    const newBalance = await kvService.addBalance(userId, amount);
+    const { data: walletData } = await walletService.add(userId, amount);
+    const newBalance = walletData.balance;
 
     await db.insert(rechargeLogs).values({
       id: generateId(),
@@ -144,8 +147,8 @@ users.post('/set-concurrency', async (c) => {
     return notFound(c, '用户不存在');
   }
 
-  metadata.maxConcurrency = maxConcurrency;
-  await kvService.setUser(userId, data, metadata);
+  const walletService = new WalletService(c.env);
+  await walletService.setMetadata(userId, { maxConcurrency });
 
   return c.json({ success: true, userId, maxConcurrency });
 });

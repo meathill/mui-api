@@ -6,10 +6,12 @@ import { EmailService } from './email-service';
 import { GatewayService } from './gateway-service';
 import { KVService } from './kv-service';
 import { ModelCatalogService } from './model-catalog-service';
+import { WalletService } from './wallet-service';
 
 export interface ProxyServices {
   db: Database;
   kvService: KVService;
+  walletService: WalletService;
   billingService: BillingService;
   alertService: AlertService;
   gatewayService: GatewayService;
@@ -23,12 +25,13 @@ export interface ProxyServices {
 export function createProxyServices(env: CloudflareBindings, db: Database): ProxyServices {
   const defaultMaxConcurrency = Number(env.DEFAULT_MAX_CONCURRENCY) || 3;
   const kvService = new KVService(env.KV, defaultMaxConcurrency);
-  const billingService = new BillingService(kvService, db);
+  const walletService = new WalletService(env);
+  const billingService = new BillingService(kvService, db, walletService);
   const emailService = new EmailService({
     apiKey: env.RESEND_API_KEY,
     fromEmail: env.FROM_EMAIL,
   });
-  const alertService = new AlertService(kvService, db, emailService, env.ADMIN_EMAIL);
+  const alertService = new AlertService(kvService, db, emailService, env.ADMIN_EMAIL, walletService);
   const gatewayService = new GatewayService(
     env.CF_ACCOUNT_ID,
     env.CF_GATEWAY_ID,
@@ -39,5 +42,5 @@ export function createProxyServices(env: CloudflareBindings, db: Database): Prox
   );
   const modelCatalog = new ModelCatalogService(kvService, db);
 
-  return { db, kvService, billingService, alertService, gatewayService, modelCatalog };
+  return { db, kvService, walletService, billingService, alertService, gatewayService, modelCatalog };
 }

@@ -3,6 +3,7 @@ import { type NewUsageLog, usageLogs } from '../db/schema';
 import { generateId } from '../lib/crypto';
 import type { FreeQuotaConfig } from '../types';
 import type { KVService } from './kv-service';
+import type { WalletService } from './wallet-service';
 
 // 默认加价倍率
 const DEFAULT_MARKUP_RATE = 1.2;
@@ -70,6 +71,7 @@ export class BillingService {
   constructor(
     private kvService: KVService,
     private db: Database,
+    private walletService: WalletService,
   ) {}
 
   /**
@@ -108,7 +110,7 @@ export class BillingService {
    * 扣除用户余额（从 KV）
    */
   async deductBalance(userId: string, cost: number): Promise<void> {
-    await this.kvService.deductBalance(userId, cost);
+    await this.walletService.deduct(userId, cost);
   }
 
   /**
@@ -175,7 +177,7 @@ export class BillingService {
       const freeQuota = await this.getFreeQuotaState(userId, usage.model);
       if (freeQuota.eligible && freeQuota.remaining > 0) {
         freeQuotaDeducted = Math.min(cost, freeQuota.remaining);
-        await this.kvService.consumeFreeQuota(userId, freeQuotaDeducted);
+        await this.walletService.consumeFreeQuota(userId, freeQuotaDeducted);
       }
     }
 

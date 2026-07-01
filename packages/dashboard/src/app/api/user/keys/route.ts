@@ -1,15 +1,8 @@
 import { NextResponse } from 'next/server';
 import { generateApiKey, getKeyPrefix, hashApiKey } from '@/lib/crypto';
-import {
-  createUser,
-  deleteApiKey,
-  getApiKeyMetadata,
-  getKV,
-  getUserData,
-  listUserApiKeys,
-  storeApiKey,
-} from '@/lib/kv';
+import { deleteApiKey, getApiKeyMetadata, getKV, getUserData, listUserApiKeys, storeApiKey } from '@/lib/kv';
 import { getSession } from '@/lib/session';
+import { createWalletUser, getWallet } from '@/lib/wallet-do';
 
 /**
  * GET /api/user/keys — 列出当前用户的所有 API Key
@@ -49,7 +42,8 @@ export async function POST() {
     // 确保 KV 中有用户数据（否则 API Key 校验时会因 user 不存在返回 401）
     const { data } = await getUserData(kv, user.id);
     if (!data) {
-      await createUser(kv, user.id, user.email);
+      const wallet = await getWallet();
+      await createWalletUser(wallet, user.id, user.email);
     }
 
     await storeApiKey(kv, keyHash, user.id, keyPrefix);

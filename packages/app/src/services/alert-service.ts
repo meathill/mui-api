@@ -4,6 +4,7 @@ import { spendingLimits } from '../db/schema';
 import type { FreeQuotaConfig } from '../types';
 import type { EmailService } from './email-service';
 import type { KVService } from './kv-service';
+import type { WalletService } from './wallet-service';
 
 // 告警冷却时间：24 小时内不重复发送
 const ALERT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
@@ -28,6 +29,7 @@ export class AlertService {
     private db: Database,
     private emailService: EmailService,
     private adminEmail: string,
+    private walletService: WalletService,
   ) {}
 
   /**
@@ -96,7 +98,7 @@ export class AlertService {
    */
   private async suspendUser(userId: string, totalSpending: number, monthlyLimit: number): Promise<void> {
     // 更新 KV 中的 isSuspended 状态
-    await this.kvService.suspendUser(userId);
+    await this.walletService.suspend(userId);
 
     // 更新 DB 中的 isSuspended 状态
     await this.db

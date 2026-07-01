@@ -57,70 +57,6 @@ export class KVService {
   }
 
   /**
-   * 更新用户余额
-   */
-  async updateBalance(userId: string, newBalance: number): Promise<void> {
-    const { data, metadata } = await this.getUser(userId);
-    if (data && metadata) {
-      data.balance = newBalance;
-      await this.setUser(userId, data, metadata);
-    }
-  }
-
-  /**
-   * 扣除余额
-   */
-  async deductBalance(userId: string, amount: number): Promise<boolean> {
-    const { data, metadata } = await this.getUser(userId);
-    if (!data || !metadata) return false;
-
-    data.balance = Math.max(0, data.balance - amount);
-    await this.setUser(userId, data, metadata);
-    return true;
-  }
-
-  /**
-   * 充值（增加余额）
-   */
-  async addBalance(userId: string, amount: number): Promise<number> {
-    const { data, metadata } = await this.getUser(userId);
-    if (!data || !metadata) {
-      throw new Error('用户不存在');
-    }
-
-    data.balance += amount;
-    await this.setUser(userId, data, metadata);
-    return data.balance;
-  }
-
-  /**
-   * 创建新用户
-   */
-  async createUser(userId: string, email: string, initialBalance: number = 0): Promise<void> {
-    const data: KVUserData = {
-      balance: initialBalance,
-      concurrency: 0,
-    };
-    const metadata: KVUserMetadata = {
-      email,
-      createdAt: new Date().toISOString(),
-    };
-    await this.setUser(userId, data, metadata);
-  }
-
-  /**
-   * 累加用户已使用的免费额度，单位 USD
-   */
-  async consumeFreeQuota(userId: string, amount: number): Promise<number> {
-    const { data, metadata } = await this.getUser(userId);
-    if (!data || !metadata || amount <= 0) return data?.freeQuotaUsed ?? 0;
-
-    data.freeQuotaUsed = Math.max(0, (data.freeQuotaUsed ?? 0) + amount);
-    await this.setUser(userId, data, metadata);
-    return data.freeQuotaUsed;
-  }
-
-  /**
    * 根据邮箱查找用户（需遍历，效率较低，仅用于充值等低频操作）
    * 返回 userId 或 null
    */
@@ -254,28 +190,6 @@ export class KVService {
   async getUserMonthlySpending(userId: string, monthKey: string): Promise<number> {
     const fullKey = `${USER_SPENDING_PREFIX}${userId}:${monthKey}`;
     return (await this.kv.get<number>(fullKey, 'json')) ?? 0;
-  }
-
-  /**
-   * 暂停用户
-   */
-  async suspendUser(userId: string): Promise<void> {
-    const { data, metadata } = await this.getUser(userId);
-    if (data && metadata) {
-      data.isSuspended = true;
-      await this.setUser(userId, data, metadata);
-    }
-  }
-
-  /**
-   * 解除用户暂停
-   */
-  async unsuspendUser(userId: string): Promise<void> {
-    const { data, metadata } = await this.getUser(userId);
-    if (data && metadata) {
-      data.isSuspended = false;
-      await this.setUser(userId, data, metadata);
-    }
   }
 
   /**

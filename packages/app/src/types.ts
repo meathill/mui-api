@@ -3,6 +3,7 @@ export interface CloudflareBindings {
   DB: D1Database;
   KV: KVNamespace;
   CONCURRENCY_LIMITER: DurableObjectNamespace;
+  WALLET: DurableObjectNamespace;
   CF_AIG_TOKEN: string;
   RESEND_API_KEY: string;
   ADMIN_SECRET: string;
@@ -39,6 +40,7 @@ export interface KVUserData {
 export interface KVUserMetadata {
   maxConcurrency?: number;
   rateMultiplier?: number; // 用户费率倍率，默认 1
+  stripeCustomerId?: string; // dashboard 自助充值流程写入，与 stripe-service.ts 的独立充值渠道无关
   email: string;
   createdAt: string;
 }
