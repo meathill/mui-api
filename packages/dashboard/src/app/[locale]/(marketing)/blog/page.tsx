@@ -4,6 +4,8 @@ import { Link } from '@/i18n/navigation';
 import { getLocalizedBlogPosts } from '@/lib/blog';
 import { buildMetadata, getLocalizedPath, getResolvedLocale, SITE_URL } from '@/lib/seo';
 
+export const dynamic = 'force-dynamic';
+
 function formatDate(locale: string, date: string) {
   return new Intl.DateTimeFormat(locale, {
     year: 'numeric',
@@ -31,7 +33,7 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
   const resolvedLocale = getResolvedLocale(locale);
   setRequestLocale(resolvedLocale);
   const t = await getTranslations({ locale: resolvedLocale, namespace: 'blog' });
-  const posts = getLocalizedBlogPosts(resolvedLocale);
+  const posts = await getLocalizedBlogPosts(resolvedLocale);
 
   const jsonLd = {
     '@context': 'https://schema.org',

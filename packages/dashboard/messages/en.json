@@ -147,10 +147,10 @@
     "ctaDescription": "Create a MuiRouter account and keep your app integration stable while the model ecosystem keeps changing.",
     "ctaButton": "Sign Up",
     "backToBlog": "Back to blog",
-    "sourcesTitle": "Official sources",
-    "sourcePublished": "OpenAI source published on {date}.",
-    "articleCtaTitle": "Be ready for the next model rollout",
-    "articleCtaDescription": "Start with one API key and a cleaner path to route future model access when upstream availability lands."
+    "sourcesTitle": "Reference sources",
+    "sourcePublished": "Primary source published on {date}.",
+    "articleCtaTitle": "Be ready for the next AI shift",
+    "articleCtaDescription": "Start with one API key and a cleaner path to keep model access stable as tools and upstream availability change."
   },
   "login": {
     "title": "Log in to MuiRouter",

@@ -1,0 +1,76 @@
+import type { ComponentType } from 'react';
+import type { Locale } from '@/i18n/config';
+
+type BlogContentModule = {
+  default: ComponentType;
+};
+
+type BlogContentLoader = () => Promise<BlogContentModule>;
+
+const gpt55Loaders: Record<Locale, BlogContentLoader> = {
+  en: () => import('@/content/blog/gpt-5-5.mdx'),
+  zh: () => import('@/content/blog/gpt-5-5.zh.mdx'),
+  fr: () => import('@/content/blog/gpt-5-5.fr.mdx'),
+  es: () => import('@/content/blog/gpt-5-5.es.mdx'),
+  pt: () => import('@/content/blog/gpt-5-5.pt.mdx'),
+  de: () => import('@/content/blog/gpt-5-5.de.mdx'),
+  th: () => import('@/content/blog/gpt-5-5.th.mdx'),
+  ja: () => import('@/content/blog/gpt-5-5.ja.mdx'),
+};
+
+const claudeSonnet5Loaders: Record<Locale, BlogContentLoader> = {
+  en: () => import('@/content/blog/claude-sonnet-5.mdx'),
+  zh: () => import('@/content/blog/claude-sonnet-5.zh.mdx'),
+  fr: () => import('@/content/blog/claude-sonnet-5.fr.mdx'),
+  es: () => import('@/content/blog/claude-sonnet-5.es.mdx'),
+  pt: () => import('@/content/blog/claude-sonnet-5.pt.mdx'),
+  de: () => import('@/content/blog/claude-sonnet-5.de.mdx'),
+  th: () => import('@/content/blog/claude-sonnet-5.th.mdx'),
+  ja: () => import('@/content/blog/claude-sonnet-5.ja.mdx'),
+};
+
+const loadClaudeFable5En = () => import('@/content/blog/claude-fable-5.mdx');
+const claudeFable5Loaders: Record<Locale, BlogContentLoader> = {
+  en: loadClaudeFable5En,
+  zh: () => import('@/content/blog/claude-fable-5.zh.mdx'),
+  fr: loadClaudeFable5En,
+  es: loadClaudeFable5En,
+  pt: loadClaudeFable5En,
+  de: loadClaudeFable5En,
+  th: loadClaudeFable5En,
+  ja: loadClaudeFable5En,
+};
+
+const loadCodexContextDriftEn = () => import('@/content/blog/codex-context-drift.mdx');
+const codexContextDriftLoaders: Record<Locale, BlogContentLoader> = {
+  en: loadCodexContextDriftEn,
+  zh: () => import('@/content/blog/codex-context-drift.zh.mdx'),
+  fr: loadCodexContextDriftEn,
+  es: loadCodexContextDriftEn,
+  pt: loadCodexContextDriftEn,
+  de: loadCodexContextDriftEn,
+  th: loadCodexContextDriftEn,
+  ja: loadCodexContextDriftEn,
+};
+
+const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
+  'claude-fable-5': claudeFable5Loaders,
+  'claude-sonnet-5': claudeSonnet5Loaders,
+  'codex-context-drift': codexContextDriftLoaders,
+  'gpt-5-5': gpt55Loaders,
+};
+
+export function hasBlogContent(slug: string): boolean {
+  return slug in blogContentLoaders;
+}
+
+export async function getBlogContent(slug: string, locale: Locale): Promise<ComponentType | null> {
+  const loaders = blogContentLoaders[slug];
+  if (!loaders) {
+    return null;
+  }
+
+  const loader = loaders[locale] ?? loaders.en;
+  const { default: ArticleContent } = await loader();
+  return ArticleContent;
+}

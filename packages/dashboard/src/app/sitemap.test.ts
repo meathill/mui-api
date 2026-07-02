@@ -1,12 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { locales } from '@/i18n/config';
 import { buildMetadata, getLanguageAlternates } from '@/lib/seo';
-import sitemap from './sitemap';
+import { buildSitemapEntries } from './sitemap';
 
 const ROUTER_PAGES = ['/ai-router', '/llm-router', '/openai-compatible-router', '/mcp-router'] as const;
 
 describe('sitemap', () => {
-  const entries = sitemap();
+  const entries = buildSitemapEntries([
+    {
+      slug: 'codex-context-drift',
+      href: '/blog/codex-context-drift',
+      publishedAt: '2026-07-02',
+    },
+  ]);
   const urls = entries.map((entry) => entry.url);
 
   it('收录 4 个新 router 落地页（默认语言无前缀）', () => {
@@ -28,6 +34,7 @@ describe('sitemap', () => {
     expect(urls).toContain('https://muirouter.com/');
     expect(urls).toContain('https://muirouter.com/pricing');
     expect(urls).toContain('https://muirouter.com/mcp');
+    expect(urls).toContain('https://muirouter.com/blog/codex-context-drift');
     expect(urls).not.toContain('https://muirouter.com/login');
   });
 

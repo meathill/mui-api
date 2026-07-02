@@ -147,10 +147,10 @@
     "ctaDescription": "MuiRouter アカウントを作成し、モデルエコシステムが変化してもアプリの統合を安定させましょう。",
     "ctaButton": "新規登録",
     "backToBlog": "ブログへ戻る",
-    "sourcesTitle": "公式ソース",
-    "sourcePublished": "OpenAI 公式ソースの公開日: {date}",
-    "articleCtaTitle": "次のモデルロールアウトに備える",
-    "articleCtaDescription": "1つの API Key から始め、upstream の提供開始後に将来のモデルアクセスをより明確に route できるようにします。"
+    "sourcesTitle": "参考ソース",
+    "sourcePublished": "主要ソースの公開日: {date}",
+    "articleCtaTitle": "次の AI の変化に備える",
+    "articleCtaDescription": "1つの API Key から始め、ツールや upstream の提供状況が変わってもモデルアクセスを安定させる明確な経路を持てます。"
   },
   "login": {
     "title": "MuiRouterにログイン",

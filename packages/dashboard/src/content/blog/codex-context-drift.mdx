@@ -1,0 +1,45 @@
+First, the short version:
+
+1. Add `DO NOT send optional commentary` to your `AGENTS.md`, globally or at the project level. It can reduce the chance of Codex “getting worse.”
+2. AI is unstable, but creative, much like people. It can solve problems that purely deterministic software cannot solve. Our job is to find the balance between the two.
+3. When you run into a strange failure, think one layer deeper. There is often a practical mitigation hidden in the shape of the problem.
+
+---
+
+When people feel that Codex is “getting worse,” I do not think it necessarily means the provider has deliberately weakened the model. A more useful explanation is that at a certain moment, in a certain version, or inside a certain context, the probability of mistakes has gone up. AI is not stable like traditional software, where the same logic reliably produces the same result. Each step is generated from a context with some randomness. When things are going well, that feels like collaboration. When things go wrong, context becomes an amplifier: one bad explanation, one fake tool call, or one unverified assumption can enter the context and affect the next judgment.
+
+So when AI occasionally makes a mistake, the biggest problem is not the flawed answer itself. The problem is that the flawed answer becomes material for future answers. If you keep asking follow-up questions, the model may treat its previous mistake as fact. If you ask it to fix the issue, it may keep patching around the wrong premise. If you add more context, it may find more noise to weave into a new explanation. That is what many people experience as “getting worse,” or what I like to call getting stuck in a loop.
+
+## `DO NOT send optional commentary`
+
+Today I saw a post on X saying that adding `DO NOT send optional commentary` to `AGENTS.md` can greatly improve Codex 5.5 degradation.
+
+I followed the trail back to the original discussion on Linux.do. In the author's own test environment, the accuracy improved noticeably, but the author also repeatedly emphasized that this only mitigates the issue. It does not eliminate it.
+
+I think this observation lines up with my own guess. The sentence is not a magic spell. It works because it reduces optional output from the model. When Codex works, it often adds intermediate explanations, progress notes, guesses, and summaries around the actual task. In normal conditions, those words help communication. But when the model is in a bad state, those “optional” words can become contamination: it may jump to conclusions, describe steps that did not actually happen, or mix tool calls into natural language.
+
+Saying less does not make the model smarter. But with less irrelevant context, there are fewer chances for the model to steer itself off course.
+
+## This Is Not Only a Codex Problem
+
+I have run into the same kind of problem with Claude. The model printed text that looked like a tool invocation instead of continuing the preview flow normally. Then the same issue kept appearing in that conversation. Once I switched to another conversation, the problem suddenly disappeared. This kind of behavior suggests that the issue is not only inside one model. It can also happen inside the agent toolchain: the model, system prompt, tool protocol, context window, and current service state all have to line up. If any one part shakes, the output can become unstable.
+
+Once that signal appears, continuing to ask for fixes inside the same conversation is often not recovery. It can make the contamination larger, because the model has already written an account of “what just happened” into the context, even if that account is wrong.
+
+## Two Directions: Prevention and Cutting Losses
+
+The first direction is to reduce the probability of mistakes. Put project rules in `AGENTS.md`. Make the agent read the code before editing. Reduce unnecessary commentary. Split large tasks into smaller goals. Ask it to run tests and report verification results. Require important assumptions to be checked first. None of these practices make AI perfectly reliable. They reduce how much room the model has to improvise in uncertain areas.
+
+The second direction is to cut losses early. If it keeps fixing the same bug, writes longer explanations while the code does not improve, breaks the expected output format, prints tool calls as text, or ignores constraints you just gave, do not keep trying to rescue the same thread. Usually the better move is to start a new conversation and provide a clean compressed brief: the goal, the current error, the key files, and the facts already verified.
+
+This is also one of the strengths of agents: they save work products to disk, so you can use multiple conversations to complete one task.
+
+Treat it as engineering hygiene. When context is dirty, clean the context. When the task is too large, split it. When output starts contaminating itself, cut the chain.
+
+## Conclusion
+
+Codex getting worse is not magic, and one prompt line cannot fully solve it. It is better understood as a probability problem plus a context problem: sometimes mistakes become more likely, and once a mistake enters the context, later mistakes become more likely too.
+
+`DO NOT send optional commentary` is worth trying because the cost is low and the tradeoff is clear: you get fewer intermediate notes. But the larger habit matters more. Reduce noise when you can, verify when you can, and when the conversation starts looping, do not fight the loop. Move the work into a clean conversation and continue from there.
+
+If you have better practices, I would love to hear them. If you have questions about using AI agents or vibe coding, feel free to leave a comment and discuss.

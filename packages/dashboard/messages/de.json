@@ -147,10 +147,10 @@
     "ctaDescription": "Erstellen Sie ein MuiRouter Konto und halten Sie Ihre App-Integration stabil, während sich das Modell-Ökosystem weiter verändert.",
     "ctaButton": "Registrieren",
     "backToBlog": "Zurück zum Blog",
-    "sourcesTitle": "Offizielle Quellen",
-    "sourcePublished": "OpenAI-Quelle veröffentlicht am {date}.",
-    "articleCtaTitle": "Bereiten Sie den nächsten Modell-Rollout vor",
-    "articleCtaDescription": "Starten Sie mit einer API Key und einem klareren Weg, zukünftigen Modellzugang zu routen, sobald Upstream-Verfügbarkeit besteht."
+    "sourcesTitle": "Referenzquellen",
+    "sourcePublished": "Hauptquelle veröffentlicht am {date}.",
+    "articleCtaTitle": "Bereiten Sie sich auf die nächste KI-Veränderung vor",
+    "articleCtaDescription": "Starten Sie mit einer API Key und einem klareren Weg, Modellzugang stabil zu halten, während sich Tools und Upstream-Verfügbarkeit ändern."
   },
   "login": {
     "title": "Bei MuiRouter anmelden",

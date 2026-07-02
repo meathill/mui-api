@@ -147,10 +147,10 @@
     "ctaDescription": "สร้างบัญชี MuiRouter เพื่อให้การเชื่อมต่อแอปของคุณเสถียร แม้ระบบโมเดลจะเปลี่ยนต่อเนื่อง",
     "ctaButton": "สมัครสมาชิก",
     "backToBlog": "กลับไปบล็อก",
-    "sourcesTitle": "แหล่งข้อมูลทางการ",
-    "sourcePublished": "แหล่งข้อมูล OpenAI เผยแพร่เมื่อ {date}",
-    "articleCtaTitle": "เตรียมพร้อมสำหรับการเปิดตัวโมเดลครั้งต่อไป",
-    "articleCtaDescription": "เริ่มจาก API Key เดียว และมีเส้นทางที่ชัดขึ้นในการ route การเข้าถึงโมเดลใหม่เมื่อ upstream พร้อมใช้งาน"
+    "sourcesTitle": "แหล่งข้อมูลอ้างอิง",
+    "sourcePublished": "แหล่งข้อมูลหลักเผยแพร่เมื่อ {date}",
+    "articleCtaTitle": "เตรียมพร้อมสำหรับการเปลี่ยนแปลง AI ครั้งต่อไป",
+    "articleCtaDescription": "เริ่มจาก API Key เดียว และมีเส้นทางที่ชัดขึ้นเพื่อรักษาการเข้าถึงโมเดลให้เสถียรเมื่อเครื่องมือและ upstream availability เปลี่ยนไป"
   },
   "login": {
     "title": "เข้าสู่ระบบ MuiRouter",

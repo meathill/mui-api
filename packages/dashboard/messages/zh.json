@@ -147,10 +147,10 @@
     "ctaDescription": "创建 MuiRouter 账户，让应用集成保持稳定，把模型生态的变化留给路由和配置处理。",
     "ctaButton": "注册",
     "backToBlog": "返回博客",
-    "sourcesTitle": "官方来源",
-    "sourcePublished": "OpenAI 官方来源发布于 {date}。",
-    "articleCtaTitle": "为下一次模型发布做好准备",
-    "articleCtaDescription": "从一个 API Key 开始，在上游模型开放后，用更清晰的路径接入未来模型。"
+    "sourcesTitle": "参考来源",
+    "sourcePublished": "主要来源发布于 {date}。",
+    "articleCtaTitle": "为下一次 AI 变化做好准备",
+    "articleCtaDescription": "从一个 API Key 开始，在工具和上游模型持续变化时，让模型接入保持稳定。"
   },
   "login": {
     "title": "登录 MuiRouter",

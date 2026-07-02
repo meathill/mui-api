@@ -159,6 +159,21 @@
 - 语言配置文件和翻译文本由 `next-intl` 标准结构维护。
 - SEO 适配多语言，`sitemap.xml` 和 `robots.txt`、JSON-LD 都考虑了多语言版本的动态生成。
 
+### 博客 metadata 放 D1，正文保留 MDX
+
+**决策**：博客文章正文继续放在 `packages/dashboard/src/content/blog/*.mdx`，标题、描述、发布日期、阅读时间、tags、sources 等 metadata 放 D1 的 `blog_posts` / `blog_post_translations`。文章页和 OG 图统一走 `/blog/[slug]` 动态路由，不再为每篇文章新增单独 route 文件，也不再维护代码内 `BLOG_POSTS` 常量。
+
+**原因**：
+- 新增文章时只需要提交 MDX 正文并写入 D1 metadata，减少重复改 `blog.ts`、文章页、OG route 的维护成本。
+- 正文仍进 Git，保留 review、回滚、构建期 MDX 校验能力，不引入富文本安全、图片上传、编辑器等 CMS 复杂度。
+- metadata 是运行时数据，`/blog`、`/blog/[slug]`、`/sitemap.xml`、OG 图都会查询 D1；当前文章量很小，暂不做持久缓存。访问量上来后再加 5-10 分钟缓存。
+
+**发文流程**：
+1. 添加 `content/blog/{slug}.mdx`，需要中文时添加 `{slug}.zh.mdx`。
+2. 向 `blog_posts` 写入 slug、发布日期、阅读时间、状态等。
+3. 向 `blog_post_translations` 写入各语言 title / description / tags_json / sources_json。
+4. 不再新增单篇 `page.tsx` / `og-image/route.tsx`。
+
 ### SEO 重定位与品牌拼写（消解 Material UI 歧义）
 
 **背景**：GSC 显示 muirouter.com 曝光被 Material UI / MUI X 意图主导（`mui pricing`、`muix pricing`、`mui pro`），真正的 `ai router` 只排到 pos 47-87，CTR 0.66%。

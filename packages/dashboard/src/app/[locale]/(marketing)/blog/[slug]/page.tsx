@@ -1,28 +1,12 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import type { ComponentType } from 'react';
-import type { Locale } from '@/i18n/config';
+import { getBlogContent } from '@/lib/blog-content';
+import { getLocalizedBlogPost } from '@/lib/blog';
 import { Link } from '@/i18n/navigation';
-import { getBlogPost, getLocalizedBlogPost } from '@/lib/blog';
 import { buildMetadata, getBlogPostOgImage, getLocalizedPath, getResolvedLocale, SITE_URL } from '@/lib/seo';
 
-const POST_SLUG = 'claude-fable-5';
-
-// 当前仅 en/zh 有正文；其余 6 语言暂回退 en MDX（元数据也以英文占位）。补译后替换为各自 import。
-const loadEn = () => import('@/content/blog/claude-fable-5.mdx');
-
-// 按 locale 懒加载 MDX，避免多语言文章全部打包进同一 chunk。
-const articleContentLoaders: Record<Locale, () => Promise<{ default: ComponentType }>> = {
-  en: loadEn,
-  zh: () => import('@/content/blog/claude-fable-5.zh.mdx'),
-  fr: loadEn,
-  es: loadEn,
-  pt: loadEn,
-  de: loadEn,
-  th: loadEn,
-  ja: loadEn,
-};
+export const dynamic = 'force-dynamic';
 
 function formatDate(locale: string, date: string) {
   return new Intl.DateTimeFormat(locale, {
@@ -33,46 +17,46 @@ function formatDate(locale: string, date: string) {
   }).format(new Date(`${date}T00:00:00.000Z`));
 }
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}): Promise<Metadata> {
+  const { locale, slug } = await params;
   const resolvedLocale = getResolvedLocale(locale);
-  const post = getBlogPost(POST_SLUG);
+  const post = await getLocalizedBlogPost(slug, resolvedLocale);
 
   if (!post) {
     return {};
   }
 
-  const localizedPost = getLocalizedBlogPost(post, resolvedLocale);
-
   return buildMetadata({
     path: post.href,
-    title: localizedPost.title,
-    description: localizedPost.description,
+    title: post.title,
+    description: post.description,
     locale: resolvedLocale,
     ogType: 'article',
-    ogImage: getBlogPostOgImage(POST_SLUG, resolvedLocale),
+    ogImage: getBlogPostOgImage(slug, resolvedLocale),
   });
 }
 
-export default async function ClaudeFable5BlogPostPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
+export default async function BlogPostPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
+  const { locale, slug } = await params;
   const resolvedLocale = getResolvedLocale(locale);
   setRequestLocale(resolvedLocale);
   const t = await getTranslations({ locale: resolvedLocale, namespace: 'blog' });
-  const post = getBlogPost(POST_SLUG);
+  const post = await getLocalizedBlogPost(slug, resolvedLocale);
+  const ArticleContent = await getBlogContent(slug, resolvedLocale);
 
-  if (!post) {
+  if (!post || !ArticleContent) {
     notFound();
   }
-
-  const localizedPost = getLocalizedBlogPost(post, resolvedLocale);
-  const { default: ArticleContent } = await articleContentLoaders[resolvedLocale]();
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
-    headline: localizedPost.title,
-    description: localizedPost.description,
+    headline: post.title,
+    description: post.description,
     datePublished: post.publishedAt,
     dateModified: post.publishedAt,
     url: `${SITE_URL}${getLocalizedPath(post.href, resolvedLocale)}`,
@@ -107,12 +91,10 @@ export default async function ClaudeFable5BlogPostPage({ params }: { params: Pro
             <time dateTime={post.publishedAt}>{formatDate(resolvedLocale, post.publishedAt)}</time>
             <span>{t('readingTime', { minutes: post.readingMinutes })}</span>
           </div>
-          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">
-            {localizedPost.title}
-          </h1>
-          <p className="mt-6 text-lg leading-8 text-muted-foreground">{localizedPost.description}</p>
+          <h1 className="mt-5 text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">{post.title}</h1>
+          <p className="mt-6 text-lg leading-8 text-muted-foreground">{post.description}</p>
           <div className="mt-7 flex flex-wrap gap-2">
-            {localizedPost.tags.map((tag) => (
+            {post.tags.map((tag) => (
               <span
                 key={tag}
                 className="rounded-full border border-border px-3 py-1 text-xs font-medium text-muted-foreground"
@@ -133,7 +115,7 @@ export default async function ClaudeFable5BlogPostPage({ params }: { params: Pro
             {t('sourcePublished', { date: formatDate(resolvedLocale, post.sourcePublishedAt) })}
           </p>
           <ul className="mt-5 grid gap-3">
-            {localizedPost.sources.map((source) => (
+            {post.sources.map((source) => (
               <li key={source.url}>
                 <a
                   href={source.url}

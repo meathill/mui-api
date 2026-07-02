@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { integer, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, primaryKey, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { user } from './auth-schema';
 
 export const wallets = sqliteTable('wallets', {
@@ -100,6 +100,31 @@ export const spendingLimits = sqliteTable('spending_limits', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
+export const blogPosts = sqliteTable('blog_posts', {
+  slug: text('slug').primaryKey(),
+  publishedAt: text('published_at').notNull(),
+  sourcePublishedAt: text('source_published_at').notNull(),
+  readingMinutes: integer('reading_minutes').notNull(),
+  status: text('status').notNull().default('draft'),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+});
+
+export const blogPostTranslations = sqliteTable(
+  'blog_post_translations',
+  {
+    slug: text('slug')
+      .notNull()
+      .references(() => blogPosts.slug, { onDelete: 'cascade' }),
+    locale: text('locale').notNull(),
+    title: text('title').notNull(),
+    description: text('description').notNull(),
+    tagsJson: text('tags_json').notNull().default('[]'),
+    sourcesJson: text('sources_json').notNull().default('[]'),
+  },
+  (table) => [primaryKey({ columns: [table.slug, table.locale] })],
+);
+
 export type Wallet = typeof wallets.$inferSelect;
 export type NewWallet = typeof wallets.$inferInsert;
 
@@ -120,6 +145,11 @@ export type NewUsageStat = typeof usageStats.$inferInsert;
 
 export type SpendingLimit = typeof spendingLimits.$inferSelect;
 export type NewSpendingLimit = typeof spendingLimits.$inferInsert;
+
+export type BlogPost = typeof blogPosts.$inferSelect;
+export type NewBlogPost = typeof blogPosts.$inferInsert;
+export type BlogPostTranslation = typeof blogPostTranslations.$inferSelect;
+export type NewBlogPostTranslation = typeof blogPostTranslations.$inferInsert;
 
 /**
  * OAuth 2.0 三件套：clients / codes / tokens。
