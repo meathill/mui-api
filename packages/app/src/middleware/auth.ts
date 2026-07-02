@@ -2,6 +2,7 @@ import type { Context, Next } from 'hono';
 import { validateBearer } from '../lib/bearer-validator';
 import { createLeaseHeartbeat, wrapResponseBodyWithFinalizer } from '../lib/concurrency-response';
 import { generateId } from '../lib/crypto';
+import { createErrorResponse, ErrorTypes, tooManyRequests } from '../lib/errors';
 import {
   ConcurrencyService,
   DEFAULT_CONCURRENCY_LEASE_TTL_MS,
@@ -30,16 +31,14 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
     const apiKey = authHeader?.startsWith('Bearer ') ? authHeader.substring(7) : c.req.header('x-api-key');
 
     if (!apiKey) {
-      return c.json(
-        { error: { message: '缺少 Authorization header 或 x-api-key', type: 'invalid_request_error' } },
-        401,
-      );
+      // spec 语义：缺头是 401，但 type 仍为 invalid_request_error
+      return c.json(createErrorResponse('缺少 Authorization header 或 x-api-key', ErrorTypes.INVALID_REQUEST), 401);
     }
 
     // 前缀校验：保留 spec 行为——格式不对返回 invalid_request_error，
     // 反之（前缀对但 KV/DB 查不到）算 invalid_api_key。两类区分对客户端友好。
     if (!apiKey.startsWith('sk-gw-') && !apiKey.startsWith('mr_at_')) {
-      return c.json({ error: { message: '无效的 API Key 格式', type: 'invalid_request_error' } }, 401);
+      return c.json(createErrorResponse('无效的 API Key 格式', ErrorTypes.INVALID_REQUEST), 401);
     }
 
     const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
@@ -49,7 +48,7 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
     // 同时支持 PAT (sk-gw-*) 与 OAuth access_token (mr_at_*)。详见 bearer-validator.ts。
     const validation = await validateBearer(c.env, apiKey, c.get('db'));
     if (!validation) {
-      return c.json({ error: { message: '无效的 API Key', type: 'invalid_api_key' } }, 401);
+      return c.json(createErrorResponse('无效的 API Key', ErrorTypes.INVALID_API_KEY), 401);
     }
     const { userId, keyHash: apiKeyId } = validation;
 
@@ -63,23 +62,18 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
     // 检查全局服务暂停状态
     const globalConfig = await kvService.getGlobalConfig();
     if (globalConfig?.isServicePaused) {
-      return c.json({ error: { message: '服务暂时不可用，请稍后重试', type: 'service_paused' } }, 503);
+      return c.json(createErrorResponse('服务暂时不可用，请稍后重试', 'service_paused'), 503);
     }
 
     // 检查用户暂停状态
     if (data.isSuspended) {
-      return c.json({ error: { message: '账户已因超出消费限额被暂停，请联系管理员', type: 'account_suspended' } }, 403);
+      return c.json(createErrorResponse('账户已因超出消费限额被暂停，请联系管理员', 'account_suspended'), 403);
     }
 
     // 检查余额
     if (data.balance < MIN_BALANCE && !(allowFreeQuotaFallback && hasFreeQuotaFallback(globalConfig, data))) {
       return c.json(
-        {
-          error: {
-            message: `余额不足，当前余额: $${data.balance.toFixed(4)}`,
-            type: 'insufficient_quota',
-          },
-        },
+        createErrorResponse(`余额不足，当前余额: $${data.balance.toFixed(4)}`, ErrorTypes.INSUFFICIENT_QUOTA),
         402,
       );
     }
@@ -93,15 +87,7 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
       leaseTtlMs: DEFAULT_CONCURRENCY_LEASE_TTL_MS,
     });
     if (!concurrencyLease.ok || !concurrencyLease.leaseId) {
-      return c.json(
-        {
-          error: {
-            message: `并发请求超限，最大允许 ${maxConcurrency} 个并发请求`,
-            type: 'rate_limit_exceeded',
-          },
-        },
-        429,
-      );
+      return tooManyRequests(c, `并发请求超限，最大允许 ${maxConcurrency} 个并发请求`);
     }
 
     // 注入用户信息

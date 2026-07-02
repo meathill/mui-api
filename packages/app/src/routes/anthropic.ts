@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { badRequest, gatewayError } from '../lib/errors';
 import { authMiddleware } from '../middleware/auth';
 import { createProxyServices } from '../services/service-factory';
 import type { CloudflareBindings } from '../types';
@@ -24,10 +25,10 @@ anthropic.post('/messages', authMiddleware, async (c) => {
   if (isResponse(body)) return body;
 
   if (!body.model) {
-    return c.json({ error: { message: '缺少 model 参数', type: 'invalid_request_error' } }, 400);
+    return badRequest(c, '缺少 model 参数');
   }
   if (!Array.isArray(body.messages)) {
-    return c.json({ error: { message: '缺少 messages 参数', type: 'invalid_request_error' } }, 400);
+    return badRequest(c, '缺少 messages 参数');
   }
 
   const modelId = body.model as string;
@@ -38,15 +39,7 @@ anthropic.post('/messages', authMiddleware, async (c) => {
 
   // 仅服务 Claude；拒绝其它 provider，避免借道 /v1/messages 路由到非 anthropic 上游或误用凭证
   if (modelConfig.provider !== 'anthropic') {
-    return c.json(
-      {
-        error: {
-          message: `模型 ${modelId} 不是 anthropic 模型，/v1/messages 仅支持 Claude`,
-          type: 'invalid_request_error',
-        },
-      },
-      400,
-    );
+    return badRequest(c, `模型 ${modelId} 不是 anthropic 模型，/v1/messages 仅支持 Claude`);
   }
 
   const accessError = await assertBillableAccess(c, services, modelId);
@@ -65,10 +58,7 @@ anthropic.post('/messages', authMiddleware, async (c) => {
 
     if (!upstream.ok) {
       const errText = await upstream.text();
-      return c.json(
-        { error: { message: `上游 anthropic 错误 (${upstream.status}): ${errText}`, type: 'api_error' } },
-        502,
-      );
+      return gatewayError(c, `上游 anthropic 错误 (${upstream.status}): ${errText}`);
     }
 
     const contentType = upstream.headers.get('content-type') ?? '';
@@ -86,7 +76,7 @@ anthropic.post('/messages', authMiddleware, async (c) => {
   } catch (error) {
     console.error('[anthropic/messages] 调用失败:', error);
     const message = error instanceof Error ? error.message : '上游调用失败';
-    return c.json({ error: { message, type: 'api_error' } }, 502);
+    return gatewayError(c, message);
   }
 });
 

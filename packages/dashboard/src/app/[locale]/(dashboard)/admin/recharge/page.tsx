@@ -1,5 +1,6 @@
 'use client';
 
+import { formatBalance } from '@muirouter/shared-db/money';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
@@ -151,9 +152,9 @@ export default function RechargeLogsPage() {
                     <TableCell className="text-xs" title={log.operatorId || ''}>
                       {log.operatorId ? userMap.get(log.operatorId) || log.operatorId : '-'}
                     </TableCell>
-                    <TableCell className="text-right font-mono">${log.amount.toFixed(2)}</TableCell>
+                    <TableCell className="text-right font-mono">${formatBalance(log.amount)}</TableCell>
                     <TableCell className="text-right font-mono">
-                      {log.balanceAfter != null ? `$${log.balanceAfter.toFixed(2)}` : '-'}
+                      {log.balanceAfter != null ? `$${formatBalance(log.balanceAfter)}` : '-'}
                     </TableCell>
                     <TableCell className="text-muted-foreground">{log.note || '-'}</TableCell>
                   </TableRow>

@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { badRequest, gatewayError } from '../lib/errors';
 import { authMiddleware } from '../middleware/auth';
 import {
   callAiBinding,
@@ -13,7 +14,6 @@ import type { CloudflareBindings } from '../types';
 import {
   appendFormEntry,
   assertBillableAccess,
-  invalidRequest,
   isResponse,
   lookupModel,
   processBilling,
@@ -37,10 +37,10 @@ openai.post('/chat/completions', async (c) => {
   if (isResponse(body)) return body;
 
   if (!body.model) {
-    return c.json({ error: { message: '缺少 model 参数', type: 'invalid_request_error' } }, 400);
+    return badRequest(c, '缺少 model 参数');
   }
   if (!Array.isArray(body.messages)) {
-    return c.json({ error: { message: '缺少 messages 参数', type: 'invalid_request_error' } }, 400);
+    return badRequest(c, '缺少 messages 参数');
   }
 
   const modelId = body.model as string;
@@ -75,15 +75,7 @@ openai.post('/chat/completions', async (c) => {
 
     if (!upstream.ok) {
       const errText = await upstream.text();
-      return c.json(
-        {
-          error: {
-            message: `上游 ${provider} 错误 (${upstream.status}): ${errText}`,
-            type: 'api_error',
-          },
-        },
-        502,
-      );
+      return gatewayError(c, `上游 ${provider} 错误 (${upstream.status}): ${errText}`);
     }
 
     // 流式：tee，一路给客户端，一路抽 usage
@@ -110,7 +102,7 @@ openai.post('/chat/completions', async (c) => {
   } catch (error) {
     console.error(`[${provider}] 调用失败:`, error);
     const message = error instanceof Error ? error.message : '上游调用失败';
-    return c.json({ error: { message, type: 'api_error' } }, 502);
+    return gatewayError(c, message);
   }
 });
 
@@ -123,10 +115,10 @@ openai.post('/images/generations', async (c) => {
   if (isResponse(body)) return body;
 
   if (typeof body.model !== 'string' || !body.model) {
-    return invalidRequest(c, '缺少 model 参数');
+    return badRequest(c, '缺少 model 参数');
   }
   if (typeof body.prompt !== 'string' || !body.prompt) {
-    return invalidRequest(c, '缺少 prompt 参数');
+    return badRequest(c, '缺少 prompt 参数');
   }
 
   const modelId = body.model;
@@ -138,7 +130,7 @@ openai.post('/images/generations', async (c) => {
   if (accessError) return accessError;
 
   if (modelConfig.provider !== 'openai') {
-    return invalidRequest(c, '图片生成接口目前仅支持 openai provider');
+    return badRequest(c, '图片生成接口目前仅支持 openai provider');
   }
 
   try {
@@ -159,7 +151,7 @@ openai.post('/images/generations', async (c) => {
   } catch (error) {
     console.error('[openai/images/generations] 调用失败:', error);
     const message = error instanceof Error ? error.message : '上游调用失败';
-    return c.json({ error: { message, type: 'api_error' } }, 502);
+    return gatewayError(c, message);
   }
 });
 
@@ -170,23 +162,23 @@ openai.post('/images/generations', async (c) => {
 openai.post('/images/edits', async (c) => {
   const contentType = c.req.header('content-type') ?? '';
   if (!contentType.includes('multipart/form-data')) {
-    return invalidRequest(c, '图片编辑接口需要 multipart/form-data 请求体');
+    return badRequest(c, '图片编辑接口需要 multipart/form-data 请求体');
   }
 
   let form: FormData;
   try {
     form = await c.req.formData();
   } catch {
-    return invalidRequest(c, '请求体必须是有效 multipart/form-data');
+    return badRequest(c, '请求体必须是有效 multipart/form-data');
   }
 
   const modelValue = form.get('model');
   const promptValue = form.get('prompt');
   if (typeof modelValue !== 'string' || !modelValue) {
-    return invalidRequest(c, '缺少 model 参数');
+    return badRequest(c, '缺少 model 参数');
   }
   if (typeof promptValue !== 'string' || !promptValue) {
-    return invalidRequest(c, '缺少 prompt 参数');
+    return badRequest(c, '缺少 prompt 参数');
   }
 
   const services = createProxyServices(c.env, c.get('db'));
@@ -197,7 +189,7 @@ openai.post('/images/edits', async (c) => {
   if (accessError) return accessError;
 
   if (modelConfig.provider !== 'openai') {
-    return invalidRequest(c, '图片编辑接口目前仅支持 openai provider');
+    return badRequest(c, '图片编辑接口目前仅支持 openai provider');
   }
 
   const upstreamForm = new FormData();
@@ -223,7 +215,7 @@ openai.post('/images/edits', async (c) => {
   } catch (error) {
     console.error('[openai/images/edits] 调用失败:', error);
     const message = error instanceof Error ? error.message : '上游调用失败';
-    return c.json({ error: { message, type: 'api_error' } }, 502);
+    return gatewayError(c, message);
   }
 });
 

@@ -3,6 +3,7 @@
  * 所有请求走 Next.js API Route，直接操作共享 D1/KV
  */
 
+import type { FreeQuotaStatus, GlobalConfig } from '@muirouter/shared-db/types';
 import { buildQuery } from './query';
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -223,24 +224,8 @@ export interface Pagination {
   totalPages: number;
 }
 
-export interface GlobalConfig {
-  dailySpendingCap: number;
-  monthlySpendingCap: number;
-  adminEmail: string;
-  isServicePaused: boolean;
-  freeQuota?: FreeQuotaConfig;
-}
-
-export interface FreeQuotaConfig {
-  enabled: boolean;
-  amount: number;
-  modelIds: string[];
-}
-
-export interface FreeQuotaStatus extends FreeQuotaConfig {
-  used: number;
-  remaining: number;
-}
+// 数据形状定义已上移到 shared-db（app / dashboard 共用），此处转发保持既有 import 路径
+export type { FreeQuotaConfig, FreeQuotaStatus, GlobalConfig } from '@muirouter/shared-db/types';
 
 export interface RechargeLogItem {
   id: string;

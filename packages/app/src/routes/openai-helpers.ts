@@ -1,5 +1,6 @@
 import type { Context } from 'hono';
 import type { Model } from '../db/schema';
+import { badRequest, createErrorResponse, ErrorTypes, gatewayError } from '../lib/errors';
 import { MIN_BALANCE } from '../middleware/auth';
 import type { ModelPricing } from '../services/billing-service';
 import type { ProxyServices } from '../services/service-factory';
@@ -20,15 +21,11 @@ export type ModelLookup = {
   modelPricing: ModelPricing;
 };
 
-export function invalidRequest(c: OpenAIContext, message: string) {
-  return c.json({ error: { message, type: 'invalid_request_error' } }, 400);
-}
-
 export async function readJsonBody(c: OpenAIContext): Promise<JsonBody | Response> {
   try {
     return await c.req.json<JsonBody>();
   } catch {
-    return invalidRequest(c, '请求体必须是有效 JSON');
+    return badRequest(c, '请求体必须是有效 JSON');
   }
 }
 
@@ -39,7 +36,8 @@ export async function lookupModel(
 ): Promise<ModelLookup | Response> {
   const modelConfig = await services.modelCatalog.getById(modelId);
   if (!modelConfig) {
-    return c.json({ error: { message: `未知模型: ${modelId}`, type: 'invalid_request_error' } }, 404);
+    // OpenAI 兼容语义：未知模型是 404 但 type 仍为 invalid_request_error
+    return c.json(createErrorResponse(`未知模型: ${modelId}`, ErrorTypes.INVALID_REQUEST), 404);
   }
 
   return {
@@ -175,12 +173,7 @@ export async function assertBillableAccess(
   const freeQuotaMessage = freeQuota.enabled && !freeQuota.eligible ? `，模型 ${modelId} 不在免费额度范围内` : '';
 
   return c.json(
-    {
-      error: {
-        message: `余额不足，当前余额: $${balance.toFixed(4)}${freeQuotaMessage}`,
-        type: 'insufficient_quota',
-      },
-    },
+    createErrorResponse(`余额不足，当前余额: $${balance.toFixed(4)}${freeQuotaMessage}`, ErrorTypes.INSUFFICIENT_QUOTA),
     402,
   );
 }
@@ -194,15 +187,7 @@ export async function proxyOpenAIImageResponse(
 ) {
   if (!upstream.ok) {
     const errText = await upstream.text();
-    return c.json(
-      {
-        error: {
-          message: `上游 openai 错误 (${upstream.status}): ${errText}`,
-          type: 'api_error',
-        },
-      },
-      502,
-    );
+    return gatewayError(c, `上游 openai 错误 (${upstream.status}): ${errText}`);
   }
 
   const [clientResp, billingResp] = [upstream.clone(), upstream];

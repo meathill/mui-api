@@ -1,7 +1,6 @@
 import { eq } from 'drizzle-orm';
 import type { Database } from '../db';
 import { spendingLimits } from '../db/schema';
-import type { FreeQuotaConfig } from '../types';
 import type { EmailService } from './email-service';
 import type { KVService } from './kv-service';
 import type { WalletService } from './wallet-service';
@@ -9,13 +8,8 @@ import type { WalletService } from './wallet-service';
 // 告警冷却时间：24 小时内不重复发送
 const ALERT_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 
-export interface GlobalConfig {
-  dailySpendingCap: number;
-  monthlySpendingCap: number;
-  adminEmail: string;
-  isServicePaused: boolean;
-  freeQuota?: FreeQuotaConfig;
-}
+// 定义已上移到 shared-db（app / dashboard 共用 KV 数据形状），此处转发保持既有 import 路径
+export type { GlobalConfig } from '@muirouter/shared-db/types';
 
 /**
  * 消费告警服务

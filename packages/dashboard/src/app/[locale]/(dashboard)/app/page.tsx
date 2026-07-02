@@ -1,5 +1,6 @@
 'use client';
 
+import { formatBalance } from '@muirouter/shared-db/money';
 import { ChartBar, CreditCard, Gift, Key, Wallet } from '@phosphor-icons/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
@@ -109,8 +110,8 @@ export default function DashboardHome() {
     setTopUpNotice({
       title: t('topUp.successTitle'),
       description: t('topUp.successDesc', {
-        amount: result.amount.toFixed(2),
-        balance: (result.balanceAfter ?? 0).toFixed(2),
+        amount: formatBalance(result.amount),
+        balance: formatBalance(result.balanceAfter ?? 0),
       }),
       variant: 'success',
     });
@@ -212,7 +213,7 @@ export default function DashboardHome() {
             </div>
             <span className="text-sm text-muted-foreground">{t('balance')}</span>
           </div>
-          <p className="font-heading text-3xl font-bold tracking-tight">${balance.toFixed(2)}</p>
+          <p className="font-heading text-3xl font-bold tracking-tight">${formatBalance(balance)}</p>
         </Card>
 
         <Card className="p-6">
@@ -243,10 +244,10 @@ export default function DashboardHome() {
               </div>
               <span className="text-sm text-muted-foreground">{t('freeQuota')}</span>
             </div>
-            <p className="font-heading text-3xl font-bold tracking-tight">${freeQuota.remaining.toFixed(2)}</p>
+            <p className="font-heading text-3xl font-bold tracking-tight">${formatBalance(freeQuota.remaining)}</p>
             <p className="mt-1 text-xs text-muted-foreground">
               {t('freeQuotaHint', {
-                amount: freeQuota.amount.toFixed(2),
+                amount: formatBalance(freeQuota.amount),
                 count: freeQuota.modelIds.length,
               })}
             </p>

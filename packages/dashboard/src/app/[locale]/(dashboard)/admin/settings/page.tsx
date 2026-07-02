@@ -1,5 +1,6 @@
 'use client';
 
+import { formatBalance } from '@muirouter/shared-db/money';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -174,11 +175,11 @@ export default function SettingsPage() {
         <div className="grid grid-cols-2 gap-3 mb-4">
           <Card className="p-4">
             <p className="text-xs text-muted-foreground mb-1">{t('todaySpending')}</p>
-            <p className="font-heading text-2xl font-bold tracking-tight">${stats.dailySpending.toFixed(2)}</p>
+            <p className="font-heading text-2xl font-bold tracking-tight">${formatBalance(stats.dailySpending)}</p>
             {stats.dailySpendingCap > 0 && (
               <div className="mt-3">
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                  <span>{t('cap', { amount: stats.dailySpendingCap.toFixed(2) })}</span>
+                  <span>{t('cap', { amount: formatBalance(stats.dailySpendingCap) })}</span>
                   <span>{((stats.dailySpending / stats.dailySpendingCap) * 100).toFixed(1)}%</span>
                 </div>
                 <Progress value={Math.min(100, (stats.dailySpending / stats.dailySpendingCap) * 100)} />
@@ -187,11 +188,11 @@ export default function SettingsPage() {
           </Card>
           <Card className="p-4">
             <p className="text-xs text-muted-foreground mb-1">{t('monthlySpending')}</p>
-            <p className="font-heading text-2xl font-bold tracking-tight">${stats.monthlySpending.toFixed(2)}</p>
+            <p className="font-heading text-2xl font-bold tracking-tight">${formatBalance(stats.monthlySpending)}</p>
             {stats.monthlySpendingCap > 0 && (
               <div className="mt-3">
                 <div className="flex justify-between text-xs text-muted-foreground mb-1">
-                  <span>{t('cap', { amount: stats.monthlySpendingCap.toFixed(2) })}</span>
+                  <span>{t('cap', { amount: formatBalance(stats.monthlySpendingCap) })}</span>
                   <span>{((stats.monthlySpending / stats.monthlySpendingCap) * 100).toFixed(1)}%</span>
                 </div>
                 <Progress value={Math.min(100, (stats.monthlySpending / stats.monthlySpendingCap) * 100)} />

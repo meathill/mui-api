@@ -48,6 +48,7 @@ pnpm --dir packages/shared-db run db:migrate:prod
 ### 必需 secrets
 
 - `CF_AIG_TOKEN`
+- `CF_TOKEN` — CF API Token，Claude Unified Billing 代付凭证（原生 `/v1/messages` 透传用）
 - `ADMIN_SECRET`
 - `ADMIN_EMAIL`
 - `BASE_URL`
@@ -58,6 +59,8 @@ pnpm --dir packages/shared-db run db:migrate:prod
 - `RESEND_API_KEY`
 - `MIMO_API_KEY` — 启用 `xiaomi-mimo` provider 时必需，直连 Xiaomi MiMo OpenAI 兼容接口
 - `MIMO_BASE_URL` — Xiaomi MiMo OpenAI 兼容接口地址，默认 `https://api.xiaomimimo.com/v1`
+- `ANTHROPIC_CREDENTIAL_MODE` — `unified`（默认）/ `byok`，切自有 Anthropic key 时设 `byok`
+- `ANTHROPIC_API_KEY` — 自有 Anthropic key，仅 `byok` 模式需要
 
 ### 构建与部署
 

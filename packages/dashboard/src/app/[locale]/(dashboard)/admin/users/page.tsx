@@ -1,5 +1,6 @@
 'use client';
 
+import { formatBalance } from '@muirouter/shared-db/money';
 import { SearchIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
@@ -130,7 +131,7 @@ export default function UsersPage() {
     setRechargeMsg('');
     try {
       const result = await api.recharge(rechargeEmail, Number(rechargeAmount), rechargeNote || undefined);
-      setRechargeMsg(te('rechargeSuccess', { balance: result.balance.toFixed(2) }));
+      setRechargeMsg(te('rechargeSuccess', { balance: formatBalance(result.balance) }));
       setRechargeEmail('');
       setRechargeAmount('');
       setRechargeNote('');

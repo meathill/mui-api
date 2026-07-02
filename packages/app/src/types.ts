@@ -29,27 +29,8 @@ export interface CloudflareBindings {
   STRIPE_DEFAULT_CANCEL_URL?: string;
 }
 
-// KV 用户数据结构
-export interface KVUserData {
-  balance: number;
-  concurrency: number; // Durable Object 同步回 KV 的并发展示镜像，不参与准入判断
-  freeQuotaUsed?: number; // 已消耗的全局免费额度，单位 USD
-  isSuspended?: boolean;
-}
-
-export interface KVUserMetadata {
-  maxConcurrency?: number;
-  rateMultiplier?: number; // 用户费率倍率，默认 1
-  stripeCustomerId?: string; // dashboard 自助充值流程写入，与 stripe-service.ts 的独立充值渠道无关
-  email: string;
-  createdAt: string;
-}
-
-export interface FreeQuotaConfig {
-  enabled: boolean;
-  amount: number;
-  modelIds: string[];
-}
+// KV 数据形状定义已上移到 shared-db（app / dashboard 共用），此处转发保持既有 import 路径
+export type { FreeQuotaConfig, KVUserData, KVUserMetadata } from '@muirouter/shared-db/types';
 
 // Hono 类型扩展
 declare module 'hono' {

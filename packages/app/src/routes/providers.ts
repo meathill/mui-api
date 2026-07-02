@@ -1,4 +1,5 @@
 import { Hono } from 'hono';
+import { badRequest, gatewayError } from '../lib/errors';
 import { paidAuthMiddleware } from '../middleware/auth';
 import { createProxyServices } from '../services/service-factory';
 import { extractStreamUsage, extractUsage } from '../services/usage-extractor';
@@ -20,7 +21,7 @@ providers.all('/:provider{.+}/*', async (c) => {
   const provider = c.req.param('provider');
 
   if (!SUPPORTED_PROVIDERS.has(provider)) {
-    return c.json({ error: { message: `不支持的 provider: ${provider}`, type: 'invalid_request_error' } }, 400);
+    return badRequest(c, `不支持的 provider: ${provider}`);
   }
 
   const userId = c.get('userId');
@@ -109,10 +110,10 @@ providers.all('/:provider{.+}/*', async (c) => {
     console.error(`原生代理调用失败 (${provider}):`, error);
 
     if (error instanceof Error) {
-      return c.json({ error: { message: error.message, type: 'api_error' } }, 502);
+      return gatewayError(c, error.message);
     }
 
-    return c.json({ error: { message: '上游 API 调用失败', type: 'api_error' } }, 502);
+    return gatewayError(c, '上游 API 调用失败');
   }
 });
 

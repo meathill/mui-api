@@ -2,43 +2,18 @@
  * KV 操作工具函数
  * 与 packages/app/src/services/kv-service.ts 使用相同的 key 格式和数据结构
  */
+import type {
+  FreeQuotaConfig,
+  FreeQuotaStatus,
+  GlobalConfig,
+  KVUserData,
+  KVUserMetadata,
+} from '@muirouter/shared-db/types';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 // ==================== 类型定义 ====================
-
-export interface KVUserData {
-  balance: number;
-  concurrency: number; // Durable Object 同步回 KV 的并发展示镜像，仅用于展示
-  freeQuotaUsed?: number;
-  isSuspended?: boolean;
-}
-
-export interface KVUserMetadata {
-  maxConcurrency?: number;
-  rateMultiplier?: number; // 用户费率倍率，默认 1
-  stripeCustomerId?: string;
-  email: string;
-  createdAt: string;
-}
-
-export interface GlobalConfig {
-  dailySpendingCap: number;
-  monthlySpendingCap: number;
-  adminEmail: string;
-  isServicePaused: boolean;
-  freeQuota?: FreeQuotaConfig;
-}
-
-export interface FreeQuotaConfig {
-  enabled: boolean;
-  amount: number;
-  modelIds: string[];
-}
-
-export interface FreeQuotaStatus extends FreeQuotaConfig {
-  used: number;
-  remaining: number;
-}
+// 数据形状定义已上移到 shared-db（app / dashboard 共用），此处转发保持既有 import 路径
+export type { FreeQuotaConfig, FreeQuotaStatus, GlobalConfig, KVUserData, KVUserMetadata };
 
 export interface ApiKeyMetadata {
   keyPrefix: string;

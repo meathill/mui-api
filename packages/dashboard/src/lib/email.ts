@@ -2,6 +2,7 @@
  * 邮件服务
  * 从 packages/app/src/services/email-service.ts 搬移
  */
+import { formatBalance } from '@muirouter/shared-db/money';
 import { Resend } from 'resend';
 
 interface EmailConfig {
@@ -55,10 +56,10 @@ function getRechargeSuccessEmailHtml(amount: number, newBalance: number): string
     </div>
     <p>你好！</p>
     <p>感谢你的持续支持！你的充值已成功到账。</p>
-    <div class="amount">+$${amount.toFixed(2)}</div>
+    <div class="amount">+$${formatBalance(amount)}</div>
     <div class="balance">
       <p style="margin: 0; color: #666;">当前余额</p>
-      <p style="margin: 5px 0 0; font-size: 24px; font-weight: bold;">$${newBalance.toFixed(2)}</p>
+      <p style="margin: 5px 0 0; font-size: 24px; font-weight: bold;">$${formatBalance(newBalance)}</p>
     </div>
     <p>你可以继续使用你的 API Key 调用服务。</p>
     <div class="footer">
