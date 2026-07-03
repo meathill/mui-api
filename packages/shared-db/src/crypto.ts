@@ -1,6 +1,13 @@
+// API Key 生成与哈希工具。packages/app 与 packages/dashboard 共用：
+// dashboard 生成 key 并写入 KV `apikey:{hash}`，app 按同一哈希算法验证，
+// 两侧算法必须一致才能互认，故实现只在这里维护一份。
+
 /**
- * 加密和随机生成工具
+ * 生成 UUID v4
  */
+export function generateId(): string {
+  return crypto.randomUUID();
+}
 
 /**
  * 生成 API Key，格式：sk-gw-xxxxx

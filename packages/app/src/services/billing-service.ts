@@ -1,6 +1,6 @@
 import type { Database } from '../db';
 import { type NewUsageLog, usageLogs } from '../db/schema';
-import { generateId } from '../lib/crypto';
+import { generateId } from '@muirouter/shared-db/crypto';
 import type { FreeQuotaConfig } from '../types';
 import type { KVService } from './kv-service';
 import type { WalletService } from './wallet-service';

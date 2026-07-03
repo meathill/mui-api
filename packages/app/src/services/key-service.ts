@@ -1,4 +1,4 @@
-import { generateApiKey, generateId, getKeyPrefix } from '../lib/crypto';
+import { generateApiKey, generateId, getKeyPrefix } from '@muirouter/shared-db/crypto';
 import type { KVService } from './kv-service';
 
 export interface GenerateKeyResult {

@@ -2,7 +2,7 @@ import type { Context, Next } from 'hono';
 import { Hono } from 'hono';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { Database } from '../db';
-import { hashApiKey } from '../lib/crypto';
+import { hashApiKey } from '@muirouter/shared-db/crypto';
 import { authMiddleware, paidAuthMiddleware } from './auth';
 
 /**

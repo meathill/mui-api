@@ -50,7 +50,7 @@ export async function seedApiKey(
 }
 
 /**
- * SHA256 哈希（与 src/lib/crypto.ts 中的 hashApiKey 一致）
+ * SHA256 哈希（与 @muirouter/shared-db/crypto 的 hashApiKey 一致）
  */
 async function hashKey(key: string): Promise<string> {
   const encoder = new TextEncoder();

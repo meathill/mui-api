@@ -2,7 +2,7 @@ import { eq, sql } from 'drizzle-orm';
 import Stripe from 'stripe';
 import type { Database } from '../db';
 import { rechargeLogs, stripeTopupSessions, wallets } from '../db';
-import { generateId } from '../lib/crypto';
+import { generateId } from '@muirouter/shared-db/crypto';
 import { fromCents } from '@muirouter/shared-db/money';
 import type { CloudflareBindings } from '../types';
 import { WalletService } from './wallet-service';

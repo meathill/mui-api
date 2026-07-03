@@ -1,7 +1,7 @@
 import { and, count, eq, gte, isNull, lt, sql, sum } from 'drizzle-orm';
 import type { Database } from '../db';
 import { usageLogs, usageStats } from '../db/schema';
-import { generateId } from '../lib/crypto';
+import { generateId } from '@muirouter/shared-db/crypto';
 import type { PeriodRange } from './stats-aggregation-periods';
 
 export type Granularity = 'hourly' | 'daily' | 'weekly' | 'monthly';

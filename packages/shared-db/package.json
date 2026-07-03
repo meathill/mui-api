@@ -14,7 +14,8 @@
     "./auth": "./src/auth-schema.ts",
     "./business": "./src/business-schema.ts",
     "./types": "./src/types.ts",
-    "./money": "./src/money.ts"
+    "./money": "./src/money.ts",
+    "./crypto": "./src/crypto.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.1"
