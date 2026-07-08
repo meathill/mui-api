@@ -53,6 +53,17 @@
 
 **类型兼容性**：drizzle-orm@0.45.1 的 `AnyD1Database` 类型未收录 `D1DatabaseSession`，但两者在 `prepare`/`batch` 上结构兼容（drizzle 的 D1 session 实现只调用这两个方法），`db/index.ts` 的 `createDb()` 内部做了一次 cast，是安全的。
 
+**踩过的坑：Sessions API 会偶发 `Network connection lost`**。启用 Sessions API 后生产上出现间歇性登录失败（OAuth 社交登录写 `verification` 表时报 `SERVER_ERROR`），一开始怀疑是「D1 库过载」，但 `wrangler d1 insights` 查出的真实查询量很低（最高频查询 7 天才 780 次、均延迟 <1ms），量级远够不上过载，这个猜测被数据推翻。真正定位靠的是在 `getDb()`/`createDb()` 上加了一层诊断日志（先不重试，只记录完整错误链路），等到下次真实报错才拿到样本：
+
+```
+D1_ERROR: Network connection lost.
+  caused by: Network connection lost.
+```
+
+抛出点是 `D1DatabaseSession._sendOrThrow`——只有走 Sessions API（`env.DB.withSession(...)`）才会经过的内部方法，说明这是 D1 read replication 引入的、和查询负载无关的瞬时网络错误，不是这个项目独有的问题（Cloudflare 官方在 workers-sdk issue 里确认过「D1 常见的瞬时性错误」这个说法）。**教训：判断「是不是过载」不能只凭错误信息里的字面意思（"overloaded"/"queued"这类词），要么拿 `d1 insights` 这样的真实指标验证，要么先加诊断日志拿到下一次的真实样本，再下结论。**
+
+**修复**：新增 `packages/shared-db/src/d1-retry.ts` 的 `withD1Retry()`，包一层 `prepare/bind/run/all/raw/first/batch`（`batch()` 需要用 `WeakMap` 反解出真实的 `D1PreparedStatement` 再传给底层 `d1.batch()`，因为包装出来的壳对象不能直接喂给 workerd 的原生实现）。用白名单（而非黑名单）判断是否值得重试：只匹配已知的瞬时性错误特征（`overloaded`/`internal error`/`network`/`timeout`），约束/schema 类错误（`constraint failed`/`no such table`/`no such column`/`syntax error`）明确排除、不重试——这次的真实样本命中 `/network/i`，验证了分类逻辑。`packages/dashboard/src/lib/db.ts` 的 `getDb()` 和 `packages/app/src/db/index.ts` 的 `createDb()` 都接入了这层包装，因为两边都用同一个 D1 库、同一个 Sessions API 用法。
+
 ### 异步计费（waitUntil）
 
 **决策**：计费在响应返回后异步执行，不阻塞 API 响应。

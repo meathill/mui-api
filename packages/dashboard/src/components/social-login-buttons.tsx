@@ -21,14 +21,21 @@ type Provider = 'github' | 'google';
 
 export function SocialLoginButtons() {
   const t = useTranslations('login');
+  const te = useTranslations('errors');
   const [loadingProvider, setLoadingProvider] = useState<Provider | null>(null);
+  const [error, setError] = useState('');
 
   async function handleSocialLogin(provider: Provider) {
+    setError('');
     setLoadingProvider(provider);
-    await signIn.social({
+    const result = await signIn.social({
       provider,
       callbackURL: '/app',
     });
+    if (result.error) {
+      setError(result.error.message || te('loginFailedRetry'));
+      setLoadingProvider(null);
+    }
   }
 
   return (
@@ -51,6 +58,7 @@ export function SocialLoginButtons() {
         <GoogleIcon className="size-4" />
         {loadingProvider === 'google' ? t('redirecting') : t('googleLogin')}
       </Button>
+      {error && <p className="text-sm text-destructive">{error}</p>}
     </div>
   );
 }

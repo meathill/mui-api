@@ -6,10 +6,12 @@ import * as authSchema from '@/db/schema';
 
 const schema = { ...authSchema, ...appSchema };
 
-// 排查生产间歇性登录失败（verification 表 INSERT 报错，疑似和最近开启的 D1
-// read replication 有关，未确认）：先只观测，不重试——maxAttempts: 1 保证行为
-// 和之前完全一致（第一次失败照样立刻抛出），只是把完整的错误链路和我们的
-// isRetryableD1Error 判断结果记下来，等真正拿到几次报错样本再决定要不要启用重试。
+// 生产间歇性登录失败（verification 表 INSERT 报错）已确认根因：真实样本是
+// `D1_ERROR: Network connection lost.`，抛出点是 D1DatabaseSession._sendOrThrow——
+// 只有走 Sessions API（env.DB.withSession，即 D1 read replication）才会碰到的
+// 内部路径，和查询负载无关（wrangler d1 insights 显示生产查询量很低）。
+// 见 DEV_NOTE.md「D1 Sessions API 网络瞬时错误」。继续保留诊断日志，方便观察
+// 重试是否真的能把这类瞬时失败挡住。
 function logD1Failure(event: D1RetryAttemptFailure): void {
   const causeChain: string[] = [];
   let current: unknown = event.error;
@@ -33,9 +35,9 @@ function logD1Failure(event: D1RetryAttemptFailure): void {
 export async function getDb() {
   const { env } = await getCloudflareContext({ async: true });
   const session = env.DB.withSession('first-unconstrained');
-  const diagnosedSession = withD1Retry(session, { maxAttempts: 1, onAttemptFailure: logD1Failure });
+  const resilientSession = withD1Retry(session, { onAttemptFailure: logD1Failure });
   // D1DatabaseSession 在 prepare/batch 上与 D1Database 结构兼容，drizzle-orm 当前版本类型未收录，故 cast。
-  return drizzle(diagnosedSession as unknown as D1Database, { schema });
+  return drizzle(resilientSession as unknown as D1Database, { schema });
 }
 
 export type AppDb = Awaited<ReturnType<typeof getDb>>;
