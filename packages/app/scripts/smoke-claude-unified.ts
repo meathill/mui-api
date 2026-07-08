@@ -11,14 +11,15 @@
  *   CF_GATEWAY_ID   默认 api-router
  *   MODEL           默认 claude-haiku-4-5（最便宜，省 credits）
  *
- * 跑 3 条腿，打印 HTTP 状态 + 原始 usage 字段，用来钉死端点/模型ID/计费来源：
+ * 跑 4 条腿，打印 HTTP 状态 + 原始 usage 字段，用来钉死端点/模型ID/计费来源：
  *   A. unified 原生透传    POST .../anthropic/v1/messages（cf-aig-authorization + Authorization: Bearer CF_TOKEN）
  *   B. unified OpenAI 兼容 POST .../compat/chat/completions（model=anthropic/<id>，仅 cf-aig-authorization）
  *   C. byok 原生透传       同 A，但用 x-api-key、不带 CF_TOKEN（仅当提供 ANTHROPIC_API_KEY）
+ *   D. byok OpenAI 兼容    同 B，但 Authorization 用 Bearer ANTHROPIC_API_KEY、不带 CF_TOKEN（仅当提供 ANTHROPIC_API_KEY）
  * 另外尽力拉一次 CF 模型目录，列出可用的 anthropic 模型 ID。
  *
  * 注意：会真实消耗少量 credits（haiku + max_tokens=16，约几厘）。跑前后可在
- * CF 后台 AI Gateway → Credits 核对余额，确认 A、B 扣 credits 而 C 不扣。
+ * CF 后台 AI Gateway → Credits 核对余额，确认 A、B 扣 credits 而 C、D 不扣。
  */
 
 const ACCOUNT_ID = process.env.CF_ACCOUNT_ID ?? 'fdc63eeea83ae8f5234357308b9a638b';
@@ -107,7 +108,8 @@ async function main(): Promise<void> {
     ),
   );
 
-  // C. byok 原生透传：x-api-key + 不带 CF_TOKEN —— 这是将来切 BYOK 的代码路径
+  // C. byok 原生透传：x-api-key + 不带 CF_TOKEN —— /v1/messages 的 BYOK 代码路径（gateway-service.ts proxyNative）
+  // D. byok OpenAI 兼容：Authorization: Bearer ANTHROPIC_API_KEY + 不带 CF_TOKEN —— /v1/chat/completions 的 BYOK 代码路径（callAnthropicCompat）
   if (ANTHROPIC_API_KEY) {
     print(
       'C. byok 原生透传  POST /anthropic/v1/messages  (x-api-key, 无 CF_TOKEN)',
@@ -121,8 +123,20 @@ async function main(): Promise<void> {
         MESSAGES_BODY,
       ),
     );
+
+    print(
+      'D. byok OpenAI 兼容  POST /compat/chat/completions  (Authorization: Bearer ANTHROPIC_API_KEY, 无 CF_TOKEN)',
+      await postJson(
+        `${GATEWAY_BASE}/compat/chat/completions`,
+        {
+          'cf-aig-authorization': `Bearer ${CF_AIG_TOKEN}`,
+          authorization: `Bearer ${ANTHROPIC_API_KEY}`,
+        },
+        { ...MESSAGES_BODY, model: `anthropic/${MODEL}` },
+      ),
+    );
   } else {
-    console.log('\n⏭  跳过 C（byok）：未提供 ANTHROPIC_API_KEY');
+    console.log('\n⏭  跳过 C/D（byok）：未提供 ANTHROPIC_API_KEY');
   }
 
   // 模型目录（尽力而为；失败就去后台看）
@@ -151,9 +165,10 @@ async function main(): Promise<void> {
   console.log(
     '\n完成。请核对：\n' +
       '  · A/C 的 usage 是否含 input_tokens / output_tokens（Anthropic 原生形）\n' +
-      '  · B 的 usage 是否是 prompt_tokens / completion_tokens（OpenAI 形）\n' +
-      '  · CF 后台 credits 是否因 A、B 扣减，而 C 不扣\n' +
-      '  · 若 A/B 报 model 不存在，把上面「可用 anthropic 模型 ID」里的正确串告诉我',
+      '  · B/D 的 usage 是否是 prompt_tokens / completion_tokens（OpenAI 形）\n' +
+      '  · CF 后台 credits 是否因 A、B 扣减，而 C、D 不扣（确认 byok 真的绕开了 Unified Billing）\n' +
+      '  · 若 A/B/C/D 报 model 不存在，把上面「可用 anthropic 模型 ID」里的正确串告诉我\n' +
+      '  · C、D 都要 ✅ 才能放心把生产 ANTHROPIC_CREDENTIAL_MODE 切成 byok',
   );
 }
 

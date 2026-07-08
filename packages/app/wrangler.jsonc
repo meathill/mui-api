@@ -56,6 +56,7 @@
     "DEFAULT_MAX_CONCURRENCY": 3,
     "CF_ACCOUNT_ID": "fdc63eeea83ae8f5234357308b9a638b",
     "CF_GATEWAY_ID": "api-router",
-    "MIMO_BASE_URL": "https://token-plan-sgp.xiaomimimo.com/v1"
+    "MIMO_BASE_URL": "https://token-plan-sgp.xiaomimimo.com/v1",
+    "ANTHROPIC_CREDENTIAL_MODE": "byok"
   }
 }

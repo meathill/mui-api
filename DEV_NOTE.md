@@ -123,7 +123,7 @@ D1_ERROR: Network connection lost.
 **实现**：
 - **OpenAI / Google AI Studio**：继续走 CF AI Gateway，由其 Stored Keys 注入真实的 API Key。
 - **Xiaomi MiMo**：不走 CF AI Gateway，直接用 `MIMO_API_KEY` 请求 OpenAI 兼容接口，默认 base URL 为 `https://api.xiaomimimo.com/v1`，可通过 `MIMO_BASE_URL` 覆盖。Provider 标识为 `xiaomi-mimo`，计费 usage 按 OpenAI 兼容响应解析。
-- **Anthropic (Claude)**：经 CF AI Gateway 的 **Unified Billing** 由 Cloudflare 代付（充值 CF credits，无需自有 Anthropic 账号）。两条对外面：原生 `/v1/messages` 走 provider-native 透传（`proxyNative`，`cf-aig-authorization` + `Authorization: Bearer CF_TOKEN`，返回 Anthropic 原生 usage）；OpenAI 兼容 `/v1/chat/completions` 走 compat 端点（`callAnthropicCompat`，**仅** `cf-aig-authorization`，model 带 `anthropic/` 前缀，返回 OpenAI 形 usage）。upstreamModelId 用 Anthropic 规范连字符 ID（如 `claude-haiku-4-5`）。
+- **Anthropic (Claude)**：经 CF AI Gateway 转发，计费模式（unified 代付 / byok 自付，详见下方「只有 Claude 走 Unified Billing + BYOK 开关」一节）由 `ANTHROPIC_CREDENTIAL_MODE` 控制。两条对外面：原生 `/v1/messages` 走 provider-native 透传（`proxyNative`，`cf-aig-authorization` 固定带，unified 时另加 `Authorization: Bearer CF_TOKEN`、byok 时改成 `x-api-key`，返回 Anthropic 原生 usage）；OpenAI 兼容 `/v1/chat/completions` 走 compat 端点（`callAnthropicCompat`，`cf-aig-authorization` 固定带，unified 时不加别的、byok 时加 `Authorization: Bearer ANTHROPIC_API_KEY`，model 带 `anthropic/` 前缀，返回 OpenAI 形 usage）。upstreamModelId 用 Anthropic 规范连字符 ID（如 `claude-haiku-4-5`）。
   - **入站认证兼容 `x-api-key`**：Anthropic 官方 SDK / Claude Code 默认用 `x-api-key` 头而非 `Authorization: Bearer` 发送凭证，`authMiddleware` 两种头都接受（`middleware/auth.ts`），否则原生 SDK 直连会全部 401。
   - **早期误区订正**：曾以为 Claude 可走 `env.AI.run`（Workers AI binding）「免 Key、按 Workers AI 计费」——这是错的：Workers AI 不托管 Claude，且 Workers AI 模型走 Gateway 也不计入 Unified Billing。Claude 必须走 Unified Billing 代付。
 - **Workers AI (`@cf/*`)**：走 `env.AI.run` + `gateway: { id }`，按 Workers AI 用量（neuron）计费，保留 Gateway 监控。
@@ -138,15 +138,22 @@ D1_ERROR: Network connection lost.
 
 **已知限制（v1）**：不支持 `background: true` 轮询 / `GET` 检索 / 取消（Codex 交互式流式场景不需要）；所有网关用户共享同一上游 OpenAI 账号（AI Gateway Stored Keys），`previous_response_id` 未做租户级加密隔离——这是本项目现有共享凭证模型的既有属性，不是这次改动引入的新风险。
 
-### 只有 Claude 走 Unified Billing（防误烧 credits）+ BYOK 开关
+### 只有 Claude 走 Unified Billing / BYOK（防误烧 credits）+ BYOK 开关
 
 **背景**：其它 provider 的 key 容易获得（OpenAI/Gemini 走 Gateway Stored Keys 自付、MiMo 直连自有 key），只有 Claude 因账号门槛走 CF 代付。Unified Billing 有 5% 充值费与 200 req/min/网关 限速，必须严格限定只有 Claude 用。
 
 **决策**：
 - `gateway-service.ts` 的代付凭证注入改为**显式 allow-list** `UNIFIED_BILLING_PROVIDERS = {anthropic}`（取代原来的反向 deny-list `SELF_PAID_PROVIDERS`）。默认「未知 provider → 自付」，杜绝将来新增 provider 忘记排除而静默落入代付烧 credits。单测断言 openai/google-ai-studio/workers-ai 均不被注入代付凭证。
-- **BYOK 开关** `ANTHROPIC_CREDENTIAL_MODE`（`unified` 默认 / `byok`）：byok 时原生路注入 `x-api-key`、compat 路注入 `Authorization: Bearer ANTHROPIC_API_KEY`，且**绝不带** `Authorization: Bearer CF_TOKEN`（带了会触发代付 / 被 compat 当成 key 报 401）。
-- **计费经济性**：Claude `markupRate` = 1.1，覆盖 CF 5% 充值费 + Stripe 手续费，不赚不亏（本服务为私域开发者辅助工具，不以盈利为目的）。
-- **现状提醒**：作者自有 Anthropic 组织当前被禁用（`This organization has been disabled`），故 BYOK 暂不可用、未实测；unified 主线不受影响。
+- **BYOK 开关** `ANTHROPIC_CREDENTIAL_MODE`（`unified` / `byok`）：byok 时原生路注入 `x-api-key`、compat 路注入 `Authorization: Bearer ANTHROPIC_API_KEY`，且**绝不带** `Authorization: Bearer CF_TOKEN`（带了会触发代付 / 被 compat 当成 key 报 401）。
+- **计费经济性**：Claude `markupRate` = 1.05（2026-07-08 起，从 1.1 下调），byok 下不再产生 CF Unified Billing 的 5% 充值费，只需覆盖 Stripe 手续费。
+- **2026-07-08：全量切到 byok，代码层验证通过**。此前"作者自有 Anthropic 组织被禁用"的限制已解除。用 `scripts/smoke-claude-unified.ts` 的 Leg C（byok 原生透传）+ 新增的 Leg D（byok OpenAI 兼容）分别用真实 `ANTHROPIC_API_KEY` 验证两条路径均 200、usage 字段正常，才把生产 `ANTHROPIC_CREDENTIAL_MODE` 从缺省的 `unified` 改成显式 `byok`（`wrangler.jsonc` `vars`）。
+- **踩过的坑：CF AI Gateway 后台的 Stored Key 会绕过代码层开关**。排查这次切换时发现，`api-router` 网关的 `anthropic` provider 早就在 CF 后台配置了一个 Stored Key（推测是更早排查"组织被禁用"时留下的），这个设置完全不受版本控制、代码里也查不到——即使代码从未设过 `ANTHROPIC_CREDENTIAL_MODE=byok`（缺省 `unified`，`/v1/messages` 会显式发 `Authorization: Bearer CF_TOKEN`），CF Gateway 仍然优先用 Stored Key 打上游，实际效果是请求早就在用自己的 Anthropic 账号出钱、Unified Billing credits 完全没扣——直到今天对着 Anthropic Console 和 CF Gateway credits 两边对账才发现。**教训**：CF Gateway 后台的 Provider Keys 配置是脱离代码库的隐藏状态，会让"代码里写的模式"和"实际生效的模式"悄悄脱节；本次显式把 `ANTHROPIC_CREDENTIAL_MODE=byok` 写回 `wrangler.jsonc`，就是让这个 Stored Key 万一被误删/轮换时，代码层还有一层不依赖 CF 后台点击操作的保险丝。
+
+### AWS Bedrock 直连方案：已设计，暂时搁置
+
+**背景**：2026-07-08 曾计划把 `claude-opus-4-6`/`claude-sonnet-4-6`/`claude-haiku-4-5`（"4.6 及之前"）直连 AWS Bedrock（账号已获这几个模型的访问权限），更高级的模型（`opus-4-7`/`opus-4-8`/`sonnet-5`）切 CF AI Gateway BYOK。调研到细节：AWS Bedrock 不支持 Claude 的 OpenAI Chat Completions 协议（只能走 Messages/Invoke/Converse）；`claude-haiku-4-5` 能走新的 `bedrock-mantle` 端点（纯 Bearer token 鉴权，`POST https://bedrock-mantle.{region}.api.aws/anthropic/v1/messages`）；`claude-opus-4-6`/`claude-sonnet-4-6` 只能走老的 `bedrock-runtime`（`POST .../model/{us.anthropic.claude-...}/invoke`，模型 ID 需要 `us.` cross-region 前缀，鉴权是纯 Bearer 还是要上 AWS SigV4 未有定论，流式响应是 AWS 专有二进制 eventstream 格式，非 SSE）。
+
+**搁置原因**：当天 AWS Bedrock 账号本身访问不稳定（原因未明），且已发现 CF AI Gateway 后台的 Stored Key 让 byok 实际上早就在生效（见上方"只有 Claude 走 Unified Billing / BYOK"一节），能达成同样的省钱目标（绕开 CF 5% 充值费），不需要再额外接入一个尚不稳定、鉴权细节也没完全钉死的新上游。`AWS_BEDROCK_API_KEY` secret 仍然部署在生产（未被代码引用），`bedrock-mantle`/`bedrock-runtime` 拆分方案设计留档于此，以后 Bedrock 稳定或需要绕开 Anthropic 账号限额时可以直接捡回来实现，不需要重新调研端点/鉴权细节。
 
 ### Claude Sonnet 5 限时定价
 

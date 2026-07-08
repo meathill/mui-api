@@ -209,15 +209,15 @@ export const SEED_MODELS: NewModel[] = [
     longContextOutputPrice: null,
   },
 
-  // Anthropic (Claude) — 经 CF AI Gateway Unified Billing 代付（CF_TOKEN）；
-  // upstreamModelId 用 Anthropic 规范连字符 ID（已 smoke 实测 CF 原生端点可用）。markupRate 1.1：覆盖 CF 5% 充值费 + Stripe，不赚不亏。
+  // Anthropic (Claude) — 经 CF AI Gateway BYOK（ANTHROPIC_API_KEY 自付，不经 CF Unified Billing）；
+  // upstreamModelId 用 Anthropic 规范连字符 ID（已 smoke 实测 CF 原生端点可用）。markupRate 1.05：BYOK 下不再有 CF 5% 充值费，只需覆盖 Stripe 手续费。
   {
     id: 'claude-sonnet-5',
     provider: 'anthropic',
     upstreamModelId: 'claude-sonnet-5',
     inputPrice: 2,
     outputPrice: 10,
-    markupRate: 1.1,
+    markupRate: 1.05,
     ...anthropicCache(2),
     longContextThresholdTokens: null,
     longContextInputPrice: null,
@@ -231,7 +231,7 @@ export const SEED_MODELS: NewModel[] = [
     upstreamModelId: 'claude-opus-4-8',
     inputPrice: 5,
     outputPrice: 25,
-    markupRate: 1.1,
+    markupRate: 1.05,
     ...anthropicCache(5),
     longContextThresholdTokens: null,
     longContextInputPrice: null,
@@ -245,7 +245,7 @@ export const SEED_MODELS: NewModel[] = [
     upstreamModelId: 'claude-opus-4-7',
     inputPrice: 5,
     outputPrice: 25,
-    markupRate: 1.1,
+    markupRate: 1.05,
     ...anthropicCache(5),
     longContextThresholdTokens: null,
     longContextInputPrice: null,
@@ -259,7 +259,7 @@ export const SEED_MODELS: NewModel[] = [
     upstreamModelId: 'claude-opus-4-6',
     inputPrice: 5,
     outputPrice: 25,
-    markupRate: 1.1,
+    markupRate: 1.05,
     ...anthropicCache(5),
     longContextThresholdTokens: null,
     longContextInputPrice: null,
@@ -273,7 +273,7 @@ export const SEED_MODELS: NewModel[] = [
     upstreamModelId: 'claude-sonnet-4-6',
     inputPrice: 3,
     outputPrice: 15,
-    markupRate: 1.1,
+    markupRate: 1.05,
     ...anthropicCache(3),
     longContextThresholdTokens: null,
     longContextInputPrice: null,
@@ -287,7 +287,7 @@ export const SEED_MODELS: NewModel[] = [
     upstreamModelId: 'claude-haiku-4-5',
     inputPrice: 1,
     outputPrice: 5,
-    markupRate: 1.1,
+    markupRate: 1.05,
     ...anthropicCache(1),
     longContextThresholdTokens: null,
     longContextInputPrice: null,
