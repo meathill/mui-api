@@ -15,12 +15,14 @@
     "./business": "./src/business-schema.ts",
     "./types": "./src/types.ts",
     "./money": "./src/money.ts",
-    "./crypto": "./src/crypto.ts"
+    "./crypto": "./src/crypto.ts",
+    "./d1-retry": "./src/d1-retry.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.1"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260317.1",
     "@types/node": "^24.7.2",
     "drizzle-kit": "^0.31.10",
     "typescript": "^5.9.3",
