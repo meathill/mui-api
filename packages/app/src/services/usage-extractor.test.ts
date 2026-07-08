@@ -42,6 +42,25 @@ describe('extractUsage', () => {
     });
   });
 
+  it('openai Responses API 非流式：input_tokens_details.cached_tokens 拆出 cached 部分', () => {
+    const data = {
+      model: 'gpt-5.4',
+      usage: {
+        input_tokens: 1000,
+        output_tokens: 200,
+        input_tokens_details: { cached_tokens: 700 },
+        output_tokens_details: { reasoning_tokens: 50 },
+      },
+    };
+    expect(extractUsage('openai', data)).toEqual({
+      model: 'gpt-5.4',
+      inputTokens: 300,
+      cachedInputTokens: 700,
+      cacheWriteTokens: 0,
+      outputTokens: 200, // 含 50 reasoning_tokens，已在 output_tokens 里，不额外累加
+    });
+  });
+
   it('anthropic 提取 input_tokens/output_tokens', () => {
     const data = { model: 'claude-opus-4.6', usage: { input_tokens: 30, output_tokens: 40 } };
     expect(extractUsage('anthropic', data)).toEqual({
@@ -212,6 +231,31 @@ describe('extractStreamUsage', () => {
     ]);
     const result = await extractStreamUsage('xiaomi-mimo', response);
     expect(result).toEqual({ model: 'mimo-v2.5-pro', inputTokens: 21, outputTokens: 34, ...zeroCache });
+  });
+
+  it('openai Responses API 流式：终态事件 response.completed 嵌套 usage', async () => {
+    const response = createSSEResponse([
+      'data: {"type":"response.created","response":{"id":"resp_1","status":"in_progress"}}\n\n',
+      'data: {"type":"response.output_text.delta","delta":"Hi"}\n\n',
+      'data: {"type":"response.completed","response":{"id":"resp_1","model":"gpt-5.4","usage":{"input_tokens":1000,"output_tokens":50,"input_tokens_details":{"cached_tokens":700},"output_tokens_details":{"reasoning_tokens":10}}}}\n\n',
+    ]);
+    const result = await extractStreamUsage('openai', response);
+    expect(result).toEqual({
+      model: 'gpt-5.4',
+      inputTokens: 300,
+      cachedInputTokens: 700,
+      cacheWriteTokens: 0,
+      outputTokens: 50,
+    });
+  });
+
+  it('openai Responses API 流式：仅有非终态事件（无 usage）返回 null', async () => {
+    const response = createSSEResponse([
+      'data: {"type":"response.created","response":{"id":"resp_2","status":"in_progress"}}\n\n',
+      'data: {"type":"response.in_progress","response":{"id":"resp_2","status":"in_progress"}}\n\n',
+    ]);
+    const result = await extractStreamUsage('openai', response);
+    expect(result).toBeNull();
   });
 
   it('无 body 返回 null', async () => {

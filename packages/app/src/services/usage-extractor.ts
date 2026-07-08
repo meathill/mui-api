@@ -7,7 +7,7 @@
  *  - cacheWriteTokens：写入 cache 的 input token（仅 anthropic；cache_creation，更贵）
  *  - outputTokens：模型生成的 token
  *
- * shape：openai-compat、anthropic messages、gemini generateContent、workers-ai 原生
+ * shape：openai-compat（含 Responses API）、anthropic messages、gemini generateContent、workers-ai 原生
  */
 
 export interface UsageResult {
@@ -43,16 +43,31 @@ export function extractUsage(provider: string, data: Record<string, unknown>): U
 }
 
 function extractOpenAIUsage(data: Record<string, unknown>): UsageResult | null {
-  const usage = data.usage as Record<string, unknown> | undefined;
-  const model = (data.model as string | undefined) ?? 'unknown';
+  // Responses API 流式：仅终态事件（response.completed/incomplete/failed）把完整 response 对象
+  // 嵌在 data.response 下、其中带 usage；非终态事件（created/in_progress/output_text.delta 等）
+  // 要么没有 response 字段，要么 response.usage 缺失/为 null。chat.completion(.chunk) 从不带
+  // response 字段，两种 shape 结构互斥，可安全据此判断走哪条解析路径（非流式 responses 顶层就有
+  // usage，跟 chat.completion 走同一条 else 分支，不需要额外判断）。
+  // typeof nested === 'object' 的判断是关键：部分 workers-ai 模型原生返回
+  // { response: "纯文本", usage }，.response 是字符串而非对象，靠这个判断落回顶层 data.usage，
+  // 不会误判成 Responses API 的嵌套 usage。
+  const nested = data.response as Record<string, unknown> | undefined;
+  const source = nested && typeof nested === 'object' && nested.usage ? nested : data;
+  const usage = source.usage as Record<string, unknown> | undefined;
+  const model = (source.model as string | undefined) ?? 'unknown';
   if (!usage) return null;
 
   const promptTokens = numberOrZero(usage.prompt_tokens) || numberOrZero(usage.input_tokens);
   const completionTokens = numberOrZero(usage.completion_tokens) || numberOrZero(usage.output_tokens);
-  const details = usage.prompt_tokens_details as Record<string, unknown> | undefined;
+  // chat.completion(.chunk) 用 prompt_tokens_details；responses 用 input_tokens_details
+  // （images 的 input_tokens_details 是 {image_tokens, text_tokens}，没有 cached_tokens，读到 undefined→0，不受影响）
+  const details =
+    (usage.prompt_tokens_details as Record<string, unknown> | undefined) ??
+    (usage.input_tokens_details as Record<string, unknown> | undefined);
   const cachedInputTokens = numberOrZero(details?.cached_tokens);
   // prompt_tokens 包含 cached 部分，扣掉后剩下的才是非 cache 的 input
   const inputTokens = Math.max(0, promptTokens - cachedInputTokens);
+  // output_tokens_details.reasoning_tokens 已经是 output_tokens 的子集（breakdown），不需要额外累加
   return { model, inputTokens, cachedInputTokens, cacheWriteTokens: 0, outputTokens: completionTokens };
 }
 

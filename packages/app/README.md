@@ -7,7 +7,7 @@
 
 ## 功能特性
 
-- 🔌 **OpenAI 兼容接口** - 透传 `/v1/chat/completions`
+- 🔌 **OpenAI 兼容接口** - 透传 `/v1/chat/completions`、`/v1/responses`（Codex CLI 等 Responses API 客户端）
 - 💰 **按量计费** - 实时计算 Token 消耗并扣费
 - 🔑 **API Key 管理** - 安全的密钥生成与验证
 - 🚦 **并发控制** - 防止滥用，可调整每用户限制
@@ -89,6 +89,7 @@ curl -X POST http://localhost:5173/admin/recharge \
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | POST | `/v1/chat/completions` | Chat Completions（支持流式；MiMo TTS 也通过此接口透传 `audio` 参数） |
+| POST | `/v1/responses` | Responses API（仅支持 openai provider；用于 OpenAI Codex CLI 等使用新版 wire format 的客户端） |
 | GET | `/v1/models` | 列出可用模型 |
 
 **调用示例**：
@@ -100,6 +101,18 @@ curl http://localhost:5173/v1/chat/completions \
     "model": "gpt-4o",
     "messages": [{"role": "user", "content": "Hello"}]
   }'
+```
+
+**Codex CLI 接入示例**（`~/.codex/config.toml`；`base_url` 不带 `/responses` 后缀，Codex 会按 `wire_api` 自动追加，且不会展开 `base_url` 里的环境变量，需要写字面值）：
+```toml
+model_provider = "mui-api"
+model = "gpt-4o"
+
+[model_providers.mui-api]
+name = "Mui Router"
+base_url = "http://localhost:5173/v1"
+env_key = "MUI_API_KEY"
+wire_api = "responses"
 ```
 
 ### 领卡接口

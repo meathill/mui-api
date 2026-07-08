@@ -128,6 +128,16 @@ D1_ERROR: Network connection lost.
   - **早期误区订正**：曾以为 Claude 可走 `env.AI.run`（Workers AI binding）「免 Key、按 Workers AI 计费」——这是错的：Workers AI 不托管 Claude，且 Workers AI 模型走 Gateway 也不计入 Unified Billing。Claude 必须走 Unified Billing 代付。
 - **Workers AI (`@cf/*`)**：走 `env.AI.run` + `gateway: { id }`，按 Workers AI 用量（neuron）计费，保留 Gateway 监控。
 
+### OpenAI Responses API 透传（/v1/responses，服务 Codex CLI）
+
+**背景**：OpenAI Codex CLI 的自定义 provider 只支持 Responses API（`wire_api = "responses"`），不支持 Chat Completions；Cloudflare AI Gateway 官方文档已确认 `.../openai/responses` 是受支持的透传路径，与 `.../openai/chat/completions` 同构。
+
+**决策**：新增 `routes/responses.ts` 独立文件（结构镜像 `anthropic.ts`：单一 provider 原生格式、handler 级 `authMiddleware`，不用 `.use('/*', ...)`，避免反向拦截 `openai.ts` 的同前缀路由），走 `callOpenAIEndpoint()` 原始 fetch 透传到 CF AI Gateway 的 `openai/responses` 端点，不用 `openai` SDK 的 `client.responses.create()`。原因：Responses API 字段面广且演进快（`tools`/`reasoning`/`store`/`previous_response_id`/`background` 等），原始透传不需要网关关心每个字段的类型定义；不注入任何默认字段，请求体完全由调用方掌控，网关只改写 `model` 为 `upstreamModelId`。仅服务 `provider === 'openai'` 的模型，其它一律 400 拒绝——Responses API 是 OpenAI 专属 wire format，没有跨 provider 转译的意义。
+
+**计费兼容性修复**：`usage-extractor.ts` 的 `extractOpenAIUsage()` 原先只认 Chat Completions 的字段名（`prompt_tokens_details.cached_tokens`，且非流式/流式都假设 usage 在顶层），Responses API 用 `input_tokens_details.cached_tokens`，且流式场景 usage 只出现在终态 SSE 事件（`response.completed`/`incomplete`/`failed`）嵌套的 `data.response.usage` 里。已扩展该函数同时兼容两种 envelope：cached token 字段名两个都读一遍；用 `data.response` 是否存在且为对象、并带 `usage` 字段来判断要不要下钻读取，不逐一枚举具体事件名字符串。**关键正确性细节**：判断条件必须包含 `typeof nested === 'object'`——部分 workers-ai 模型原生返回 `{ response: "纯文本字符串", usage }`，`.response` 是字符串而非对象，这个类型判断能让代码正确回退读顶层 `data.usage`，不会误判成 Responses API 的嵌套结构，这是让同一个函数能被 chat completions / images / xiaomi-mimo / workers-ai / responses 五个调用方安全共用的必要条件。不新增 `ProviderKey`/billingProvider 字符串，统一复用 `'openai'` 分支。`output_tokens_details.reasoning_tokens` 不需要特殊处理——已经是 `output_tokens` 的子集（breakdown 展示用），不额外累加。
+
+**已知限制（v1）**：不支持 `background: true` 轮询 / `GET` 检索 / 取消（Codex 交互式流式场景不需要）；所有网关用户共享同一上游 OpenAI 账号（AI Gateway Stored Keys），`previous_response_id` 未做租户级加密隔离——这是本项目现有共享凭证模型的既有属性，不是这次改动引入的新风险。
+
 ### 只有 Claude 走 Unified Billing（防误烧 credits）+ BYOK 开关
 
 **背景**：其它 provider 的 key 容易获得（OpenAI/Gemini 走 Gateway Stored Keys 自付、MiMo 直连自有 key），只有 Claude 因账号门槛走 CF 代付。Unified Billing 有 5% 充值费与 200 req/min/网关 限速，必须严格限定只有 Claude 用。

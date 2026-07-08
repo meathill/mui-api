@@ -69,6 +69,10 @@ await db.batch([
   db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('gpt-image-2', 'openai', 'gpt-image-2', 8, 30, 1.2)",
   ),
+  // 带 cached_input_price 的种子行：用于验证 Responses API cached token 拆分计费（区别于全价误算）
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('gpt-4o-cached-test', 'openai', 'gpt-4o-cached-test', 2.5, 10, 1.2, 1.25)",
+  ),
   db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('claude-sonnet-4-20250514', 'anthropic', 'claude-sonnet-4-20250514', 0.003, 0.015, 1.2)",
   ),

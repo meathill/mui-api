@@ -12,6 +12,7 @@ import mcp from './routes/mcp';
 import oauth from './routes/oauth';
 import openai from './routes/openai';
 import providers from './routes/providers';
+import responses from './routes/responses';
 import v1User from './routes/v1-user';
 import webhooks from './routes/webhooks';
 import { aggregateDaily, aggregateHourly, aggregateMonthly, aggregateWeekly } from './services/stats-aggregator';
@@ -37,9 +38,11 @@ app.route('/admin', admin);
 // v1User 提供用户自助查询/充值端点（balance, usage, recharges, models, topup-sessions）
 // 必须在 OpenAI 兼容路由之前挂载，否则 openai 上的 `/*` authMiddleware 会拦截
 app.route('/v1', v1User);
-// anthropic 原生 /v1/messages：挂在 openai 之前（openai 的 /* authMiddleware 会拦截同前缀路径）；
-// anthropic 用 handler 级中间件、无 /*，因此不会反向拦截 openai 路由
+// anthropic 原生 /v1/messages、responses 原生 /v1/responses：都挂在 openai 之前
+// （openai 的 /* authMiddleware 会拦截同前缀路径）；两者都用 handler 级中间件、无 /*，
+// 因此不会反向拦截 openai 路由，彼此之间也不用关心顺序
 app.route('/v1', anthropic);
+app.route('/v1', responses);
 app.route('/v1', openai);
 app.route('/providers', providers);
 app.route('/webhooks', webhooks);
