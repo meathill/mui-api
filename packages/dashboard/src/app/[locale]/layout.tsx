@@ -59,6 +59,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       'Anthropic',
       'Claude',
       'Gemini',
+      'xAI',
+      'Grok',
     ],
     openGraph: {
       type: 'website',

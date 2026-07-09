@@ -1,0 +1,50 @@
+On July 8, 2026, xAI shipped Grok 4.5 — its new flagship model, trained alongside Cursor (the AI coding editor xAI agreed to acquire for $60 billion the previous month) and positioned directly against Claude Opus 4.8. Elon Musk called it "an Opus-class model, but faster, more token-efficient and lower cost." It's a big claim on release day, and it lands on top of a run of improvements across the whole Grok line — a much larger context window, native video input, and a faster Imagine video stack — plus a new distribution channel: Grok is now available directly through Cloudflare AI Gateway.
+
+That last part is what let us move quickly. Today we've added `grok-4.5`, `grok-4.3`, and `grok-imagine-image` to the MuiRouter catalog, reachable through the same `/v1/chat/completions` and `/v1/images/generations` endpoints you already use for OpenAI, Anthropic, and Gemini.
+
+## What xAI shipped: Grok 4.5
+
+Grok 4.5 is built on xAI's 1.5-trillion-parameter V9 foundation and is now the default model inside Grok Build. It's priced at $2 per million input tokens and $6 per million output tokens, and runs at roughly 80 tokens per second.
+
+xAI's own launch-day benchmarks, compared against Claude Opus 4.8:
+
+| Benchmark | Grok 4.5 | Opus 4.8 (max) |
+| --- | ---: | ---: |
+| SWE Marathon (pass@1) | 29.0% | 26.0% |
+| Terminal Bench 2.1 | 83.3% | 78.9% |
+| SWE-Bench Pro (resolve rate) | 64.7% | 69.2% |
+
+The number worth sitting with is token efficiency, not the win/loss column: on SWE-Bench Pro, xAI reports Grok 4.5 resolves tasks using an average of 15,954 output tokens against 67,020 for Opus 4.8 on the same benchmark — a 4.2x gap. If that holds up under real workloads, a higher per-token price doesn't necessarily mean a higher cost per finished task.
+
+One caveat worth stating plainly: these are xAI's self-reported numbers from its own launch page, with no independent verification yet. That's normal for a same-day release. Read them as the vendor's claim, and confirm anything load-bearing against your own workload before you build on it.
+
+## The rest of the lineup
+
+Grok 4.5 isn't the only recent move. `grok-4.3` — still in the catalog as the larger-context option — supports a 1M-token window and native video input, and can generate PDFs, spreadsheets, and slide decks directly. Grok Imagine jumped to version 1.5, generating 720p video at 24fps with native synchronized audio, and climbed to the top of third-party image-to-video leaderboards on release. xAI also shipped 21 multilingual voices and a generally available Speech-to-Text API across 25 languages. None of that is this week's headline, but it's the ground Grok 4.5 is standing on.
+
+## What we've added to MuiRouter
+
+Three models, to start:
+
+- **`grok-4.5`** — xAI's new flagship. Worth testing first on anything agentic or coding-heavy.
+- **`grok-4.3`** — the 1M-context option, useful when you need more room than 4.5's 500K window gives you.
+- **`grok-imagine-image`** — text-to-image generation through the same `/v1/images/generations` shape you already use for `gpt-image-2`.
+
+Access runs through Cloudflare AI Gateway the same way OpenAI and Gemini already do on MuiRouter — no separate xAI account or key management on your end. Current per-token pricing is on the [pricing page](/pricing), which stays in sync with what we actually charge; we'd rather you check that page than a number frozen in a blog post.
+
+Video generation (`grok-imagine-video`) is not in this release. It's an async, job-based API — submit a request, poll for completion — which is a different integration shape from every other model we route today. It's on the roadmap; we'll write about it when it ships.
+
+## What this means for developers
+
+- Grok 4.5 is a same-day-release claim against a proven model, not a settled result — run your own agentic/coding workload before treating the benchmark table as a purchase decision.
+- If token efficiency holds up on your prompts, it changes the cost math even at a higher per-token price. Worth measuring directly.
+- `grok-4.3`'s 1M-token window is worth testing on anything you've been chunking to fit a smaller context.
+- `grok-imagine-image` fits directly into any workflow already built around `/v1/images/generations`.
+
+## What this means for MuiRouter users
+
+This is the same story every time we add a provider: your integration doesn't change. One API key, one request shape, and the model catalog grows underneath you. Adding Grok today — on the same day its new flagship shipped — means you can compare `grok-4.5` against the models you're already running immediately: same billing, same rate limits, same account, no second integration required just to find out if it's a better fit.
+
+## Bottom line
+
+Grok 4.5 is a serious claim on day one: an Opus-class model built with Cursor's coding DNA, priced and benchmarked to compete directly with Anthropic's frontier tier. Whether that claim holds up under independent testing is still open — but the fact that you can now point a single MuiRouter API key at it, alongside every other model you're already running, means finding out costs you nothing but a model-name change.

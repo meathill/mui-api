@@ -98,6 +98,9 @@ async function loadPricingSections(): Promise<ProviderSection[]> {
   for (const row of rows) {
     if (!(row.provider in PROVIDER_DISPLAY)) continue;
     if ((row.inputPrice ?? 0) <= 0 && (row.outputPrice ?? 0) <= 0) continue;
+    // grok-imagine-image 按张数计费，outputPrice 是「单价 × 1,000,000」换算出来复用 token 计费公式的记账值，
+    // 不是真实的 $/1M token 价格，直接展示在这张按 token 比价的表格里会严重误导（见 usage-extractor.ts extractGrokImageUsage）。
+    if (row.id === 'grok-imagine-image') continue;
     const list = grouped.get(row.provider) ?? [];
     list.push(row);
     grouped.set(row.provider, list);

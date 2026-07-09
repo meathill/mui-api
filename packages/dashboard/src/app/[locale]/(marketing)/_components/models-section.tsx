@@ -7,27 +7,26 @@ export function ModelsSection() {
     {
       name: 'OpenAI',
       color: 'bg-[var(--brand-fluff)] text-[var(--brand-yellow-deep)] border border-[var(--brand-corgi)]',
-      models: ['GPT-5', 'GPT-5 mini', 'GPT-5 nano', 'GPT-4.1', 'GPT Image 2'],
+      models: ['GPT-5.5', 'GPT-5', 'GPT-5 mini', 'GPT Image 2'],
       description: t('openaiDesc'),
     },
     {
       name: 'Anthropic',
       color: 'bg-[#fadfd5] text-[#c44a32] border border-[var(--brand-tongue)]',
-      models: [
-        'Claude Sonnet 5',
-        'Claude Opus 4.8',
-        'Claude Opus 4.7',
-        'Claude Opus 4.6',
-        'Claude Sonnet 4.6',
-        'Claude Haiku 4.5',
-      ],
+      models: ['Claude Fable 5', 'Claude Sonnet 5', 'Claude Opus 4.8', 'Claude Haiku 4.5'],
       description: t('anthropicDesc'),
     },
     {
       name: 'Google',
       color: 'bg-[var(--brand-corgi)]/30 text-[var(--brand-ink)] border border-[var(--brand-yellow-warm)]',
-      models: ['Gemini 2.5 Pro', 'Gemini 2.5 Flash', 'Gemini 2.5 Flash Lite', 'Gemini 3 Flash'],
+      models: ['Gemini 3.1 Pro', 'Gemini 3.1 Flash Lite', 'Gemini 3 Flash', 'Gemini 2.5 Pro'],
       description: t('googleDesc'),
+    },
+    {
+      name: 'xAI',
+      color: 'bg-[var(--brand-ink)] text-[var(--brand-cream)] border border-[var(--brand-ink-soft)]',
+      models: ['Grok 4.5', 'Grok 4.3', 'Grok Imagine Image'],
+      description: t('grokDesc'),
     },
     {
       name: 'Workers AI',

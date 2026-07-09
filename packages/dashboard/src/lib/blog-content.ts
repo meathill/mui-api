@@ -53,11 +53,24 @@ const codexContextDriftLoaders: Record<Locale, BlogContentLoader> = {
   ja: loadCodexContextDriftEn,
 };
 
+const loadXaiGrokEn = () => import('@/content/blog/xai-grok.mdx');
+const xaiGrokLoaders: Record<Locale, BlogContentLoader> = {
+  en: loadXaiGrokEn,
+  zh: () => import('@/content/blog/xai-grok.zh.mdx'),
+  fr: loadXaiGrokEn,
+  es: loadXaiGrokEn,
+  pt: loadXaiGrokEn,
+  de: loadXaiGrokEn,
+  th: loadXaiGrokEn,
+  ja: loadXaiGrokEn,
+};
+
 const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
   'claude-fable-5': claudeFable5Loaders,
   'claude-sonnet-5': claudeSonnet5Loaders,
   'codex-context-drift': codexContextDriftLoaders,
   'gpt-5-5': gpt55Loaders,
+  'xai-grok': xaiGrokLoaders,
 };
 
 export function hasBlogContent(slug: string): boolean {

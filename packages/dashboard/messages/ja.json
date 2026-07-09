@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "OpenAI・Claude・Gemini 対応の AI API ルーター",
-    "description": "MuiRouter は OpenAI 互換の AI API ルーター兼 LLM ゲートウェイ。1つのキーでリクエストを OpenAI、Anthropic、Google などへ route。トークン単位の従量課金、VPN 不要、サブスクリプション不要。MCP サーバー内蔵。",
+    "title": "OpenAI・Claude・Gemini・Grok 対応の AI API ルーター",
+    "description": "MuiRouter は OpenAI 互換の AI API ルーター兼 LLM ゲートウェイ。1つのキーでリクエストを OpenAI、Anthropic、Google、xAI などへ route。トークン単位の従量課金、VPN 不要、サブスクリプション不要。MCP サーバー内蔵。",
     "ogTitle": "OpenAI 互換の AI API ルーター兼 LLM ゲートウェイ"
   },
   "header": {
@@ -18,15 +18,15 @@
     "mcpRouter": "MCP ルーター"
   },
   "hero": {
-    "badge": "OpenAI / Gemini / Claude / Workers AI / MiMo — 1つのルーター",
+    "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — 1つのルーター",
     "title": "1つの AI API ルーターで、",
     "titleHighlight": "すべての LLM へ",
-    "description": "MuiRouter は OpenAI 互換の API ルーター。1つのキーでリクエストを OpenAI、Claude、Gemini などへ route します。VPN 不要、海外アカウント不要 — まず無料の MiMo で始め、ほかのモデルはチャージして利用できます。",
+    "description": "MuiRouter は OpenAI 互換の API ルーター。1つのキーでリクエストを OpenAI、Claude、Gemini、Grok などへ route します。VPN 不要、海外アカウント不要 — まず無料の MiMo で始め、ほかのモデルはチャージして利用できます。",
     "descriptionLine2": "OpenAI SDK にそのまま対応 — Base URL を変えるだけ。",
     "ctaPrimary": "無料で登録",
     "ctaSecondary": "料金を見る",
     "ctaLearn": "AI ルーターの仕組みを見る",
-    "stat1Value": "5",
+    "stat1Value": "6",
     "stat1Label": "主要AIプロバイダー",
     "stat2Value": "100%",
     "stat2Label": "OpenAI互換",
@@ -37,10 +37,11 @@
   },
   "models": {
     "title": "主要な LLM を、1つの API で route",
-    "subtitle": "OpenAI、Anthropic、Google、Workers AI、Xiaomi MiMoに対応 — 継続的に拡大中",
+    "subtitle": "OpenAI、Anthropic、Google、xAI、Workers AI、Xiaomi MiMoに対応 — 継続的に拡大中",
     "openaiDesc": "最も強力な汎用モデル — コード、推論、マルチモーダル",
     "anthropicDesc": "超長コンテキスト、優れたコーディングと分析能力",
     "googleDesc": "ネイティブマルチモーダル、超大型コンテキストウィンドウ",
+    "grokDesc": "Opus級の推論とコーディング能力、1Mトークンの長コンテキストオプション",
     "workersDesc": "低コストで高スループットなCloudflareネイティブモデル",
     "mimoDesc": "長文脈、マルチモーダル、音声合成に対応するXiaomiモデル。無料試用枠にも対応",
     "comingSoon": "（近日対応）",
@@ -56,7 +57,7 @@
     "compatibleTitle": "OpenAI互換",
     "compatibleDesc": "OpenAI SDKおよびAPIフォーマットと完全互換。既存プロジェクトはBase URLとAPI Keyを変更するだけ — 移行コストゼロ。",
     "passthroughTitle": "ネイティブAPIパススルー",
-    "passthroughDesc": "各プロバイダーのネイティブAPIにも対応し、すべてのパラメーターと機能を保持。Claudeの長いコンテキスト、Geminiのマルチモーダル — 見逃しなし。"
+    "passthroughDesc": "各プロバイダーのネイティブAPIにも対応し、すべてのパラメーターと機能を保持。Claudeの長いコンテキスト、Geminiのマルチモーダル、Grokのエージェント型コーディング — 見逃しなし。"
   },
   "steps": {
     "title": "3ステップで開始",
@@ -92,7 +93,7 @@
   "pricing": {
     "metadata": {
       "title": "AI モデル API の料金 — トークン単位の従量課金",
-      "description": "MuiRouter の AI API ルーターを通じた OpenAI、Claude、Gemini、MiMo 各モデルの透明なトークン単位の料金。サブスクリプションなし、シートなし — 使った分だけお支払いいただきます。"
+      "description": "MuiRouter の AI API ルーターを通じた OpenAI、Claude、Gemini、Grok、MiMo 各モデルの透明なトークン単位の料金。サブスクリプションなし、シートなし — 使った分だけお支払いいただきます。"
     },
     "eyebrow": "トークン単位の AI モデル料金",
     "title": "AI モデル API の料金",
@@ -118,7 +119,8 @@
       "openai": "OpenAI が公開している最新のフラッグシップモデルとコード向けモデルの token 価格です。",
       "anthropic": "Anthropic Claude Opus / Sonnet / Haiku の最新の公開 token 価格です。",
       "google-ai-studio": "Google Gemini のテキスト・マルチモーダルモデルに対する最新の公開 token 価格です。",
-      "xiaomi-mimo": "Xiaomi MiMo の最新公開 token 価格（≤256K 帯）です。"
+      "xiaomi-mimo": "Xiaomi MiMo の最新公開 token 価格（≤256K 帯）です。",
+      "grok": "xAI Grok の最新のフラッグシップモデルとコード向けモデルの token 価格です。"
     },
     "columns": {
       "model": "モデル",

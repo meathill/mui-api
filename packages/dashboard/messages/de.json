@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "KI-API-Router für OpenAI, Claude & Gemini",
-    "description": "MuiRouter ist ein OpenAI-kompatibler KI-API-Router und LLM-Gateway. Ein Schlüssel routet Anfragen an OpenAI, Anthropic, Google und mehr — Abrechnung pro Token, kein VPN, kein Abo. Mit integriertem MCP-Server.",
+    "title": "KI-API-Router für OpenAI, Claude, Gemini & Grok",
+    "description": "MuiRouter ist ein OpenAI-kompatibler KI-API-Router und LLM-Gateway. Ein Schlüssel routet Anfragen an OpenAI, Anthropic, Google, xAI und mehr — Abrechnung pro Token, kein VPN, kein Abo. Mit integriertem MCP-Server.",
     "ogTitle": "OpenAI-kompatibler KI-API-Router & LLM-Gateway"
   },
   "header": {
@@ -18,15 +18,15 @@
     "mcpRouter": "MCP-Router"
   },
   "hero": {
-    "badge": "OpenAI / Gemini / Claude / Workers AI / MiMo — ein Router",
+    "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — ein Router",
     "title": "Ein KI-API-Router für ",
     "titleHighlight": "jedes LLM",
-    "description": "MuiRouter ist ein OpenAI-kompatibler API-Router: Ein Schlüssel routet Ihre Anfragen an OpenAI, Claude, Gemini und mehr. Kein VPN, kein Auslandskonto — starten Sie kostenlos mit MiMo und laden Sie für den Rest auf.",
+    "description": "MuiRouter ist ein OpenAI-kompatibler API-Router: Ein Schlüssel routet Ihre Anfragen an OpenAI, Claude, Gemini, Grok und mehr. Kein VPN, kein Auslandskonto — starten Sie kostenlos mit MiMo und laden Sie für den Rest auf.",
     "descriptionLine2": "Drop-in-kompatibel mit dem OpenAI SDK — einfach die Base URL ändern.",
     "ctaPrimary": "Kostenlos registrieren",
     "ctaSecondary": "Preise ansehen",
     "ctaLearn": "So funktioniert der KI-Router",
-    "stat1Value": "5",
+    "stat1Value": "6",
     "stat1Label": "Große KI-Anbieter",
     "stat2Value": "100%",
     "stat2Label": "OpenAI-kompatibel",
@@ -37,10 +37,11 @@
   },
   "models": {
     "title": "Jedes große LLM über eine API routen",
-    "subtitle": "Unterstützt OpenAI, Anthropic, Google, Workers AI und Xiaomi MiMo — wird kontinuierlich erweitert",
+    "subtitle": "Unterstützt OpenAI, Anthropic, Google, xAI, Workers AI und Xiaomi MiMo — wird kontinuierlich erweitert",
     "openaiDesc": "Das leistungsstärkste Allzweckmodell — Code, Logik, multimodal",
     "anthropicDesc": "Ultra-langer Kontext, hervorragend beim Programmieren und Analysieren",
     "googleDesc": "Nativ multimodal, ultra-großes Kontextfenster",
+    "grokDesc": "Logik und Programmierung auf Opus-Niveau, mit optionalem 1M-Token-Kontext",
     "workersDesc": "Cloudflare-native Modelle für günstige Aufrufe mit hohem Durchsatz",
     "mimoDesc": "Xiaomi-Modelle für langen Kontext, Multimodalität und Sprachsynthese, mit kostenlosem Testkontingent",
     "comingSoon": "(demnächst verfügbar)",
@@ -56,7 +57,7 @@
     "compatibleTitle": "OpenAI-kompatibel",
     "compatibleDesc": "Voll kompatibel mit dem OpenAI SDK und API-Format. Bestehende Projekte müssen nur die Base URL und den API Key ändern — null Migrationskosten.",
     "passthroughTitle": "Natives API-Passthrough",
-    "passthroughDesc": "Unterstützt auch native APIs jedes Anbieters, wobei alle Parameter und Funktionen erhalten bleiben. Claudes langer Kontext, Geminis Multimodal — nichts geht verloren."
+    "passthroughDesc": "Unterstützt auch native APIs jedes Anbieters, wobei alle Parameter und Funktionen erhalten bleiben. Claudes langer Kontext, Geminis Multimodal, Groks agentisches Coding — nichts geht verloren."
   },
   "steps": {
     "title": "In 3 Schritten starten",
@@ -92,7 +93,7 @@
   "pricing": {
     "metadata": {
       "title": "Preise für KI-Modell-APIs — Abrechnung pro Token",
-      "description": "Transparente Preise pro Token für OpenAI-, Claude-, Gemini- und MiMo-Modelle über den MuiRouter KI-API-Router. Keine Abos, keine Sitzplätze — Sie zahlen nur für das, was Sie nutzen."
+      "description": "Transparente Preise pro Token für OpenAI-, Claude-, Gemini-, Grok- und MiMo-Modelle über den MuiRouter KI-API-Router. Keine Abos, keine Sitzplätze — Sie zahlen nur für das, was Sie nutzen."
     },
     "eyebrow": "KI-Modellpreise pro Token",
     "title": "Preise für KI-Modell-APIs",
@@ -118,7 +119,8 @@
       "openai": "Aktuelle, von OpenAI veröffentlichte Tokenpreise für Flaggschiff- und Coding-Modelle.",
       "anthropic": "Aktuelle öffentliche Anthropic Claude Opus / Sonnet / Haiku Tokenpreise.",
       "google-ai-studio": "Aktuelle öffentliche Google-Gemini-Tokenpreise für Text- und multimodale Modelle.",
-      "xiaomi-mimo": "Aktuelle öffentliche Xiaomi-MiMo-Tokenpreise (≤256K-Stufe)."
+      "xiaomi-mimo": "Aktuelle öffentliche Xiaomi-MiMo-Tokenpreise (≤256K-Stufe).",
+      "grok": "Aktuelle öffentliche xAI-Grok-Tokenpreise für Flaggschiff- und Coding-Modelle."
     },
     "columns": {
       "model": "Modell",

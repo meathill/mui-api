@@ -1,7 +1,7 @@
 {
   "metadata": {
-    "title": "面向 OpenAI、Claude 和 Gemini 的 AI API 路由",
-    "description": "MuiRouter 是 OpenAI 兼容的 AI API 路由和 LLM 网关。一个 Key 即可把请求路由到 OpenAI、Anthropic、Google 等模型——按 token 计费，无需翻墙，无需订阅。内置 MCP 服务。",
+    "title": "面向 OpenAI、Claude、Gemini 和 Grok 的 AI API 路由",
+    "description": "MuiRouter 是 OpenAI 兼容的 AI API 路由和 LLM 网关。一个 Key 即可把请求路由到 OpenAI、Anthropic、Google、xAI 等模型——按 token 计费，无需翻墙，无需订阅。内置 MCP 服务。",
     "ogTitle": "OpenAI 兼容的 AI API 路由和 LLM 网关"
   },
   "header": {
@@ -18,15 +18,15 @@
     "mcpRouter": "MCP 路由"
   },
   "hero": {
-    "badge": "OpenAI / Gemini / Claude / Workers AI / MiMo——一个路由全搞定",
+    "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo——一个路由全搞定",
     "title": "一个 AI API 路由，连接",
     "titleHighlight": "每一个大模型",
-    "description": "MuiRouter 是 OpenAI 兼容的 API 路由：一个 Key 即可把你的请求路由到 OpenAI、Claude、Gemini 等模型。无需翻墙，无需海外账号——用 MiMo 免费起步，充值即可解锁其余模型。",
+    "description": "MuiRouter 是 OpenAI 兼容的 API 路由：一个 Key 即可把你的请求路由到 OpenAI、Claude、Gemini、Grok 等模型。无需翻墙，无需海外账号——用 MiMo 免费起步，充值即可解锁其余模型。",
     "descriptionLine2": "兼容 OpenAI SDK，换个 Base URL 就能用。",
     "ctaPrimary": "免费注册，立即开始",
     "ctaSecondary": "查看定价",
     "ctaLearn": "了解 AI 路由的工作原理",
-    "stat1Value": "5",
+    "stat1Value": "6",
     "stat1Label": "主流 AI 厂商",
     "stat2Value": "100%",
     "stat2Label": "OpenAI 兼容",
@@ -37,10 +37,11 @@
   },
   "models": {
     "title": "用一个 API 路由所有主流大模型",
-    "subtitle": "支持 OpenAI、Anthropic、Google、Workers AI、Xiaomi MiMo 等模型，持续扩展中",
+    "subtitle": "支持 OpenAI、Anthropic、Google、xAI、Workers AI、Xiaomi MiMo 等模型，持续扩展中",
     "openaiDesc": "最强通用模型，代码、推理、多模态",
     "anthropicDesc": "超长上下文，编程与分析能力出众",
     "googleDesc": "多模态原生，超大上下文窗口",
+    "grokDesc": "Opus 级推理与编程能力，另有 1M token 长上下文选项",
     "workersDesc": "Cloudflare 原生模型，低成本高吞吐",
     "mimoDesc": "小米自研模型，覆盖长上下文、多模态与语音合成，支持免费体验额度",
     "comingSoon": "（即将支持）",
@@ -56,7 +57,7 @@
     "compatibleTitle": "OpenAI 兼容",
     "compatibleDesc": "完全兼容 OpenAI SDK 和 API 格式。已有项目只需修改 Base URL 和 API Key，零成本迁移。",
     "passthroughTitle": "原生 API 透传",
-    "passthroughDesc": "同时支持各厂商原生 API，保留全部参数和功能。Claude 的长上下文、Gemini 的多模态，一个不落。"
+    "passthroughDesc": "同时支持各厂商原生 API，保留全部参数和功能。Claude 的长上下文、Gemini 的多模态、Grok 的 agentic 编程能力，一个不落。"
   },
   "steps": {
     "title": "三步开始",
@@ -92,7 +93,7 @@
   "pricing": {
     "metadata": {
       "title": "AI 模型 API 价格——按 token 计费",
-      "description": "通过 MuiRouter AI API 路由，透明展示 OpenAI、Claude、Gemini 和 MiMo 模型的按 token 计费价格。无订阅，无席位费——用多少付多少。"
+      "description": "通过 MuiRouter AI API 路由，透明展示 OpenAI、Claude、Gemini、Grok 和 MiMo 模型的按 token 计费价格。无订阅，无席位费——用多少付多少。"
     },
     "eyebrow": "按 token 计费的 AI 模型价格",
     "title": "AI 模型 API 价格",
@@ -118,7 +119,8 @@
       "openai": "OpenAI 当前公开的旗舰模型与代码模型 token 定价。",
       "anthropic": "Anthropic Claude 当前公开的旗舰、Sonnet 与 Haiku 系列 token 定价。",
       "google-ai-studio": "Google Gemini 当前公开的主流文本与多模态模型 token 定价。",
-      "xiaomi-mimo": "Xiaomi MiMo 当前公开的文本与多模态模型 token 定价（按 ≤256K 档位列示）。"
+      "xiaomi-mimo": "Xiaomi MiMo 当前公开的文本与多模态模型 token 定价（按 ≤256K 档位列示）。",
+      "grok": "xAI Grok 当前公开的旗舰与代码导向模型 token 定价。"
     },
     "columns": {
       "model": "模型",
@@ -575,18 +577,18 @@
   },
   "aiRouter": {
     "metaTitle": "AI API 路由——一个 Key 连接每一个大模型",
-    "metaDescription": "MuiRouter 是 OpenAI 兼容的 AI API 路由：一个 API Key 即可把请求路由到 OpenAI、Claude、Gemini、MiMo 等模型，按 token 计费，内置 MCP 服务。无需翻墙，无需订阅。",
+    "metaDescription": "MuiRouter 是 OpenAI 兼容的 AI API 路由：一个 API Key 即可把请求路由到 OpenAI、Claude、Gemini、Grok、MiMo 等模型，按 token 计费，内置 MCP 服务。无需翻墙，无需订阅。",
     "eyebrow": "AI API 路由",
     "title": "连接每一个大模型的 ",
     "titleHighlight": "AI API 路由",
-    "intro": "MuiRouter 位于你的应用和各大 AI 厂商之间。发送一个 OpenAI 兼容的请求，它就能路由到 OpenAI、Anthropic Claude、Google Gemini、Cloudflare Workers AI 或 Xiaomi MiMo——一个 Key、一份账单，无需翻墙。",
+    "intro": "MuiRouter 位于你的应用和各大 AI 厂商之间。发送一个 OpenAI 兼容的请求，它就能路由到 OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI 或 Xiaomi MiMo——一个 Key、一份账单，无需翻墙。",
     "ctaPrimary": "免费开始",
     "ctaSecondary": "查看定价",
     "featuresTitle": "AI 路由能为你带来什么",
     "features": [
       {
         "title": "一个 Key，所有模型",
-        "description": "通过一个 API Key 路由到 OpenAI、Claude、Gemini、Workers AI 和 MiMo，无需再周旋于各自独立的账号和 SDK。"
+        "description": "通过一个 API Key 路由到 OpenAI、Claude、Gemini、Grok、Workers AI 和 MiMo，无需再周旋于各自独立的账号和 SDK。"
       },
       {
         "title": "OpenAI 兼容",
@@ -613,7 +615,7 @@
       },
       {
         "question": "我可以路由到哪些模型？",
-        "answer": "目前支持 OpenAI（GPT）、Anthropic Claude、Google Gemini、Cloudflare Workers AI 和 Xiaomi MiMo，未来会持续增加。你可以用 MiMo 免费起步，充值即可解锁其余模型。"
+        "answer": "目前支持 OpenAI（GPT）、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI 和 Xiaomi MiMo，未来会持续增加。你可以用 MiMo 免费起步，充值即可解锁其余模型。"
       },
       {
         "question": "我需要翻墙或海外账号吗？",
@@ -633,18 +635,18 @@
   },
   "llmRouter": {
     "metaTitle": "大模型路由——面向 OpenAI、Claude 和 Gemini 的统一 API",
-    "metaDescription": "MuiRouter 是一个大模型路由，把 OpenAI、Anthropic Claude、Google Gemini 和 MiMo 统一在一个 OpenAI 兼容的 API 之后。改一个字符串即可切换模型，按 token 计费，无需订阅。",
+    "metaDescription": "MuiRouter 是一个大模型路由，把 OpenAI、Anthropic Claude、Google Gemini、xAI Grok 和 MiMo 统一在一个 OpenAI 兼容的 API 之后。改一个字符串即可切换模型，按 token 计费，无需订阅。",
     "eyebrow": "大模型路由",
     "title": "连接每一家厂商的 ",
     "titleHighlight": "大模型路由",
-    "intro": "不必再为每家模型厂商维护一套独立接入。MuiRouter 用一个 Key、一份账单，把你的大语言模型调用路由到 OpenAI、Claude、Gemini、Workers AI 和 MiMo。",
+    "intro": "不必再为每家模型厂商维护一套独立接入。MuiRouter 用一个 Key、一份账单，把你的大语言模型调用路由到 OpenAI、Claude、Gemini、Grok、Workers AI 和 MiMo。",
     "ctaPrimary": "免费开始",
     "ctaSecondary": "查看定价",
     "featuresTitle": "为什么要用一个 API 路由大模型",
     "features": [
       {
         "title": "改一个字符串即可切换模型",
-        "description": "改一下请求里的模型名称，就能在 GPT、Claude、Gemini 和 MiMo 之间切换——无需新的 SDK，无需新的 Key。"
+        "description": "改一下请求里的模型名称，就能在 GPT、Claude、Gemini、Grok 和 MiMo 之间切换——无需新的 SDK，无需新的 Key。"
       },
       {
         "title": "统一的用量与计费",
@@ -663,7 +665,7 @@
     "faq": [
       {
         "question": "什么是大模型路由？",
-        "answer": "大模型路由是一个网关，通过一个接口把你的提示词发送给不同的大语言模型。它让你无需重写接入即可比较、切换或组合 GPT、Claude、Gemini 等模型。"
+        "answer": "大模型路由是一个网关，通过一个接口把你的提示词发送给不同的大语言模型。它让你无需重写接入即可比较、切换或组合 GPT、Claude、Gemini、Grok 等模型。"
       },
       {
         "question": "我该如何在模型之间切换？",
@@ -686,11 +688,11 @@
   },
   "openaiCompatibleRouter": {
     "metaTitle": "OpenAI 兼容的 API 路由——换个 Base URL 即可",
-    "metaDescription": "MuiRouter 是 OpenAI 兼容的 API 路由。把 OpenAI SDK 的 Base URL 指向 MuiRouter，即可把请求路由到 OpenAI、Claude、Gemini 和 MiMo，无需重写代码，按 token 计费。",
+    "metaDescription": "MuiRouter 是 OpenAI 兼容的 API 路由。把 OpenAI SDK 的 Base URL 指向 MuiRouter，即可把请求路由到 OpenAI、Claude、Gemini、Grok 和 MiMo，无需重写代码，按 token 计费。",
     "eyebrow": "OpenAI 兼容路由",
     "title": "OpenAI 兼容路由——",
     "titleHighlight": "换个 Base URL 即可",
-    "intro": "MuiRouter 讲 OpenAI 的 API 语言。沿用现有的 OpenAI SDK，换一下 Base URL 和 API Key，就能路由到 OpenAI、Claude、Gemini、Workers AI 和 MiMo，其余代码原封不动。",
+    "intro": "MuiRouter 讲 OpenAI 的 API 语言。沿用现有的 OpenAI SDK，换一下 Base URL 和 API Key，就能路由到 OpenAI、Claude、Gemini、Grok、Workers AI 和 MiMo，其余代码原封不动。",
     "ctaPrimary": "免费开始",
     "ctaSecondary": "查看定价",
     "featuresTitle": "开箱即用的 OpenAI 兼容",
@@ -705,7 +707,7 @@
       },
       {
         "title": "更多模型，同一个接口",
-        "description": "一旦指向 MuiRouter，你就能用调用 GPT 时一样的请求结构来调用 Claude、Gemini 和 MiMo。"
+        "description": "一旦指向 MuiRouter，你就能用调用 GPT 时一样的请求结构来调用 Claude、Gemini、Grok 和 MiMo。"
       },
       {
         "title": "可选原生透传",
@@ -724,7 +726,7 @@
       },
       {
         "question": "我还能用非 OpenAI 的模型吗？",
-        "answer": "可以。通过同一个 OpenAI 兼容端点，设置 model 名称即可路由到 Claude、Gemini 和 MiMo。"
+        "answer": "可以。通过同一个 OpenAI 兼容端点，设置 model 名称即可路由到 Claude、Gemini、Grok 和 MiMo。"
       }
     ],
     "relatedTitle": "相关页面",
@@ -754,7 +756,7 @@
       },
       {
         "title": "路由 LLM 调用",
-        "description": "通过 MCP 发送模型请求，MuiRouter 会用一个 Key 把它们路由到 OpenAI、Claude、Gemini 和 MiMo。"
+        "description": "通过 MCP 发送模型请求，MuiRouter 会用一个 Key 把它们路由到 OpenAI、Claude、Gemini、Grok 和 MiMo。"
       },
       {
         "title": "账户工具",
@@ -799,7 +801,7 @@
       },
       {
         "question": "MuiRouter 是什么？",
-        "answer": "MuiRouter 是一个 AI API 路由：一个 Key 即可把你的请求路由到 OpenAI、Anthropic Claude、Google Gemini、Cloudflare Workers AI 和 Xiaomi MiMo，按 token 计费，无需订阅。"
+        "answer": "MuiRouter 是一个 AI API 路由：一个 Key 即可把你的请求路由到 OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI 和 Xiaomi MiMo，按 token 计费，无需订阅。"
       },
       {
         "question": "它是 OpenAI 兼容的吗？",
