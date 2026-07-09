@@ -399,6 +399,7 @@
     "colActions": "Aktionen",
     "suspended": "Gesperrt",
     "normal": "Normal",
+    "viewDetail": "Details",
     "edit": "Bearbeiten",
     "unsuspend": "Entsperren",
     "noMatch": "Keine Ergebnisse gefunden",
@@ -513,6 +514,16 @@
     "pagination": "Gesamt {total} Einträge, Seite {page}/{totalPages}",
     "prev": "Zurück",
     "next": "Weiter"
+  },
+  "adminUserDetail": {
+    "title": "Benutzerdetails",
+    "backToList": "← Zurück zur Benutzerliste",
+    "sectionRecharge": "Aufladeverlauf",
+    "sectionUsage": "Nutzungsverlauf",
+    "sectionDaily": "Tagesstatistik",
+    "viewAll": "Alle anzeigen →",
+    "colDate": "Datum",
+    "emptyDaily": "Noch keine Statistiken"
   },
   "errors": {
     "loginFailed": "Anmeldung fehlgeschlagen",

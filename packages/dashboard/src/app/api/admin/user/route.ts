@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
         concurrency: data.concurrency,
         isSuspended: data.isSuspended ?? false,
         maxConcurrency: metadata.maxConcurrency ?? 3,
+        rateMultiplier: metadata.rateMultiplier ?? 1,
         createdAt: metadata.createdAt,
       },
     });

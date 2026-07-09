@@ -3,12 +3,10 @@
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
-import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Link } from '@/i18n/navigation';
 import { api, type StatisticsResponse } from '@/lib/api';
 import { formatDate, formatPeriodLabel, TIME_RANGES, type TimeRange } from '@/lib/date-ranges';
 
@@ -20,35 +18,34 @@ const CostTrendChart = dynamic(() => import('@/components/admin/cost-trend-chart
 
 type StatisticsData = Omit<StatisticsResponse, 'success'>;
 
-export default function StatisticsPage() {
+export interface UserDailyStatsSectionProps {
+  userId: string;
+}
+
+export function UserDailyStatsSection({ userId }: UserDailyStatsSectionProps) {
   const t = useTranslations('adminStats');
+  const tud = useTranslations('adminUserDetail');
   const te = useTranslations('errors');
   const tc = useTranslations('common');
 
   const [data, setData] = useState<StatisticsData | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  // 筛选
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
     d.setDate(d.getDate() - 6);
     return formatDate(d);
   });
   const [endDate, setEndDate] = useState(() => formatDate(new Date()));
-  const [userId, setUserId] = useState('');
   const [activeRange, setActiveRange] = useState('last7days');
 
   const loadStatistics = useCallback(
-    async (start: string, end: string, uid?: string) => {
+    async (start: string, end: string) => {
       try {
         setLoading(true);
         setError('');
-        const result = await api.getStatistics({
-          startDate: start,
-          endDate: end,
-          userId: uid || undefined,
-        });
+        const result = await api.getStatistics({ startDate: start, endDate: end, granularity: 'daily', userId });
         setData(result);
       } catch (e) {
         setError(e instanceof Error ? e.message : te('loadFailed'));
@@ -56,28 +53,28 @@ export default function StatisticsPage() {
         setLoading(false);
       }
     },
-    [te],
+    [userId, te],
   );
 
+  // 快捷范围只更新日期状态，交给下面的 effect 统一发起请求；
+  // 手动查询（日期没变也要能重新查）走 handleSearch 主动触发。
   useEffect(() => {
-    loadStatistics(startDate, endDate, userId);
-  }, [endDate, loadStatistics, startDate, userId]);
+    loadStatistics(startDate, endDate);
+  }, [startDate, endDate, loadStatistics]);
 
   function handleRangeClick(range: TimeRange) {
     const { startDate: s, endDate: e } = range.getDates();
     setStartDate(s);
     setEndDate(e);
     setActiveRange(range.key);
-    loadStatistics(s, e, userId);
   }
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     setActiveRange('');
-    loadStatistics(startDate, endDate, userId);
+    loadStatistics(startDate, endDate);
   }
 
-  // 图表数据格式化
   const chartData = (data?.timeSeries ?? []).map((item) => ({
     name: formatPeriodLabel(item.periodStart),
     cost: Number(item.totalCost.toFixed(4)),
@@ -85,10 +82,9 @@ export default function StatisticsPage() {
   }));
 
   return (
-    <div>
-      <PageHeader eyebrow="Admin · Statistics" title={t('title')} />
+    <section className="mb-6">
+      <h3 className="font-medium mb-3">{tud('sectionDaily')}</h3>
 
-      {/* 时间范围快捷选择 */}
       <div className="flex flex-wrap gap-2 mb-4">
         {TIME_RANGES.map((range) => (
           <Button
@@ -102,7 +98,6 @@ export default function StatisticsPage() {
         ))}
       </div>
 
-      {/* 自定义筛选 */}
       <Card className="p-4 mb-4">
         <form onSubmit={handleSearch} className="flex flex-wrap gap-3 items-end">
           <div>
@@ -112,10 +107,6 @@ export default function StatisticsPage() {
           <div>
             <label className="block text-xs text-muted-foreground mb-1">{t('endDate')}</label>
             <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} required />
-          </div>
-          <div>
-            <label className="block text-xs text-muted-foreground mb-1">{t('userId')}</label>
-            <Input value={userId} onChange={(e) => setUserId(e.target.value)} placeholder={t('optional')} />
           </div>
           <Button type="submit">{t('search')}</Button>
         </form>
@@ -132,7 +123,6 @@ export default function StatisticsPage() {
         <p className="text-muted-foreground">{tc('loading')}</p>
       ) : data ? (
         <>
-          {/* 概览卡片 */}
           <div className="grid grid-cols-4 gap-3 mb-4">
             <Card className="p-4">
               <p className="text-xs text-muted-foreground">{t('totalCost')}</p>
@@ -158,77 +148,46 @@ export default function StatisticsPage() {
             </Card>
           </div>
 
-          {/* 趋势图 */}
           {chartData.length > 1 && (
             <Card className="p-4 mb-4">
-              <h3 className="font-medium mb-3">{t('costTrend')}</h3>
+              <h4 className="font-medium mb-3">{t('costTrend')}</h4>
               <CostTrendChart data={chartData} costLabel={t('costLabel')} />
             </Card>
           )}
 
-          {/* 模型分布 */}
-          {data.byModel.length > 0 && (
-            <Card className="p-4 mb-4">
-              <h3 className="font-medium mb-3">{t('modelDistribution')}</h3>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{t('colModel')}</TableHead>
-                    <TableHead className="text-right">{t('colCost')}</TableHead>
-                    <TableHead className="text-right">{t('colRequests')}</TableHead>
-                    <TableHead className="text-right">{t('colInputTokens')}</TableHead>
-                    <TableHead className="text-right">{t('colOutputTokens')}</TableHead>
+          <Card className="p-4">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{tud('colDate')}</TableHead>
+                  <TableHead className="text-right">{t('colRequests')}</TableHead>
+                  <TableHead className="text-right">{t('colInputTokens')}</TableHead>
+                  <TableHead className="text-right">{t('colOutputTokens')}</TableHead>
+                  <TableHead className="text-right">{t('colCost')}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {data.timeSeries.map((item) => (
+                  <TableRow key={String(item.periodStart)}>
+                    <TableCell>{formatPeriodLabel(item.periodStart)}</TableCell>
+                    <TableCell className="text-right font-mono">{item.requestCount.toLocaleString()}</TableCell>
+                    <TableCell className="text-right font-mono">{item.totalInputTokens.toLocaleString()}</TableCell>
+                    <TableCell className="text-right font-mono">{item.totalOutputTokens.toLocaleString()}</TableCell>
+                    <TableCell className="text-right font-mono">${item.totalCost.toFixed(4)}</TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.byModel.map((row) => (
-                    <TableRow key={row.modelId}>
-                      <TableCell>{row.modelId || '-'}</TableCell>
-                      <TableCell className="text-right font-mono">${row.totalCost.toFixed(4)}</TableCell>
-                      <TableCell className="text-right font-mono">{row.requestCount.toLocaleString()}</TableCell>
-                      <TableCell className="text-right font-mono">{row.totalInputTokens.toLocaleString()}</TableCell>
-                      <TableCell className="text-right font-mono">{row.totalOutputTokens.toLocaleString()}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-          )}
-
-          {/* 用户排行 */}
-          {data.byUser.length > 0 && (
-            <Card className="p-4">
-              <h3 className="font-medium mb-3">{t('userRanking')}</h3>
-              <Table>
-                <TableHeader>
+                ))}
+                {data.timeSeries.length === 0 && (
                   <TableRow>
-                    <TableHead>{t('colUser')}</TableHead>
-                    <TableHead className="text-right">{t('colCost')}</TableHead>
-                    <TableHead className="text-right">{t('colRequests')}</TableHead>
+                    <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                      {tud('emptyDaily')}
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.byUser.map((row) => (
-                    <TableRow key={row.userId}>
-                      <TableCell className="text-xs">
-                        {row.userId ? (
-                          <Link href={`/admin/users/${row.userId}`} className="text-primary hover:underline">
-                            {row.email || row.userId}
-                          </Link>
-                        ) : (
-                          '-'
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right font-mono">${row.totalCost.toFixed(4)}</TableCell>
-                      <TableCell className="text-right font-mono">{row.requestCount.toLocaleString()}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </Card>
-          )}
+                )}
+              </TableBody>
+            </Table>
+          </Card>
         </>
       ) : null}
-    </div>
+    </section>
   );
 }

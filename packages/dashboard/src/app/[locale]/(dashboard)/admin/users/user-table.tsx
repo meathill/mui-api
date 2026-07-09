@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Link } from '@/i18n/navigation';
 import type { UserInfo } from '@/lib/api';
 
 export type SortField = 'email' | 'balance' | 'rateMultiplier' | 'createdAt';
@@ -102,6 +103,11 @@ export function UserTable({
                 )}
               </TableCell>
               <TableCell className="text-center space-x-1">
+                <Button
+                  variant="ghost"
+                  size="xs"
+                  render={<Link href={`/admin/users/${user.userId}`}>{t('viewDetail')}</Link>}
+                />
                 <Button variant="ghost" size="xs" onClick={() => onEdit(user)}>
                   {t('edit')}
                 </Button>

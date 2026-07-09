@@ -1,12 +1,13 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { UsageLogTable } from '@/components/admin/usage-log-table';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import {
   api,
   type Pagination,
@@ -20,6 +21,8 @@ export default function UsagePage() {
   const t = useTranslations('adminUsage');
   const te = useTranslations('errors');
   const tc = useTranslations('common');
+  const searchParams = useSearchParams();
+  const initialUserId = searchParams.get('userId') ?? '';
 
   const [logs, setLogs] = useState<UsageLog[]>([]);
   const [pagination, setPagination] = useState<Pagination>({
@@ -41,11 +44,13 @@ export default function UsagePage() {
     return map;
   }, [users]);
 
+  // userId 支持从 URL 参数预填，供用户详情页的"查看全部"链接跳转定位
   const [filters, setFilters] = useState<UsageQueryParams>({
+    userId: initialUserId || undefined,
     page: 1,
     pageSize: 20,
   });
-  const [userId, setUserId] = useState('');
+  const [userId, setUserId] = useState(initialUserId);
   const [modelId, setModelId] = useState('');
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
@@ -166,43 +171,7 @@ export default function UsagePage() {
         <p className="text-muted-foreground">{tc('loading')}</p>
       ) : (
         <>
-          <Card>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>{t('colTime')}</TableHead>
-                  <TableHead>{t('colUser')}</TableHead>
-                  <TableHead>{t('colModel')}</TableHead>
-                  <TableHead className="text-right">{t('colInput')}</TableHead>
-                  <TableHead className="text-right">{t('colOutput')}</TableHead>
-                  <TableHead className="text-right">{t('colCost')}</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {logs.map((log) => (
-                  <TableRow key={log.id}>
-                    <TableCell className="text-muted-foreground text-xs">
-                      {log.createdAt ? new Date(log.createdAt).toLocaleString() : '-'}
-                    </TableCell>
-                    <TableCell className="text-xs" title={log.userId || ''}>
-                      {log.userId ? userMap.get(log.userId) || `${log.userId.slice(0, 8)}...` : '-'}
-                    </TableCell>
-                    <TableCell>{log.modelId || '-'}</TableCell>
-                    <TableCell className="text-right font-mono">{log.inputTokens?.toLocaleString() ?? '-'}</TableCell>
-                    <TableCell className="text-right font-mono">{log.outputTokens?.toLocaleString() ?? '-'}</TableCell>
-                    <TableCell className="text-right font-mono">${log.cost?.toFixed(4) ?? '-'}</TableCell>
-                  </TableRow>
-                ))}
-                {logs.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
-                      {t('empty')}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </Card>
+          <UsageLogTable logs={logs} userMap={userMap} />
 
           {/* 分页 */}
           {pagination.totalPages > 1 && (

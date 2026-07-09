@@ -399,6 +399,7 @@
     "colActions": "操作",
     "suspended": "停止中",
     "normal": "正常",
+    "viewDetail": "詳細",
     "edit": "編集",
     "unsuspend": "停止解除",
     "noMatch": "一致するものが見つかりません",
@@ -513,6 +514,16 @@
     "pagination": "全{total}件、ページ {page}/{totalPages}",
     "prev": "前へ",
     "next": "次へ"
+  },
+  "adminUserDetail": {
+    "title": "ユーザー詳細",
+    "backToList": "← ユーザー一覧に戻る",
+    "sectionRecharge": "チャージ履歴",
+    "sectionUsage": "使用履歴",
+    "sectionDaily": "日別統計",
+    "viewAll": "すべて表示 →",
+    "colDate": "日付",
+    "emptyDaily": "統計データはまだありません"
   },
   "errors": {
     "loginFailed": "ログインに失敗しました",

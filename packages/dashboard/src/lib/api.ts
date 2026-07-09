@@ -296,6 +296,8 @@ export interface StatisticsResponse {
   timeSeries: Array<{
     periodStart: string | number | null;
     totalCost: number;
+    totalInputTokens: number;
+    totalOutputTokens: number;
     requestCount: number;
   }>;
   source: 'aggregated' | 'realtime';

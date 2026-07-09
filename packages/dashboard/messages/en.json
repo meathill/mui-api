@@ -399,6 +399,7 @@
     "colActions": "Actions",
     "suspended": "Suspended",
     "normal": "Normal",
+    "viewDetail": "Details",
     "edit": "Edit",
     "unsuspend": "Unsuspend",
     "noMatch": "No matches found",
@@ -513,6 +514,16 @@
     "pagination": "Total {total} records, page {page}/{totalPages}",
     "prev": "Previous",
     "next": "Next"
+  },
+  "adminUserDetail": {
+    "title": "User Details",
+    "backToList": "← Back to users",
+    "sectionRecharge": "Recharge History",
+    "sectionUsage": "Usage History",
+    "sectionDaily": "Daily Statistics",
+    "viewAll": "View all →",
+    "colDate": "Date",
+    "emptyDaily": "No statistics yet"
   },
   "errors": {
     "loginFailed": "Login failed",

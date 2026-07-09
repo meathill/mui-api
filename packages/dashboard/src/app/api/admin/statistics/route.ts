@@ -116,9 +116,13 @@ async function queryFromStats(
     eq(usageStats.granularity, granularity),
     gte(usageStats.periodStart, startDate),
     lte(usageStats.periodStart, endDate),
-    isNull(usageStats.userId),
     sql`${usageStats.modelId} IS NOT NULL`,
   ];
+  if (userId) {
+    modelConditions.push(eq(usageStats.userId, userId));
+  } else {
+    modelConditions.push(isNull(usageStats.userId));
+  }
   const byModel = await db
     .select({
       modelId: usageStats.modelId,
@@ -163,6 +167,8 @@ async function queryFromStats(
     .select({
       periodStart: usageStats.periodStart,
       totalCost: usageStats.totalCost,
+      totalInputTokens: usageStats.totalInputTokens,
+      totalOutputTokens: usageStats.totalOutputTokens,
       requestCount: usageStats.requestCount,
     })
     .from(usageStats)
@@ -240,6 +246,8 @@ async function queryFromLogs(
     .select({
       periodStart: sql<string>`date(${usageLogs.createdAt}, 'unixepoch')`,
       totalCost: sql<number>`coalesce(sum(${usageLogs.cost}), 0)`,
+      totalInputTokens: sql<number>`coalesce(sum(${usageLogs.inputTokens}), 0)`,
+      totalOutputTokens: sql<number>`coalesce(sum(${usageLogs.outputTokens}), 0)`,
       requestCount: sql<number>`count(*)`,
     })
     .from(usageLogs)

@@ -399,6 +399,7 @@
     "colActions": "การดำเนินการ",
     "suspended": "ถูกระงับ",
     "normal": "ปกติ",
+    "viewDetail": "รายละเอียด",
     "edit": "แก้ไข",
     "unsuspend": "ยกเลิกการระงับ",
     "noMatch": "ไม่พบผลลัพธ์",
@@ -513,6 +514,16 @@
     "pagination": "ทั้งหมด {total} รายการ หน้า {page}/{totalPages}",
     "prev": "ก่อนหน้า",
     "next": "ถัดไป"
+  },
+  "adminUserDetail": {
+    "title": "รายละเอียดผู้ใช้",
+    "backToList": "← กลับไปที่รายชื่อผู้ใช้",
+    "sectionRecharge": "ประวัติการเติมเงิน",
+    "sectionUsage": "ประวัติการใช้งาน",
+    "sectionDaily": "สถิติรายวัน",
+    "viewAll": "ดูทั้งหมด →",
+    "colDate": "วันที่",
+    "emptyDaily": "ยังไม่มีข้อมูลสถิติ"
   },
   "errors": {
     "loginFailed": "เข้าสู่ระบบล้มเหลว",

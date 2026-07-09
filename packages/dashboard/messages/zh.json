@@ -399,6 +399,7 @@
     "colActions": "操作",
     "suspended": "已暂停",
     "normal": "正常",
+    "viewDetail": "详情",
     "edit": "编辑",
     "unsuspend": "解除暂停",
     "noMatch": "无匹配结果",
@@ -513,6 +514,16 @@
     "pagination": "共 {total} 条，第 {page}/{totalPages} 页",
     "prev": "上一页",
     "next": "下一页"
+  },
+  "adminUserDetail": {
+    "title": "用户详情",
+    "backToList": "← 返回用户列表",
+    "sectionRecharge": "充值记录",
+    "sectionUsage": "用量记录",
+    "sectionDaily": "按天统计",
+    "viewAll": "查看全部 →",
+    "colDate": "日期",
+    "emptyDaily": "暂无统计数据"
   },
   "errors": {
     "loginFailed": "登录失败",
