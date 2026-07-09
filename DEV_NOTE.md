@@ -127,6 +127,7 @@ D1_ERROR: Network connection lost.
   - **入站认证兼容 `x-api-key`**：Anthropic 官方 SDK / Claude Code 默认用 `x-api-key` 头而非 `Authorization: Bearer` 发送凭证，`authMiddleware` 两种头都接受（`middleware/auth.ts`），否则原生 SDK 直连会全部 401。
   - **早期误区订正**：曾以为 Claude 可走 `env.AI.run`（Workers AI binding）「免 Key、按 Workers AI 计费」——这是错的：Workers AI 不托管 Claude，且 Workers AI 模型走 Gateway 也不计入 Unified Billing。Claude 必须走 Unified Billing 代付。
 - **Workers AI (`@cf/*`)**：走 `env.AI.run` + `gateway: { id }`，按 Workers AI 用量（neuron）计费，保留 Gateway 监控。
+- **xAI Grok**：经 CF AI Gateway 转发，xAI key 以 Stored Keys 形式配置在网关侧（`callGrokEndpoint()` 只带 `cf-aig-authorization`，不注入 `Authorization`），本服务不持有真实 xAI key，接入模式与 OpenAI / Google AI Studio 一致。详见下方「xAI Grok 接入」一节。
 
 ### OpenAI Responses API 透传（/v1/responses，服务 Codex CLI）
 
@@ -148,6 +149,20 @@ D1_ERROR: Network connection lost.
 - **计费经济性**：Claude `markupRate` = 1.05（2026-07-08 起，从 1.1 下调），byok 下不再产生 CF Unified Billing 的 5% 充值费，只需覆盖 Stripe 手续费。
 - **2026-07-08：全量切到 byok，代码层验证通过**。此前"作者自有 Anthropic 组织被禁用"的限制已解除。用 `scripts/smoke-claude-unified.ts` 的 Leg C（byok 原生透传）+ 新增的 Leg D（byok OpenAI 兼容）分别用真实 `ANTHROPIC_API_KEY` 验证两条路径均 200、usage 字段正常，才把生产 `ANTHROPIC_CREDENTIAL_MODE` 从缺省的 `unified` 改成显式 `byok`（`wrangler.jsonc` `vars`）。
 - **踩过的坑：CF AI Gateway 后台的 Stored Key 会绕过代码层开关**。排查这次切换时发现，`api-router` 网关的 `anthropic` provider 早就在 CF 后台配置了一个 Stored Key（推测是更早排查"组织被禁用"时留下的），这个设置完全不受版本控制、代码里也查不到——即使代码从未设过 `ANTHROPIC_CREDENTIAL_MODE=byok`（缺省 `unified`，`/v1/messages` 会显式发 `Authorization: Bearer CF_TOKEN`），CF Gateway 仍然优先用 Stored Key 打上游，实际效果是请求早就在用自己的 Anthropic 账号出钱、Unified Billing credits 完全没扣——直到今天对着 Anthropic Console 和 CF Gateway credits 两边对账才发现。**教训**：CF Gateway 后台的 Provider Keys 配置是脱离代码库的隐藏状态，会让"代码里写的模式"和"实际生效的模式"悄悄脱节；本次显式把 `ANTHROPIC_CREDENTIAL_MODE=byok` 写回 `wrangler.jsonc`，就是让这个 Stored Key 万一被误删/轮换时，代码层还有一层不依赖 CF 后台点击操作的保险丝。
+
+### xAI Grok 接入（/v1/chat/completions、/v1/images/generations）
+
+**背景**：Cloudflare AI Gateway 于 2026-06-04 起原生支持 xAI Grok（`grok` 是网关 provider slug）。聊天补全接口与 OpenAI Chat Completions 兼容，图片生成接口路径、鉴权方式与 OpenAI Images API 一致（`POST /v1/images/generations`）。
+
+**决策**：不复用 `GatewayService.proxyNative()`（该类的代付凭证注入是为 Anthropic 的 unified/byok 双模式 allow-list 设计的），而是在 `provider-dispatch.ts` 新增独立的 `callGrokEndpoint()`，chat 和 images 两个端点共用同一个函数（镜像 `callOpenAIEndpoint` 的"共享 path 参数"写法）。网关路径保留 `/v1` 前缀（`.../grok/v1/chat/completions`），与 `openAIGatewayBase()` 的路径约定（不带 `/v1`）不同，已用官方文档核实。
+
+**凭证**：xAI key 以 Stored Keys 形式配置在 CF AI Gateway 后台（`api-router` 网关的 `grok` provider），本服务不持有真实 xAI key，`callGrokEndpoint()` 只带 `cf-aig-authorization` 网关凭证、不注入 `Authorization`——与 `proxyNative()` 里 openai/google-ai-studio（非 `UNIFIED_BILLING_PROVIDERS` allow-list 内的 provider）的凭证模式一致。[CF 官方文档](https://developers.cloudflare.com/ai-gateway/usage/providers/grok/)展示的调用示例是调用方自带 `Authorization: Bearer {xai_api_token}`、未提及 Stored Keys，但 Stored Keys 是 AI Gateway 的通用能力，本项目网关后台已配置生效，故沿用零凭证注入的写法而非 BYOK。
+
+**图片计费兜底**：xAI 图片生成响应官方文档未确认是否带 `usage` 字段（只展示了 `data`/`model`/`respect_moderation`）。`extractGrokImageUsage()` 优先尝试标准 OpenAI usage 解析，缺失时按返回图片数量兜底计费（`outputTokens = data.length`，配合 `seed.ts` 里 `outputPrice` 按「单价(USD) × 1,000,000」换算，复用现有 token 计费公式，不新增字段）。**上线前必须跑一次真实调用核实响应形状**——如果实际带 usage 字段，应改走标准解析，避免兜底逻辑长期得不到验证。
+
+**定价**：`grok-4.3`/`grok-4.5`/`grok-imagine-image` 的 `inputPrice`/`outputPrice` 来自网络检索，代码里注释「待审核」，需人工核对官方定价页；`markupRate` 统一定为 1.05（与 Claude BYOK 同一口径：Grok 走 Stored Keys 自付，无额外代付费，1.05 扣除 Stripe 手续费后不亏）。
+
+**范围**：本轮仅接入文本对话模型（`grok-4.3`/`grok-4.5`）+ 图片生成。视频生成（`grok-imagine-video`）是异步任务模型（提交请求拿 `request_id`，轮询 `GET /v1/videos/{request_id}` 直到 `status: done`），需要一套新的任务状态追踪子系统（记录谁提交了哪个 job、避免轮询到 done 时重复扣费），与现有「单次请求单次响应」的同步代理架构不兼容，体量远超接入一个 provider 本身，拆成独立后续任务（见 GitHub issue），本轮未接入。`/providers/grok/*` 原生透传路由（`gateway-service.ts` / `routes/providers.ts` 的 `SUPPORTED_PROVIDERS`）同样未接入，仅通过 `/v1/chat/completions`、`/v1/images/generations` 两个既有端点分发，接入深度与 Gemini/MiMo 一致；如需裸透传，只需给这两个 Set 加一行。
 
 ### AWS Bedrock 直连方案：已设计，暂时搁置
 

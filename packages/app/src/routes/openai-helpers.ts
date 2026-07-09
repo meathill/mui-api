@@ -184,14 +184,15 @@ export async function proxyOpenAIImageResponse(
   upstream: Response,
   modelId: string,
   modelPricing: ModelLookup['modelPricing'],
+  billingProvider = 'openai',
 ) {
   if (!upstream.ok) {
     const errText = await upstream.text();
-    return gatewayError(c, `上游 openai 错误 (${upstream.status}): ${errText}`);
+    return gatewayError(c, `上游 ${billingProvider} 错误 (${upstream.status}): ${errText}`);
   }
 
   const [clientResp, billingResp] = [upstream.clone(), upstream];
-  c.executionCtx.waitUntil(processBilling(c, services, 'openai', billingResp, modelId, modelPricing));
+  c.executionCtx.waitUntil(processBilling(c, services, billingProvider, billingResp, modelId, modelPricing));
   return clientResp;
 }
 

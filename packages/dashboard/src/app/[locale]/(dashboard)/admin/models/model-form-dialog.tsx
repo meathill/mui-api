@@ -16,7 +16,7 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 
-const PROVIDERS = ['openai', 'anthropic', 'google-ai-studio', 'workers-ai', 'xiaomi-mimo'];
+const PROVIDERS = ['openai', 'anthropic', 'google-ai-studio', 'workers-ai', 'xiaomi-mimo', 'grok'];
 
 export interface ModelFormData {
   id: string;

@@ -296,6 +296,40 @@ export const SEED_MODELS: NewModel[] = [
     longContextOutputPrice: null,
   },
 
+  // xAI Grok — 经 CF AI Gateway 转发，xAI key 以 Stored Keys 形式配置在网关侧，本服务不持有真实 key。
+  // markupRate 1.05：走 Stored Keys 自付，无额外代付费，扣除 Stripe 手续费后不亏（与 Claude BYOK 同一口径）。
+  // ⚠️ inputPrice/outputPrice 来自网络检索，未逐条核对 x.ai 官方定价页，需人工审核。
+  // ⚠️ 未确认 Grok 是否支持 prompt caching，保守不给折扣价（NO_CACHE_NO_TIER）。
+  // ⚠️ grok-imagine-image：官方未公开定价、未确认响应是否带 usage token；outputPrice 按
+  //    「单价(USD) × 1,000,000」换算复用现有 token 计费公式，上线后需跑一次真实调用核实响应形状。
+  {
+    id: 'grok-4.3',
+    provider: 'grok',
+    upstreamModelId: 'grok-4.3',
+    inputPrice: 1.25,
+    outputPrice: 2.5,
+    markupRate: 1.05,
+    ...NO_CACHE_NO_TIER,
+  },
+  {
+    id: 'grok-4.5',
+    provider: 'grok',
+    upstreamModelId: 'grok-4.5',
+    inputPrice: 2,
+    outputPrice: 6,
+    markupRate: 1.05,
+    ...NO_CACHE_NO_TIER,
+  },
+  {
+    id: 'grok-imagine-image',
+    provider: 'grok',
+    upstreamModelId: 'grok-imagine-image',
+    inputPrice: 0,
+    outputPrice: 20_000, // 占位：假设 $0.02/张，待审核
+    markupRate: 1.05,
+    ...NO_CACHE_NO_TIER,
+  },
+
   // Cloudflare Workers AI
   {
     id: 'glm-4.7-flash',

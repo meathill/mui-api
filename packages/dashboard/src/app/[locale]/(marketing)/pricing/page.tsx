@@ -22,9 +22,10 @@ const PROVIDER_DISPLAY: Record<string, { label: string; sourceUrl: string }> = {
   anthropic: { label: 'Anthropic', sourceUrl: 'https://www.anthropic.com/pricing' },
   'google-ai-studio': { label: 'Gemini', sourceUrl: 'https://ai.google.dev/pricing' },
   'xiaomi-mimo': { label: 'Xiaomi MiMo', sourceUrl: 'https://api.xiaomimimo.com/pricing' },
+  grok: { label: 'xAI Grok', sourceUrl: 'https://x.ai/api' },
 };
 
-const PROVIDER_ORDER = ['openai', 'anthropic', 'google-ai-studio', 'xiaomi-mimo'];
+const PROVIDER_ORDER = ['openai', 'anthropic', 'google-ai-studio', 'xiaomi-mimo', 'grok'];
 
 const providerStyles: Record<
   string,
@@ -53,6 +54,11 @@ const providerStyles: Record<
     badgeClassName: 'border-purple-500/20 bg-purple-500/10 text-purple-700',
     surfaceClassName: 'bg-purple-500/5',
     borderClassName: 'from-purple-500/70 via-purple-400/20 to-transparent',
+  },
+  grok: {
+    badgeClassName: 'border-slate-500/20 bg-slate-500/10 text-slate-700',
+    surfaceClassName: 'bg-slate-500/5',
+    borderClassName: 'from-slate-500/70 via-slate-400/20 to-transparent',
   },
 };
 

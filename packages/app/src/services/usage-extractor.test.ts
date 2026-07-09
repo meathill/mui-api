@@ -137,6 +137,43 @@ describe('extractUsage', () => {
     });
   });
 
+  it('grok 兼容 openai 风格 usage', () => {
+    const data = { model: 'grok-4.3', usage: { prompt_tokens: 17, completion_tokens: 23 } };
+    expect(extractUsage('grok', data)).toEqual({
+      model: 'grok-4.3',
+      inputTokens: 17,
+      outputTokens: 23,
+      ...zeroCache,
+    });
+  });
+
+  it('grok-image 无 usage 字段时按返回图片数量兜底计费', () => {
+    const data = {
+      model: 'grok-imagine-image',
+      data: [{ url: 'https://example.test/1.png' }, { url: 'https://example.test/2.png' }],
+    };
+    expect(extractUsage('grok-image', data)).toEqual({
+      model: 'grok-imagine-image',
+      inputTokens: 0,
+      outputTokens: 2,
+      ...zeroCache,
+    });
+  });
+
+  it('grok-image 若响应带 usage 则按标准 openai 形状解析', () => {
+    const data = { model: 'grok-imagine-image', usage: { input_tokens: 12, output_tokens: 340 }, data: [{}] };
+    expect(extractUsage('grok-image', data)).toEqual({
+      model: 'grok-imagine-image',
+      inputTokens: 12,
+      outputTokens: 340,
+      ...zeroCache,
+    });
+  });
+
+  it('grok-image 返回空 data 数组时视为无用量', () => {
+    expect(extractUsage('grok-image', { model: 'grok-imagine-image', data: [] })).toBeNull();
+  });
+
   it('缺 usage 返回 null', () => {
     expect(extractUsage('openai', { model: 'gpt-4o' })).toBeNull();
   });
@@ -231,6 +268,16 @@ describe('extractStreamUsage', () => {
     ]);
     const result = await extractStreamUsage('xiaomi-mimo', response);
     expect(result).toEqual({ model: 'mimo-v2.5-pro', inputTokens: 21, outputTokens: 34, ...zeroCache });
+  });
+
+  it('grok：按 openai SSE usage 提取', async () => {
+    const response = createSSEResponse([
+      'data: {"model":"grok-4.3","choices":[{"delta":{"content":"Hi"}}]}\n\n',
+      'data: {"model":"grok-4.3","choices":[],"usage":{"prompt_tokens":19,"completion_tokens":27}}\n\n',
+      'data: [DONE]\n\n',
+    ]);
+    const result = await extractStreamUsage('grok', response);
+    expect(result).toEqual({ model: 'grok-4.3', inputTokens: 19, outputTokens: 27, ...zeroCache });
   });
 
   it('openai Responses API 流式：终态事件 response.completed 嵌套 usage', async () => {

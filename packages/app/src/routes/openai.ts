@@ -5,6 +5,7 @@ import {
   callAiBinding,
   callAnthropicCompat,
   callGemini,
+  callGrokEndpoint,
   callOpenAI,
   callOpenAIEndpoint,
   callXiaomiMiMo,
@@ -69,6 +70,10 @@ openai.post('/chat/completions', async (c) => {
     } else if (provider === 'anthropic') {
       upstream = await callAnthropicCompat(c.env, upstreamModel, upstreamBody);
       billingProvider = 'openai';
+    } else if (provider === 'grok') {
+      upstream = await callGrokEndpoint(c.env, '/v1/chat/completions', JSON.stringify(upstreamBody), {
+        'content-type': 'application/json',
+      });
     } else {
       upstream = await callAiBinding(c.env, upstreamModel, upstreamBody);
     }
@@ -108,7 +113,8 @@ openai.post('/chat/completions', async (c) => {
 
 /**
  * POST /v1/images/generations
- * OpenAI Image API 生成接口。请求体保持 OpenAI 原生 JSON shape，只按 DB 配置改写 model。
+ * OpenAI / Grok Image 生成接口。请求体保持各自原生 JSON shape，只按 DB 配置改写 model。
+ * openai 走 gpt-image 系默认参数注入；grok 的 aspect_ratio/resolution/response_format/n 原样透传。
  */
 openai.post('/images/generations', async (c) => {
   const body = await readJsonBody(c);
@@ -129,11 +135,21 @@ openai.post('/images/generations', async (c) => {
   const accessError = await assertBillableAccess(c, services, modelId);
   if (accessError) return accessError;
 
-  if (modelConfig.provider !== 'openai') {
-    return badRequest(c, '图片生成接口目前仅支持 openai provider');
+  if (modelConfig.provider !== 'openai' && modelConfig.provider !== 'grok') {
+    return badRequest(c, '图片生成接口目前仅支持 openai / grok provider');
   }
 
   try {
+    if (modelConfig.provider === 'grok') {
+      const upstream = await callGrokEndpoint(
+        c.env,
+        '/v1/images/generations',
+        JSON.stringify({ ...body, model: upstreamModel }),
+        { 'content-type': 'application/json' },
+      );
+      return proxyOpenAIImageResponse(c, services, upstream, modelId, modelPricing, 'grok-image');
+    }
+
     const upstream = await callOpenAIEndpoint(
       c.env,
       '/images/generations',

@@ -115,6 +115,7 @@ export const PROVIDER_LABELS: Record<string, string> = {
   'google-ai-studio': 'Google',
   'workers-ai': 'Workers AI',
   'xiaomi-mimo': 'Xiaomi MiMo',
+  grok: 'xAI Grok',
 };
 
 /** 分组展示顺序；未列出的 provider 追加到末尾，保证新 provider 不会被丢弃。 */
@@ -124,6 +125,7 @@ export const PROVIDER_ORDER: readonly string[] = [
   'google-ai-studio',
   'workers-ai',
   'xiaomi-mimo',
+  'grok',
 ];
 
 export type ModelGroup = {

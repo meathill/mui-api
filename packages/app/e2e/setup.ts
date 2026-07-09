@@ -82,4 +82,10 @@ await db.batch([
   db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('mimo-v2.5-tts', 'xiaomi-mimo', 'mimo-v2.5-tts', 0, 0, 1.2)",
   ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-4.3', 'grok', 'grok-4.3', 1.25, 2.5, 1.2)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-imagine-image', 'grok', 'grok-imagine-image', 0, 20000, 1.2)",
+  ),
 ]);

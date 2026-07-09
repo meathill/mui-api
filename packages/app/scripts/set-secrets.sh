@@ -22,6 +22,9 @@ SECRETS=(
   FROM_EMAIL
   CF_ACCOUNT_ID
   CF_GATEWAY_ID
+  CF_TOKEN
+  MIMO_API_KEY
+  ANTHROPIC_API_KEY
 )
 
 echo "正在从 $VARS_FILE 读取并设置 secrets..."

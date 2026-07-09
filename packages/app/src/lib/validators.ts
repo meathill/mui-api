@@ -25,7 +25,7 @@ export type GetUserInput = z.infer<typeof GetUserSchema>;
 
 // ==================== 模型管理 ====================
 
-export const ProviderSchema = z.enum(['openai', 'anthropic', 'google-ai-studio', 'workers-ai', 'xiaomi-mimo']);
+export const ProviderSchema = z.enum(['openai', 'anthropic', 'google-ai-studio', 'workers-ai', 'xiaomi-mimo', 'grok']);
 export type ProviderInput = z.infer<typeof ProviderSchema>;
 
 export const ModelCreateSchema = z.object({

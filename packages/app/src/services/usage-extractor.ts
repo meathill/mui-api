@@ -18,7 +18,7 @@ export interface UsageResult {
   model: string;
 }
 
-type ProviderKey = 'openai' | 'anthropic' | 'google-ai-studio' | 'workers-ai' | 'xiaomi-mimo';
+type ProviderKey = 'openai' | 'anthropic' | 'google-ai-studio' | 'workers-ai' | 'xiaomi-mimo' | 'grok' | 'grok-image';
 
 function emptyUsage(model = 'unknown'): UsageResult {
   return { model, inputTokens: 0, cachedInputTokens: 0, cacheWriteTokens: 0, outputTokens: 0 };
@@ -37,6 +37,10 @@ export function extractUsage(provider: string, data: Record<string, unknown>): U
       return extractGeminiUsage(data);
     case 'workers-ai':
       return extractWorkersAiUsage(data);
+    case 'grok':
+      return extractOpenAIUsage(data);
+    case 'grok-image':
+      return extractGrokImageUsage(data);
     default:
       return null;
   }
@@ -106,6 +110,25 @@ function extractWorkersAiUsage(data: Record<string, unknown>): UsageResult | nul
   return extractOpenAIUsage(data);
 }
 
+/**
+ * xAI Grok 图片生成：官方文档未确认响应是否带 usage 字段（只看到 data/model/respect_moderation）。
+ * 若真带 usage 就按标准 OpenAI 形状解析；否则按返回图片数量兜底计费（1 张 = 1 output 单位，
+ * 对应 seed.ts 里 outputPrice 按「单价(USD) × 1,000,000」换算）。图片生成非流式，不需要 chunk 版本。
+ */
+function extractGrokImageUsage(data: Record<string, unknown>): UsageResult | null {
+  const usage = data.usage as Record<string, unknown> | undefined;
+  if (usage) return extractOpenAIUsage(data);
+  const images = Array.isArray(data.data) ? data.data.length : 0;
+  if (images === 0) return null;
+  return {
+    model: (data.model as string | undefined) ?? 'unknown',
+    inputTokens: 0,
+    cachedInputTokens: 0,
+    cacheWriteTokens: 0,
+    outputTokens: images,
+  };
+}
+
 // ==================== 流式 ====================
 
 /**
@@ -171,7 +194,7 @@ export async function extractStreamUsage(provider: string, response: Response): 
  * - anthropic：message_start.message.usage.input_tokens + cache_read_input_tokens + cache_creation_input_tokens；
  *             message_delta.usage.output_tokens
  * - gemini：每个 chunk 都带 usageMetadata（最后 chunk 的最新）
- * - workers-ai / xiaomi-mimo：OpenAI 兼容 usage
+ * - workers-ai / xiaomi-mimo / grok：OpenAI 兼容 usage
  */
 function extractChunkUsage(provider: string, data: Record<string, unknown>): UsageResult | null {
   if (provider === 'anthropic') {

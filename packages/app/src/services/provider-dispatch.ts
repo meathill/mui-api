@@ -4,6 +4,7 @@
  * - google-ai-studio → @google/genai SDK + AI Gateway (CF_AIG_TOKEN 鉴权)
  * - xiaomi-mimo     → fetch + Xiaomi MiMo OpenAI 兼容接口（直连，不走 AI Gateway）
  * - anthropic       → fetch + AI Gateway compat 端点（Unified Billing 代付，返回 OpenAI 形）
+ * - grok            → fetch + AI Gateway 原生 grok 端点（xAI key 以 CF Gateway Stored Keys 形式配置，本服务不持有）
  * - workers-ai      → env.AI.run + gateway option
  */
 
@@ -148,6 +149,30 @@ export async function callAnthropicCompat(
     method: 'POST',
     headers,
     body: JSON.stringify({ ...body, model: `anthropic/${upstreamModel}` }),
+  });
+}
+
+/**
+ * xAI Grok，经 CF AI Gateway 原生透传（不走 compat 转译，直接转发 OpenAI 兼容 body）。
+ * 鉴权：只带 cf-aig-authorization 网关凭证，不注入 Authorization——xAI key 以 CF AI Gateway
+ * Stored Keys 形式配置在网关侧，本服务不持有真实 xAI key，与 openai/google-ai-studio 走 proxyNative()
+ * 时的凭证模式一致（对照 gateway-service.ts 里非 UNIFIED_BILLING_PROVIDERS 的分支）。
+ * path 需带 /v1 前缀（如 /v1/chat/completions、/v1/images/generations），
+ * 与 openAIGatewayBase() 的路径约定不同——已用 CF 官方文档核实。
+ */
+export async function callGrokEndpoint(
+  env: CloudflareBindings,
+  path: string,
+  body: BodyInit,
+  headers: Record<string, string> = {},
+): Promise<Response> {
+  return fetch(`${aiGatewayBase(env, 'grok')}${path}`, {
+    method: 'POST',
+    headers: {
+      ...headers,
+      'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}`,
+    },
+    body,
   });
 }
 
