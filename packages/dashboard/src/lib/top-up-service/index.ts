@@ -4,7 +4,6 @@ import { rechargeLogs, stripeTopupSessions } from '@/db/app-schema';
 import { getDb } from '@/lib/db';
 import { getKV } from '@/lib/kv';
 import { getStripeClient } from '@/lib/stripe';
-import { addWalletBalance, getWallet } from '@/lib/wallet-do';
 import {
   deriveTopUpStatus,
   parseTopUpAmount,
@@ -13,6 +12,7 @@ import {
   type TopUpStatus,
   toStripeUnitAmount,
 } from '@/lib/top-up';
+import { addWalletBalance, getWallet } from '@/lib/wallet-do';
 import {
   claimTopUpProcessing,
   ensureStripeCustomerId,

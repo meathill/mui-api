@@ -1,7 +1,7 @@
+import { generateId } from '@muirouter/shared-db/crypto';
 import type { Context, Next } from 'hono';
 import { validateBearer } from '../lib/bearer-validator';
 import { createLeaseHeartbeat, wrapResponseBodyWithFinalizer } from '../lib/concurrency-response';
-import { generateId } from '@muirouter/shared-db/crypto';
 import { createErrorResponse, ErrorTypes, tooManyRequests } from '../lib/errors';
 import {
   ConcurrencyService,

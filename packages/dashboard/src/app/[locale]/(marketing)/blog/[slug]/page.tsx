@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { getBlogContent } from '@/lib/blog-content';
-import { getLocalizedBlogPost } from '@/lib/blog';
 import { Link } from '@/i18n/navigation';
+import { getLocalizedBlogPost } from '@/lib/blog';
+import { getBlogContent } from '@/lib/blog-content';
 import { buildMetadata, getBlogPostOgImage, getLocalizedPath, getResolvedLocale, SITE_URL } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';

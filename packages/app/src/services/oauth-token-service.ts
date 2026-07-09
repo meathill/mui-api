@@ -1,7 +1,7 @@
+import { generateId, hashApiKey } from '@muirouter/shared-db/crypto';
 import { and, eq, lt } from 'drizzle-orm';
 import type { Database } from '../db';
 import { oauthClients, oauthCodes, oauthTokens } from '../db/schema';
-import { generateId, hashApiKey } from '@muirouter/shared-db/crypto';
 
 /**
  * OAuth 2.0 token / code 服务。

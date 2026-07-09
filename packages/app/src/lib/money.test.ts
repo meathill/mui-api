@@ -1,7 +1,8 @@
 // 实现已上移到 @muirouter/shared-db/money（app 与 dashboard 共用）；
 // 测试保留在 app 包运行，因为 shared-db 无独立测试基建。
-import { describe, expect, it } from 'vitest';
+
 import { formatBalance, fromCents, toCents } from '@muirouter/shared-db/money';
+import { describe, expect, it } from 'vitest';
 
 describe('toCents', () => {
   it('百进位币种按 100 换算并四舍五入', () => {

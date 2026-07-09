@@ -1,7 +1,8 @@
 // 实现已上移到 @muirouter/shared-db/crypto（app 与 dashboard 共用）；
 // 测试保留在 app 包运行，因为 shared-db 无独立测试基建。
-import { describe, expect, it } from 'vitest';
+
 import { generateApiKey, generateId, getKeyPrefix, hashApiKey } from '@muirouter/shared-db/crypto';
+import { describe, expect, it } from 'vitest';
 
 describe('Crypto Utilities', () => {
   describe('generateId', () => {

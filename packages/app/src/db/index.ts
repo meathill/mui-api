@@ -1,5 +1,5 @@
-import { drizzle } from 'drizzle-orm/d1';
 import { withD1Retry } from '@muirouter/shared-db/d1-retry';
+import { drizzle } from 'drizzle-orm/d1';
 import * as schema from './schema';
 
 /**

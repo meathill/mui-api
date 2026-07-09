@@ -3,6 +3,7 @@
 import { SearchIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
+import { PageHeader } from '@/components/page-header';
 import {
   AlertDialog,
   AlertDialogClose,
@@ -14,7 +15,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { PageHeader } from '@/components/page-header';
 import { api, type ModelCreateInput, type ModelInfo } from '@/lib/api';
 import { EMPTY_FORM, type ModelFormData, ModelFormDialog } from './model-form-dialog';
 import { ModelTable, type SortDirection, type SortField } from './model-table';

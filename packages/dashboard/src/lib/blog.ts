@@ -1,5 +1,5 @@
 import { and, desc, eq, inArray } from 'drizzle-orm';
-import { blogPostTranslations, blogPosts, type BlogPost, type BlogPostTranslation } from '@/db/app-schema';
+import { type BlogPost, type BlogPostTranslation, blogPosts, blogPostTranslations } from '@/db/app-schema';
 import { defaultLocale, type Locale } from '@/i18n/config';
 import { getDb } from '@/lib/db';
 

@@ -1,7 +1,7 @@
 import { ImageResponse } from 'next/og';
 import { BlogOgImage } from '@/components/blog-og-image';
-import { hasBlogContent } from '@/lib/blog-content';
 import { getLocalizedBlogPost } from '@/lib/blog';
+import { hasBlogContent } from '@/lib/blog-content';
 import { getResolvedLocale, MARKETING_OG_IMAGE_SIZE } from '@/lib/seo';
 
 export const dynamic = 'force-dynamic';

@@ -1,8 +1,8 @@
 import { env } from 'cloudflare:test';
+import { hashApiKey } from '@muirouter/shared-db/crypto';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { createDb } from '../src/db';
 import { oauthClients, oauthCodes, oauthTokens } from '../src/db/schema';
-import { hashApiKey } from '@muirouter/shared-db/crypto';
 import {
   authenticateClient,
   consumeCodeAndIssueTokens,

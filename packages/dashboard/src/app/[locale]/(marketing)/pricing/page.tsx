@@ -5,7 +5,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { models, type Model } from '@/db/app-schema';
+import { type Model, models } from '@/db/app-schema';
 import { getDb } from '@/lib/db';
 import { buildMetadata, getResolvedLocale } from '@/lib/seo';
 

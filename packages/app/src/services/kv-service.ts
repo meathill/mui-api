@@ -1,8 +1,7 @@
 import { hashApiKey } from '@muirouter/shared-db/crypto';
-import type { KVUserData, KVUserMetadata } from '../types';
-
-import type { GlobalConfig } from './alert-service';
 import type { Model } from '../db/schema';
+import type { KVUserData, KVUserMetadata } from '../types';
+import type { GlobalConfig } from './alert-service';
 
 const USER_KEY_PREFIX = 'user:';
 const APIKEY_PREFIX = 'apikey:';

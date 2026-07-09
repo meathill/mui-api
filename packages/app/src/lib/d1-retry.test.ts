@@ -1,6 +1,7 @@
 // 实现已上移到 @muirouter/shared-db/d1-retry；测试保留在 app 包运行，因为 shared-db 无独立测试基建。
-import { afterEach, describe, expect, it, vi } from 'vitest';
+
 import { computeD1RetryDelayMs, isRetryableD1Error, withD1Retry } from '@muirouter/shared-db/d1-retry';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 
 describe('isRetryableD1Error', () => {
   it.each([

@@ -3,6 +3,7 @@
 import { formatBalance } from '@muirouter/shared-db/money';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
+import { PageHeader } from '@/components/page-header';
 import {
   AlertDialog,
   AlertDialogClose,
@@ -13,7 +14,6 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { Badge } from '@/components/ui/badge';
-import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
