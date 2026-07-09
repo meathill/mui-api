@@ -2,12 +2,12 @@ import { env, SELF } from 'cloudflare:test';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { seedApiKey } from './helpers';
 
-describe('POST /v1/chat/completions —— Claude 经 compat 端点（Unified Billing）', () => {
+describe('POST /v1/chat/completions —— Claude 经 compat 端点（BYOK）', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it('claude 走 compat 端点：仅 cf-aig-authorization、model 带 anthropic/ 前缀，按 OpenAI usage 扣费', async () => {
+  it('claude 走 compat 端点：byok 注入 Authorization、model 带 anthropic/ 前缀，按 OpenAI usage 扣费', async () => {
     const userId = `test-claude-compat-${Date.now()}`;
     const billKey = await seedApiKey(userId, 10);
 
@@ -38,8 +38,8 @@ describe('POST /v1/chat/completions —— Claude 经 compat 端点（Unified Bi
     expect(String(url)).toContain('/compat/chat/completions');
     const h = new Headers(init?.headers);
     expect(h.get('cf-aig-authorization')).toBe('Bearer test-token');
-    // compat 的 unified 代付绝不能带 Authorization，否则会被当作 Anthropic key（→401）
-    expect(h.get('authorization')).toBeNull();
+    // byok：compat 端点按 OpenAI 兼容惯例注入 Authorization: Bearer ANTHROPIC_API_KEY
+    expect(h.get('authorization')).toBe('Bearer test-anthropic-key');
     const sentBody = JSON.parse(String(init?.body)) as { model: string };
     expect(sentBody.model).toBe('anthropic/claude-sonnet-4-20250514');
 

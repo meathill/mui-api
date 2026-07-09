@@ -17,6 +17,7 @@ export default defineConfig({
           CF_GATEWAY_ID: 'test-gateway',
           CF_TOKEN: 'test-cf-token',
           MIMO_API_KEY: 'test-mimo-key',
+          ANTHROPIC_API_KEY: 'test-anthropic-key',
         },
       },
     }),
