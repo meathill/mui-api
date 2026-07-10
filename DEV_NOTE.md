@@ -230,6 +230,22 @@ D1_ERROR: Network connection lost.
 
 **度量**：上线后 28 天窗口在 GSC 看 `ai router`/`router ai` 排名上行、Material UI 式曝光下降、承载页 CTR 上升（按 `dimensions=query,page` 排查蚕食）。
 
+### IndexNow 手动提交脚本（Bing 重新发现，issue #4）
+
+**背景**：Bing Webmaster 显示 muirouter.com 曝光极低，Bing Sitemaps 只发现 3 个 URL、最后抓取停留在很久之前，而实际 sitemap 早已扩展为多语言全量 URL（见上一节）。Bing 官方建议里包含"Set up IndexNow"——一个由 Bing/Yandex/Seznam/Naver 等共同支持的协议，站点主动推送 URL 而不是等搜索引擎自然重新抓取。
+
+**决策**：
+- Key 文件 `packages/dashboard/public/{key}.txt` 直接把 key 当作可公开访问的静态文件提交，**不当作 secret/env var 处理**——IndexNow 协议的验证机制本身就要求 key 文件公开可访问，加密/隐藏它没有安全收益，只会增加不必要的部署配置。`public/` 下的文件由 OpenNext 原样打包进 `.open-next/assets`，部署后由 Cloudflare Workers 在站点根路径直接提供服务，不需要额外路由。
+- 提交端点选用通用的 `https://api.indexnow.org/indexnow` 而非 Bing 专属端点：提交一次即可同时通知所有参与该协议的搜索引擎。
+- 只做**手动脚本**（`pnpm --dir packages/dashboard run submit:indexnow -- --dry-run`），不接入 GitHub Actions 定时任务或 Cloudflare Worker cron——仓库目前没有任何 schedule 类型的自动化先例，而这次的直接需求只是"推动一次重新发现"，人工控制发布节奏足够；`scripts/indexnow.ts` 已经把 URL 提取逻辑拆成纯函数，后续如果要接自动化触发点很容易。
+- `submit-indexnow.ts` 从线上 `sitemap.xml` 现抓 URL（而不是在构建期直接调用 `sitemap()` 函数），因为后者依赖 D1/`getPublishedBlogSitemapPosts()` 等 Next.js runtime 上下文，脚本用纯 node 执行没有这个上下文。
+
+**踩过的坑：`packages/dashboard/tsconfig.json` 缺少 `allowImportingTsExtensions`**。Node 24 原生执行 `.ts` 文件不解析 tsconfig 的 `@/*` 路径别名，只支持标准 ESM 相对路径且必须带显式 `.ts` 扩展名（如 `import { x } from './indexnow.ts'`）——这是 `packages/app/scripts/print-seed-sql.ts` 早就验证过的写法。但 dashboard 的 `tsconfig.json` `include` 是 `**/*.ts`，会把 `scripts/` 下的新文件也纳入 typecheck，而 TypeScript 默认不允许 import 路径带 `.ts` 扩展名（`TS5097`）。修复：给 `compilerOptions` 加 `"allowImportingTsExtensions": true`（前提 `noEmit`/`emitDeclarationOnly` 二选一为 true，本项目已满足）。**后续任何人在 `packages/dashboard` 下新增"要被纯 node 执行的脚本"，都会撞到同一个坑**，且 CI 目前不跑 `pnpm run typecheck`（见 TESTING.md），这个坑不会被 CI 挡住，只会在本地手动 typecheck 时暴露。
+
+**顺手修复的 CI bug**：`.github/workflows/ci.yml` 的 `dashboard-e2e` job 一直用 `pnpm --filter dashboard`，但 `packages/dashboard/package.json` 的真实包名是 `mui-api-dashboard`——这个过滤器自建库以来从未匹配到任何包，`pnpm --filter dashboard ...` 会静默跳过并以 exit code 0 退出，导致 `dashboard-e2e` job 从未真正执行过 `packages/dashboard/e2e/` 下的任何用例（包括早就存在的 `seo.test.ts`/`auth.test.ts`/`dashboard.test.ts`/`marketing.test.ts`），但 CI 一直显示绿色。已改为 `pnpm --filter mui-api-dashboard`。**这个修复本身会让该 job 从"从未真正跑过"变成"第一次真正执行"，如果既有用例里有跟这次改动无关的失败，会在这次改动之后第一次暴露出来**，需要单独排查，不代表是这次改动引入的回归。
+
+**测试与执行环境约束**：`packages/dashboard/scripts/indexnow.ts` 是零 `@/` 别名依赖的纯函数模块（`SITE_URL` 直接硬编码，不 import `src/lib/seo.ts`，与 `robots.ts` 硬编码 sitemap URL 是同样的取舍），既能被 `submit-indexnow.ts` 用纯 node 执行，也能被 vitest 直接 import 测试；`vitest.config.ts` 的 `test.include` 因此扩展为同时覆盖 `src/**/*.test.ts` 和 `scripts/**/*.test.ts`。
+
 ### better-auth 统一用户体系
 
 **决策**：Dashboard 使用 better-auth 管理用户认证，`user` 表同时作为业务用户表。

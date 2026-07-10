@@ -85,6 +85,13 @@ test.describe('SEO', () => {
       expect(text).toContain('<loc>https://muirouter.com/zh/blog/gpt-5-5</loc>');
       expect(text).toContain('hreflang="x-default" href="https://muirouter.com/blog/gpt-5-5"');
     });
+
+    test('IndexNow key 文件可访问', async ({ page }) => {
+      const response = await page.goto('/016b4167fcb47ccc6332fc9ab8a242ab.txt');
+      expect(response?.status()).toBe(200);
+      const text = await page.textContent('body');
+      expect(text?.trim()).toBe('016b4167fcb47ccc6332fc9ab8a242ab');
+    });
   });
 
   test.describe('子页面 meta', () => {
