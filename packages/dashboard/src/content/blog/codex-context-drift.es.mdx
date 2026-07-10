@@ -1,0 +1,45 @@
+Primero, la versión corta:
+
+1. Añade `DO NOT send optional commentary` a tu `AGENTS.md`, ya sea globalmente o a nivel de proyecto. Puede reducir la probabilidad de que Codex “empeore”.
+2. La IA es inestable, pero creativa, de forma parecida a las personas. Puede resolver problemas que el software puramente determinista no puede resolver. Nuestro trabajo es encontrar el equilibrio entre ambos.
+3. Cuando encuentres un fallo extraño, piensa una capa más abajo. A menudo hay una mitigación práctica escondida en la forma del problema.
+
+---
+
+Cuando la gente siente que Codex “está empeorando”, no creo que eso signifique necesariamente que el proveedor haya debilitado deliberadamente el modelo. Una explicación más útil es que, en cierto momento, en cierta versión o dentro de cierto contexto, la probabilidad de errores ha subido. La IA no es estable como el software tradicional, donde la misma lógica produce de forma fiable el mismo resultado. Cada paso se genera a partir de un contexto con cierta aleatoriedad. Cuando las cosas van bien, eso se siente como colaboración. Cuando van mal, el contexto se vuelve un amplificador: una mala explicación, una falsa llamada a una herramienta o una suposición no verificada pueden entrar en el contexto y afectar al siguiente juicio.
+
+Así que cuando la IA comete un error ocasional, el mayor problema no es la respuesta defectuosa en sí. El problema es que esa respuesta se convierte en material para las respuestas futuras. Si sigues preguntando, el modelo puede tratar su error anterior como un hecho. Si le pides que lo arregle, puede seguir parcheando alrededor de la premisa equivocada. Si añades más contexto, puede encontrar más ruido para tejer una nueva explicación. Eso es lo que mucha gente experimenta como “empeorar”, o como quedarse atrapado en un bucle.
+
+## `DO NOT send optional commentary`
+
+Hoy vi una publicación en X que decía que añadir `DO NOT send optional commentary` a `AGENTS.md` puede mejorar mucho la degradación de Codex 5.5.
+
+Seguí el rastro hasta la discusión original en Linux.do. En el entorno de pruebas del autor, la precisión mejoró de forma notable, pero el autor también enfatizó varias veces que esto solo mitiga el problema. No lo elimina.
+
+Creo que esta observación encaja con mi propia hipótesis. La frase no es un hechizo mágico. Funciona porque reduce la salida opcional del modelo. Cuando Codex trabaja, a menudo añade explicaciones intermedias, notas de progreso, conjeturas y resúmenes alrededor de la tarea real. En condiciones normales, esas palabras ayudan a la comunicación. Pero cuando el modelo está en mal estado, esas palabras “opcionales” pueden convertirse en contaminación: puede saltar a conclusiones, describir pasos que no ocurrieron realmente, o mezclar llamadas a herramientas con lenguaje natural.
+
+Decir menos no hace que el modelo sea más inteligente. Pero con menos contexto irrelevante, hay menos oportunidades para que el modelo se desvíe por sí solo.
+
+## No es solo un problema de Codex
+
+Me he encontrado con el mismo tipo de problema con Claude. El modelo imprimió texto que parecía una invocación de herramienta en lugar de continuar normalmente el flujo de vista previa. Luego el mismo problema siguió apareciendo en esa conversación. Al cambiar a otra conversación, el problema desapareció de repente. Este tipo de comportamiento sugiere que el problema no vive solo dentro de un modelo. También puede ocurrir en la cadena de herramientas del agente: el modelo, el prompt del sistema, el protocolo de herramientas, la ventana de contexto y el estado actual del servicio tienen que alinearse. Si una sola parte se mueve, la salida puede volverse inestable.
+
+Una vez aparece esa señal, seguir pidiendo arreglos dentro de la misma conversación a menudo no es recuperación. Puede agrandar la contaminación, porque el modelo ya ha escrito en el contexto un relato de “lo que acaba de pasar”, aunque ese relato sea incorrecto.
+
+## Dos direcciones: prevención y cortar pérdidas
+
+La primera dirección es reducir la probabilidad de errores. Pon las reglas del proyecto en `AGENTS.md`. Haz que el agente lea el código antes de editar. Reduce el comentario innecesario. Divide las tareas grandes en objetivos más pequeños. Pídele que ejecute pruebas y reporte los resultados de verificación. Exige que las suposiciones importantes se comprueben primero. Ninguna de estas prácticas hace que la IA sea perfectamente fiable. Reducen el espacio que tiene el modelo para improvisar en zonas inciertas.
+
+La segunda dirección es cortar pérdidas temprano. Si sigue arreglando el mismo bug, escribe explicaciones cada vez más largas mientras el código no mejora, rompe el formato de salida esperado, imprime llamadas a herramientas como texto, o ignora restricciones que acabas de dar, no sigas intentando rescatar el mismo hilo. Normalmente es mejor empezar una conversación nueva y proporcionar un brief limpio y comprimido: el objetivo, el error actual, los archivos clave y los hechos ya verificados.
+
+Esta también es una de las fortalezas de los agentes: guardan productos de trabajo en disco, así que puedes usar varias conversaciones para completar una sola tarea.
+
+Trátalo como higiene de ingeniería. Cuando el contexto está sucio, limpia el contexto. Cuando la tarea es demasiado grande, divídela. Cuando la salida empieza a contaminarse a sí misma, corta la cadena.
+
+## Conclusión
+
+Que Codex empeore no es magia, y una sola línea de prompt no puede resolverlo del todo. Se entiende mejor como un problema de probabilidad más un problema de contexto: a veces los errores se vuelven más probables, y cuando un error entra en el contexto, los errores posteriores también se vuelven más probables.
+
+`DO NOT send optional commentary` merece la pena probarlo porque el coste es bajo y el intercambio es claro: recibes menos notas intermedias. Pero el hábito general importa más. Reduce el ruido cuando puedas, verifica cuando puedas, y cuando la conversación empiece a dar vueltas, no luches contra el bucle. Lleva el trabajo a una conversación limpia y continúa desde ahí.
+
+Si tienes mejores prácticas, me gustaría conocerlas. Si tienes preguntas sobre el uso de agentes de IA o vibe coding, deja un comentario para discutirlo.

@@ -1,0 +1,45 @@
+Zuerst die Kurzfassung:
+
+1. Fügen Sie `DO NOT send optional commentary` zu Ihrem `AGENTS.md` hinzu, global oder auf Projektebene. Das kann die Wahrscheinlichkeit reduzieren, dass Codex „schlechter wird“.
+2. KI ist instabil, aber kreativ, ähnlich wie Menschen. Sie kann Probleme lösen, die rein deterministische Software nicht lösen kann. Unsere Aufgabe ist es, das Gleichgewicht zwischen beidem zu finden.
+3. Wenn Sie auf einen seltsamen Fehler stoßen, denken Sie eine Ebene tiefer. In der Form des Problems steckt oft eine praktische Gegenmaßnahme.
+
+---
+
+Wenn Menschen das Gefühl haben, Codex werde „schlechter“, glaube ich nicht, dass das zwangsläufig bedeutet, dass der Anbieter das Modell absichtlich geschwächt hat. Eine nützlichere Erklärung ist, dass zu einem bestimmten Zeitpunkt, in einer bestimmten Version oder innerhalb eines bestimmten Kontexts die Fehlerwahrscheinlichkeit gestiegen ist. KI ist nicht stabil wie klassische Software, bei der dieselbe Logik zuverlässig dasselbe Ergebnis erzeugt. Jeder Schritt wird aus einem Kontext mit etwas Zufall erzeugt. Wenn es gut läuft, fühlt sich das wie Zusammenarbeit an. Wenn es schlecht läuft, wird Kontext zum Verstärker: eine falsche Erklärung, ein vorgetäuschter Tool-Aufruf oder eine ungeprüfte Annahme kann in den Kontext gelangen und das nächste Urteil beeinflussen.
+
+Wenn KI also gelegentlich einen Fehler macht, ist das größte Problem nicht die fehlerhafte Antwort selbst. Das Problem ist, dass diese Antwort zum Material für künftige Antworten wird. Wenn Sie weiter nachfragen, behandelt das Modell seinen vorherigen Fehler möglicherweise als Tatsache. Wenn Sie es zur Korrektur auffordern, flickt es vielleicht weiter um die falsche Prämisse herum. Wenn Sie mehr Kontext hinzufügen, findet es möglicherweise mehr Rauschen, das es in eine neue Erklärung einwebt. Genau das erleben viele als „schlechter werden“ oder als eine Schleife.
+
+## `DO NOT send optional commentary`
+
+Heute habe ich auf X einen Post gesehen, der sagte, dass das Hinzufügen von `DO NOT send optional commentary` zu `AGENTS.md` die Degradation von Codex 5.5 deutlich verbessern könne.
+
+Ich bin der Spur bis zur ursprünglichen Diskussion auf Linux.do gefolgt. In der Testumgebung des Autors verbesserte sich die Genauigkeit sichtbar, aber der Autor betonte auch mehrfach, dass dies das Problem nur abmildert. Es beseitigt es nicht.
+
+Ich denke, diese Beobachtung passt zu meiner eigenen Vermutung. Der Satz ist kein Zauberspruch. Er funktioniert, weil er optionale Ausgaben des Modells reduziert. Wenn Codex arbeitet, fügt es oft Zwischen-Erklärungen, Fortschrittsnotizen, Vermutungen und Zusammenfassungen um die eigentliche Aufgabe herum hinzu. Unter normalen Bedingungen helfen diese Worte der Kommunikation. Wenn das Modell aber in einem schlechten Zustand ist, können diese „optionalen“ Worte zur Kontamination werden: Es kann vorschnell Schlüsse ziehen, Schritte beschreiben, die nicht wirklich passiert sind, oder Tool-Aufrufe mit natürlicher Sprache vermischen.
+
+Weniger zu sagen macht das Modell nicht intelligenter. Aber mit weniger irrelevantem Kontext gibt es weniger Gelegenheiten, sich selbst vom Kurs abzubringen.
+
+## Das ist nicht nur ein Codex-Problem
+
+Ich bin mit Claude auf dasselbe Problem gestoßen. Das Modell gab Text aus, der wie ein Tool-Aufruf aussah, statt den Preview-Flow normal fortzusetzen. Danach tauchte dasselbe Problem in dieser Unterhaltung immer wieder auf. Als ich in eine andere Unterhaltung wechselte, verschwand es plötzlich. Dieses Verhalten deutet darauf hin, dass das Problem nicht nur in einem Modell liegt. Es kann auch in der Agent-Toolchain entstehen: Modell, System-Prompt, Tool-Protokoll, Kontextfenster und aktueller Servicezustand müssen alle zusammenspielen. Wenn ein Teil wackelt, kann die Ausgabe instabil werden.
+
+Sobald dieses Signal auftaucht, ist weiteres Nachfragen nach Korrekturen in derselben Unterhaltung oft keine Erholung. Es kann die Kontamination vergrößern, weil das Modell bereits eine Darstellung dessen, „was gerade passiert ist“, in den Kontext geschrieben hat, selbst wenn diese Darstellung falsch ist.
+
+## Zwei Richtungen: Vorbeugen und Verluste begrenzen
+
+Die erste Richtung ist, die Fehlerwahrscheinlichkeit zu senken. Schreiben Sie Projektregeln in `AGENTS.md`. Lassen Sie den Agenten den Code lesen, bevor er editiert. Reduzieren Sie unnötige Kommentare. Teilen Sie große Aufgaben in kleinere Ziele. Bitten Sie ihn, Tests auszuführen und Verifikationsergebnisse zu melden. Verlangen Sie, dass wichtige Annahmen zuerst geprüft werden. Keine dieser Praktiken macht KI perfekt zuverlässig. Sie reduzieren den Raum, in dem das Modell in unsicheren Bereichen improvisieren kann.
+
+Die zweite Richtung ist, Verluste früh zu begrenzen. Wenn es immer wieder denselben Bug repariert, immer längere Erklärungen schreibt, während der Code nicht besser wird, das erwartete Ausgabeformat bricht, Tool-Aufrufe als Text ausgibt oder Einschränkungen ignoriert, die Sie gerade genannt haben, versuchen Sie nicht, denselben Thread zu retten. Meist ist es besser, eine neue Unterhaltung zu starten und einen sauberen, komprimierten Brief zu geben: Ziel, aktueller Fehler, Schlüsseldaten und bereits verifizierte Fakten.
+
+Das ist auch eine der Stärken von Agenten: Sie speichern Arbeitsergebnisse auf der Festplatte, sodass man mehrere Unterhaltungen nutzen kann, um eine Aufgabe abzuschließen.
+
+Behandeln Sie es als Engineering-Hygiene. Wenn der Kontext verschmutzt ist, reinigen Sie den Kontext. Wenn die Aufgabe zu groß ist, teilen Sie sie. Wenn die Ausgabe beginnt, sich selbst zu kontaminieren, schneiden Sie die Kette ab.
+
+## Fazit
+
+Dass Codex schlechter wird, ist keine Magie, und eine einzige Prompt-Zeile kann das nicht vollständig lösen. Besser versteht man es als Wahrscheinlichkeitsproblem plus Kontextproblem: Manchmal werden Fehler wahrscheinlicher, und sobald ein Fehler in den Kontext gelangt, werden spätere Fehler ebenfalls wahrscheinlicher.
+
+`DO NOT send optional commentary` ist einen Versuch wert, weil die Kosten niedrig sind und der Tradeoff klar ist: Sie bekommen weniger Zwischennotizen. Wichtiger ist aber die größere Arbeitsgewohnheit. Reduzieren Sie Rauschen, wenn Sie können, verifizieren Sie, wenn Sie können, und wenn die Unterhaltung zu schleifen beginnt, kämpfen Sie nicht gegen die Schleife. Verschieben Sie die Arbeit in eine saubere Unterhaltung und machen Sie dort weiter.
+
+Wenn Sie bessere Praktiken kennen, würde ich sie gern hören. Wenn Sie Fragen zur Nutzung von KI-Agenten oder Vibe Coding haben, hinterlassen Sie gern einen Kommentar zur Diskussion.

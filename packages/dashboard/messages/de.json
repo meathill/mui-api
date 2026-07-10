@@ -577,18 +577,18 @@
   },
   "aiRouter": {
     "metaTitle": "KI-API-Router — Ein Schlüssel für jedes LLM",
-    "metaDescription": "MuiRouter ist ein OpenAI-kompatibler KI-API-Router: Ein API Key routet Anfragen an OpenAI, Claude, Gemini, MiMo und mehr, mit Abrechnung pro Token und integriertem MCP-Server. Kein VPN, kein Abo.",
+    "metaDescription": "MuiRouter ist ein OpenAI-kompatibler KI-API-Router: Ein API Key routet Anfragen an OpenAI, Claude, Gemini, Grok, MiMo und mehr, mit Abrechnung pro Token und integriertem MCP-Server. Kein VPN, kein Abo.",
     "eyebrow": "KI-API-Router",
     "title": "Der KI-API-Router für ",
     "titleHighlight": "jedes LLM",
-    "intro": "MuiRouter sitzt zwischen Ihrer App und jedem großen KI-Anbieter. Senden Sie eine OpenAI-kompatible Anfrage und sie wird an OpenAI, Anthropic Claude, Google Gemini, Cloudflare Workers AI oder Xiaomi MiMo geroutet — ein Schlüssel, eine Abrechnung, kein VPN.",
+    "intro": "MuiRouter sitzt zwischen Ihrer App und jedem großen KI-Anbieter. Senden Sie eine OpenAI-kompatible Anfrage und sie wird an OpenAI, Anthropic Claude, Google Gemini, xAI Grok, Cloudflare Workers AI oder Xiaomi MiMo geroutet — ein Schlüssel, eine Abrechnung, kein VPN.",
     "ctaPrimary": "Kostenlos starten",
     "ctaSecondary": "Preise ansehen",
     "featuresTitle": "Was Ihnen ein KI-Router bietet",
     "features": [
       {
         "title": "Ein Schlüssel, jedes Modell",
-        "description": "Routen Sie über einen einzigen API Key an OpenAI, Claude, Gemini, Workers AI und MiMo, statt mit separaten Konten und SDKs zu jonglieren."
+        "description": "Routen Sie über einen einzigen API Key an OpenAI, Claude, Gemini, Grok, Workers AI und MiMo, statt mit separaten Konten und SDKs zu jonglieren."
       },
       {
         "title": "OpenAI-kompatibel",
@@ -615,7 +615,7 @@
       },
       {
         "question": "An welche Modelle kann ich routen?",
-        "answer": "Aktuell OpenAI (GPT), Anthropic Claude, Google Gemini, Cloudflare Workers AI und Xiaomi MiMo, mit der Zeit kommen weitere hinzu. Sie können kostenlos mit MiMo starten und für den Rest aufladen."
+        "answer": "Aktuell OpenAI (GPT), Anthropic Claude, Google Gemini, xAI Grok, Cloudflare Workers AI und Xiaomi MiMo, mit der Zeit kommen weitere hinzu. Sie können kostenlos mit MiMo starten und für den Rest aufladen."
       },
       {
         "question": "Brauche ich ein VPN oder ein Auslandskonto?",
@@ -635,18 +635,18 @@
   },
   "llmRouter": {
     "metaTitle": "LLM-Router — Eine API für OpenAI, Claude & Gemini",
-    "metaDescription": "MuiRouter ist ein LLM-Router, der OpenAI, Anthropic Claude, Google Gemini und MiMo hinter einer OpenAI-kompatiblen API vereint. Wechseln Sie Modelle durch Ändern eines Strings, zahlen Sie pro Token, kein Abo.",
+    "metaDescription": "MuiRouter ist ein LLM-Router, der OpenAI, Anthropic Claude, Google Gemini, xAI Grok und MiMo hinter einer OpenAI-kompatiblen API vereint. Wechseln Sie Modelle durch Ändern eines Strings, zahlen Sie pro Token, kein Abo.",
     "eyebrow": "LLM-Router",
     "title": "Ein LLM-Router für ",
     "titleHighlight": "jeden Anbieter",
-    "intro": "Schluss mit einer separaten Integration für jeden Modellanbieter. MuiRouter routet Ihre Aufrufe großer Sprachmodelle über OpenAI, Claude, Gemini, Workers AI und MiMo — mit einem Schlüssel und einer Abrechnung.",
+    "intro": "Schluss mit einer separaten Integration für jeden Modellanbieter. MuiRouter routet Ihre Aufrufe großer Sprachmodelle über OpenAI, Claude, Gemini, Grok, Workers AI und MiMo — mit einem Schlüssel und einer Abrechnung.",
     "ctaPrimary": "Kostenlos starten",
     "ctaSecondary": "Preise ansehen",
     "featuresTitle": "Warum LLMs über eine API routen",
     "features": [
       {
         "title": "Modelle mit einem String wechseln",
-        "description": "Ändern Sie den Modellnamen in Ihrer Anfrage, um zwischen GPT, Claude, Gemini und MiMo zu wechseln — keine neuen SDKs, keine neuen Schlüssel."
+        "description": "Ändern Sie den Modellnamen in Ihrer Anfrage, um zwischen GPT, Claude, Gemini, Grok und MiMo zu wechseln — keine neuen SDKs, keine neuen Schlüssel."
       },
       {
         "title": "Einheitliche Nutzung und Abrechnung",
@@ -665,7 +665,7 @@
     "faq": [
       {
         "question": "Was ist ein LLM-Router?",
-        "answer": "Ein LLM-Router ist ein Gateway, das Ihre Prompts über eine Schnittstelle an verschiedene große Sprachmodelle sendet. Damit können Sie Modelle wie GPT, Claude und Gemini vergleichen, wechseln oder kombinieren, ohne Ihre Integration neu zu schreiben."
+        "answer": "Ein LLM-Router ist ein Gateway, das Ihre Prompts über eine Schnittstelle an verschiedene große Sprachmodelle sendet. Damit können Sie Modelle wie GPT, Claude, Gemini und Grok vergleichen, wechseln oder kombinieren, ohne Ihre Integration neu zu schreiben."
       },
       {
         "question": "Wie wechsle ich zwischen Modellen?",
@@ -688,11 +688,11 @@
   },
   "openaiCompatibleRouter": {
     "metaTitle": "OpenAI-kompatibler API-Router — Base URL ändern",
-    "metaDescription": "MuiRouter ist ein OpenAI-kompatibler API-Router. Richten Sie die Base URL des OpenAI SDK auf MuiRouter und routen Sie Anfragen an OpenAI, Claude, Gemini und MiMo — ohne Code-Umschreibung und mit Abrechnung pro Token.",
+    "metaDescription": "MuiRouter ist ein OpenAI-kompatibler API-Router. Richten Sie die Base URL des OpenAI SDK auf MuiRouter und routen Sie Anfragen an OpenAI, Claude, Gemini, Grok und MiMo — ohne Code-Umschreibung und mit Abrechnung pro Token.",
     "eyebrow": "OpenAI-kompatibler Router",
     "title": "OpenAI-kompatibles Routing — ",
     "titleHighlight": "einfach die Base URL ändern",
-    "intro": "MuiRouter spricht die OpenAI-API. Behalten Sie Ihr bestehendes OpenAI SDK, tauschen Sie Base URL und API Key aus und routen Sie an OpenAI, Claude, Gemini, Workers AI und MiMo, ohne den Rest Ihres Codes anzufassen.",
+    "intro": "MuiRouter spricht die OpenAI-API. Behalten Sie Ihr bestehendes OpenAI SDK, tauschen Sie Base URL und API Key aus und routen Sie an OpenAI, Claude, Gemini, Grok, Workers AI und MiMo, ohne den Rest Ihres Codes anzufassen.",
     "ctaPrimary": "Kostenlos starten",
     "ctaSecondary": "Preise ansehen",
     "featuresTitle": "Drop-in-OpenAI-Kompatibilität",
@@ -707,7 +707,7 @@
       },
       {
         "title": "Mehr Modelle, dieselbe Schnittstelle",
-        "description": "Sobald Sie auf MuiRouter zeigen, können Sie Claude, Gemini und MiMo mit derselben Anfrageform aufrufen, die Sie bereits für GPT nutzen."
+        "description": "Sobald Sie auf MuiRouter zeigen, können Sie Claude, Gemini, Grok und MiMo mit derselben Anfrageform aufrufen, die Sie bereits für GPT nutzen."
       },
       {
         "title": "Option für natives Passthrough",
@@ -726,7 +726,7 @@
       },
       {
         "question": "Kann ich weiterhin Nicht-OpenAI-Modelle verwenden?",
-        "answer": "Ja. Über denselben OpenAI-kompatiblen Endpunkt können Sie an Claude, Gemini und MiMo routen, indem Sie den Modellnamen setzen."
+        "answer": "Ja. Über denselben OpenAI-kompatiblen Endpunkt können Sie an Claude, Gemini, Grok und MiMo routen, indem Sie den Modellnamen setzen."
       }
     ],
     "relatedTitle": "Verwandt",
@@ -756,7 +756,7 @@
       },
       {
         "title": "LLM-Aufrufe routen",
-        "description": "Senden Sie Modellanfragen über MCP, und MuiRouter routet sie hinter einem Schlüssel an OpenAI, Claude, Gemini und MiMo."
+        "description": "Senden Sie Modellanfragen über MCP, und MuiRouter routet sie hinter einem Schlüssel an OpenAI, Claude, Gemini, Grok und MiMo."
       },
       {
         "title": "Konto-Tools",
@@ -801,7 +801,7 @@
       },
       {
         "question": "Was ist MuiRouter?",
-        "answer": "MuiRouter ist ein KI-API-Router: Ein Schlüssel routet Ihre Anfragen an OpenAI, Anthropic Claude, Google Gemini, Cloudflare Workers AI und Xiaomi MiMo, abgerechnet pro Token und ohne Abo."
+        "answer": "MuiRouter ist ein KI-API-Router: Ein Schlüssel routet Ihre Anfragen an OpenAI, Anthropic Claude, Google Gemini, xAI Grok, Cloudflare Workers AI und Xiaomi MiMo, abgerechnet pro Token und ohne Abo."
       },
       {
         "question": "Ist er OpenAI-kompatibel?",

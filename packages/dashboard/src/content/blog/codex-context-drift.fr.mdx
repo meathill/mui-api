@@ -1,0 +1,45 @@
+D'abord, la version courte :
+
+1. Ajoutez `DO NOT send optional commentary` à votre `AGENTS.md`, globalement ou au niveau du projet. Cela peut réduire le risque que Codex « se dégrade ».
+2. L'IA est instable, mais créative, un peu comme les humains. Elle peut résoudre des problèmes qu'un logiciel purement déterministe ne sait pas résoudre. Notre travail consiste à trouver l'équilibre entre les deux.
+3. Quand vous tombez sur un échec étrange, réfléchissez un niveau plus bas. La forme du problème cache souvent une mitigation pratique.
+
+---
+
+Quand les gens ont l'impression que Codex « devient pire », je ne pense pas que cela signifie forcément que le fournisseur a volontairement affaibli le modèle. Une explication plus utile est qu'à un moment donné, dans une certaine version ou dans un certain contexte, la probabilité d'erreur a augmenté. L'IA n'est pas stable comme un logiciel traditionnel, où la même logique produit fiablement le même résultat. Chaque étape est générée à partir d'un contexte avec une part d'aléatoire. Quand tout va bien, cela ressemble à de la collaboration. Quand cela déraille, le contexte devient un amplificateur : une mauvaise explication, un faux appel d'outil ou une hypothèse non vérifiée peut entrer dans le contexte et influencer le jugement suivant.
+
+Ainsi, lorsque l'IA fait une erreur ponctuelle, le plus gros problème n'est pas seulement la réponse défectueuse. Le problème est que cette réponse devient de la matière pour les réponses futures. Si vous continuez à poser des questions, le modèle peut traiter son erreur précédente comme un fait. Si vous lui demandez de corriger, il peut continuer à bricoler autour de la mauvaise prémisse. Si vous ajoutez plus de contexte, il peut trouver plus de bruit à intégrer dans une nouvelle explication. C'est ce que beaucoup de gens ressentent comme une « dégradation », ou comme une boucle.
+
+## `DO NOT send optional commentary`
+
+Aujourd'hui, j'ai vu un post sur X disant qu'ajouter `DO NOT send optional commentary` à `AGENTS.md` pouvait améliorer fortement la dégradation de Codex 5.5.
+
+J'ai remonté la piste jusqu'à la discussion originale sur Linux.do. Dans l'environnement de test de l'auteur, la précision s'est nettement améliorée, mais l'auteur a aussi répété que cela ne faisait qu'atténuer le problème. Cela ne l'élimine pas.
+
+Je pense que cette observation correspond à mon intuition. Cette phrase n'est pas une formule magique. Elle fonctionne parce qu'elle réduit les sorties optionnelles du modèle. Quand Codex travaille, il ajoute souvent des explications intermédiaires, des notes d'avancement, des suppositions et des résumés autour de la tâche réelle. En conditions normales, ces mots aident la communication. Mais quand le modèle est dans un mauvais état, ces mots « optionnels » peuvent devenir une contamination : il peut tirer des conclusions trop vite, décrire des étapes qui n'ont pas vraiment eu lieu, ou mélanger des appels d'outils avec du langage naturel.
+
+Parler moins ne rend pas le modèle plus intelligent. Mais avec moins de contexte inutile, il y a moins d'occasions pour le modèle de se déporter lui-même.
+
+## Ce n'est pas seulement un problème Codex
+
+J'ai rencontré le même genre de problème avec Claude. Le modèle a imprimé un texte qui ressemblait à un appel d'outil au lieu de poursuivre normalement le flux de prévisualisation. Puis le même problème est revenu dans cette conversation. Dès que je suis passé à une autre conversation, il a soudain disparu. Ce comportement suggère que le problème ne se trouve pas seulement dans un modèle. Il peut aussi apparaître dans toute la chaîne agentique : le modèle, le prompt système, le protocole d'outils, la fenêtre de contexte et l'état courant du service doivent tous être alignés. Si une seule pièce bouge, la sortie peut devenir instable.
+
+Une fois que ce signal apparaît, continuer à demander des corrections dans la même conversation n'est souvent pas une récupération. Cela peut agrandir la contamination, parce que le modèle a déjà écrit dans le contexte un récit de « ce qui vient de se passer », même si ce récit est faux.
+
+## Deux directions : prévenir et limiter les pertes
+
+La première direction consiste à réduire la probabilité d'erreur. Mettez les règles du projet dans `AGENTS.md`. Faites lire le code à l'agent avant modification. Réduisez les commentaires inutiles. Découpez les grosses tâches en objectifs plus petits. Demandez-lui de lancer les tests et de rapporter les résultats de vérification. Exigez que les hypothèses importantes soient vérifiées d'abord. Aucune de ces pratiques ne rend l'IA parfaitement fiable. Elles réduisent l'espace dans lequel le modèle peut improviser quand il est incertain.
+
+La deuxième direction consiste à couper les pertes tôt. S'il corrige sans cesse le même bug, écrit des explications de plus en plus longues sans améliorer le code, casse le format de sortie attendu, imprime des appels d'outils comme du texte, ou ignore les contraintes que vous venez de donner, n'essayez pas de sauver le même fil indéfiniment. Le meilleur geste est souvent de démarrer une nouvelle conversation et de fournir un brief propre et compressé : l'objectif, l'erreur actuelle, les fichiers clés et les faits déjà vérifiés.
+
+C'est aussi l'une des forces des agents : ils enregistrent les produits du travail sur disque, ce qui permet d'utiliser plusieurs conversations pour terminer une seule tâche.
+
+Considérez cela comme de l'hygiène d'ingénierie. Quand le contexte est sale, nettoyez le contexte. Quand la tâche est trop grande, découpez-la. Quand la sortie commence à se contaminer elle-même, coupez la chaîne.
+
+## Conclusion
+
+La dégradation de Codex n'est pas magique, et une seule ligne de prompt ne peut pas tout résoudre. Il vaut mieux la comprendre comme un problème de probabilité plus un problème de contexte : parfois les erreurs deviennent plus probables, et une fois qu'une erreur entre dans le contexte, les erreurs suivantes deviennent elles aussi plus probables.
+
+`DO NOT send optional commentary` vaut la peine d'être essayé, car le coût est faible et le compromis est clair : vous obtenez moins de notes intermédiaires. Mais l'habitude plus large compte davantage. Réduisez le bruit quand vous le pouvez, vérifiez quand vous le pouvez, et quand la conversation commence à boucler, ne combattez pas la boucle. Déplacez le travail dans une conversation propre et continuez à partir de là.
+
+Si vous avez de meilleures pratiques, j'aimerais les entendre. Si vous avez des questions sur l'usage des agents IA ou le vibe coding, laissez un commentaire pour en discuter.

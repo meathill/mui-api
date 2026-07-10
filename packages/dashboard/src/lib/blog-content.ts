@@ -29,40 +29,37 @@ const claudeSonnet5Loaders: Record<Locale, BlogContentLoader> = {
   ja: () => import('@/content/blog/claude-sonnet-5.ja.mdx'),
 };
 
-const loadClaudeFable5En = () => import('@/content/blog/claude-fable-5.mdx');
 const claudeFable5Loaders: Record<Locale, BlogContentLoader> = {
-  en: loadClaudeFable5En,
+  en: () => import('@/content/blog/claude-fable-5.mdx'),
   zh: () => import('@/content/blog/claude-fable-5.zh.mdx'),
-  fr: loadClaudeFable5En,
-  es: loadClaudeFable5En,
-  pt: loadClaudeFable5En,
-  de: loadClaudeFable5En,
-  th: loadClaudeFable5En,
-  ja: loadClaudeFable5En,
+  fr: () => import('@/content/blog/claude-fable-5.fr.mdx'),
+  es: () => import('@/content/blog/claude-fable-5.es.mdx'),
+  pt: () => import('@/content/blog/claude-fable-5.pt.mdx'),
+  de: () => import('@/content/blog/claude-fable-5.de.mdx'),
+  th: () => import('@/content/blog/claude-fable-5.th.mdx'),
+  ja: () => import('@/content/blog/claude-fable-5.ja.mdx'),
 };
 
-const loadCodexContextDriftEn = () => import('@/content/blog/codex-context-drift.mdx');
 const codexContextDriftLoaders: Record<Locale, BlogContentLoader> = {
-  en: loadCodexContextDriftEn,
+  en: () => import('@/content/blog/codex-context-drift.mdx'),
   zh: () => import('@/content/blog/codex-context-drift.zh.mdx'),
-  fr: loadCodexContextDriftEn,
-  es: loadCodexContextDriftEn,
-  pt: loadCodexContextDriftEn,
-  de: loadCodexContextDriftEn,
-  th: loadCodexContextDriftEn,
-  ja: loadCodexContextDriftEn,
+  fr: () => import('@/content/blog/codex-context-drift.fr.mdx'),
+  es: () => import('@/content/blog/codex-context-drift.es.mdx'),
+  pt: () => import('@/content/blog/codex-context-drift.pt.mdx'),
+  de: () => import('@/content/blog/codex-context-drift.de.mdx'),
+  th: () => import('@/content/blog/codex-context-drift.th.mdx'),
+  ja: () => import('@/content/blog/codex-context-drift.ja.mdx'),
 };
 
-const loadXaiGrokEn = () => import('@/content/blog/xai-grok.mdx');
 const xaiGrokLoaders: Record<Locale, BlogContentLoader> = {
-  en: loadXaiGrokEn,
+  en: () => import('@/content/blog/xai-grok.mdx'),
   zh: () => import('@/content/blog/xai-grok.zh.mdx'),
-  fr: loadXaiGrokEn,
-  es: loadXaiGrokEn,
-  pt: loadXaiGrokEn,
-  de: loadXaiGrokEn,
-  th: loadXaiGrokEn,
-  ja: loadXaiGrokEn,
+  fr: () => import('@/content/blog/xai-grok.fr.mdx'),
+  es: () => import('@/content/blog/xai-grok.es.mdx'),
+  pt: () => import('@/content/blog/xai-grok.pt.mdx'),
+  de: () => import('@/content/blog/xai-grok.de.mdx'),
+  th: () => import('@/content/blog/xai-grok.th.mdx'),
+  ja: () => import('@/content/blog/xai-grok.ja.mdx'),
 };
 
 const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {

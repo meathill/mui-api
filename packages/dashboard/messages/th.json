@@ -577,18 +577,18 @@
   },
   "aiRouter": {
     "metaTitle": "เราเตอร์ AI API — คีย์เดียวสำหรับทุก LLM",
-    "metaDescription": "MuiRouter คือเราเตอร์ AI API ที่รองรับ OpenAI คีย์ API เดียว route คำขอไปยัง OpenAI, Claude, Gemini, MiMo และอื่นๆ คิดเงินตามโทเค็น พร้อมเซิร์ฟเวอร์ MCP ในตัว ไม่ต้องใช้ VPN ไม่ต้องสมัครสมาชิก",
+    "metaDescription": "MuiRouter คือเราเตอร์ AI API ที่รองรับ OpenAI คีย์ API เดียว route คำขอไปยัง OpenAI, Claude, Gemini, Grok, MiMo และอื่นๆ คิดเงินตามโทเค็น พร้อมเซิร์ฟเวอร์ MCP ในตัว ไม่ต้องใช้ VPN ไม่ต้องสมัครสมาชิก",
     "eyebrow": "เราเตอร์ AI API",
     "title": "เราเตอร์ AI API สำหรับ",
     "titleHighlight": "ทุก LLM",
-    "intro": "MuiRouter อยู่ระหว่างแอปของคุณกับผู้ให้บริการ AI หลักทุกราย ส่งคำขอที่รองรับ OpenAI เพียงครั้งเดียว แล้วมันจะ route ไปยัง OpenAI, Anthropic Claude, Google Gemini, Cloudflare Workers AI หรือ Xiaomi MiMo — คีย์เดียว บิลเดียว ไม่ต้องใช้ VPN",
+    "intro": "MuiRouter อยู่ระหว่างแอปของคุณกับผู้ให้บริการ AI หลักทุกราย ส่งคำขอที่รองรับ OpenAI เพียงครั้งเดียว แล้วมันจะ route ไปยัง OpenAI, Anthropic Claude, Google Gemini, xAI Grok, Cloudflare Workers AI หรือ Xiaomi MiMo — คีย์เดียว บิลเดียว ไม่ต้องใช้ VPN",
     "ctaPrimary": "เริ่มฟรี",
     "ctaSecondary": "ดูราคา",
     "featuresTitle": "เราเตอร์ AI ให้อะไรกับคุณบ้าง",
     "features": [
       {
         "title": "คีย์เดียว ทุกโมเดล",
-        "description": "Route ไปยัง OpenAI, Claude, Gemini, Workers AI และ MiMo ด้วยคีย์ API เดียว แทนที่จะต้องจัดการบัญชีและ SDK แยกกัน"
+        "description": "Route ไปยัง OpenAI, Claude, Gemini, Grok, Workers AI และ MiMo ด้วยคีย์ API เดียว แทนที่จะต้องจัดการบัญชีและ SDK แยกกัน"
       },
       {
         "title": "รองรับ OpenAI",
@@ -615,7 +615,7 @@
       },
       {
         "question": "ผม route ไปยังโมเดลใดได้บ้าง?",
-        "answer": "ปัจจุบันมี OpenAI (GPT), Anthropic Claude, Google Gemini, Cloudflare Workers AI และ Xiaomi MiMo และจะเพิ่มขึ้นเรื่อยๆ คุณเริ่มฟรีได้บน MiMo แล้วเติมเงินเพื่อใช้โมเดลที่เหลือ"
+        "answer": "ปัจจุบันมี OpenAI (GPT), Anthropic Claude, Google Gemini, xAI Grok, Cloudflare Workers AI และ Xiaomi MiMo และจะเพิ่มขึ้นเรื่อยๆ คุณเริ่มฟรีได้บน MiMo แล้วเติมเงินเพื่อใช้โมเดลที่เหลือ"
       },
       {
         "question": "ต้องใช้ VPN หรือบัญชีต่างประเทศไหม?",
@@ -635,18 +635,18 @@
   },
   "llmRouter": {
     "metaTitle": "เราเตอร์ LLM — API เดียวสำหรับ OpenAI, Claude และ Gemini",
-    "metaDescription": "MuiRouter คือเราเตอร์ LLM ที่รวม OpenAI, Anthropic Claude, Google Gemini และ MiMo ไว้หลัง API ที่รองรับ OpenAI ตัวเดียว สลับโมเดลด้วยการเปลี่ยนสตริงเดียว คิดเงินตามโทเค็น ไม่ต้องสมัครสมาชิก",
+    "metaDescription": "MuiRouter คือเราเตอร์ LLM ที่รวม OpenAI, Anthropic Claude, Google Gemini, xAI Grok และ MiMo ไว้หลัง API ที่รองรับ OpenAI ตัวเดียว สลับโมเดลด้วยการเปลี่ยนสตริงเดียว คิดเงินตามโทเค็น ไม่ต้องสมัครสมาชิก",
     "eyebrow": "เราเตอร์ LLM",
     "title": "เราเตอร์ LLM เดียวสำหรับ",
     "titleHighlight": "ทุกผู้ให้บริการ",
-    "intro": "เลิกดูแลการเชื่อมต่อแยกสำหรับผู้ผลิตโมเดลแต่ละราย MuiRouter route การเรียกโมเดลภาษาขนาดใหญ่ของคุณข้าม OpenAI, Claude, Gemini, Workers AI และ MiMo จากคีย์เดียวและบิลเดียว",
+    "intro": "เลิกดูแลการเชื่อมต่อแยกสำหรับผู้ผลิตโมเดลแต่ละราย MuiRouter route การเรียกโมเดลภาษาขนาดใหญ่ของคุณข้าม OpenAI, Claude, Gemini, Grok, Workers AI และ MiMo จากคีย์เดียวและบิลเดียว",
     "ctaPrimary": "เริ่มฟรี",
     "ctaSecondary": "ดูราคา",
     "featuresTitle": "ทำไมต้อง route LLM ผ่าน API เดียว",
     "features": [
       {
         "title": "สลับโมเดลด้วยสตริงเดียว",
-        "description": "เปลี่ยนชื่อโมเดลในคำขอเพื่อย้ายระหว่าง GPT, Claude, Gemini และ MiMo — ไม่ต้องมี SDK ใหม่ ไม่ต้องมีคีย์ใหม่"
+        "description": "เปลี่ยนชื่อโมเดลในคำขอเพื่อย้ายระหว่าง GPT, Claude, Gemini, Grok และ MiMo — ไม่ต้องมี SDK ใหม่ ไม่ต้องมีคีย์ใหม่"
       },
       {
         "title": "การใช้งานและการคิดเงินแบบรวมศูนย์",
@@ -665,7 +665,7 @@
     "faq": [
       {
         "question": "เราเตอร์ LLM คืออะไร?",
-        "answer": "เราเตอร์ LLM คือ gateway ที่ส่ง prompt ของคุณไปยังโมเดลภาษาขนาดใหญ่ต่างๆ ผ่านอินเทอร์เฟซเดียว ช่วยให้คุณเปรียบเทียบ สลับ หรือรวมโมเดลอย่าง GPT, Claude และ Gemini โดยไม่ต้องเขียนการเชื่อมต่อใหม่"
+        "answer": "เราเตอร์ LLM คือ gateway ที่ส่ง prompt ของคุณไปยังโมเดลภาษาขนาดใหญ่ต่างๆ ผ่านอินเทอร์เฟซเดียว ช่วยให้คุณเปรียบเทียบ สลับ หรือรวมโมเดลอย่าง GPT, Claude, Gemini และ Grok โดยไม่ต้องเขียนการเชื่อมต่อใหม่"
       },
       {
         "question": "ผมสลับระหว่างโมเดลได้อย่างไร?",
@@ -688,11 +688,11 @@
   },
   "openaiCompatibleRouter": {
     "metaTitle": "เราเตอร์ API ที่รองรับ OpenAI — แค่เปลี่ยน Base URL",
-    "metaDescription": "MuiRouter คือเราเตอร์ API ที่รองรับ OpenAI ชี้ Base URL ของ OpenAI SDK ไปที่ MuiRouter แล้ว route คำขอไปยัง OpenAI, Claude, Gemini และ MiMo โดยไม่ต้องเขียนโค้ดใหม่ คิดเงินตามโทเค็น",
+    "metaDescription": "MuiRouter คือเราเตอร์ API ที่รองรับ OpenAI ชี้ Base URL ของ OpenAI SDK ไปที่ MuiRouter แล้ว route คำขอไปยัง OpenAI, Claude, Gemini, Grok และ MiMo โดยไม่ต้องเขียนโค้ดใหม่ คิดเงินตามโทเค็น",
     "eyebrow": "เราเตอร์ที่รองรับ OpenAI",
     "title": "การ route ที่รองรับ OpenAI — ",
     "titleHighlight": "แค่เปลี่ยน Base URL",
-    "intro": "MuiRouter พูดภาษา OpenAI API ใช้ OpenAI SDK เดิมของคุณ เปลี่ยน Base URL และคีย์ API แล้ว route ไปยัง OpenAI, Claude, Gemini, Workers AI และ MiMo โดยไม่ต้องแตะโค้ดส่วนที่เหลือ",
+    "intro": "MuiRouter พูดภาษา OpenAI API ใช้ OpenAI SDK เดิมของคุณ เปลี่ยน Base URL และคีย์ API แล้ว route ไปยัง OpenAI, Claude, Gemini, Grok, Workers AI และ MiMo โดยไม่ต้องแตะโค้ดส่วนที่เหลือ",
     "ctaPrimary": "เริ่มฟรี",
     "ctaSecondary": "ดูราคา",
     "featuresTitle": "ความเข้ากันได้กับ OpenAI แบบใช้งานได้ทันที",
@@ -707,7 +707,7 @@
       },
       {
         "title": "โมเดลมากขึ้น อินเทอร์เฟซเดิม",
-        "description": "เมื่อชี้ไปที่ MuiRouter แล้ว คุณเรียก Claude, Gemini และ MiMo ได้ด้วยรูปแบบคำขอเดียวกับที่คุณใช้กับ GPT อยู่แล้ว"
+        "description": "เมื่อชี้ไปที่ MuiRouter แล้ว คุณเรียก Claude, Gemini, Grok และ MiMo ได้ด้วยรูปแบบคำขอเดียวกับที่คุณใช้กับ GPT อยู่แล้ว"
       },
       {
         "title": "ตัวเลือกส่งต่อแบบดั้งเดิม",
@@ -726,7 +726,7 @@
       },
       {
         "question": "ผมยังใช้โมเดลที่ไม่ใช่ของ OpenAI ได้ไหม?",
-        "answer": "ได้ ผ่าน endpoint ที่รองรับ OpenAI ตัวเดียวกัน คุณ route ไปยัง Claude, Gemini และ MiMo ได้ด้วยการตั้งชื่อโมเดล"
+        "answer": "ได้ ผ่าน endpoint ที่รองรับ OpenAI ตัวเดียวกัน คุณ route ไปยัง Claude, Gemini, Grok และ MiMo ได้ด้วยการตั้งชื่อโมเดล"
       }
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
@@ -756,7 +756,7 @@
       },
       {
         "title": "Route การเรียก LLM",
-        "description": "ส่งคำขอโมเดลผ่าน MCP แล้ว MuiRouter จะ route ไปยัง OpenAI, Claude, Gemini และ MiMo หลังคีย์เดียว"
+        "description": "ส่งคำขอโมเดลผ่าน MCP แล้ว MuiRouter จะ route ไปยัง OpenAI, Claude, Gemini, Grok และ MiMo หลังคีย์เดียว"
       },
       {
         "title": "เครื่องมือจัดการบัญชี",
@@ -801,7 +801,7 @@
       },
       {
         "question": "MuiRouter คืออะไร?",
-        "answer": "MuiRouter คือเราเตอร์ AI API คีย์เดียว route คำขอของคุณไปยัง OpenAI, Anthropic Claude, Google Gemini, Cloudflare Workers AI และ Xiaomi MiMo คิดเงินตามโทเค็น ไม่ต้องสมัครสมาชิก"
+        "answer": "MuiRouter คือเราเตอร์ AI API คีย์เดียว route คำขอของคุณไปยัง OpenAI, Anthropic Claude, Google Gemini, xAI Grok, Cloudflare Workers AI และ Xiaomi MiMo คิดเงินตามโทเค็น ไม่ต้องสมัครสมาชิก"
       },
       {
         "question": "รองรับ OpenAI ไหม?",

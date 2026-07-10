@@ -577,18 +577,18 @@
   },
   "aiRouter": {
     "metaTitle": "AI API ルーター — 1つのキーですべての LLM へ",
-    "metaDescription": "MuiRouter は OpenAI 互換の AI API ルーター。1つの API キーでリクエストを OpenAI、Claude、Gemini、MiMo などへ route し、トークン単位の課金と MCP サーバーを内蔵。VPN 不要、サブスクリプション不要。",
+    "metaDescription": "MuiRouter は OpenAI 互換の AI API ルーター。1つの API キーでリクエストを OpenAI、Claude、Gemini、Grok、MiMo などへ route し、トークン単位の課金と MCP サーバーを内蔵。VPN 不要、サブスクリプション不要。",
     "eyebrow": "AI API ルーター",
     "title": "すべての LLM のための",
     "titleHighlight": "AI API ルーター",
-    "intro": "MuiRouter はあなたのアプリと主要な AI プロバイダーすべての間に立ちます。1つの OpenAI 互換リクエストを送れば、OpenAI、Anthropic Claude、Google Gemini、Cloudflare Workers AI、Xiaomi MiMo へ route — 1つのキー、1つの請求、VPN 不要。",
+    "intro": "MuiRouter はあなたのアプリと主要な AI プロバイダーすべての間に立ちます。1つの OpenAI 互換リクエストを送れば、OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI、Xiaomi MiMo へ route — 1つのキー、1つの請求、VPN 不要。",
     "ctaPrimary": "無料で始める",
     "ctaSecondary": "料金を見る",
     "featuresTitle": "AI ルーターでできること",
     "features": [
       {
         "title": "1つのキーで、すべてのモデル",
-        "description": "別々のアカウントや SDK を使い分けることなく、1つの API キーで OpenAI、Claude、Gemini、Workers AI、MiMo へ route できます。"
+        "description": "別々のアカウントや SDK を使い分けることなく、1つの API キーで OpenAI、Claude、Gemini、Grok、Workers AI、MiMo へ route できます。"
       },
       {
         "title": "OpenAI 互換",
@@ -615,7 +615,7 @@
       },
       {
         "question": "どのモデルへ route できますか？",
-        "answer": "現在は OpenAI（GPT）、Anthropic Claude、Google Gemini、Cloudflare Workers AI、Xiaomi MiMo に対応し、今後も追加していきます。MiMo は無料で始められ、ほかのモデルはチャージして利用できます。"
+        "answer": "現在は OpenAI（GPT）、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI、Xiaomi MiMo に対応し、今後も追加していきます。MiMo は無料で始められ、ほかのモデルはチャージして利用できます。"
       },
       {
         "question": "VPN や海外アカウントは必要ですか？",
@@ -635,18 +635,18 @@
   },
   "llmRouter": {
     "metaTitle": "LLM ルーター — OpenAI・Claude・Gemini を1つの API で",
-    "metaDescription": "MuiRouter は OpenAI、Anthropic Claude、Google Gemini、MiMo を1つの OpenAI 互換 API の背後に統合する LLM ルーター。文字列を1つ変えるだけでモデルを切り替え、トークン単位の従量課金、サブスクリプション不要。",
+    "metaDescription": "MuiRouter は OpenAI、Anthropic Claude、Google Gemini、xAI Grok、MiMo を1つの OpenAI 互換 API の背後に統合する LLM ルーター。文字列を1つ変えるだけでモデルを切り替え、トークン単位の従量課金、サブスクリプション不要。",
     "eyebrow": "LLM ルーター",
     "title": "すべてのプロバイダーのための",
     "titleHighlight": "1つの LLM ルーター",
-    "intro": "モデルベンダーごとに別々の統合を維持するのはもう終わりです。MuiRouter は、1つのキーと1つの請求で、大規模言語モデルの呼び出しを OpenAI、Claude、Gemini、Workers AI、MiMo にまたがって route します。",
+    "intro": "モデルベンダーごとに別々の統合を維持するのはもう終わりです。MuiRouter は、1つのキーと1つの請求で、大規模言語モデルの呼び出しを OpenAI、Claude、Gemini、Grok、Workers AI、MiMo にまたがって route します。",
     "ctaPrimary": "無料で始める",
     "ctaSecondary": "料金を見る",
     "featuresTitle": "LLM を1つの API で route する理由",
     "features": [
       {
         "title": "文字列1つでモデルを切り替え",
-        "description": "リクエスト内のモデル名を変えるだけで GPT、Claude、Gemini、MiMo を行き来できます — 新しい SDK も新しいキーも不要。"
+        "description": "リクエスト内のモデル名を変えるだけで GPT、Claude、Gemini、Grok、MiMo を行き来できます — 新しい SDK も新しいキーも不要。"
       },
       {
         "title": "使用量と課金を一元化",
@@ -665,7 +665,7 @@
     "faq": [
       {
         "question": "LLM ルーターとは何ですか？",
-        "answer": "LLM ルーターは、プロンプトを1つのインターフェースから異なる大規模言語モデルへ送るゲートウェイです。統合を書き直すことなく、GPT、Claude、Gemini といったモデルを比較・切り替え・組み合わせできます。"
+        "answer": "LLM ルーターは、プロンプトを1つのインターフェースから異なる大規模言語モデルへ送るゲートウェイです。統合を書き直すことなく、GPT、Claude、Gemini、Grok といったモデルを比較・切り替え・組み合わせできます。"
       },
       {
         "question": "モデルはどのように切り替えますか？",
@@ -688,11 +688,11 @@
   },
   "openaiCompatibleRouter": {
     "metaTitle": "OpenAI 互換 API ルーター — Base URL を変えるだけ",
-    "metaDescription": "MuiRouter は OpenAI 互換の API ルーター。OpenAI SDK の Base URL を MuiRouter に向ければ、コードを書き直すことなくリクエストを OpenAI、Claude、Gemini、MiMo へ route。トークン単位の従量課金。",
+    "metaDescription": "MuiRouter は OpenAI 互換の API ルーター。OpenAI SDK の Base URL を MuiRouter に向ければ、コードを書き直すことなくリクエストを OpenAI、Claude、Gemini、Grok、MiMo へ route。トークン単位の従量課金。",
     "eyebrow": "OpenAI 互換ルーター",
     "title": "OpenAI 互換のルーティング — ",
     "titleHighlight": "Base URL を変えるだけ",
-    "intro": "MuiRouter は OpenAI API を話します。既存の OpenAI SDK をそのままに、Base URL と API キーを差し替えるだけで、ほかのコードに触れることなく OpenAI、Claude、Gemini、Workers AI、MiMo へ route できます。",
+    "intro": "MuiRouter は OpenAI API を話します。既存の OpenAI SDK をそのままに、Base URL と API キーを差し替えるだけで、ほかのコードに触れることなく OpenAI、Claude、Gemini、Grok、Workers AI、MiMo へ route できます。",
     "ctaPrimary": "無料で始める",
     "ctaSecondary": "料金を見る",
     "featuresTitle": "そのまま使える OpenAI 互換性",
@@ -707,7 +707,7 @@
       },
       {
         "title": "同じインターフェースでより多くのモデル",
-        "description": "MuiRouter に向ければ、GPT ですでに使っているのと同じリクエスト形式で Claude、Gemini、MiMo を呼び出せます。"
+        "description": "MuiRouter に向ければ、GPT ですでに使っているのと同じリクエスト形式で Claude、Gemini、Grok、MiMo を呼び出せます。"
       },
       {
         "title": "ネイティブパススルーの選択肢",
@@ -726,7 +726,7 @@
       },
       {
         "question": "OpenAI 以外のモデルも使えますか？",
-        "answer": "はい。同じ OpenAI 互換エンドポイントから、モデル名を設定するだけで Claude、Gemini、MiMo へ route できます。"
+        "answer": "はい。同じ OpenAI 互換エンドポイントから、モデル名を設定するだけで Claude、Gemini、Grok、MiMo へ route できます。"
       }
     ],
     "relatedTitle": "関連ページ",
@@ -756,7 +756,7 @@
       },
       {
         "title": "LLM 呼び出しを route",
-        "description": "MCP 経由でモデルリクエストを送れば、MuiRouter が1つのキーの背後で OpenAI、Claude、Gemini、MiMo へ route します。"
+        "description": "MCP 経由でモデルリクエストを送れば、MuiRouter が1つのキーの背後で OpenAI、Claude、Gemini、Grok、MiMo へ route します。"
       },
       {
         "title": "アカウントツール",
@@ -801,7 +801,7 @@
       },
       {
         "question": "MuiRouter とは何ですか？",
-        "answer": "MuiRouter は AI API ルーターです。1つのキーでリクエストを OpenAI、Anthropic Claude、Google Gemini、Cloudflare Workers AI、Xiaomi MiMo へ route し、トークン単位で課金、サブスクリプション不要です。"
+        "answer": "MuiRouter は AI API ルーターです。1つのキーでリクエストを OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI、Xiaomi MiMo へ route し、トークン単位で課金、サブスクリプション不要です。"
       },
       {
         "question": "OpenAI 互換ですか？",

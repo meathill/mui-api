@@ -1,0 +1,77 @@
+Em 9 de junho de 2026, a Anthropic lançou o Claude Fable 5, o primeiro modelo publicamente disponível da sua nova classe Mythos de sistemas frontier. O enquadramento é incomum para um lançamento flagship: o Fable 5 é descrito como a versão de um modelo muito mais capaz que foi tornada segura para uso geral. A variante mais poderosa não é aquela que a maioria das pessoas pode usar diretamente.
+
+Para entusiastas de IA, isso reformula a pergunta. Não é mais apenas “quão capaz é o frontier?”. É “quanto desse frontier pode ser lançado com segurança, e o que um fornecedor faz com a parte que não pode?”. O Fable 5 é a resposta da Anthropic, e ele vem com guardrails embutidos no produto, não acoplados depois.
+
+## O que a Anthropic realmente lançou
+
+Segundo o [anúncio do Claude Fable 5 e Claude Mythos 5](https://www.anthropic.com/news/claude-fable-5-mythos-5) da Anthropic, o lançamento vem em dois níveis construídos sobre o mesmo modelo subjacente:
+
+- **Claude Fable 5** é o lançamento público, disponível para clientes enterprise e assinantes pagos, e tornado seguro para uso geral.
+- **Claude Mythos 5** é o mesmo modelo com salvaguardas removidas em algumas áreas, lançado apenas para um pequeno grupo de defensores cibernéticos e provedores de infraestrutura, inicialmente pelo Project Glasswing.
+
+A Anthropic diz que o Mythos 5 tem as capacidades de cibersegurança mais fortes entre todos os modelos do mundo. Essa frase sozinha explica a estrutura em dois níveis: o modelo completo é poderoso o bastante para que a Anthropic escolha não entregá-lo a todos, e o Fable 5 é a forma como essa capacidade chega a um público geral de maneira responsável.
+
+O Fable 5 também já está disponível pelo [Amazon Bedrock](https://aws.amazon.com/blogs/aws/anthropic-claude-fable-5-on-aws-mythos-class-capabilities-with-built-in-safeguards-now-available/), então equipes cloud podem acessá-lo sem uma relação separada com a Anthropic.
+
+## A mudança importante de capacidade
+
+O destaque não é um benchmark isolado. É a combinação de raciocínio frontier, codificação mais forte e segurança embutida operando juntos.
+
+| Área | O que a Anthropic destacou | Por que importa |
+| --- | --- | --- |
+| Agentic coding | Maior pontuação entre modelos frontier na avaliação FrontierCode da Cognition | Melhor encaixe para implementação em várias etapas, debugging e trabalho de engenharia de longo horizonte |
+| Eficiência de tokens | Mais eficiente em tokens que modelos Claude anteriores | O custo real de uma tarefa concluída pode cair mesmo quando o preço por token sobe |
+| Cibersegurança | Capacidades de classe Mythos, as mais fortes de qualquer modelo (guardadas atrás do Mythos 5) | Explica por que o nível público vem com controles ativos contra abuso em vez de acesso aberto |
+| Roteamento de segurança | Classificadores que detectam e redirecionam requisições de alto risco | Capacidade frontier com guardrails que fazem parte do modelo, não um remendo posterior |
+
+O ponto de eficiência de tokens importa mais do que parece. O Fable 5 custa mais por token que o Claude Opus 4.8, mas se ele termina o mesmo trabalho com menos tokens, o custo de uma tarefa concluída é o número que realmente mexe na sua fatura.
+
+## Segurança: classificadores com fallback para Opus 4.8
+
+O detalhe de engenharia mais interessante é como o Fable 5 permanece seguro sem simplesmente recusar. A Anthropic adicionou novos classificadores que observam possível uso indevido. Quando uma requisição toca áreas sensíveis — cibersegurança, biologia e química, ou destilação de modelos — o classificador a intercepta e a resposta é automaticamente tratada pelo Claude Opus 4.8 em vez do Fable 5.
+
+Em outras palavras, a camada de segurança não apenas bloqueia. Ela degrada de forma elegante para um modelo mais restrito no pequeno conjunto de requisições que justificam isso. A Anthropic diz que os dados iniciais mostram que mais de 95% das sessões Fable não envolvem fallback algum; então, no trabalho cotidiano, você está falando com o Fable 5 completo.
+
+Esse é um padrão de design significativo. À medida que modelos ficam melhores em agir por horizontes longos, os controles ao redor deles também precisam melhorar. Rotear requisições arriscadas para um modelo mais seguro é uma resposta mais usável que uma recusa genérica, e é a parte deste lançamento que mais vale estudar.
+
+## Preço para planejar
+
+A Anthropic precifica o Fable 5 em cerca de duas vezes o Claude Opus 4.8:
+
+| Modelo | Entrada | Saída |
+| --- | ---: | ---: |
+| `claude-fable-5` | $10 / 1M tokens | $50 / 1M tokens |
+| `claude-opus-4-8` | $5 / 1M tokens | $25 / 1M tokens |
+
+O prompt caching padrão da Anthropic se aplica, então contexto repetido é cobrado com grande desconto em leituras de cache e um prêmio único em escritas. A forma correta de ler o número principal é junto da promessa de eficiência de tokens: um preço por token mais alto não significa automaticamente um custo maior por tarefa concluída. Confirme o número real no seu próprio painel de billing antes de fixar suposições.
+
+## Disponibilidade
+
+Por enquanto, o Fable 5 é um lançamento pago e enterprise:
+
+- Disponível para clientes enterprise e assinantes pagos.
+- Disponível no Amazon Bedrock para equipes que preferem consumi-lo via AWS.
+- Mythos 5 é restrito a um pequeno grupo de defensores cibernéticos e provedores de infraestrutura pelo Project Glasswing, e não faz parte do lançamento geral.
+
+## O que isso significa para desenvolvedores
+
+O Fable 5 aponta para onde os modelos frontier estão indo: capacidade máxima cada vez mais vem junto de controles que decidem o que chega aos usuários gerais. Isso muda como você deve avaliar um modelo.
+
+- Teste os workflows que realmente importam, não apenas prompts isolados.
+- Espere comportamento de segurança gracioso e projete para o fallback raro, em vez de presumir uma recusa dura.
+- Meça custo por tarefa concluída, não custo por token, para que a eficiência de tokens apareça nos seus números.
+- Acompanhe quais workloads realmente precisam de um modelo frontier e quais ficam bem em um nível mais barato.
+
+## O que isso significa para usuários do MuiRouter
+
+O MuiRouter é construído em torno de uma ideia simples: uma API key, um padrão de integração e uma forma mais clara de rotear acesso aos principais modelos de IA. Um lançamento em dois níveis como o Fable 5 é exatamente o tipo de evento que torna um gateway unificado útil.
+
+Adicionamos `claude-fable-5` ao catálogo do MuiRouter, com preço alinhado às tarifas publicadas pela Anthropic. A integração da sua aplicação não muda; o modelo e seu preço ficam configurados atrás do gateway. Quando um modelo vem com seu próprio comportamento de roteamento e segurança, manter sua integração estável enquanto o ecossistema se move vale muito.
+
+Para deixar claro, o roteamento real ainda depende da disponibilidade upstream. Trate `claude-fable-5` como disponível apenas depois de confirmá-lo de ponta a ponta. Mas este é precisamente o tipo de lançamento em que uma integração estável e unificada compensa: quanto mais rápido o cenário de modelos muda, menos você quer que essa turbulência chegue ao código da sua aplicação.
+
+## Em resumo
+
+O Claude Fable 5 é um lançamento notável menos por qualquer benchmark isolado e mais por como ele é entregue: um modelo de classe frontier entregue ao público com roteamento de segurança embutido, enquanto sua forma mais capaz fica guardada atrás do Mythos 5. A ideia de destaque é o design classificador + fallback, que mantém a experiência cotidiana rápida enquanto envia as requisições mais arriscadas para um modelo mais restrito.
+
+Se você constrói com IA, vale testá-lo agora. Prepare seus casos de avaliação e expectativas de custo, observe como o roteamento de segurança se comporta nos seus workloads reais, e mantenha sua integração estável para que o próximo modelo frontier seja uma mudança de configuração, não uma reescrita.
