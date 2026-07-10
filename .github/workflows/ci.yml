@@ -53,9 +53,9 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter dashboard exec playwright install chromium --with-deps
+      - run: pnpm --filter mui-api-dashboard exec playwright install chromium --with-deps
       - run: pnpm --dir packages/shared-db run db:migrate:local
-      - run: pnpm --filter dashboard run test:e2e
+      - run: pnpm --filter mui-api-dashboard run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
