@@ -16,14 +16,14 @@ describe('extractUrlsFromSitemap', () => {
     const xml = [
       '<urlset>',
       '<url><loc>https://muirouter.com/</loc></url>',
-      '<url><loc>https://muirouter.com/blog/gpt-5-5</loc></url>',
-      '<url><loc>https://muirouter.com/zh/blog/gpt-5-5</loc></url>',
+      '<url><loc>https://muirouter.com/blog/gpt-5-6</loc></url>',
+      '<url><loc>https://muirouter.com/zh/blog/gpt-5-6</loc></url>',
       '</urlset>',
     ].join('\n');
     expect(extractUrlsFromSitemap(xml)).toEqual([
       'https://muirouter.com/',
-      'https://muirouter.com/blog/gpt-5-5',
-      'https://muirouter.com/zh/blog/gpt-5-5',
+      'https://muirouter.com/blog/gpt-5-6',
+      'https://muirouter.com/zh/blog/gpt-5-6',
     ]);
   });
 
@@ -31,13 +31,13 @@ describe('extractUrlsFromSitemap', () => {
     const xml = [
       '<urlset xmlns:xhtml="http://www.w3.org/1999/xhtml">',
       '<url>',
-      '<loc>https://muirouter.com/blog/gpt-5-5</loc>',
-      '<xhtml:link rel="alternate" hreflang="x-default" href="https://muirouter.com/blog/gpt-5-5" />',
-      '<xhtml:link rel="alternate" hreflang="zh" href="https://muirouter.com/zh/blog/gpt-5-5" />',
+      '<loc>https://muirouter.com/blog/gpt-5-6</loc>',
+      '<xhtml:link rel="alternate" hreflang="x-default" href="https://muirouter.com/blog/gpt-5-6" />',
+      '<xhtml:link rel="alternate" hreflang="zh" href="https://muirouter.com/zh/blog/gpt-5-6" />',
       '</url>',
       '</urlset>',
     ].join('\n');
-    expect(extractUrlsFromSitemap(xml)).toEqual(['https://muirouter.com/blog/gpt-5-5']);
+    expect(extractUrlsFromSitemap(xml)).toEqual(['https://muirouter.com/blog/gpt-5-6']);
   });
 });
 

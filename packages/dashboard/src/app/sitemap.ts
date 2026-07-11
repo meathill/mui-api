@@ -13,7 +13,7 @@ type SitemapPage = {
 };
 
 // 静态页 lastModified 维护时手动更新；避免 sitemap 每次构建都变更欺骗搜索引擎。
-const STATIC_PAGES_UPDATED_AT = new Date('2026-06-02');
+const STATIC_PAGES_UPDATED_AT = new Date('2026-07-11');
 
 function toAbsoluteAlternates(altPaths: Record<string, string>): Record<string, string> {
   return Object.fromEntries(Object.entries(altPaths).map(([key, path]) => [key, `${SITE_URL}${path}`]));

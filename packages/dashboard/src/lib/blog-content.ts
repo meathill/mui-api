@@ -7,6 +7,17 @@ type BlogContentModule = {
 
 type BlogContentLoader = () => Promise<BlogContentModule>;
 
+const gpt56Loaders: Record<Locale, BlogContentLoader> = {
+  en: () => import('@/content/blog/gpt-5-6.mdx'),
+  zh: () => import('@/content/blog/gpt-5-6.zh.mdx'),
+  fr: () => import('@/content/blog/gpt-5-6.fr.mdx'),
+  es: () => import('@/content/blog/gpt-5-6.es.mdx'),
+  pt: () => import('@/content/blog/gpt-5-6.pt.mdx'),
+  de: () => import('@/content/blog/gpt-5-6.de.mdx'),
+  th: () => import('@/content/blog/gpt-5-6.th.mdx'),
+  ja: () => import('@/content/blog/gpt-5-6.ja.mdx'),
+};
+
 const gpt55Loaders: Record<Locale, BlogContentLoader> = {
   en: () => import('@/content/blog/gpt-5-5.mdx'),
   zh: () => import('@/content/blog/gpt-5-5.zh.mdx'),
@@ -67,6 +78,7 @@ const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
   'claude-sonnet-5': claudeSonnet5Loaders,
   'codex-context-drift': codexContextDriftLoaders,
   'gpt-5-5': gpt55Loaders,
+  'gpt-5-6': gpt56Loaders,
   'xai-grok': xaiGrokLoaders,
 };
 

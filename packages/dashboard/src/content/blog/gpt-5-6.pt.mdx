@@ -1,0 +1,69 @@
+Em 9 de julho de 2026, a OpenAI lançou a família GPT-5.6 em disponibilidade geral no ChatGPT, Codex e na API OpenAI. Depois de um preview limitado iniciado em 26 de junho, o rollout completo está em andamento: **Sol** como novo flagship, **Terra** como nível equilibrado do dia a dia e **Luna** como a opção mais barata da linha.
+
+Depois que a Anthropic lançou o Fable, o governo dos EUA apertou os termos de acesso global a serviços de IA, então a OpenAI teve de abrir o GPT-5.6 primeiro a um grupo pequeno de usuários e só ao mundo quando pareceu seguro. Havia bastante expectativa sobre se ele aguentaria o golpe do Fable — pelo feedback da comunidade até agora, não muito: principalmente mais caro, sem um salto claro de eficiência em relação ao 5.5.
+
+## O que a OpenAI publicou
+
+Segundo o [anúncio oficial do GPT-5.6](https://openai.com/index/gpt-5-6/), ChatGPT, Codex e a API saíram juntos em 9 de julho, com a disponibilidade global se completando em cerca de 24 horas.
+
+A nomenclatura é intencional:
+
+| Nível | Papel | Preço de lista oficial (por 1M tokens) |
+| --- | --- | ---: |
+| **Sol** | Inteligência e coding flagship | $5 input / $30 output |
+| **Terra** | Trabalho diário equilibrado; competitivo com GPT-5.5 a menor custo — mais ou menos o antigo “mini” | $2.50 input / $15 output |
+| **Luna** | O mais rápido e barato da família — mais ou menos o antigo “nano” | $1 input / $6 output |
+
+O número (`5.6`) marca a geração. Sol, Terra e Luna são níveis de capacidade duráveis que podem avançar no próprio ritmo. Na API, os IDs explícitos são `gpt-5.6-sol`, `gpt-5.6-terra` e `gpt-5.6-luna`. O nome curto `gpt-5.6` é equivalente a Sol — use o ID completo se quiser Terra ou Luna.
+
+## Por que este lançamento é diferente
+
+A OpenAI apresenta o GPT-5.6 como **eficiente por padrão, desempenho máximo sob demanda**. Abaixo está a narrativa oficial:
+
+| Área | O que a OpenAI destacou | Por que importa |
+| --- | --- | --- |
+| Eficiência de tokens | Resultados mais fortes com menos tokens e menor custo estimado | O custo por tarefa concluída pode ficar melhor que o preço unitário |
+| Agentes de coding | Reivindicações SOTA no Artificial Analysis Coding Agent Index, Terminal-Bench 2.1, DeepSWE | Melhor encaixe para implementação multi-etapa, fluxos CLI e engenharia longa |
+| Trabalho de conhecimento | BrowseComp e OSWorld 2.0 mais fortes; decks, docs e planilhas mais sólidos | Caminho mais confiável de entradas bagunçadas a entregáveis |
+| Design + computer use | Inspecionar e refinar a UI renderizada, não só emitir código | Mais perto de um colaborador que devolve o trabalho |
+| Programmatic Tool Calling | O modelo pode escrever e executar programas leves que coordenam ferramentas | Menos idas e voltas e menos bloat de tokens intermediários |
+| `max` / `ultra` | Mais tempo de raciocínio (`max`); multi-agente em paralelo por padrão (`ultra`) | Gastar mais só quando a tarefa vale a pena |
+
+Os parceiros entraram na mesma linha: melhor qualidade, muitas vezes menos tokens, menor latência. Trate esse elogio mútuo comercial como opcional — teste você mesmo.
+
+## Disponibilidade e detalhes da API
+
+Nesta linha de produto, o GPT-5.6 é a primeira vez em que **ChatGPT, Codex e a API saem no mesmo dia** (após um curto preview de parceiros confiáveis).
+
+- **ChatGPT / ChatGPT Work / Codex:** Sol / Terra / Luna rolam por plano; Free e Go costumam ver um conjunto mais limitado que Plus / Pro / Business / Enterprise. Em chats da comunidade, alguns dizem que ainda não veem o 5.6.
+- **API:** Os três níveis são invocáveis. Programmatic Tool Calling na Responses API está marcado como compatível com Zero Data Retention (ZDR); multi-agent começa em beta para coordenação tipo ultra.
+- **Prompt caching:** para GPT-5.6 e posteriores, writes de cache cobram **1,25×** a tarifa; reads ainda têm **90% de desconto** (preço a 10%). Usar prompt caching exige breakpoints de cache explícitos e vida mínima de cache de 30 minutos.
+
+Antes da produção, confie no seletor de modelos da sua conta e na [página de preços da API](https://openai.com/api/pricing/) — não hardcode comprimentos de contexto de terceiros. Muitas listas dizem ~1M de contexto para Sol/Terra; trate isso como pista até o seu dashboard confirmar.
+
+## Segurança, de forma estranha
+
+A OpenAI diz que o GPT-5.6 chega com as salvaguardas mais robustas até hoje, após um ciclo de avaliação mais longo: red teaming, testes automatizados em larga escala e pressão de parceiros no preview. Quanto mais você espera que o modelo *faça* o trabalho, mais o controle importa — especialmente ligado a agentes que navegam, editam código ou operam software.
+
+Infelizmente, já havia gente no X hoje reclamando que o Codex apagou o diretório inteiro do usuário…
+
+## Por que isso importa para quem constrói
+
+O GPT-5.6 continua empurrando a indústria do “chat inteligente” para **operadores que terminam o trabalho**. As perguntas práticas viram:
+
+- Qual nível para qual trabalho: Sol para trabalho agêntico difícil, Terra como default diário, Luna para volume e custo?
+- Você avalia o custo como “preço de um workflow concluído”, não só o preço por token?
+- Quando `ultra` vale a pena frente a um passe `max` de um único agente?
+- Como manter uma integração estável enquanto nomes e níveis mudam?
+
+É exatamente aí que um gateway unificado se paga.
+
+## O que isso significa para usuários do MuiRouter
+
+O objetivo do MuiRouter é simples: uma API key, um formato de request e acesso aos melhores modelos do momento. A OpenAI já lançou oficialmente, então você também pode começar a experimentar esses novos modelos.
+
+## Conclusão
+
+O GPT-5.6 merece atenção porque a OpenAI insiste de forma explícita no **custo para terminar uma tarefa, não no custo por token**. Se você usa ChatGPT ou Codex, teste primeiro o Sol em trabalho agêntico e de coding longo; para copy do dia a dia, Terra é o primeiro nível sensato. Luna — pessoalmente eu não recomendaria apoiar-se no andar mais baixo.
+
+Pelo feedback inicial da comunidade, o salto em relação ao 5.5 pode não ser dramático, e também não supera o Fable. Trate-o por enquanto como uma atualização de rotina da base de conhecimento.

@@ -1,0 +1,69 @@
+El 9 de julio de 2026, OpenAI lanzó la familia GPT-5.6 en disponibilidad general en ChatGPT, Codex y la API de OpenAI. Tras una vista previa limitada que empezó el 26 de junio, el despliegue completo ya está en marcha: **Sol** como nuevo flagship, **Terra** como nivel equilibrado del día a día y **Luna** como la opción más barata de la línea.
+
+Después de que Anthropic publicara Fable, el gobierno de EE. UU. endureció las condiciones de acceso global a servicios de IA, así que OpenAI tuvo que abrir GPT-5.6 primero a un grupo pequeño de usuarios y solo al mundo cuando pareció seguro. Había bastante expectativa sobre si aguantaría el golpe de Fable: de momento, el feedback de la comunidad es que no del todo —sobre todo más caro, sin un salto claro de eficiencia frente a 5.5.
+
+## Qué ha publicado OpenAI
+
+Según el [anuncio oficial de GPT-5.6](https://openai.com/index/gpt-5-6/), ChatGPT, Codex y la API salieron juntos el 9 de julio, con la disponibilidad global completándose en unas 24 horas.
+
+El nombrado es deliberado:
+
+| Nivel | Rol | Precio de lista oficial (por 1M tokens) |
+| --- | --- | ---: |
+| **Sol** | Inteligencia y coding flagship | $5 input / $30 output |
+| **Terra** | Trabajo diario equilibrado; competitivo con GPT-5.5 a menor coste — más o menos el antiguo “mini” | $2.50 input / $15 output |
+| **Luna** | El más rápido y barato de la familia — más o menos el antiguo “nano” | $1 input / $6 output |
+
+El número (`5.6`) marca la generación. Sol, Terra y Luna son niveles de capacidad duraderos que pueden avanzar a su ritmo. En la API, los IDs explícitos son `gpt-5.6-sol`, `gpt-5.6-terra` y `gpt-5.6-luna`. El nombre corto `gpt-5.6` es equivalente a Sol: usa el ID completo si quieres Terra o Luna.
+
+## Por qué este lanzamiento es distinto
+
+OpenAI presenta GPT-5.6 como **eficiente por defecto, máximo rendimiento bajo demanda**. Esto es el relato oficial:
+
+| Área | Lo que OpenAI destaca | Por qué importa |
+| --- | --- | --- |
+| Eficiencia de tokens | Mejores resultados con menos tokens y menor coste estimado | El coste por tarea terminada puede verse mejor que el precio unitario |
+| Agentes de coding | Reivindicaciones SOTA en Artificial Analysis Coding Agent Index, Terminal-Bench 2.1, DeepSWE | Mejor encaje para implementación multi-paso, flujos CLI e ingeniería larga |
+| Trabajo de conocimiento | BrowseComp y OSWorld 2.0 más fuertes; decks, docs y hojas más sólidas | Camino más fiable de entradas desordenadas a entregables |
+| Diseño + computer use | Inspeccionar y refinar la UI renderizada, no solo emitir código | Más cerca de un colaborador que devuelve trabajo |
+| Programmatic Tool Calling | El modelo puede escribir y ejecutar programas ligeros que coordinan herramientas | Menos idas y vueltas y menos bloat de tokens intermedios |
+| `max` / `ultra` | Más tiempo de razonamiento (`max`); multi-agente en paralelo por defecto (`ultra`) | Gastar más solo cuando la tarea lo merece |
+
+Los partners repitieron la misma línea: mejor calidad, a menudo menos tokens, menor latencia. Toma ese bombo comercial mutuo como opcional — pruébalo tú.
+
+## Disponibilidad y detalles de la API
+
+En esta línea de producto, GPT-5.6 es la primera vez que **ChatGPT, Codex y la API salen el mismo día** (tras una corta preview de partners de confianza).
+
+- **ChatGPT / ChatGPT Work / Codex:** Sol / Terra / Luna se despliegan por plan; Free y Go suelen ver un conjunto más limitado que Plus / Pro / Business / Enterprise. En chats de la comunidad, algunos dicen que aún no ven el 5.6.
+- **API:** Los tres niveles son invocables. Programmatic Tool Calling en Responses API está marcado como compatible con Zero Data Retention (ZDR); el multi-agente arranca en beta para coordinación tipo ultra.
+- **Prompt caching:** para GPT-5.6 y posteriores, las escrituras de caché se facturan a **1,25×** la tarifa; las lecturas siguen con un **90 % de descuento** (precio al 10 %). Usar prompt caching exige breakpoints de caché explícitos y una vida de caché de al menos 30 minutos.
+
+Antes de producción, confía en el selector de modelos de tu cuenta y en la [página de precios de la API](https://openai.com/api/pricing/): no hardcodees longitudes de contexto de terceros. Muchas listas dicen ~1M de contexto para Sol/Terra; trátelo como pista hasta que tu dashboard lo confirme.
+
+## Seguridad, a regañadientes
+
+OpenAI dice que GPT-5.6 llega con sus salvaguardas más robustas hasta la fecha, tras un ciclo de evaluación más largo: red teaming, pruebas automatizadas a gran escala y presión de partners en la preview. Cuanto más esperas que el modelo *haga* el trabajo, más importa el control — sobre todo si lo conectas a agentes que navegan, editan código u operan software.
+
+Por desgracia, hoy mismo ya había gente en X quejándose de que Codex les había borrado todo el directorio de usuario…
+
+## Por qué importa para quien construye
+
+GPT-5.6 sigue empujando a la industria del “chat inteligente” hacia **operadores que terminan el trabajo**. Las preguntas prácticas pasan a ser:
+
+- ¿Qué nivel para cada trabajo: Sol para trabajo agéntico difícil, Terra como default diario, Luna para volumen y coste?
+- ¿Evalúas el coste como “precio de un workflow terminado”, no solo el precio por token?
+- ¿Cuándo vale la pena `ultra` frente a un pase `max` de un solo agente?
+- ¿Cómo mantienes una integración estable mientras cambian nombres y niveles?
+
+Ahí es exactamente donde un gateway unificado se gana su sitio.
+
+## Qué significa para usuarios de MuiRouter
+
+El objetivo de MuiRouter es simple: una API key, una forma de petición y acceso a los mejores modelos del momento. OpenAI ya ha publicado oficialmente, así que también puedes empezar a probar estos modelos nuevos.
+
+## Conclusión
+
+GPT-5.6 merece atención porque OpenAI insiste de forma explícita en el **coste de terminar una tarea, no el coste por token**. Si usas ChatGPT o Codex, prueba primero Sol en trabajo agéntico y de coding largo; para copy del día a día, Terra es el primer nivel sensato. Luna — personalmente no recomendaría apoyarse en el escalón más bajo.
+
+Según el feedback temprano de la comunidad, el salto respecto a 5.5 puede no ser espectacular, y tampoco supera a Fable. Trátalo por ahora como una actualización rutinaria de la base de conocimiento.

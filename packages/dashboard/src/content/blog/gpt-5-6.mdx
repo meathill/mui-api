@@ -1,0 +1,69 @@
+On July 9, 2026, OpenAI launched the GPT-5.6 family for general availability across ChatGPT, Codex, and the OpenAI API. After a limited preview that began on June 26, the full rollout is now underway: **Sol** as the new flagship, **Terra** as a balanced everyday tier, and **Luna** as the cheapest option in the line.
+
+After Anthropic shipped Fable, the U.S. government tightened terms around global access to AI services, so OpenAI had to open GPT-5.6 to a small set of users first and only go global once that looked safe. People were fairly excited about how it would land against Fable’s punch — so far the community read is that it doesn’t really land that punch: mostly more expensive, without a clear efficiency jump over 5.5.
+
+## What OpenAI shipped
+
+According to OpenAI's [official GPT-5.6 announcement](https://openai.com/index/gpt-5-6/), ChatGPT, Codex, and the API went live together on July 9, with global availability filling in over roughly the next 24 hours.
+
+The naming is intentional:
+
+| Tier | Role | Official list price (per 1M tokens) |
+| --- | --- | ---: |
+| **Sol** | Flagship intelligence and coding | $5 input / $30 output |
+| **Terra** | Balanced everyday work; competitive with GPT-5.5 at lower cost — roughly the old “mini” slot | $2.50 input / $15 output |
+| **Luna** | Fastest and cheapest in the family — roughly the old “nano” slot | $1 input / $6 output |
+
+The number (`5.6`) marks the generation. Sol, Terra, and Luna are durable capability tiers that can advance on their own cadence. In the API, the explicit model IDs are `gpt-5.6-sol`, `gpt-5.6-terra`, and `gpt-5.6-luna`. The short name `gpt-5.6` is equivalent to Sol — use the full ID if you want Terra or Luna.
+
+## Why this release is different
+
+OpenAI frames GPT-5.6 as **efficient by default, maximum performance on demand**. Below is the official story:
+
+| Area | What OpenAI highlighted | Why it matters |
+| --- | --- | --- |
+| Token efficiency | Stronger results with fewer tokens and lower estimated cost vs prior and competing models | Cost per finished task can look better than list price alone |
+| Coding agents | SOTA claims on Artificial Analysis Coding Agent Index, Terminal-Bench 2.1, DeepSWE | Better fit for multi-step implementation, CLI workflows, and long-horizon engineering |
+| Knowledge work | Stronger BrowseComp and OSWorld 2.0; more solid decks, docs, and spreadsheets | More reliable path from messy inputs to deliverables |
+| Design + computer use | Inspect and refine rendered UI, not only emit code | Closer to a collaborator that can hand work back |
+| Programmatic Tool Calling | Model can write and run light programs that coordinate tools | Fewer round trips and less intermediate token bloat |
+| `max` / `ultra` | Longer reasoning time (`max`); multi-agent parallel work by default (`ultra`) | Spend more only when the task is worth it |
+
+Partners piled on with the same line: better quality, often fewer tokens, lower latency. Treat that commercial mutual praise as optional reading — try it yourself.
+
+## Availability and API details
+
+In this product line, GPT-5.6 is the first time **ChatGPT, Codex, and the API shipped on the same day** (after only a short trusted-partner preview).
+
+- **ChatGPT / ChatGPT Work / Codex:** Sol / Terra / Luna roll out by plan; Free and Go usually see a more limited set than Plus / Pro / Business / Enterprise. Some people in community chats report they still don’t see 5.6 at all.
+- **API:** All three tiers are callable. Programmatic Tool Calling in the Responses API is marked Zero Data Retention (ZDR) compatible; multi-agent starts in beta for ultra-like coordination.
+- **Prompt caching:** For GPT-5.6 and later, cache writes bill at **1.25×** the rate; cache reads still get a **90% off** (one-tenth price) discount. Using prompt caching needs explicit cache breakpoints and at least a 30-minute cache lifetime.
+
+Before production, trust your account’s model picker and the [API pricing page](https://openai.com/api/pricing/) — don’t hard-code third-party context lengths. Many third-party lists say Sol/Terra are about 1M context; treat that as a hint until your own dashboard agrees.
+
+## Safety, awkwardly
+
+OpenAI says GPT-5.6 ships with its strongest safeguards yet, after a longer evaluation cycle: red teaming, large-scale automated tests, and partner pressure-testing during the preview. The more you expect the model to *do* work, the more control matters — especially when you wire it into agents that can browse, edit code, or operate software.
+
+Unfortunately, people were already complaining on X today that Codex deleted their entire home directory…
+
+## Why this matters for builders
+
+GPT-5.6 keeps pushing the industry from “smart chat” toward **operators that finish work**. The practical questions become:
+
+- Which tier for which job: Sol for hard agentic work, Terra as the daily default, Luna for volume and cost?
+- Do you evaluate cost as “price of a finished workflow,” not only per-token list price?
+- When is `ultra` worth it vs a single-agent `max` pass?
+- How do you keep integration stable while model names and tiers keep moving?
+
+That last point is exactly where a unified gateway earns its keep.
+
+## What this means for MuiRouter users
+
+MuiRouter’s goal is simple: one API key, one request shape, and access to the best current models. OpenAI has shipped officially, so you can start trying these new models as well.
+
+## Bottom line
+
+GPT-5.6 is worth watching because OpenAI is explicit about **cost to finish a task, not cost per token**. If you use ChatGPT or Codex, try Sol first on long agentic and coding work; for everyday copy and light work, Terra is the sensible first tier. Luna — I personally wouldn’t recommend leaning on the lowest tier.
+
+From early community feedback, the jump over 5.5 may not be dramatic, and it doesn’t clear Fable either. Treat it as a routine knowledge-base upgrade for now.

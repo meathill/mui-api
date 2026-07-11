@@ -7,7 +7,7 @@ export function ModelsSection() {
     {
       name: 'OpenAI',
       color: 'bg-[var(--brand-fluff)] text-[var(--brand-yellow-deep)] border border-[var(--brand-corgi)]',
-      models: ['GPT-5.5', 'GPT-5', 'GPT-5 mini', 'GPT Image 2'],
+      models: ['GPT-5.6 Sol', 'GPT-5.6 Terra', 'GPT-5.6 Luna', 'GPT Image 2'],
       description: t('openaiDesc'),
     },
     {

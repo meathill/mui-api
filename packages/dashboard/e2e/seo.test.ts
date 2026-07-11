@@ -81,9 +81,9 @@ test.describe('SEO', () => {
       const text = await response?.text();
       expect(text).toContain('/pricing');
       expect(text).toContain('<loc>https://muirouter.com/blog</loc>');
-      expect(text).toContain('<loc>https://muirouter.com/blog/gpt-5-5</loc>');
-      expect(text).toContain('<loc>https://muirouter.com/zh/blog/gpt-5-5</loc>');
-      expect(text).toContain('hreflang="x-default" href="https://muirouter.com/blog/gpt-5-5"');
+      expect(text).toContain('<loc>https://muirouter.com/blog/gpt-5-6</loc>');
+      expect(text).toContain('<loc>https://muirouter.com/zh/blog/gpt-5-6</loc>');
+      expect(text).toContain('hreflang="x-default" href="https://muirouter.com/blog/gpt-5-6"');
     });
 
     test('IndexNow key 文件可访问', async ({ page }) => {
@@ -118,9 +118,9 @@ test.describe('SEO', () => {
     });
 
     test('博客文章有文章类型 meta 和可访问的 Open Graph 图片', async ({ page, request }) => {
-      await page.goto('/blog/gpt-5-5');
+      await page.goto('/blog/gpt-5-6');
       await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article');
-      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /GPT-5\.5/);
+      await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /GPT-5\.6/);
 
       const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content');
       expect(ogImage).toBeTruthy();
