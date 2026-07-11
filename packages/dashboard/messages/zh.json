@@ -329,7 +329,14 @@
     "tagLongContext": "长上下文",
     "tagCaching": "缓存",
     "priceLabel": "输入 {input} / 输出 {output} 每百万 tokens",
-    "priceFree": "免费"
+    "priceFree": "免费",
+    "imagePriceLabel": "输入图 {input} / 输出图 {output} 每张",
+    "imageTieredPriceLabel": "输入图 {input} / 输出 1K {output1k} · 2K {output2k} 每张",
+    "imageCountLabel": "生成数量",
+    "imageAspectRatio": "宽高比",
+    "imageAspectRatioAuto": "自动",
+    "imageResolution": "分辨率",
+    "grokMaxImagesError": "Grok 图片编辑最多支持 {count} 张参考图。"
   },
   "adminModels": {
     "title": "模型管理",

@@ -12,13 +12,21 @@ import { ModelPicker } from './model-picker';
 import {
   AudioResultView,
   Field,
+  GrokImageControls,
   HistoryList,
   ImageResults,
   ImageUpload,
   PromptField,
   TtsControls,
 } from './playground-components';
-import type { AudioResult, HistoryItem, ImageResult, PlaygroundMode, TokenInfo } from './playground-types';
+import type {
+  AudioResult,
+  GrokImageOptions,
+  HistoryItem,
+  ImageResult,
+  PlaygroundMode,
+  TokenInfo,
+} from './playground-types';
 
 type PlaygroundViewProps = {
   mode: PlaygroundMode;
@@ -31,6 +39,8 @@ type PlaygroundViewProps = {
   ttsVoice: string;
   voiceSample: File | null;
   uploadedImages: File[];
+  isGrokImage: boolean;
+  grokImageOptions: GrokImageOptions;
   loading: boolean;
   error: string;
   response: string;
@@ -48,6 +58,7 @@ type PlaygroundViewProps = {
   onFilesChange: (files: FileList | null) => void;
   onRemoveUpload: (index: number) => void;
   onClearUploads: () => void;
+  onGrokImageOptionsChange: (options: GrokImageOptions) => void;
   onRun: () => void;
   onStop: () => void;
   onClearHistory: () => void;
@@ -124,6 +135,13 @@ export function PlaygroundView(props: PlaygroundViewProps) {
                   label={t('imagePrompt')}
                   placeholder={t('imagePromptPlaceholder')}
                 />
+                {props.isGrokImage && (
+                  <GrokImageControls
+                    options={props.grokImageOptions}
+                    isEditing={props.uploadedImages.length > 0}
+                    onChange={props.onGrokImageOptionsChange}
+                  />
+                )}
                 <ImageUpload
                   files={props.uploadedImages}
                   onChange={props.onFilesChange}

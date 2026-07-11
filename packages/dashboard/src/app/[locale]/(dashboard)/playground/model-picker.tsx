@@ -22,6 +22,7 @@ import type { ModelInfo } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import {
   formatModelPrice,
+  getGrokImagePrice,
   getModelCapabilityTagKeys,
   getModelPrice,
   groupModelsByProvider,
@@ -143,13 +144,25 @@ function ModelOption({ model }: { model: ModelInfo | undefined }) {
   if (!model) return null;
 
   const tags = getModelCapabilityTagKeys(model);
+  const grokImagePrice = getGrokImagePrice(model);
   const price = getModelPrice(model);
   const priceLabel =
-    price === null
-      ? null
-      : price.input === 0 && price.output === 0
-        ? t('priceFree')
-        : t('priceLabel', { input: formatModelPrice(price.input), output: formatModelPrice(price.output) });
+    grokImagePrice !== null
+      ? grokImagePrice.outputImagePrices['1k'] === grokImagePrice.outputImagePrices['2k']
+        ? t('imagePriceLabel', {
+            input: formatModelPrice(grokImagePrice.inputImagePrice),
+            output: formatModelPrice(grokImagePrice.outputImagePrices['1k']),
+          })
+        : t('imageTieredPriceLabel', {
+            input: formatModelPrice(grokImagePrice.inputImagePrice),
+            output1k: formatModelPrice(grokImagePrice.outputImagePrices['1k']),
+            output2k: formatModelPrice(grokImagePrice.outputImagePrices['2k']),
+          })
+      : price === null
+        ? null
+        : price.input === 0 && price.output === 0
+          ? t('priceFree')
+          : t('priceLabel', { input: formatModelPrice(price.input), output: formatModelPrice(price.output) });
 
   return (
     <ComboboxItem value={model.id}>

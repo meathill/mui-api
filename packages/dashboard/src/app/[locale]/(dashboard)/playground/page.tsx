@@ -1,5 +1,6 @@
 'use client';
 
+import { GROK_IMAGE_MAX_INPUTS } from '@muirouter/shared-db/grok-image';
 import { useTranslations } from 'next-intl';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { adminApi, type ModelInfo } from '@/lib/api';
@@ -12,6 +13,7 @@ import {
 } from './playground-api';
 import type {
   AudioResult,
+  GrokImageOptions,
   HistoryItem,
   ImageApiItem,
   ImageResult,
@@ -28,6 +30,7 @@ import {
   getTtsVoiceOptions,
   getTtsVoiceSampleMimeType,
   isImageModel,
+  isGrokImageModel,
   isTtsModel,
   isTtsVoiceCloneModel,
   isTtsVoiceDesignModel,
@@ -43,6 +46,7 @@ import { PlaygroundView } from './playground-view';
 const API_KEY_STORAGE_KEY = 'playground_api_key';
 const HISTORY_STORAGE_KEY = 'playground_history';
 const DEFAULT_TTS_VOICE = 'mimo_default';
+const DEFAULT_GROK_IMAGE_OPTIONS: GrokImageOptions = { count: 1, aspectRatio: 'auto', resolution: '1k' };
 
 export default function PlaygroundPage() {
   const t = useTranslations('playground');
@@ -61,6 +65,7 @@ export default function PlaygroundPage() {
   const [imageResults, setImageResults] = useState<ImageResult[]>([]);
   const [audioResult, setAudioResult] = useState<AudioResult | null>(null);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [grokImageOptions, setGrokImageOptions] = useState<GrokImageOptions>(DEFAULT_GROK_IMAGE_OPTIONS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [history, setHistory] = useState<HistoryItem[]>([]);
@@ -71,6 +76,8 @@ export default function PlaygroundPage() {
   const imageModels = useMemo(() => models.filter(isImageModel), [models]);
   const ttsModels = useMemo(() => models.filter(isTtsModel), [models]);
   const selectedModel = mode === 'chat' ? chatModel : mode === 'image' ? imageModel : ttsModel;
+  const selectedImageModel = imageModels.find((model) => model.id === imageModel);
+  const isSelectedGrokImage = isGrokImageModel(selectedImageModel);
   const visibleModels = mode === 'chat' ? chatModels : mode === 'image' ? imageModels : ttsModels;
 
   useEffect(() => {
@@ -137,7 +144,13 @@ export default function PlaygroundPage() {
   }
 
   function handleFilesChange(files: FileList | null) {
-    setUploadedImages(files ? Array.from(files) : []);
+    const nextFiles = files ? Array.from(files) : [];
+    if (isSelectedGrokImage && nextFiles.length > GROK_IMAGE_MAX_INPUTS) {
+      setError(t('grokMaxImagesError', { count: GROK_IMAGE_MAX_INPUTS }));
+      return;
+    }
+    setError('');
+    setUploadedImages(nextFiles);
   }
 
   function removeUpload(index: number) {
@@ -210,12 +223,16 @@ export default function PlaygroundPage() {
               model: imageModel,
               prompt,
               images: uploadedImages,
+              isGrok: isSelectedGrokImage,
+              grokOptions: grokImageOptions,
               signal,
             })
           : await sendImageGenerationRequest({
               apiKey: key,
               model: imageModel,
               prompt,
+              isGrok: isSelectedGrokImage,
+              grokOptions: grokImageOptions,
               signal,
             });
 
@@ -229,7 +246,13 @@ export default function PlaygroundPage() {
       setImageResults(results);
       const tokens = toTokenInfo(data.usage);
       if (tokens) setTokenInfo(tokens);
-      saveHistoryItem({ mode: 'image', model: imageModel, prompt, imageCount: results.length });
+      saveHistoryItem({
+        mode: 'image',
+        model: imageModel,
+        prompt,
+        imageCount: results.length,
+        grokImageOptions: isSelectedGrokImage ? grokImageOptions : undefined,
+      });
     } catch (e) {
       if ((e as Error).name !== 'AbortError') setError(e instanceof Error ? e.message : te('operationFailed'));
     } finally {
@@ -321,7 +344,10 @@ export default function PlaygroundPage() {
     setAudioResult(null);
     setTokenInfo(null);
     if (item.mode === 'chat') setChatModel(item.model);
-    if (item.mode === 'image') setImageModel(item.model);
+    if (item.mode === 'image') {
+      setImageModel(item.model);
+      setGrokImageOptions(item.grokImageOptions ?? DEFAULT_GROK_IMAGE_OPTIONS);
+    }
     if (item.mode === 'tts') {
       setTtsModel(item.model);
       setTtsStylePrompt(item.ttsStylePrompt ?? '');
@@ -340,6 +366,8 @@ export default function PlaygroundPage() {
       ttsVoice={ttsVoice}
       voiceSample={voiceSample}
       uploadedImages={uploadedImages}
+      isGrokImage={isSelectedGrokImage}
+      grokImageOptions={grokImageOptions}
       loading={loading}
       error={error}
       response={response}
@@ -357,6 +385,7 @@ export default function PlaygroundPage() {
       onFilesChange={handleFilesChange}
       onRemoveUpload={removeUpload}
       onClearUploads={() => setUploadedImages([])}
+      onGrokImageOptionsChange={setGrokImageOptions}
       onRun={handleRunClick}
       onStop={handleStop}
       onClearHistory={clearHistory}

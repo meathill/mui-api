@@ -329,7 +329,14 @@
     "tagLongContext": "ロングコンテキスト",
     "tagCaching": "キャッシュ",
     "priceLabel": "入力 {input} / 出力 {output}（100万トークンあたり）",
-    "priceFree": "無料"
+    "priceFree": "無料",
+    "imagePriceLabel": "入力画像 {input} / 出力画像 {output}（1枚あたり）",
+    "imageTieredPriceLabel": "入力画像 {input} / 出力 1K {output1k}・2K {output2k}（1枚あたり）",
+    "imageCountLabel": "生成枚数",
+    "imageAspectRatio": "アスペクト比",
+    "imageAspectRatioAuto": "自動",
+    "imageResolution": "解像度",
+    "grokMaxImagesError": "Grok の画像編集で使用できる参照画像は最大 {count} 枚です。"
   },
   "adminModels": {
     "title": "モデル管理",

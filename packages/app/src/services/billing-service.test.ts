@@ -105,6 +105,16 @@ describe('BillingService', () => {
       expect(cost).toBeGreaterThan(0);
     });
 
+    it('Grok 图片内部 token 继续应用 markup 与用户倍率', () => {
+      const service = new BillingService(null as never, mockDb as never, null as never);
+      const { cost } = service.calculateCost(
+        makeUsage({ model: 'grok-imagine-image', outputTokens: 20_000 }),
+        { inputPrice: 0, outputPrice: 1, markupRate: 1.05 },
+        1.5,
+      );
+      expect(cost).toBeCloseTo(0.0315, 6);
+    });
+
     it('cached_input_price 命中折扣', () => {
       const service = new BillingService(null as never, mockDb as never, null as never);
       const pricing: ModelPricing = {

@@ -1,3 +1,9 @@
+import {
+  convertUsdTicksToInternalTokens,
+  GROK_IMAGE_MODEL_CONFIGS,
+  GROK_IMAGE_MODEL_IDS,
+  isGrokImageModelId,
+} from '@muirouter/shared-db/grok-image';
 import type { ModelInfo } from '@/lib/api';
 import type {
   AudioResult,
@@ -41,6 +47,15 @@ export const BUILT_IN_IMAGE_MODELS: ModelInfo[] = [
     markupRate: 1.2,
     ...NO_TIER_PRICING,
   },
+  ...GROK_IMAGE_MODEL_IDS.map((id) => ({
+    id,
+    provider: 'grok',
+    upstreamModelId: id,
+    inputPrice: 0,
+    outputPrice: 1,
+    markupRate: 1.05,
+    ...NO_TIER_PRICING,
+  })),
 ];
 
 export const BUILT_IN_TTS_MODELS: ModelInfo[] = [
@@ -176,6 +191,11 @@ export function getModelPrice(model: ModelInfo): { input: number; output: number
   return { input: model.inputPrice, output: model.outputPrice };
 }
 
+export function getGrokImagePrice(model: ModelInfo) {
+  if (model.provider !== 'grok' || !isGrokImageModelId(model.id)) return null;
+  return GROK_IMAGE_MODEL_CONFIGS[model.id];
+}
+
 /** 价格数字格式化（JS 已天然去尾零：3 / 1.25 / 0.05）。 */
 export function formatModelPrice(value: number): string {
   return `$${value}`;
@@ -183,6 +203,10 @@ export function formatModelPrice(value: number): string {
 
 export function isImageModel(model: ModelInfo) {
   return model.id.includes('image') || Boolean(model.upstreamModelId?.includes('image'));
+}
+
+export function isGrokImageModel(model: ModelInfo | undefined): boolean {
+  return Boolean(model && model.provider === 'grok' && isGrokImageModelId(model.id));
 }
 
 export function isTtsModel(model: ModelInfo) {
@@ -236,6 +260,9 @@ export function parseHistory(raw: string): HistoryItem[] {
 
 export function toTokenInfo(usage?: TokenUsagePayload): TokenInfo | null {
   if (!usage) return null;
+  if (typeof usage.cost_in_usd_ticks === 'number' && usage.cost_in_usd_ticks > 0) {
+    return { inputTokens: 0, outputTokens: convertUsdTicksToInternalTokens(usage.cost_in_usd_ticks) };
+  }
   return {
     inputTokens: usage.input_tokens ?? usage.prompt_tokens ?? 0,
     outputTokens: usage.output_tokens ?? usage.completion_tokens ?? 0,
@@ -243,8 +270,8 @@ export function toTokenInfo(usage?: TokenUsagePayload): TokenInfo | null {
 }
 
 export function toImageResult(item: ImageApiItem, index: number): ImageResult[] {
-  const format = item.output_format ?? 'png';
-  const mimeType = format === 'jpeg' ? 'image/jpeg' : `image/${format}`;
+  const format = item.output_format ?? item.mime_type?.split('/')[1] ?? 'png';
+  const mimeType = item.mime_type ?? (format === 'jpeg' ? 'image/jpeg' : `image/${format}`);
   if (item.b64_json) {
     return [
       {

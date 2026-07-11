@@ -1,5 +1,6 @@
 import { Hono } from 'hono';
 import { badRequest, gatewayError } from '../lib/errors';
+import { parseGrokImageEditRequest, parseGrokImageGenerationRequest } from '../lib/grok-image';
 import { authMiddleware } from '../middleware/auth';
 import {
   callAiBinding,
@@ -113,8 +114,7 @@ openai.post('/chat/completions', async (c) => {
 
 /**
  * POST /v1/images/generations
- * OpenAI / Grok Image 生成接口。请求体保持各自原生 JSON shape，只按 DB 配置改写 model。
- * openai 走 gpt-image 系默认参数注入；grok 的 aspect_ratio/resolution/response_format/n 原样透传。
+ * OpenAI / Grok Image 生成接口。OpenAI 注入默认参数；Grok 校验并透传原生参数。
  */
 openai.post('/images/generations', async (c) => {
   const body = await readJsonBody(c);
@@ -141,13 +141,12 @@ openai.post('/images/generations', async (c) => {
 
   try {
     if (modelConfig.provider === 'grok') {
-      const upstream = await callGrokEndpoint(
-        c.env,
-        '/v1/images/generations',
-        JSON.stringify({ ...body, model: upstreamModel }),
-        { 'content-type': 'application/json' },
-      );
-      return proxyOpenAIImageResponse(c, services, upstream, modelId, modelPricing, 'grok-image');
+      const parsed = parseGrokImageGenerationRequest(body, upstreamModel);
+      if ('error' in parsed) return badRequest(c, parsed.error);
+      const upstream = await callGrokEndpoint(c.env, '/v1/images/generations', JSON.stringify(parsed.body), {
+        'content-type': 'application/json',
+      });
+      return proxyOpenAIImageResponse(c, services, upstream, modelId, modelPricing, 'grok-image', parsed.usageContext);
     }
 
     const upstream = await callOpenAIEndpoint(
@@ -173,12 +172,41 @@ openai.post('/images/generations', async (c) => {
 
 /**
  * POST /v1/images/edits
- * OpenAI Image API 编辑接口。该端点使用 multipart/form-data，需要重建表单以改写 model。
+ * OpenAI 使用 multipart/form-data；Grok 使用 application/json。
  */
 openai.post('/images/edits', async (c) => {
   const contentType = c.req.header('content-type') ?? '';
+  if (contentType.includes('application/json')) {
+    const body = await readJsonBody(c);
+    if (isResponse(body)) return body;
+    if (typeof body.model !== 'string' || !body.model) return badRequest(c, '缺少 model 参数');
+    if (typeof body.prompt !== 'string' || !body.prompt) return badRequest(c, '缺少 prompt 参数');
+
+    const modelId = body.model;
+    const services = createProxyServices(c.env, c.get('db'));
+    const lookup = await lookupModel(c, modelId, services);
+    if (isResponse(lookup)) return lookup;
+    const { modelConfig, upstreamModel, modelPricing } = lookup;
+    if (modelConfig.provider !== 'grok') return badRequest(c, 'JSON 图片编辑接口仅支持 grok provider');
+    const accessError = await assertBillableAccess(c, services, modelId);
+    if (accessError) return accessError;
+    const parsed = parseGrokImageEditRequest(body, upstreamModel);
+    if ('error' in parsed) return badRequest(c, parsed.error);
+
+    try {
+      const upstream = await callGrokEndpoint(c.env, '/v1/images/edits', JSON.stringify(parsed.body), {
+        'content-type': 'application/json',
+      });
+      return proxyOpenAIImageResponse(c, services, upstream, modelId, modelPricing, 'grok-image', parsed.usageContext);
+    } catch (error) {
+      console.error('[grok/images/edits] 调用失败:', error);
+      const message = error instanceof Error ? error.message : '上游调用失败';
+      return gatewayError(c, message);
+    }
+  }
+
   if (!contentType.includes('multipart/form-data')) {
-    return badRequest(c, '图片编辑接口需要 multipart/form-data 请求体');
+    return badRequest(c, '图片编辑接口需要 multipart/form-data 或 application/json 请求体');
   }
 
   let form: FormData;

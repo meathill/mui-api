@@ -329,7 +329,14 @@
     "tagLongContext": "Long context",
     "tagCaching": "Prompt caching",
     "priceLabel": "In {input} / Out {output} per 1M tokens",
-    "priceFree": "Free"
+    "priceFree": "Free",
+    "imagePriceLabel": "Input image {input} / output image {output} each",
+    "imageTieredPriceLabel": "Input image {input} / output 1K {output1k} · 2K {output2k} each",
+    "imageCountLabel": "Image count",
+    "imageAspectRatio": "Aspect ratio",
+    "imageAspectRatioAuto": "Auto",
+    "imageResolution": "Resolution",
+    "grokMaxImagesError": "Grok image editing supports up to {count} reference images."
   },
   "adminModels": {
     "title": "Model Management",

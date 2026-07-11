@@ -329,7 +329,14 @@
     "tagLongContext": "บริบทยาว",
     "tagCaching": "แคช",
     "priceLabel": "อินพุต {input} / เอาต์พุต {output} ต่อ 1M โทเค็น",
-    "priceFree": "ฟรี"
+    "priceFree": "ฟรี",
+    "imagePriceLabel": "ภาพอินพุต {input} / ภาพเอาต์พุต {output} ต่อภาพ",
+    "imageTieredPriceLabel": "ภาพอินพุต {input} / เอาต์พุต 1K {output1k} · 2K {output2k} ต่อภาพ",
+    "imageCountLabel": "จำนวนภาพ",
+    "imageAspectRatio": "อัตราส่วนภาพ",
+    "imageAspectRatioAuto": "อัตโนมัติ",
+    "imageResolution": "ความละเอียด",
+    "grokMaxImagesError": "การแก้ไขภาพ Grok รองรับภาพอ้างอิงสูงสุด {count} ภาพ"
   },
   "adminModels": {
     "title": "จัดการโมเดล",

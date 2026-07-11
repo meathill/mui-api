@@ -1,4 +1,4 @@
-import type { TokenInfo, TokenUsagePayload, TtsRequestBody } from './playground-types';
+import type { GrokImageOptions, TokenInfo, TokenUsagePayload, TtsRequestBody } from './playground-types';
 import { getApiBase, toTokenInfo } from './playground-utils';
 
 /**
@@ -15,23 +15,35 @@ export function sendImageGenerationRequest(params: {
   apiKey: string;
   model: string;
   prompt: string;
+  isGrok: boolean;
+  grokOptions: GrokImageOptions;
   signal: AbortSignal;
 }) {
+  const body = params.isGrok
+    ? {
+        model: params.model,
+        prompt: params.prompt,
+        n: params.grokOptions.count,
+        aspect_ratio: params.grokOptions.aspectRatio,
+        resolution: params.grokOptions.resolution,
+        response_format: 'b64_json',
+      }
+    : {
+        model: params.model,
+        prompt: params.prompt,
+        size: '1024x1024',
+        quality: 'low',
+        output_format: 'jpeg',
+        output_compression: 80,
+        moderation: 'low',
+      };
   return fetch(`${getApiBase()}/v1/images/generations`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${params.apiKey}`,
     },
-    body: JSON.stringify({
-      model: params.model,
-      prompt: params.prompt,
-      size: '1024x1024',
-      quality: 'low',
-      output_format: 'jpeg',
-      output_compression: 80,
-      moderation: 'low',
-    }),
+    body: JSON.stringify(body),
     signal: params.signal,
   });
 }
@@ -41,8 +53,12 @@ export function sendImageEditRequest(params: {
   model: string;
   prompt: string;
   images: File[];
+  isGrok: boolean;
+  grokOptions: GrokImageOptions;
   signal: AbortSignal;
 }) {
+  if (params.isGrok) return sendGrokImageEditRequest(params);
+
   const form = new FormData();
   form.append('model', params.model);
   form.append('prompt', params.prompt);
@@ -60,6 +76,44 @@ export function sendImageEditRequest(params: {
     body: form,
     signal: params.signal,
   });
+}
+
+async function sendGrokImageEditRequest(params: {
+  apiKey: string;
+  model: string;
+  prompt: string;
+  images: File[];
+  grokOptions: GrokImageOptions;
+  signal: AbortSignal;
+}) {
+  const images = await Promise.all(params.images.map(fileToDataUrl));
+  const references = images.map((url) => ({ type: 'image_url', url }));
+  const imageBody = references.length === 1 ? { image: references[0] } : { images: references };
+  return fetch(`${getApiBase()}/v1/images/edits`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${params.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: params.model,
+      prompt: params.prompt,
+      ...imageBody,
+      aspect_ratio: params.grokOptions.aspectRatio,
+      resolution: params.grokOptions.resolution,
+      response_format: 'b64_json',
+    }),
+    signal: params.signal,
+  });
+}
+
+export async function fileToDataUrl(file: File): Promise<string> {
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  let binary = '';
+  for (let index = 0; index < bytes.length; index += 0x8000) {
+    binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
+  }
+  return `data:${file.type || 'application/octet-stream'};base64,${btoa(binary)}`;
 }
 
 export function sendChatRequest(params: { apiKey: string; model: string; prompt: string; signal: AbortSignal }) {

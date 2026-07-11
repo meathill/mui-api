@@ -158,9 +158,9 @@ D1_ERROR: Network connection lost.
 
 **凭证**：xAI key 以 Stored Keys 形式配置在 CF AI Gateway 后台（`api-router` 网关的 `grok` provider），本服务不持有真实 xAI key，`callGrokEndpoint()` 只带 `cf-aig-authorization` 网关凭证、不注入 `Authorization`——与 `proxyNative()` 里 openai/google-ai-studio（非 `UNIFIED_BILLING_PROVIDERS` allow-list 内的 provider）的凭证模式一致。[CF 官方文档](https://developers.cloudflare.com/ai-gateway/usage/providers/grok/)展示的调用示例是调用方自带 `Authorization: Bearer {xai_api_token}`、未提及 Stored Keys，但 Stored Keys 是 AI Gateway 的通用能力，本项目网关后台已配置生效，故沿用零凭证注入的写法而非 BYOK。
 
-**图片计费兜底**：xAI 图片生成响应官方文档未确认是否带 `usage` 字段（只展示了 `data`/`model`/`respect_moderation`）。`extractGrokImageUsage()` 优先尝试标准 OpenAI usage 解析，缺失时按返回图片数量兜底计费（`outputTokens = data.length`，配合 `seed.ts` 里 `outputPrice` 按「单价(USD) × 1,000,000」换算，复用现有 token 计费公式，不新增字段）。**上线前必须跑一次真实调用核实响应形状**——如果实际带 usage 字段，应改走标准解析，避免兜底逻辑长期得不到验证。
+**图片计费换算**：xAI 图片响应会返回 `usage.cost_in_usd_ticks`，换算率是 `1 USD = 10^10 ticks`。两个图片模型统一配置为 `inputPrice=0`、`outputPrice=1`（即 `$1/1M` 内部 tokens），`extractGrokImageUsage()` 用 `ticks / 10,000` 得到内部 output token，再复用现有 markup、免费额度、钱包与 usage log 链路。若上游异常缺少 ticks，则按共享的官方价格配置、参考图数量、输出数量和分辨率算美元成本，再乘 `1,000,000` 得到内部 token；不要重新引入按张计费 schema。
 
-**定价**：`grok-4.3`/`grok-4.5`/`grok-imagine-image` 的 `inputPrice`/`outputPrice` 来自网络检索，代码里注释「待审核」，需人工核对官方定价页；`markupRate` 统一定为 1.05（与 Claude BYOK 同一口径：Grok 走 Stored Keys 自付，无额外代付费，1.05 扣除 Stripe 手续费后不亏）。
+**图片模型与协议**：支持 `grok-imagine-image`（参考图 `$0.002/张`、输出 `$0.02/张`）和 `grok-imagine-image-quality`（参考图 `$0.01/张`、1K 输出 `$0.05/张`、2K 输出 `$0.07/张`）。生成端点支持 `n`、`aspect_ratio`、`resolution`、`response_format`；编辑端点要求 `application/json`，单图使用 `image`、2–3 张使用 `images`，不能复用 OpenAI SDK 的 multipart 编辑协议。模型能力和价格集中在 `@muirouter/shared-db/grok-image`，后端和 Playground 必须共用。`markupRate` 统一为 1.05。
 
 **范围**：本轮仅接入文本对话模型（`grok-4.3`/`grok-4.5`）+ 图片生成。视频生成（`grok-imagine-video`）是异步任务模型（提交请求拿 `request_id`，轮询 `GET /v1/videos/{request_id}` 直到 `status: done`），需要一套新的任务状态追踪子系统（记录谁提交了哪个 job、避免轮询到 done 时重复扣费），与现有「单次请求单次响应」的同步代理架构不兼容，体量远超接入一个 provider 本身，拆成独立后续任务（见 GitHub issue），本轮未接入。`/providers/grok/*` 原生透传路由（`gateway-service.ts` / `routes/providers.ts` 的 `SUPPORTED_PROVIDERS`）同样未接入，仅通过 `/v1/chat/completions`、`/v1/images/generations` 两个既有端点分发，接入深度与 Gemini/MiMo 一致；如需裸透传，只需给这两个 Set 加一行。
 

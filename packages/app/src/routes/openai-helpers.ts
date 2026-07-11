@@ -4,7 +4,7 @@ import { badRequest, createErrorResponse, ErrorTypes, gatewayError } from '../li
 import { MIN_BALANCE } from '../middleware/auth';
 import type { ModelPricing } from '../services/billing-service';
 import type { ProxyServices } from '../services/service-factory';
-import { extractStreamUsage, extractUsage } from '../services/usage-extractor';
+import { extractStreamUsage, extractUsage, type GrokImageUsageContext } from '../services/usage-extractor';
 import type { CloudflareBindings } from '../types';
 
 /**
@@ -73,6 +73,7 @@ export async function processBilling(
   response: Response,
   modelId: string,
   modelPricing: ModelLookup['modelPricing'],
+  grokImageContext?: GrokImageUsageContext,
 ) {
   const userId = c.get('userId');
   const apiKeyId = c.get('apiKeyId');
@@ -80,7 +81,7 @@ export async function processBilling(
 
   try {
     const data = (await response.json()) as JsonBody;
-    const usage = extractUsage(provider, data);
+    const usage = extractUsage(provider, data, grokImageContext);
     if (usage && hasAnyTokens(usage)) {
       const billing = await services.billingService.processUsage(
         userId,
@@ -185,6 +186,7 @@ export async function proxyOpenAIImageResponse(
   modelId: string,
   modelPricing: ModelLookup['modelPricing'],
   billingProvider = 'openai',
+  grokImageContext?: GrokImageUsageContext,
 ) {
   if (!upstream.ok) {
     const errText = await upstream.text();
@@ -192,7 +194,9 @@ export async function proxyOpenAIImageResponse(
   }
 
   const [clientResp, billingResp] = [upstream.clone(), upstream];
-  c.executionCtx.waitUntil(processBilling(c, services, billingProvider, billingResp, modelId, modelPricing));
+  c.executionCtx.waitUntil(
+    processBilling(c, services, billingProvider, billingResp, modelId, modelPricing, grokImageContext),
+  );
   return clientResp;
 }
 

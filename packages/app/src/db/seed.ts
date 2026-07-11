@@ -14,6 +14,7 @@
  * 否则首次 LLM 请求才会触发 ModelCatalogService 回源 D1 拉新价。
  */
 
+import { GROK_IMAGE_MODEL_IDS } from '@muirouter/shared-db/grok-image';
 import type { NewModel } from './schema';
 
 const NO_CACHE_NO_TIER = {
@@ -298,10 +299,8 @@ export const SEED_MODELS: NewModel[] = [
 
   // xAI Grok — 经 CF AI Gateway 转发，xAI key 以 Stored Keys 形式配置在网关侧，本服务不持有真实 key。
   // markupRate 1.05：走 Stored Keys 自付，无额外代付费，扣除 Stripe 手续费后不亏（与 Claude BYOK 同一口径）。
-  // ⚠️ inputPrice/outputPrice 来自网络检索，未逐条核对 x.ai 官方定价页，需人工审核。
+  // 图片模型把 xAI 返回的美元 ticks 换算为内部 output token；outputPrice=1 表示 $1/1M 内部 tokens。
   // ⚠️ 未确认 Grok 是否支持 prompt caching，保守不给折扣价（NO_CACHE_NO_TIER）。
-  // ⚠️ grok-imagine-image：官方未公开定价、未确认响应是否带 usage token；outputPrice 按
-  //    「单价(USD) × 1,000,000」换算复用现有 token 计费公式，上线后需跑一次真实调用核实响应形状。
   {
     id: 'grok-4.3',
     provider: 'grok',
@@ -320,15 +319,15 @@ export const SEED_MODELS: NewModel[] = [
     markupRate: 1.05,
     ...NO_CACHE_NO_TIER,
   },
-  {
-    id: 'grok-imagine-image',
+  ...GROK_IMAGE_MODEL_IDS.map((id) => ({
+    id,
     provider: 'grok',
-    upstreamModelId: 'grok-imagine-image',
+    upstreamModelId: id,
     inputPrice: 0,
-    outputPrice: 20_000, // 占位：假设 $0.02/张，待审核
+    outputPrice: 1,
     markupRate: 1.05,
     ...NO_CACHE_NO_TIER,
-  },
+  })),
 
   // Cloudflare Workers AI
   {

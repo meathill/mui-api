@@ -147,7 +147,7 @@ describe('extractUsage', () => {
     });
   });
 
-  it('grok-image 无 usage 字段时按返回图片数量兜底计费', () => {
+  it('grok-image 无 usage 字段时按模型价格换算内部 token', () => {
     const data = {
       model: 'grok-imagine-image',
       data: [{ url: 'https://example.test/1.png' }, { url: 'https://example.test/2.png' }],
@@ -155,17 +155,34 @@ describe('extractUsage', () => {
     expect(extractUsage('grok-image', data)).toEqual({
       model: 'grok-imagine-image',
       inputTokens: 0,
-      outputTokens: 2,
+      outputTokens: 40_000,
       ...zeroCache,
     });
   });
 
-  it('grok-image 若响应带 usage 则按标准 openai 形状解析', () => {
-    const data = { model: 'grok-imagine-image', usage: { input_tokens: 12, output_tokens: 340 }, data: [{}] };
+  it('grok-image 优先把 cost_in_usd_ticks 换算为内部 token', () => {
+    const data = { model: 'grok-imagine-image', usage: { cost_in_usd_ticks: 220_000_000 }, data: [{}] };
     expect(extractUsage('grok-image', data)).toEqual({
       model: 'grok-imagine-image',
-      inputTokens: 12,
-      outputTokens: 340,
+      inputTokens: 0,
+      outputTokens: 22_000,
+      ...zeroCache,
+    });
+  });
+
+  it('grok-image quality 2K 编辑在缺少 ticks 时包含参考图成本', () => {
+    const data = { model: 'grok-imagine-image-quality', data: [{ url: 'https://example.test/result.png' }] };
+    expect(
+      extractUsage('grok-image', data, {
+        model: 'grok-imagine-image-quality',
+        inputCount: 2,
+        outputCount: 1,
+        resolution: '2k',
+      }),
+    ).toEqual({
+      model: 'grok-imagine-image-quality',
+      inputTokens: 0,
+      outputTokens: 90_000,
       ...zeroCache,
     });
   });

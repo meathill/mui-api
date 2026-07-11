@@ -1,11 +1,16 @@
 'use client';
 
+import {
+  GROK_IMAGE_ASPECT_RATIOS,
+  GROK_IMAGE_MAX_OUTPUTS,
+  GROK_IMAGE_RESOLUTIONS,
+} from '@muirouter/shared-db/grok-image';
 import { DownloadIcon, Trash2Icon, UploadIcon, XIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import type React from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import type { AudioResult, HistoryItem, ImageResult, PlaygroundMode } from './playground-types';
+import type { AudioResult, GrokImageOptions, HistoryItem, ImageResult, PlaygroundMode } from './playground-types';
 import { downloadAudio, downloadImage, getTtsVoiceOptions, isTtsVoiceCloneModel } from './playground-utils';
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -75,6 +80,67 @@ export function ImageUpload({
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+export function GrokImageControls({
+  options,
+  isEditing,
+  onChange,
+}: {
+  options: GrokImageOptions;
+  isEditing: boolean;
+  onChange: (options: GrokImageOptions) => void;
+}) {
+  const t = useTranslations('playground');
+  return (
+    <div className={isEditing ? 'grid gap-3 sm:grid-cols-2' : 'grid gap-3 sm:grid-cols-3'}>
+      {!isEditing && (
+        <Field label={t('imageCountLabel')}>
+          <select
+            value={options.count}
+            onChange={(event) => onChange({ ...options, count: Number(event.target.value) })}
+            className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs"
+          >
+            {Array.from({ length: GROK_IMAGE_MAX_OUTPUTS }, (_, index) => index + 1).map((count) => (
+              <option key={count} value={count}>
+                {count}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
+      <Field label={t('imageAspectRatio')}>
+        <select
+          value={options.aspectRatio}
+          onChange={(event) =>
+            onChange({ ...options, aspectRatio: event.target.value as GrokImageOptions['aspectRatio'] })
+          }
+          className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs"
+        >
+          {GROK_IMAGE_ASPECT_RATIOS.map((ratio) => (
+            <option key={ratio} value={ratio}>
+              {ratio === 'auto' ? t('imageAspectRatioAuto') : ratio}
+            </option>
+          ))}
+        </select>
+      </Field>
+      <Field label={t('imageResolution')}>
+        <select
+          value={options.resolution}
+          onChange={(event) =>
+            onChange({ ...options, resolution: event.target.value as GrokImageOptions['resolution'] })
+          }
+          className="flex h-9 w-full rounded-lg border border-input bg-background px-3 py-1 text-sm shadow-xs"
+        >
+          {GROK_IMAGE_RESOLUTIONS.map((resolution) => (
+            <option key={resolution} value={resolution}>
+              {resolution.toUpperCase()}
+            </option>
+          ))}
+        </select>
+      </Field>
     </div>
   );
 }

@@ -329,7 +329,14 @@
     "tagLongContext": "Contexto longo",
     "tagCaching": "Cache",
     "priceLabel": "Entrada {input} / Saída {output} por 1M tokens",
-    "priceFree": "Grátis"
+    "priceFree": "Grátis",
+    "imagePriceLabel": "Imagem de entrada {input} / imagem de saída {output} cada",
+    "imageTieredPriceLabel": "Imagem de entrada {input} / saída 1K {output1k} · 2K {output2k} cada",
+    "imageCountLabel": "Quantidade de imagens",
+    "imageAspectRatio": "Proporção",
+    "imageAspectRatioAuto": "Automática",
+    "imageResolution": "Resolução",
+    "grokMaxImagesError": "A edição do Grok aceita até {count} imagens de referência."
   },
   "adminModels": {
     "title": "Gerenciamento de modelos",

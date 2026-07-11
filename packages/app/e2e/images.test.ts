@@ -60,7 +60,7 @@ describe('POST /v1/images/generations —— xAI Grok（经 CF AI Gateway BYOK�
     vi.unstubAllGlobals();
   });
 
-  it('打到 grok 原生网关端点（xAI key 走 CF Gateway Stored Keys），响应无 usage 字段时按返回图片数量兜底计费', async () => {
+  it('打到 Grok 原生端点并按返回图片数量换算内部 token 兜底计费', async () => {
     const userId = `test-grok-image-bill-${Date.now()}`;
     const billKey = await seedApiKey(userId, 10);
 
@@ -87,16 +87,56 @@ describe('POST /v1/images/generations —— xAI Grok（经 CF AI Gateway BYOK�
     const h = new Headers(init?.headers);
     expect(h.get('cf-aig-authorization')).toBe('Bearer test-token');
     expect(h.get('authorization')).toBeNull();
-    const sentBody = JSON.parse(String(init?.body)) as { model: string; prompt: string };
-    expect(sentBody.model).toBe('grok-imagine-image');
-    expect(sentBody.prompt).toBe('a golden retriever puppy');
+    const sentBody = JSON.parse(String(init?.body));
+    expect(sentBody).toEqual({
+      model: 'grok-imagine-image',
+      prompt: 'a golden retriever puppy',
+      n: 1,
+      resolution: '1k',
+      response_format: 'url',
+    });
 
-    // grok-imagine-image 种子：outputPrice 20000（占位换算自假设的 $0.02/张），markup 1.2x
-    // 响应无 usage 字段 → 按 data 数组长度兜底计费：cost = 2 * 20000 / 1e6 * 1.2 = 0.048
+    // 两张基础模型输出：$0.04 → 40,000 内部 token；应用 1.05 markup 后为 $0.042。
     await vi.waitFor(async () => {
       const userData = await env.KV.get<{ balance: number }>(`user:${userId}`, 'json');
-      expect(userData?.balance).toBeCloseTo(9.952, 4);
+      expect(userData?.balance).toBeCloseTo(9.958, 4);
     });
+  });
+
+  it('优先按 xAI cost ticks 换算内部 token', async () => {
+    const userId = `test-grok-image-ticks-${Date.now()}`;
+    const billKey = await seedApiKey(userId, 10);
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        Response.json({
+          model: 'grok-imagine-image',
+          data: [{ url: 'https://example.test/result.png' }],
+          usage: { cost_in_usd_ticks: 200_000_000 },
+        }),
+      ),
+    );
+
+    const res = await SELF.fetch('http://localhost/v1/images/generations', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${billKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'grok-imagine-image', prompt: 'a puppy', resolution: '2k' }),
+    });
+    expect(res.status).toBe(200);
+    await vi.waitFor(async () => {
+      const userData = await env.KV.get<{ balance: number }>(`user:${userId}`, 'json');
+      expect(userData?.balance).toBeCloseTo(9.979, 4);
+    });
+  });
+
+  it('拒绝非法 Grok 生成参数', async () => {
+    const apiKey = await seedApiKey(`test-grok-image-invalid-${Date.now()}`);
+    const res = await SELF.fetch('http://localhost/v1/images/generations', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model: 'grok-imagine-image', prompt: 'a puppy', n: 11 }),
+    });
+    expect(res.status).toBe(400);
   });
 });
 
@@ -105,6 +145,10 @@ describe('POST /v1/images/edits', () => {
 
   beforeAll(async () => {
     apiKey = await seedApiKey('test-user-image-edits');
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
   });
 
   it('非 multipart 请求返回 400', async () => {
@@ -120,6 +164,80 @@ describe('POST /v1/images/edits', () => {
     expect(res.status).toBe(400);
     const body = await res.json<{ error: { type: string } }>();
     expect(body.error.type).toBe('invalid_request_error');
+  });
+
+  it('Grok quality 支持 JSON 多图编辑并按 2K 价格兜底', async () => {
+    const userId = `test-grok-image-edit-${Date.now()}`;
+    const billKey = await seedApiKey(userId, 10);
+    const fetchMock = vi.fn(async () =>
+      Response.json({
+        model: 'grok-imagine-image-quality',
+        data: [{ url: 'https://example.test/result.png' }],
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await SELF.fetch('http://localhost/v1/images/edits', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${billKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'grok-imagine-image-quality',
+        prompt: 'combine them',
+        images: [
+          { type: 'image_url', url: 'data:image/png;base64,AAAA' },
+          { type: 'image_url', url: 'data:image/png;base64,BBBB' },
+        ],
+        aspect_ratio: '3:2',
+        resolution: '2k',
+        response_format: 'b64_json',
+      }),
+    });
+    expect(res.status).toBe(200);
+    const [, init] = fetchMock.mock.calls[0];
+    expect(JSON.parse(String(init?.body))).toMatchObject({
+      model: 'grok-imagine-image-quality',
+      resolution: '2k',
+      aspect_ratio: '3:2',
+      images: [{ url: 'data:image/png;base64,AAAA' }, { url: 'data:image/png;base64,BBBB' }],
+    });
+    // 两张输入图 $0.02 + 一张 2K 输出 $0.07 = $0.09；markup 后 $0.0945。
+    await vi.waitFor(async () => {
+      const userData = await env.KV.get<{ balance: number }>(`user:${userId}`, 'json');
+      expect(userData?.balance).toBeCloseTo(9.9055, 4);
+    });
+  });
+
+  it('Grok 基础模型单图编辑按 ticks 扣除 $0.022 上游成本', async () => {
+    const userId = `test-grok-image-single-edit-${Date.now()}`;
+    const billKey = await seedApiKey(userId, 10);
+    const fetchMock = vi.fn(async () =>
+      Response.json({
+        model: 'grok-imagine-image',
+        data: [{ url: 'https://example.test/result.png' }],
+        usage: { cost_in_usd_ticks: 220_000_000 },
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await SELF.fetch('http://localhost/v1/images/edits', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${billKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'grok-imagine-image',
+        prompt: 'add a hat',
+        image: { type: 'image_url', url: 'data:image/png;base64,AAAA' },
+      }),
+    });
+    expect(res.status).toBe(200);
+    const [, init] = fetchMock.mock.calls[0];
+    expect(JSON.parse(String(init?.body))).toMatchObject({
+      model: 'grok-imagine-image',
+      image: { type: 'image_url', url: 'data:image/png;base64,AAAA' },
+    });
+    await vi.waitFor(async () => {
+      const userData = await env.KV.get<{ balance: number }>(`user:${userId}`, 'json');
+      expect(userData?.balance).toBeCloseTo(9.9769, 4);
+    });
   });
 
   it('缺少 prompt 参数返回 400', async () => {

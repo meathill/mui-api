@@ -18,6 +18,8 @@ INSERT OR REPLACE INTO models (id, provider, upstream_model_id, input_price, out
   ('claude-opus-4-6', 'anthropic', 'claude-opus-4-6', 5, 25, 1.1, 0.5, 6.25, NULL, NULL, NULL, NULL, NULL),
   ('claude-sonnet-4-6', 'anthropic', 'claude-sonnet-4-6', 3, 15, 1.1, 0.3, 3.75, NULL, NULL, NULL, NULL, NULL),
   ('claude-haiku-4-5', 'anthropic', 'claude-haiku-4-5', 1, 5, 1.1, 0.1, 1.25, NULL, NULL, NULL, NULL, NULL),
+  ('grok-imagine-image', 'grok', 'grok-imagine-image', 0, 1, 1.05, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+  ('grok-imagine-image-quality', 'grok', 'grok-imagine-image-quality', 0, 1, 1.05, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
   ('glm-4.7-flash', 'workers-ai', '@cf/zai-org/glm-4.7-flash', 0.06, 0.4, 1.2, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
   ('qwen3-30b', 'workers-ai', '@cf/qwen/qwen3-30b-a3b-fp8', 0.051, 0.335, 1.2, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
   ('kimi-k2.6', 'workers-ai', '@cf/moonshotai/kimi-k2.6', 0.95, 4, 1.2, NULL, NULL, NULL, NULL, NULL, NULL, NULL),

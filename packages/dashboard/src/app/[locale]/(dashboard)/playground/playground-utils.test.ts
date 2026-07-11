@@ -4,13 +4,16 @@ import {
   appendBuiltInPlaygroundModels,
   buildTtsRequestBody,
   formatModelPrice,
+  getGrokImagePrice,
   getModelCapabilityTagKeys,
   getModelPrice,
   getTtsVoiceSampleMimeType,
   groupModelsByProvider,
   isImageModel,
+  isGrokImageModel,
   isTtsModel,
   toAudioResult,
+  toTokenInfo,
 } from './playground-utils';
 
 function createModel(id: string, upstreamModelId: string | null = id): ModelInfo {
@@ -37,6 +40,8 @@ describe('playground TTS helpers', () => {
 
     expect(models.filter((model) => model.id === 'mimo-v2.5-tts')).toHaveLength(1);
     expect(models.some((model) => model.id === 'gpt-image-2')).toBe(true);
+    expect(models.some((model) => model.id === 'grok-imagine-image')).toBe(true);
+    expect(models.some((model) => model.id === 'grok-imagine-image-quality')).toBe(true);
     expect(models.some((model) => model.id === 'mimo-v2.5-tts-voiceclone')).toBe(true);
     expect(models.some((model) => model.id === 'mimo-v2.5-tts-voicedesign')).toBe(true);
   });
@@ -176,5 +181,18 @@ describe('playground 模型展示元数据 helpers', () => {
     expect(formatModelPrice(3)).toBe('$3');
     expect(formatModelPrice(1.25)).toBe('$1.25');
     expect(formatModelPrice(0.05)).toBe('$0.05');
+  });
+
+  it('识别 Grok 图片模型并返回真实按图价格', () => {
+    const model = makeModel('grok-imagine-image-quality', { provider: 'grok', inputPrice: 0, outputPrice: 1 });
+    expect(isGrokImageModel(model)).toBe(true);
+    expect(getGrokImagePrice(model)).toEqual({
+      inputImagePrice: 0.01,
+      outputImagePrices: { '1k': 0.05, '2k': 0.07 },
+    });
+  });
+
+  it('把 xAI 美元 ticks 显示为内部 output token', () => {
+    expect(toTokenInfo({ cost_in_usd_ticks: 200_000_000 })).toEqual({ inputTokens: 0, outputTokens: 20_000 });
   });
 });

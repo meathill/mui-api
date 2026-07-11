@@ -86,6 +86,9 @@ await db.batch([
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-4.3', 'grok', 'grok-4.3', 1.25, 2.5, 1.2)",
   ),
   db.prepare(
-    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-imagine-image', 'grok', 'grok-imagine-image', 0, 20000, 1.2)",
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-imagine-image', 'grok', 'grok-imagine-image', 0, 1, 1.05)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-imagine-image-quality', 'grok', 'grok-imagine-image-quality', 0, 1, 1.05)",
   ),
 ]);

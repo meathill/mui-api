@@ -1,3 +1,12 @@
+import {
+  calculateGrokImageUpstreamCost,
+  convertUsdTicksToInternalTokens,
+  convertUsdToInternalTokens,
+  type GrokImageModelId,
+  type GrokImageResolution,
+  isGrokImageModelId,
+} from '@muirouter/shared-db/grok-image';
+
 /**
  * 从各 Provider 上游响应中提取 token usage，用于计费。
  *
@@ -20,13 +29,24 @@ export interface UsageResult {
 
 type ProviderKey = 'openai' | 'anthropic' | 'google-ai-studio' | 'workers-ai' | 'xiaomi-mimo' | 'grok' | 'grok-image';
 
+export type GrokImageUsageContext = {
+  model: GrokImageModelId;
+  inputCount: number;
+  outputCount: number;
+  resolution: GrokImageResolution;
+};
+
 function emptyUsage(model = 'unknown'): UsageResult {
   return { model, inputTokens: 0, cachedInputTokens: 0, cacheWriteTokens: 0, outputTokens: 0 };
 }
 
 // ==================== 非流式 ====================
 
-export function extractUsage(provider: string, data: Record<string, unknown>): UsageResult | null {
+export function extractUsage(
+  provider: string,
+  data: Record<string, unknown>,
+  grokImageContext?: GrokImageUsageContext,
+): UsageResult | null {
   switch (provider as ProviderKey) {
     case 'openai':
     case 'xiaomi-mimo':
@@ -40,7 +60,7 @@ export function extractUsage(provider: string, data: Record<string, unknown>): U
     case 'grok':
       return extractOpenAIUsage(data);
     case 'grok-image':
-      return extractGrokImageUsage(data);
+      return extractGrokImageUsage(data, grokImageContext);
     default:
       return null;
   }
@@ -110,22 +130,37 @@ function extractWorkersAiUsage(data: Record<string, unknown>): UsageResult | nul
   return extractOpenAIUsage(data);
 }
 
-/**
- * xAI Grok 图片生成：官方文档未确认响应是否带 usage 字段（只看到 data/model/respect_moderation）。
- * 若真带 usage 就按标准 OpenAI 形状解析；否则按返回图片数量兜底计费（1 张 = 1 output 单位，
- * 对应 seed.ts 里 outputPrice 按「单价(USD) × 1,000,000」换算）。图片生成非流式，不需要 chunk 版本。
- */
-function extractGrokImageUsage(data: Record<string, unknown>): UsageResult | null {
+/** xAI 图片成本换算为内部 output token；outputPrice 固定为 $1/1M 内部 tokens。 */
+function extractGrokImageUsage(data: Record<string, unknown>, context?: GrokImageUsageContext): UsageResult | null {
   const usage = data.usage as Record<string, unknown> | undefined;
-  if (usage) return extractOpenAIUsage(data);
-  const images = Array.isArray(data.data) ? data.data.length : 0;
-  if (images === 0) return null;
+  const costInUsdTicks = usage?.cost_in_usd_ticks;
+  if (typeof costInUsdTicks === 'number' && Number.isFinite(costInUsdTicks) && costInUsdTicks > 0) {
+    return {
+      model: (data.model as string | undefined) ?? context?.model ?? 'unknown',
+      inputTokens: 0,
+      cachedInputTokens: 0,
+      cacheWriteTokens: 0,
+      outputTokens: convertUsdTicksToInternalTokens(costInUsdTicks),
+    };
+  }
+
+  const responseModel = context?.model ?? (typeof data.model === 'string' ? data.model : undefined);
+  if (!responseModel || !isGrokImageModelId(responseModel)) return null;
+  const responseImageCount = Array.isArray(data.data) ? data.data.length : 0;
+  const outputCount = responseImageCount || context?.outputCount || 0;
+  if (outputCount === 0) return null;
+  const upstreamCost = calculateGrokImageUpstreamCost({
+    model: responseModel,
+    inputCount: context?.inputCount ?? 0,
+    outputCount,
+    resolution: context?.resolution,
+  });
   return {
-    model: (data.model as string | undefined) ?? 'unknown',
+    model: responseModel,
     inputTokens: 0,
     cachedInputTokens: 0,
     cacheWriteTokens: 0,
-    outputTokens: images,
+    outputTokens: convertUsdToInternalTokens(upstreamCost),
   };
 }
 

@@ -1,4 +1,12 @@
+import type { GrokImageAspectRatio, GrokImageResolution } from '@muirouter/shared-db/grok-image';
+
 export type PlaygroundMode = 'chat' | 'image' | 'tts';
+
+export type GrokImageOptions = {
+  count: number;
+  aspectRatio: GrokImageAspectRatio;
+  resolution: GrokImageResolution;
+};
 
 export type HistoryItem = {
   id: string;
@@ -8,6 +16,7 @@ export type HistoryItem = {
   createdAt: string;
   response?: string;
   imageCount?: number;
+  grokImageOptions?: GrokImageOptions;
   ttsStylePrompt?: string;
   audioFilename?: string;
 };
@@ -23,6 +32,7 @@ export type ImageApiItem = {
   b64_json?: string;
   url?: string;
   output_format?: string;
+  mime_type?: string;
 };
 
 export type AudioResult = {
@@ -37,6 +47,7 @@ export type TokenUsagePayload = {
   output_tokens?: number;
   prompt_tokens?: number;
   completion_tokens?: number;
+  cost_in_usd_ticks?: number;
 };
 
 export type TokenInfo = {
