@@ -36,6 +36,17 @@ function openaiCache(inputPrice: number) {
   };
 }
 
+/**
+ * GPT-5.6 起：cache read 仍为 10% input；cache write 为 1.25× uncached input。
+ * @see https://openai.com/index/gpt-5-6/
+ */
+function openaiCacheWithWrite(inputPrice: number) {
+  return {
+    cachedInputPrice: round(inputPrice * 0.1),
+    cacheWritePrice: round(inputPrice * 1.25),
+  };
+}
+
 /** anthropic：cache_read ~10% input、cache_creation ~125% input */
 function anthropicCache(inputPrice: number) {
   return {
@@ -58,6 +69,64 @@ function round(n: number): number {
 
 export const SEED_MODELS: NewModel[] = [
   // OpenAI
+  // GPT-5.6：Sol / Terra / Luna（官方 list price $/1M tokens；cache write 1.25× input）
+  {
+    id: 'gpt-5.6-sol',
+    provider: 'openai',
+    upstreamModelId: 'gpt-5.6-sol',
+    inputPrice: 5,
+    outputPrice: 30,
+    markupRate: 1.2,
+    ...openaiCacheWithWrite(5),
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
+  // 短名 alias → Sol（与 OpenAI API 一致）
+  {
+    id: 'gpt-5.6',
+    provider: 'openai',
+    upstreamModelId: 'gpt-5.6',
+    inputPrice: 5,
+    outputPrice: 30,
+    markupRate: 1.2,
+    ...openaiCacheWithWrite(5),
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
+  {
+    id: 'gpt-5.6-terra',
+    provider: 'openai',
+    upstreamModelId: 'gpt-5.6-terra',
+    inputPrice: 2.5,
+    outputPrice: 15,
+    markupRate: 1.2,
+    ...openaiCacheWithWrite(2.5),
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
+  {
+    id: 'gpt-5.6-luna',
+    provider: 'openai',
+    upstreamModelId: 'gpt-5.6-luna',
+    inputPrice: 1,
+    outputPrice: 6,
+    markupRate: 1.2,
+    ...openaiCacheWithWrite(1),
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
   {
     id: 'gpt-5',
     provider: 'openai',
