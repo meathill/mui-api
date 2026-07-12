@@ -163,11 +163,12 @@ export async function callAnthropicCompat(
 export async function callGrokEndpoint(
   env: CloudflareBindings,
   path: string,
-  body: BodyInit,
+  body?: BodyInit,
   headers: Record<string, string> = {},
+  method: 'GET' | 'POST' = 'POST',
 ): Promise<Response> {
   return fetch(`${aiGatewayBase(env, 'grok')}${path}`, {
-    method: 'POST',
+    method,
     headers: {
       ...headers,
       'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}`,

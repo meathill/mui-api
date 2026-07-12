@@ -126,4 +126,16 @@ describe('callGrokEndpoint', () => {
     const [input] = fetchMock.mock.calls[0];
     expect(input).toBe('https://gateway.ai.cloudflare.com/v1/test-account/test-gateway/grok/v1/images/generations');
   });
+
+  it('视频轮询使用 GET 且不发送 body', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      Response.json({ status: 'pending' }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    await callGrokEndpoint(createGrokEnv(), '/v1/videos/request-1', undefined, {}, 'GET');
+    const [input, init] = fetchMock.mock.calls[0];
+    expect(input).toBe('https://gateway.ai.cloudflare.com/v1/test-account/test-gateway/grok/v1/videos/request-1');
+    expect(init?.method).toBe('GET');
+    expect(init?.body).toBeUndefined();
+  });
 });

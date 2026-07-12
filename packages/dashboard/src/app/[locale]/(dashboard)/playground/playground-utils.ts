@@ -4,6 +4,7 @@ import {
   GROK_IMAGE_MODEL_IDS,
   isGrokImageModelId,
 } from '@muirouter/shared-db/grok-image';
+import { GROK_VIDEO_MODEL_IDS, isGrokVideoModelId } from '@muirouter/shared-db/grok-video';
 import type { ModelInfo } from '@/lib/api';
 import type {
   AudioResult,
@@ -97,7 +98,17 @@ export const BUILT_IN_TTS_MODELS: ModelInfo[] = [
   },
 ];
 
-const BUILT_IN_PLAYGROUND_MODELS = [...BUILT_IN_IMAGE_MODELS, ...BUILT_IN_TTS_MODELS];
+export const BUILT_IN_VIDEO_MODELS: ModelInfo[] = GROK_VIDEO_MODEL_IDS.map((id) => ({
+  id,
+  provider: 'grok',
+  upstreamModelId: id,
+  inputPrice: 0,
+  outputPrice: 1,
+  markupRate: 1.05,
+  ...NO_TIER_PRICING,
+}));
+
+const BUILT_IN_PLAYGROUND_MODELS = [...BUILT_IN_IMAGE_MODELS, ...BUILT_IN_VIDEO_MODELS, ...BUILT_IN_TTS_MODELS];
 
 const MIMO_V2_5_TTS_VOICES: TtsVoiceOption[] = [
   { id: 'mimo_default', label: 'MiMo 默认' },
@@ -213,6 +224,10 @@ export function isTtsModel(model: ModelInfo) {
   return isTtsModelId(model.id) || Boolean(model.upstreamModelId && isTtsModelId(model.upstreamModelId));
 }
 
+export function isVideoModel(model: ModelInfo) {
+  return isGrokVideoModelId(model.id) || Boolean(model.upstreamModelId && isGrokVideoModelId(model.upstreamModelId));
+}
+
 export function isTtsModelId(modelId: string) {
   return modelId.toLowerCase().includes('tts');
 }
@@ -309,6 +324,10 @@ export function downloadAudio(audio: AudioResult) {
   triggerDownload(audio.src, audio.filename);
 }
 
+export function downloadVideo(url: string) {
+  triggerDownload(url, `muirouter-video-${Date.now()}.mp4`);
+}
+
 function triggerDownload(src: string, filename: string) {
   const anchor = document.createElement('a');
   anchor.href = src;
@@ -357,6 +376,19 @@ export function getTtsVoiceSampleMimeType(file: File): string | null {
   if (file.type === 'audio/mpeg' || file.type === 'audio/mp3' || name.endsWith('.mp3')) {
     return 'audio/mpeg';
   }
+  return null;
+}
+
+export function getTtsInputError(params: {
+  model: string;
+  stylePrompt: string;
+  voiceSample: File | null;
+}): 'ttsStyleRequired' | 'ttsVoiceSampleRequired' | 'ttsVoiceSampleTooLarge' | 'ttsVoiceSampleInvalid' | null {
+  if (isTtsVoiceDesignModel(params.model) && !params.stylePrompt.trim()) return 'ttsStyleRequired';
+  if (!isTtsVoiceCloneModel(params.model)) return null;
+  if (!params.voiceSample) return 'ttsVoiceSampleRequired';
+  if (params.voiceSample.size > MAX_TTS_VOICE_SAMPLE_BYTES) return 'ttsVoiceSampleTooLarge';
+  if (!getTtsVoiceSampleMimeType(params.voiceSample)) return 'ttsVoiceSampleInvalid';
   return null;
 }
 

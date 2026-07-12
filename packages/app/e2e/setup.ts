@@ -21,6 +21,9 @@ await db.batch([
     "CREATE TABLE IF NOT EXISTS usage_logs (id TEXT PRIMARY KEY NOT NULL, user_id TEXT, api_key_id TEXT, model_id TEXT, input_tokens INTEGER, output_tokens INTEGER, cached_input_tokens INTEGER DEFAULT 0, cache_write_tokens INTEGER DEFAULT 0, tier TEXT DEFAULT 'standard', cost REAL, created_at INTEGER DEFAULT (unixepoch()))",
   ),
   db.prepare(
+    "CREATE TABLE IF NOT EXISTS video_generation_jobs (request_id TEXT PRIMARY KEY NOT NULL, reservation_id TEXT NOT NULL UNIQUE, user_id TEXT NOT NULL, api_key_id TEXT, model_id TEXT NOT NULL, duration INTEGER NOT NULL, resolution TEXT NOT NULL, estimated_cost REAL NOT NULL, markup_rate REAL NOT NULL, rate_multiplier REAL NOT NULL, status TEXT NOT NULL DEFAULT 'pending', actual_cost REAL, settled_cost REAL, billed_at INTEGER, created_at INTEGER NOT NULL DEFAULT (unixepoch()), updated_at INTEGER NOT NULL DEFAULT (unixepoch()))",
+  ),
+  db.prepare(
     "CREATE TABLE IF NOT EXISTS wallets (user_id TEXT PRIMARY KEY NOT NULL, balance REAL DEFAULT 0, currency TEXT DEFAULT 'USD', updated_at INTEGER DEFAULT (unixepoch()), FOREIGN KEY (user_id) REFERENCES user(id))",
   ),
   db.prepare(
@@ -90,5 +93,11 @@ await db.batch([
   ),
   db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-imagine-image-quality', 'grok', 'grok-imagine-image-quality', 0, 1, 1.05)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-imagine-video', 'grok', 'grok-imagine-video', 0, 1, 1.05)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-imagine-video-1.5', 'grok', 'grok-imagine-video-1.5', 0, 1, 1.05)",
   ),
 ]);

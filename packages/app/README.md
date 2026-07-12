@@ -7,7 +7,7 @@
 
 ## 功能特性
 
-- 🔌 **OpenAI 兼容接口** - 透传 `/v1/chat/completions`、`/v1/responses`（Codex CLI 等 Responses API 客户端）
+- 🔌 **统一 API 接口** - 透传 `/v1/chat/completions`、`/v1/responses`，并提供图片和异步视频生成
 - 💰 **按量计费** - 实时计算 Token 消耗并扣费
 - 🔑 **API Key 管理** - 安全的密钥生成与验证
 - 🚦 **并发控制** - 防止滥用，可调整每用户限制
@@ -19,8 +19,8 @@
 - **框架**: Hono
 - **存储**:
   - Cloudflare KV（用户余额、API Key、并发展示镜像）
-  - Durable Object（每用户并发 lease 权威状态）
-  - Cloudflare D1（使用日志、领卡凭证）
+  - Durable Object（每用户并发 lease、钱包余额与视频费用预占的权威状态）
+  - Cloudflare D1（使用日志、领卡凭证、异步视频任务归属与结算审计）
 - **邮件**: Resend
 
 ## 快速开始
@@ -91,6 +91,8 @@ curl -X POST http://localhost:5173/admin/recharge \
 | POST | `/v1/chat/completions` | Chat Completions（支持流式；MiMo TTS 也通过此接口透传 `audio` 参数） |
 | POST | `/v1/responses` | Responses API（仅支持 openai provider；用于 OpenAI Codex CLI 等使用新版 wire format 的客户端） |
 | POST | `/v1/images/generations` | 图片生成（支持 openai / grok provider） |
+| POST | `/v1/videos/generations` | 提交 Grok 视频生成任务，返回 `request_id` |
+| GET | `/v1/videos/:request_id` | 查询本人视频任务；完成时幂等结算预占费用 |
 | GET | `/v1/models` | 列出可用模型 |
 
 **调用示例**：

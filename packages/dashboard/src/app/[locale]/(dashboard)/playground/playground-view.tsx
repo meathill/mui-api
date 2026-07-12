@@ -1,6 +1,6 @@
 'use client';
 
-import { ImageIcon, LoaderCircleIcon, MessageSquareIcon, SaveIcon, Volume2Icon, XIcon } from 'lucide-react';
+import { ImageIcon, LoaderCircleIcon, MessageSquareIcon, SaveIcon, VideoIcon, Volume2Icon, XIcon } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -19,13 +19,17 @@ import {
   PromptField,
   TtsControls,
 } from './playground-components';
+import { GrokVideoControls, VideoResultView } from './playground-video-components';
 import type {
   AudioResult,
   GrokImageOptions,
+  GrokVideoOptions,
   HistoryItem,
   ImageResult,
   PlaygroundMode,
   TokenInfo,
+  VideoResult,
+  VideoStatus,
 } from './playground-types';
 
 type PlaygroundViewProps = {
@@ -41,11 +45,17 @@ type PlaygroundViewProps = {
   uploadedImages: File[];
   isGrokImage: boolean;
   grokImageOptions: GrokImageOptions;
+  videoModel: string;
+  grokVideoOptions: GrokVideoOptions;
+  videoImage: File | null;
   loading: boolean;
   error: string;
   response: string;
   imageResults: ImageResult[];
   audioResult: AudioResult | null;
+  videoResult: VideoResult | null;
+  videoStatus: VideoStatus;
+  videoProgress: number | null;
   tokenInfo: TokenInfo | null;
   history: HistoryItem[];
   onModeChange: (value: string) => void;
@@ -59,6 +69,8 @@ type PlaygroundViewProps = {
   onRemoveUpload: (index: number) => void;
   onClearUploads: () => void;
   onGrokImageOptionsChange: (options: GrokImageOptions) => void;
+  onGrokVideoOptionsChange: (options: GrokVideoOptions) => void;
+  onVideoImageChange: (file: File | null) => void;
   onRun: () => void;
   onStop: () => void;
   onClearHistory: () => void;
@@ -84,6 +96,10 @@ export function PlaygroundView(props: PlaygroundViewProps) {
               <TabsTab value="image">
                 <ImageIcon />
                 {t('imageMode')}
+              </TabsTab>
+              <TabsTab value="video">
+                <VideoIcon />
+                {t('videoMode')}
               </TabsTab>
               <TabsTab value="tts">
                 <Volume2Icon />
@@ -148,6 +164,21 @@ export function PlaygroundView(props: PlaygroundViewProps) {
                   onRemove={props.onRemoveUpload}
                 />
               </TabsPanel>
+              <TabsPanel value="video" className="space-y-4">
+                <PromptField
+                  value={props.prompt}
+                  onChange={props.onPromptChange}
+                  label={t('videoPrompt')}
+                  placeholder={t('videoPromptPlaceholder')}
+                />
+                <GrokVideoControls
+                  model={props.videoModel}
+                  options={props.grokVideoOptions}
+                  image={props.videoImage}
+                  onChange={props.onGrokVideoOptionsChange}
+                  onImageChange={props.onVideoImageChange}
+                />
+              </TabsPanel>
               <TabsPanel value="tts" className="space-y-4">
                 {props.ttsModel && (
                   <TtsControls
@@ -179,13 +210,25 @@ export function PlaygroundView(props: PlaygroundViewProps) {
                   onClick={props.onRun}
                   disabled={!props.prompt.trim() || !props.apiKey.trim() || !props.selectedModel}
                 >
-                  {props.mode === 'chat' ? t('send') : props.mode === 'image' ? t('generateImage') : t('generateTts')}
+                  {props.mode === 'chat'
+                    ? t('send')
+                    : props.mode === 'image'
+                      ? t('generateImage')
+                      : props.mode === 'video'
+                        ? props.videoStatus === 'pending'
+                          ? t('resumeVideo')
+                          : t('generateVideo')
+                        : t('generateTts')}
                 </Button>
               )}
               {props.loading && props.mode !== 'chat' && (
                 <span className="inline-flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
                   <LoaderCircleIcon className="size-4 animate-spin" />
-                  {props.mode === 'image' ? t('generating') : t('ttsGenerating')}
+                  {props.mode === 'image'
+                    ? t('generating')
+                    : props.mode === 'video'
+                      ? t('videoPending')
+                      : t('ttsGenerating')}
                 </span>
               )}
               {props.mode === 'image' && props.uploadedImages.length > 0 && (
@@ -201,7 +244,13 @@ export function PlaygroundView(props: PlaygroundViewProps) {
         <Card className="p-4">
           <div className="mb-3 flex items-center justify-between gap-3">
             <label className="text-sm font-medium">
-              {props.mode === 'chat' ? t('response') : props.mode === 'image' ? t('imageResult') : t('ttsResult')}
+              {props.mode === 'chat'
+                ? t('response')
+                : props.mode === 'image'
+                  ? t('imageResult')
+                  : props.mode === 'video'
+                    ? t('videoResult')
+                    : t('ttsResult')}
             </label>
             {props.mode === 'image' && props.imageResults.length > 0 && (
               <span className="text-xs text-muted-foreground">
@@ -225,6 +274,8 @@ export function PlaygroundView(props: PlaygroundViewProps) {
             </div>
           ) : props.mode === 'image' ? (
             <ImageResults results={props.imageResults} emptyLabel={t('imagePlaceholder')} saveLabel={t('saveImage')} />
+          ) : props.mode === 'video' ? (
+            <VideoResultView result={props.videoResult} status={props.videoStatus} progress={props.videoProgress} />
           ) : (
             <AudioResultView result={props.audioResult} emptyLabel={t('ttsPlaceholder')} saveLabel={t('saveAudio')} />
           )}

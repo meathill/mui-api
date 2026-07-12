@@ -2,6 +2,8 @@
 
 当前没有进行中的开发任务。
 
+> Grok 异步视频生成与 Playground（issue #5，2026-07-12）已归档：新增 `grok-imagine-video` / `grok-imagine-video-1.5` 共享能力和定价、D1 `video_generation_jobs`、`WalletDO` 原子预占/续期/结算/释放、视频提交与归属轮询 API、ticks 优先且以授权金额封顶的幂等计费，以及 Playground 视频参数、单图上传、3 秒轮询、中止恢复、播放/保存和本地历史。migration `0018` 已应用本地，未应用生产。format、全仓 typecheck、app/dashboard 单测、app E2E、app/dashboard build 全绿；Dashboard Playwright 因 Chromium 1208 缺失未运行，自动下载完成后在解压阶段长时间无响应并已终止。
+
 > Grok 生图内部 Token 适配（2026-07-11）已归档：新增共享 `@muirouter/shared-db/grok-image` 配置与 `grok-imagine-image-quality`；xAI `cost_in_usd_ticks` 按 `ticks / 10,000` 换算内部 output token，缺失 ticks 时按模型、参考图数量、输出数量和分辨率兜底；Grok 生成支持数量/宽高比/1K、2K，编辑支持 JSON 单图与最多 3 张多图；Playground 已提供对应控件、Base64 编辑、真实按图价格、8 语言文案与历史恢复。`0017_update_grok_image_models.sql` 已应用本地和生产 D1，生产 KV `models:catalog` 已清除。format、typecheck、app/dashboard 单测、app E2E、app/dashboard build 全绿；Dashboard Playwright E2E 因 Chromium 未安装而未运行，尝试下载时 CDN `ECONNRESET`/超时。
 
 > GPT-5.6 首页与更新文章（2026-07-11）已归档：首页 OpenAI 卡片改为 Sol/Terra/Luna；新增博客 `gpt-5-6`（8 语言 MDX，中文改口吻后已同步其它语种 + `0016_add_gpt_5_6_post.sql` + blog-content loaders）；e2e/sitemap 同步。远程 + 本地 D1 migration `0016` 已应用。**待人工**：① 部署 dashboard 验收 `/` 与 `/blog/gpt-5-6`；② 可选 IndexNow 提交；③ 若要真走 API，再补 seed 目录。

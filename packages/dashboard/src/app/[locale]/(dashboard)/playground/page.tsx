@@ -28,23 +28,19 @@ import {
   fileToTtsVoiceDataUrl,
   getDefaultTtsVoice,
   getTtsVoiceOptions,
-  getTtsVoiceSampleMimeType,
+  getTtsInputError,
   isImageModel,
   isGrokImageModel,
   isTtsModel,
-  isTtsVoiceCloneModel,
-  isTtsVoiceDesignModel,
-  MAX_HISTORY_ITEMS,
-  MAX_TTS_VOICE_SAMPLE_BYTES,
-  parseHistory,
+  isVideoModel,
   toAudioResult,
   toImageResult,
   toTokenInfo,
 } from './playground-utils';
 import { PlaygroundView } from './playground-view';
+import { usePlaygroundStorage } from './use-playground-storage';
+import { usePlaygroundVideo } from './use-playground-video';
 
-const API_KEY_STORAGE_KEY = 'playground_api_key';
-const HISTORY_STORAGE_KEY = 'playground_history';
 const DEFAULT_TTS_VOICE = 'mimo_default';
 const DEFAULT_GROK_IMAGE_OPTIONS: GrokImageOptions = { count: 1, aspectRatio: 'auto', resolution: '1k' };
 
@@ -56,7 +52,6 @@ export default function PlaygroundPage() {
   const [chatModel, setChatModel] = useState('');
   const [imageModel, setImageModel] = useState('');
   const [ttsModel, setTtsModel] = useState('');
-  const [apiKey, setApiKey] = useState('');
   const [prompt, setPrompt] = useState('');
   const [ttsStylePrompt, setTtsStylePrompt] = useState('');
   const [ttsVoice, setTtsVoice] = useState(DEFAULT_TTS_VOICE);
@@ -68,24 +63,30 @@ export default function PlaygroundPage() {
   const [grokImageOptions, setGrokImageOptions] = useState<GrokImageOptions>(DEFAULT_GROK_IMAGE_OPTIONS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  const [history, setHistory] = useState<HistoryItem[]>([]);
   const [tokenInfo, setTokenInfo] = useState<TokenInfo | null>(null);
   const abortRef = useRef<AbortController | null>(null);
+  const storage = usePlaygroundStorage();
+  const video = usePlaygroundVideo({
+    onError: setError,
+    createHistory: storage.createHistory,
+    updateHistory: storage.updateHistory,
+  });
 
-  const chatModels = useMemo(() => models.filter((model) => !isImageModel(model) && !isTtsModel(model)), [models]);
+  const chatModels = useMemo(
+    () => models.filter((model) => !isImageModel(model) && !isVideoModel(model) && !isTtsModel(model)),
+    [models],
+  );
   const imageModels = useMemo(() => models.filter(isImageModel), [models]);
+  const videoModels = useMemo(() => models.filter(isVideoModel), [models]);
   const ttsModels = useMemo(() => models.filter(isTtsModel), [models]);
-  const selectedModel = mode === 'chat' ? chatModel : mode === 'image' ? imageModel : ttsModel;
+  const selectedModel =
+    mode === 'chat' ? chatModel : mode === 'image' ? imageModel : mode === 'video' ? video.model : ttsModel;
   const selectedImageModel = imageModels.find((model) => model.id === imageModel);
   const isSelectedGrokImage = isGrokImageModel(selectedImageModel);
-  const visibleModels = mode === 'chat' ? chatModels : mode === 'image' ? imageModels : ttsModels;
+  const visibleModels =
+    mode === 'chat' ? chatModels : mode === 'image' ? imageModels : mode === 'video' ? videoModels : ttsModels;
 
   useEffect(() => {
-    const savedKey = localStorage.getItem(API_KEY_STORAGE_KEY);
-    const savedHistory = localStorage.getItem(HISTORY_STORAGE_KEY);
-    if (savedKey) setApiKey(savedKey);
-    if (savedHistory) setHistory(parseHistory(savedHistory));
-
     async function loadModels() {
       try {
         const modelsRes = await adminApi.getModels();
@@ -101,9 +102,13 @@ export default function PlaygroundPage() {
     setModels(availableModels);
     const imageDefault =
       availableModels.find((model) => model.id === 'gpt-image-2') ?? availableModels.find(isImageModel);
-    const chatDefault = availableModels.find((model) => !isImageModel(model) && !isTtsModel(model));
+    const chatDefault = availableModels.find(
+      (model) => !isImageModel(model) && !isVideoModel(model) && !isTtsModel(model),
+    );
     const ttsDefault =
       availableModels.find((model) => model.id === 'mimo-v2.5-tts') ?? availableModels.find(isTtsModel);
+    const videoDefault =
+      availableModels.find((model) => model.id === 'grok-imagine-video') ?? availableModels.find(isVideoModel);
 
     if (chatDefault) setChatModel(chatDefault.id);
     if (imageDefault) setImageModel(imageDefault.id);
@@ -111,6 +116,7 @@ export default function PlaygroundPage() {
       setTtsModel(ttsDefault.id);
       setTtsVoice(getDefaultTtsVoice(ttsDefault.id) || DEFAULT_TTS_VOICE);
     }
+    if (videoDefault) video.setInitialModel(videoDefault.id);
   }
 
   useEffect(() => {
@@ -121,17 +127,9 @@ export default function PlaygroundPage() {
     }
   }, [ttsModel, ttsVoice]);
 
-  function handleApiKeyChange(value: string) {
-    setApiKey(value);
-    if (value) {
-      localStorage.setItem(API_KEY_STORAGE_KEY, value);
-    } else {
-      localStorage.removeItem(API_KEY_STORAGE_KEY);
-    }
-  }
-
   function handleModeChange(value: string) {
-    if (value === 'chat' || value === 'image' || value === 'tts') {
+    if (value === 'chat' || value === 'image' || value === 'video' || value === 'tts') {
+      if (mode === 'video' && value !== 'video') video.stop();
       setMode(value);
       resetOutput();
     }
@@ -140,6 +138,7 @@ export default function PlaygroundPage() {
   function handleModelChange(value: string) {
     if (mode === 'chat') setChatModel(value);
     if (mode === 'image') setImageModel(value);
+    if (mode === 'video') video.selectModel(value);
     if (mode === 'tts') setTtsModel(value);
   }
 
@@ -153,41 +152,23 @@ export default function PlaygroundPage() {
     setUploadedImages(nextFiles);
   }
 
-  function removeUpload(index: number) {
-    setUploadedImages((current) => current.filter((_, itemIndex) => itemIndex !== index));
-  }
-
   function handleRunClick() {
     if (!prompt.trim() || !selectedModel) return;
-    if (!apiKey.trim()) {
+    if (!storage.apiKey.trim()) {
       setError(t('noKeyError'));
       return;
     }
     if (mode === 'tts' && !validateTtsInput()) return;
-    if (mode === 'chat') doSendChat(apiKey.trim());
-    if (mode === 'image') doGenerateImage(apiKey.trim());
-    if (mode === 'tts') doGenerateSpeech(apiKey.trim());
+    if (mode === 'chat') doSendChat(storage.apiKey.trim());
+    if (mode === 'image') doGenerateImage(storage.apiKey.trim());
+    if (mode === 'video') void video.run(storage.apiKey.trim(), prompt);
+    if (mode === 'tts') doGenerateSpeech(storage.apiKey.trim());
   }
 
   function validateTtsInput() {
-    if (isTtsVoiceDesignModel(ttsModel) && !ttsStylePrompt.trim()) {
-      setError(t('ttsStyleRequired'));
-      return false;
-    }
-    if (!isTtsVoiceCloneModel(ttsModel)) return true;
-    if (!voiceSample) {
-      setError(t('ttsVoiceSampleRequired'));
-      return false;
-    }
-    if (voiceSample.size > MAX_TTS_VOICE_SAMPLE_BYTES) {
-      setError(t('ttsVoiceSampleTooLarge'));
-      return false;
-    }
-    if (!getTtsVoiceSampleMimeType(voiceSample)) {
-      setError(t('ttsVoiceSampleInvalid'));
-      return false;
-    }
-    return true;
+    const errorKey = getTtsInputError({ model: ttsModel, stylePrompt: ttsStylePrompt, voiceSample });
+    if (errorKey) setError(t(errorKey));
+    return errorKey === null;
   }
 
   async function doSendChat(key: string) {
@@ -205,7 +186,7 @@ export default function PlaygroundPage() {
       }
 
       const fullResponse = await readChatStream(res, { onContent: setResponse, onUsage: setTokenInfo });
-      saveHistoryItem({ mode: 'chat', model: chatModel, prompt, response: fullResponse });
+      storage.createHistory({ mode: 'chat', model: chatModel, prompt, response: fullResponse });
     } catch (e) {
       if ((e as Error).name !== 'AbortError') setError(e instanceof Error ? e.message : te('operationFailed'));
     } finally {
@@ -246,7 +227,7 @@ export default function PlaygroundPage() {
       setImageResults(results);
       const tokens = toTokenInfo(data.usage);
       if (tokens) setTokenInfo(tokens);
-      saveHistoryItem({
+      storage.createHistory({
         mode: 'image',
         model: imageModel,
         prompt,
@@ -286,7 +267,7 @@ export default function PlaygroundPage() {
       setAudioResult(result);
       const tokens = toTokenInfo(data.usage);
       if (tokens) setTokenInfo(tokens);
-      saveHistoryItem({ mode: 'tts', model: ttsModel, prompt, ttsStylePrompt, audioFilename: result.filename });
+      storage.createHistory({ mode: 'tts', model: ttsModel, prompt, ttsStylePrompt, audioFilename: result.filename });
     } catch (e) {
       if ((e as Error).name !== 'AbortError') setError(e instanceof Error ? e.message : te('operationFailed'));
     } finally {
@@ -308,6 +289,15 @@ export default function PlaygroundPage() {
     setAudioResult(null);
     setError('');
     setTokenInfo(null);
+    video.clearTask();
+  }
+
+  function handlePromptChange(value: string) {
+    if (mode === 'video') {
+      video.stop();
+      video.clearTask();
+    }
+    setPrompt(value);
   }
 
   async function setRequestError(res: Response) {
@@ -318,22 +308,12 @@ export default function PlaygroundPage() {
   }
 
   function handleStop() {
+    if (mode === 'video') {
+      video.stop();
+      return;
+    }
     abortRef.current?.abort();
     setLoading(false);
-  }
-
-  function saveHistoryItem(item: Omit<HistoryItem, 'id' | 'createdAt'>) {
-    const nextItem = { ...item, id: crypto.randomUUID(), createdAt: new Date().toISOString() };
-    setHistory((current) => {
-      const next = [nextItem, ...current].slice(0, MAX_HISTORY_ITEMS);
-      localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(next));
-      return next;
-    });
-  }
-
-  function clearHistory() {
-    setHistory([]);
-    localStorage.removeItem(HISTORY_STORAGE_KEY);
   }
 
   function restoreHistoryItem(item: HistoryItem) {
@@ -352,6 +332,9 @@ export default function PlaygroundPage() {
       setTtsModel(item.model);
       setTtsStylePrompt(item.ttsStylePrompt ?? '');
     }
+    if (item.mode === 'video') {
+      video.restore(item, storage.apiKey.trim());
+    }
   }
 
   return (
@@ -359,36 +342,44 @@ export default function PlaygroundPage() {
       mode={mode}
       visibleModels={visibleModels}
       selectedModel={selectedModel}
-      apiKey={apiKey}
+      apiKey={storage.apiKey}
       prompt={prompt}
       ttsModel={ttsModel}
+      videoModel={video.model}
       ttsStylePrompt={ttsStylePrompt}
       ttsVoice={ttsVoice}
       voiceSample={voiceSample}
       uploadedImages={uploadedImages}
       isGrokImage={isSelectedGrokImage}
       grokImageOptions={grokImageOptions}
-      loading={loading}
+      grokVideoOptions={video.options}
+      videoImage={video.image}
+      loading={mode === 'video' ? video.isLoading : loading}
       error={error}
       response={response}
       imageResults={imageResults}
       audioResult={audioResult}
+      videoResult={video.result}
+      videoStatus={video.status}
+      videoProgress={video.progress}
       tokenInfo={tokenInfo}
-      history={history}
+      history={storage.history}
       onModeChange={handleModeChange}
       onModelChange={handleModelChange}
-      onApiKeyChange={handleApiKeyChange}
-      onPromptChange={setPrompt}
+      onApiKeyChange={storage.changeApiKey}
+      onPromptChange={handlePromptChange}
       onTtsStylePromptChange={setTtsStylePrompt}
       onTtsVoiceChange={setTtsVoice}
       onVoiceSampleChange={setVoiceSample}
       onFilesChange={handleFilesChange}
-      onRemoveUpload={removeUpload}
+      onRemoveUpload={(index) => setUploadedImages((current) => current.filter((_, itemIndex) => itemIndex !== index))}
       onClearUploads={() => setUploadedImages([])}
       onGrokImageOptionsChange={setGrokImageOptions}
+      onGrokVideoOptionsChange={video.changeOptions}
+      onVideoImageChange={video.changeImage}
       onRun={handleRunClick}
       onStop={handleStop}
-      onClearHistory={clearHistory}
+      onClearHistory={storage.clearHistory}
       onRestoreHistory={restoreHistoryItem}
     />
   );

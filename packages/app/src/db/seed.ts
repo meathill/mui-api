@@ -15,6 +15,7 @@
  */
 
 import { GROK_IMAGE_MODEL_IDS } from '@muirouter/shared-db/grok-image';
+import { GROK_VIDEO_MODEL_IDS } from '@muirouter/shared-db/grok-video';
 import type { NewModel } from './schema';
 
 const NO_CACHE_NO_TIER = {
@@ -320,6 +321,15 @@ export const SEED_MODELS: NewModel[] = [
     ...NO_CACHE_NO_TIER,
   },
   ...GROK_IMAGE_MODEL_IDS.map((id) => ({
+    id,
+    provider: 'grok',
+    upstreamModelId: id,
+    inputPrice: 0,
+    outputPrice: 1,
+    markupRate: 1.05,
+    ...NO_CACHE_NO_TIER,
+  })),
+  ...GROK_VIDEO_MODEL_IDS.map((id) => ({
     id,
     provider: 'grok',
     upstreamModelId: id,

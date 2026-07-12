@@ -43,6 +43,25 @@ export const usageLogs = sqliteTable('usage_logs', {
   createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
+export const videoGenerationJobs = sqliteTable('video_generation_jobs', {
+  requestId: text('request_id').primaryKey(),
+  reservationId: text('reservation_id').notNull().unique(),
+  userId: text('user_id').notNull(),
+  apiKeyId: text('api_key_id'),
+  modelId: text('model_id').notNull(),
+  duration: integer('duration').notNull(),
+  resolution: text('resolution').notNull(),
+  estimatedCost: real('estimated_cost').notNull(),
+  markupRate: real('markup_rate').notNull(),
+  rateMultiplier: real('rate_multiplier').notNull(),
+  status: text('status').notNull().default('pending'),
+  actualCost: real('actual_cost'),
+  settledCost: real('settled_cost'),
+  billedAt: integer('billed_at', { mode: 'timestamp' }),
+  createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+  updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
+});
+
 export const rechargeLogs = sqliteTable('recharge_logs', {
   id: text('id').primaryKey(),
   userId: text('user_id').notNull(),
@@ -133,6 +152,9 @@ export type NewModel = typeof models.$inferInsert;
 
 export type UsageLog = typeof usageLogs.$inferSelect;
 export type NewUsageLog = typeof usageLogs.$inferInsert;
+
+export type VideoGenerationJob = typeof videoGenerationJobs.$inferSelect;
+export type NewVideoGenerationJob = typeof videoGenerationJobs.$inferInsert;
 
 export type RechargeLog = typeof rechargeLogs.$inferSelect;
 export type NewRechargeLog = typeof rechargeLogs.$inferInsert;

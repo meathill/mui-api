@@ -331,6 +331,7 @@ function HistoryButton({ item, onRestore }: { item: HistoryItem; onRestore: (ite
   const modeLabel: Record<PlaygroundMode, string> = {
     chat: t('chatMode'),
     image: t('imageMode'),
+    video: t('videoMode'),
     tts: t('ttsMode'),
   };
 
@@ -349,6 +350,9 @@ function HistoryButton({ item, onRestore }: { item: HistoryItem; onRestore: (ite
         {item.model}
         {item.imageCount ? ` · ${t('imageCount', { count: item.imageCount })}` : ''}
         {item.audioFilename ? ` · ${item.audioFilename}` : ''}
+        {item.videoStatus
+          ? ` · ${t(`videoStatus${item.videoStatus[0].toUpperCase()}${item.videoStatus.slice(1)}`)}`
+          : ''}
       </p>
     </button>
   );

@@ -36,4 +36,30 @@ describe('WalletDO 并发扣费', () => {
     const mirrored = await env.KV.get<{ balance: number }>(`user:${userId}`, 'json');
     expect(mirrored?.balance).toBe(expected);
   });
+
+  it('并发预占不会超出余额，同一预占并发结算只扣一次', async () => {
+    const userId = `wallet-reservation-${Date.now()}`;
+    await seedApiKey(userId, 10);
+    const stub = env.WALLET.get(env.WALLET.idFromName(userId));
+    const reserve = (reservationId: string) =>
+      stub.fetch('https://wallet/reserve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+        body: JSON.stringify({ reservationId, amount: 2, expiresAt: Date.now() + 60_000 }),
+      });
+
+    const reservations = await Promise.all(Array.from({ length: 6 }, (_, index) => reserve(`video-${index}`)));
+    expect(reservations.filter((response) => response.status === 200)).toHaveLength(5);
+    expect(reservations.filter((response) => response.status === 402)).toHaveLength(1);
+
+    const settle = () =>
+      stub.fetch('https://wallet/settle-reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+        body: JSON.stringify({ reservationId: 'video-0', amount: 2 }),
+      });
+    const settled = await Promise.all([settle(), settle()]);
+    expect(settled.every((response) => response.ok)).toBe(true);
+    expect((await env.KV.get<{ balance: number }>(`user:${userId}`, 'json'))?.balance).toBe(8);
+  });
 });

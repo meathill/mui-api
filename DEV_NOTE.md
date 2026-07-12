@@ -164,6 +164,14 @@ D1_ERROR: Network connection lost.
 
 **范围**：本轮仅接入文本对话模型（`grok-4.3`/`grok-4.5`）+ 图片生成。视频生成（`grok-imagine-video`）是异步任务模型（提交请求拿 `request_id`，轮询 `GET /v1/videos/{request_id}` 直到 `status: done`），需要一套新的任务状态追踪子系统（记录谁提交了哪个 job、避免轮询到 done 时重复扣费），与现有「单次请求单次响应」的同步代理架构不兼容，体量远超接入一个 provider 本身，拆成独立后续任务（见 GitHub issue），本轮未接入。`/providers/grok/*` 原生透传路由（`gateway-service.ts` / `routes/providers.ts` 的 `SUPPORTED_PROVIDERS`）同样未接入，仅通过 `/v1/chat/completions`、`/v1/images/generations` 两个既有端点分发，接入深度与 Gemini/MiMo 一致；如需裸透传，只需给这两个 Set 加一行。
 
+### Grok 异步视频生成（/v1/videos/generations、/v1/videos/:requestId）
+
+**任务归属与协议**：视频 generation 使用独立的 `video_generation_jobs` 表，以 xAI `request_id` 为主键，保存用户/API Key、模型参数、预占 ID、费率快照和终态结算结果。查询必须同时匹配 `request_id + user_id`，不存在和越权统一返回 404。当前只支持 generation：`grok-imagine-video` 可文生视频或单图生视频，`grok-imagine-video-1.5` 必须带单图；不代理 reference/edit/extension。
+
+**预占后结算**：视频不使用免费额度。提交前按 duration、resolution、输入图成本、模型 markup 和用户费率倍率计算最高授权金额，`WalletDO` 以 reservation ID 原子预占可用余额，但不提前扣款。`pending` 查询把预占有效期续到 24 小时；`failed/expired` 幂等释放；`done` 优先按 `usage.cost_in_usd_ticks` 计算实际费用，缺失时使用提交估算，低于预占则只扣实际值，高于预占则以授权金额封顶。
+
+**幂等边界**：钱包 reservation 记录负责并发结算去重，`usage_logs.id = video:{request_id}` 负责审计日志去重，任务表的 `billed_at` 负责快速跳过已完成结算。顺序是钱包结算、确定性 usage log、任务 billed 标记；任何一步失败都可由下次轮询安全重试。视频链接保持 xAI 临时 URL，不在本服务转存。
+
 ### AWS Bedrock 直连方案：已设计，暂时搁置
 
 **背景**：2026-07-08 曾计划把 `claude-opus-4-6`/`claude-sonnet-4-6`/`claude-haiku-4-5`（"4.6 及之前"）直连 AWS Bedrock（账号已获这几个模型的访问权限），更高级的模型（`opus-4-7`/`opus-4-8`/`sonnet-5`）切 CF AI Gateway BYOK。调研到细节：AWS Bedrock 不支持 Claude 的 OpenAI Chat Completions 协议（只能走 Messages/Invoke/Converse）；`claude-haiku-4-5` 能走新的 `bedrock-mantle` 端点（纯 Bearer token 鉴权，`POST https://bedrock-mantle.{region}.api.aws/anthropic/v1/messages`）；`claude-opus-4-6`/`claude-sonnet-4-6` 只能走老的 `bedrock-runtime`（`POST .../model/{us.anthropic.claude-...}/invoke`，模型 ID 需要 `us.` cross-region 前缀，鉴权是纯 Bearer 还是要上 AWS SigV4 未有定论，流式响应是 AWS 专有二进制 eventstream 格式，非 SSE）。

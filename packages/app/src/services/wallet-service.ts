@@ -1,4 +1,5 @@
 import type { CloudflareBindings, KVUserData, KVUserMetadata } from '../types';
+import type { WalletReservation } from '../durable-objects/wallet';
 
 export interface WalletRecord {
   data: KVUserData;
@@ -10,6 +11,18 @@ interface WalletResponse {
   error?: string;
   data?: KVUserData;
   metadata?: KVUserMetadata;
+  reservation?: WalletReservation;
+}
+
+export class WalletServiceError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly code: string,
+  ) {
+    super(message);
+    this.name = 'WalletServiceError';
+  }
 }
 
 /**
@@ -32,6 +45,22 @@ export class WalletService {
 
   async consumeFreeQuota(userId: string, amount: number): Promise<WalletRecord> {
     return this.request(userId, '/consume-free-quota', { amount });
+  }
+
+  async reserve(userId: string, reservationId: string, amount: number, expiresAt: number): Promise<WalletReservation> {
+    return this.requestReservation(userId, '/reserve', { reservationId, amount, expiresAt });
+  }
+
+  async refreshReservation(userId: string, reservationId: string, expiresAt: number): Promise<WalletReservation> {
+    return this.requestReservation(userId, '/refresh-reservation', { reservationId, expiresAt });
+  }
+
+  async settleReservation(userId: string, reservationId: string, amount: number): Promise<WalletReservation> {
+    return this.requestReservation(userId, '/settle-reservation', { reservationId, amount });
+  }
+
+  async releaseReservation(userId: string, reservationId: string): Promise<WalletReservation> {
+    return this.requestReservation(userId, '/release-reservation', { reservationId });
   }
 
   async suspend(userId: string): Promise<WalletRecord> {
@@ -62,6 +91,21 @@ export class WalletService {
       throw new Error(`钱包服务调用失败 (${response.status}): ${result.error ?? 'unknown_error'}`);
     }
     return { data: result.data, metadata: result.metadata };
+  }
+
+  private async requestReservation(userId: string, path: string, payload: unknown): Promise<WalletReservation> {
+    const stub = this.getStub(userId);
+    const response = await stub.fetch(`https://wallet${path}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+      body: JSON.stringify(payload),
+    });
+    const result = (await response.json()) as WalletResponse;
+    if (!response.ok || !result.ok || !result.reservation) {
+      const code = result.error ?? 'unknown_error';
+      throw new WalletServiceError(`钱包预占服务调用失败 (${response.status}): ${code}`, response.status, code);
+    }
+    return result.reservation;
   }
 
   private getStub(userId: string): DurableObjectStub {

@@ -43,6 +43,19 @@ function createMockStorage() {
         store.set(key, item);
       }
     },
+    async list<T>(options?: { prefix?: string }): Promise<Map<string, T>> {
+      return new Map(
+        Array.from(store.entries()).filter(([key]) => !options?.prefix || key.startsWith(options.prefix)),
+      ) as Map<string, T>;
+    },
+    async delete(keys: string | string[]): Promise<boolean | number> {
+      if (Array.isArray(keys)) {
+        let count = 0;
+        for (const key of keys) count += store.delete(key) ? 1 : 0;
+        return count;
+      }
+      return store.delete(keys);
+    },
     store,
   };
 }
@@ -86,6 +99,12 @@ interface WalletResult {
   error?: string;
   data?: { balance: number; concurrency: number; freeQuotaUsed?: number; isSuspended?: boolean };
   metadata?: { maxConcurrency?: number; rateMultiplier?: number; email: string; createdAt: string };
+  reservation?: {
+    reservationId: string;
+    amount: number;
+    status: 'reserved' | 'settled' | 'released';
+    settledAmount?: number;
+  };
 }
 
 describe('WalletDO', () => {
@@ -207,5 +226,64 @@ describe('WalletDO', () => {
 
     const mirrored = JSON.parse(kv.store.get('user:user-1')!.value);
     expect(mirrored.balance).toBe(6);
+  });
+
+  it('预占会扣减可用余额，但只在结算时修改实际余额', async () => {
+    const { durableObject, kv } = createDurableObject();
+    await seedKvUser(kv, 'user-1', 10);
+
+    const first = await postJson<WalletResult>(durableObject, '/reserve', 'user-1', {
+      reservationId: 'video-1',
+      amount: 6,
+      expiresAt: Date.now() + 60_000,
+    });
+    expect(first.reservation?.status).toBe('reserved');
+    expect(JSON.parse(kv.store.get('user:user-1')!.value).balance).toBe(10);
+
+    const deniedResponse = await durableObject.fetch(
+      new Request('https://wallet/reserve', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': 'user-1' },
+        body: JSON.stringify({ reservationId: 'video-2', amount: 5, expiresAt: Date.now() + 60_000 }),
+      }),
+    );
+    expect(deniedResponse.status).toBe(402);
+
+    const settled = await postJson<WalletResult>(durableObject, '/settle-reservation', 'user-1', {
+      reservationId: 'video-1',
+      amount: 4,
+    });
+    expect(settled.reservation?.settledAmount).toBe(4);
+    expect(settled.data?.balance).toBe(6);
+
+    const repeated = await postJson<WalletResult>(durableObject, '/settle-reservation', 'user-1', {
+      reservationId: 'video-1',
+      amount: 6,
+    });
+    expect(repeated.data?.balance).toBe(6);
+  });
+
+  it('释放预占幂等，释放后额度可再次预占', async () => {
+    const { durableObject, kv } = createDurableObject();
+    await seedKvUser(kv, 'user-1', 5);
+    await postJson<WalletResult>(durableObject, '/reserve', 'user-1', {
+      reservationId: 'video-1',
+      amount: 5,
+      expiresAt: Date.now() + 60_000,
+    });
+    const released = await postJson<WalletResult>(durableObject, '/release-reservation', 'user-1', {
+      reservationId: 'video-1',
+    });
+    expect(released.reservation?.status).toBe('released');
+    const repeated = await postJson<WalletResult>(durableObject, '/release-reservation', 'user-1', {
+      reservationId: 'video-1',
+    });
+    expect(repeated.reservation?.status).toBe('released');
+    const next = await postJson<WalletResult>(durableObject, '/reserve', 'user-1', {
+      reservationId: 'video-2',
+      amount: 5,
+      expiresAt: Date.now() + 60_000,
+    });
+    expect(next.reservation?.status).toBe('reserved');
   });
 });

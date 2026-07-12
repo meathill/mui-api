@@ -7,6 +7,7 @@ import {
   stripeTopupSessions,
   usageLogs,
   usageStats,
+  videoGenerationJobs,
   users,
   wallets,
 } from './schema';
@@ -95,6 +96,24 @@ describe('Database Schema', () => {
       expect(columnNames).toContain('requestCount');
       expect(columnNames).toContain('createdAt');
       expect(columnNames).toContain('updatedAt');
+    });
+  });
+
+  describe('videoGenerationJobs table', () => {
+    it('包含归属、预占和结算审计字段', () => {
+      expect(getTableName(videoGenerationJobs)).toBe('video_generation_jobs');
+      expect(Object.keys(videoGenerationJobs)).toEqual(
+        expect.arrayContaining([
+          'requestId',
+          'reservationId',
+          'userId',
+          'apiKeyId',
+          'estimatedCost',
+          'actualCost',
+          'settledCost',
+          'billedAt',
+        ]),
+      );
     });
   });
 

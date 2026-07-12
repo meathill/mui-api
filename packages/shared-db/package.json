@@ -15,6 +15,7 @@
     "./business": "./src/business-schema.ts",
     "./types": "./src/types.ts",
     "./grok-image": "./src/grok-image.ts",
+    "./grok-video": "./src/grok-video.ts",
     "./money": "./src/money.ts",
     "./crypto": "./src/crypto.ts",
     "./d1-retry": "./src/d1-retry.ts"

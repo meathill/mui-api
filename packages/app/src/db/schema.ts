@@ -11,6 +11,7 @@ import {
   type NewStripeTopupSession,
   type NewUsageLog,
   type NewUsageStat,
+  type NewVideoGenerationJob,
   type NewWallet,
   type OauthClient,
   type OauthCode,
@@ -28,6 +29,8 @@ import {
   type UsageStat,
   usageLogs,
   usageStats,
+  type VideoGenerationJob,
+  videoGenerationJobs,
   type Wallet,
   wallets,
 } from '@muirouter/shared-db/business';
@@ -45,6 +48,7 @@ export {
   stripeTopupSessions,
   usageLogs,
   usageStats,
+  videoGenerationJobs,
   wallets,
 };
 
@@ -59,6 +63,7 @@ export type {
   NewStripeTopupSession,
   NewUsageLog,
   NewUsageStat,
+  NewVideoGenerationJob,
   NewWallet,
   OauthClient,
   OauthCode,
@@ -68,6 +73,7 @@ export type {
   StripeTopupSession,
   UsageLog,
   UsageStat,
+  VideoGenerationJob,
   User,
   NewUser,
   Wallet,

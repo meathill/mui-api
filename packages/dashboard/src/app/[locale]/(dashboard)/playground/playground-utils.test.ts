@@ -8,10 +8,12 @@ import {
   getModelCapabilityTagKeys,
   getModelPrice,
   getTtsVoiceSampleMimeType,
+  getTtsInputError,
   groupModelsByProvider,
   isImageModel,
   isGrokImageModel,
   isTtsModel,
+  isVideoModel,
   toAudioResult,
   toTokenInfo,
 } from './playground-utils';
@@ -42,8 +44,17 @@ describe('playground TTS helpers', () => {
     expect(models.some((model) => model.id === 'gpt-image-2')).toBe(true);
     expect(models.some((model) => model.id === 'grok-imagine-image')).toBe(true);
     expect(models.some((model) => model.id === 'grok-imagine-image-quality')).toBe(true);
+    expect(models.some((model) => model.id === 'grok-imagine-video')).toBe(true);
+    expect(models.some((model) => model.id === 'grok-imagine-video-1.5')).toBe(true);
     expect(models.some((model) => model.id === 'mimo-v2.5-tts-voiceclone')).toBe(true);
     expect(models.some((model) => model.id === 'mimo-v2.5-tts-voicedesign')).toBe(true);
+  });
+
+  it('识别视频模型且不会归入图片或 TTS', () => {
+    const model = createModel('grok-imagine-video');
+    expect(isVideoModel(model)).toBe(true);
+    expect(isImageModel(model)).toBe(false);
+    expect(isTtsModel(model)).toBe(false);
   });
 
   it('识别 TTS 模型且不会把 TTS 归入图片模型', () => {
@@ -119,6 +130,16 @@ describe('playground TTS helpers', () => {
     expect(getTtsVoiceSampleMimeType(new File(['x'], 'voice.wav', { type: 'audio/x-wav' }))).toBe('audio/wav');
     expect(getTtsVoiceSampleMimeType(new File(['x'], 'voice.mp3', { type: 'audio/mp3' }))).toBe('audio/mpeg');
     expect(getTtsVoiceSampleMimeType(new File(['x'], 'voice.ogg', { type: 'audio/ogg' }))).toBeNull();
+  });
+
+  it('统一返回 TTS 输入校验错误', () => {
+    expect(getTtsInputError({ model: 'mimo-v2.5-tts-voicedesign', stylePrompt: '', voiceSample: null })).toBe(
+      'ttsStyleRequired',
+    );
+    expect(getTtsInputError({ model: 'mimo-v2.5-tts-voiceclone', stylePrompt: '', voiceSample: null })).toBe(
+      'ttsVoiceSampleRequired',
+    );
+    expect(getTtsInputError({ model: 'mimo-v2.5-tts', stylePrompt: '', voiceSample: null })).toBeNull();
   });
 });
 

@@ -1,11 +1,25 @@
 import type { GrokImageAspectRatio, GrokImageResolution } from '@muirouter/shared-db/grok-image';
+import type { GrokVideoAspectRatio, GrokVideoResolution } from '@muirouter/shared-db/grok-video';
 
-export type PlaygroundMode = 'chat' | 'image' | 'tts';
+export type PlaygroundMode = 'chat' | 'image' | 'video' | 'tts';
 
 export type GrokImageOptions = {
   count: number;
   aspectRatio: GrokImageAspectRatio;
   resolution: GrokImageResolution;
+};
+
+export type GrokVideoOptions = {
+  duration: number;
+  aspectRatio: GrokVideoAspectRatio;
+  resolution: GrokVideoResolution;
+};
+
+export type VideoStatus = 'idle' | 'pending' | 'done' | 'failed' | 'expired';
+
+export type VideoResult = {
+  url: string;
+  duration?: number;
 };
 
 export type HistoryItem = {
@@ -19,6 +33,17 @@ export type HistoryItem = {
   grokImageOptions?: GrokImageOptions;
   ttsStylePrompt?: string;
   audioFilename?: string;
+  videoRequestId?: string;
+  videoStatus?: Exclude<VideoStatus, 'idle'>;
+  videoUrl?: string;
+  videoOptions?: GrokVideoOptions;
+};
+
+export type VideoApiResponse = {
+  request_id?: string;
+  status?: Exclude<VideoStatus, 'idle'>;
+  progress?: number;
+  video?: { url?: string; duration?: number };
 };
 
 export type ImageResult = {

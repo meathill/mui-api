@@ -3,6 +3,7 @@ import type { CloudflareBindings, KVUserData, KVUserMetadata } from '../types';
 const USER_ID_KEY = 'meta:userId';
 const DATA_KEY = 'data';
 const METADATA_KEY = 'metadata';
+const RESERVATION_PREFIX = 'reservation:';
 
 interface CreateRequest {
   email: string;
@@ -13,6 +14,20 @@ interface AmountRequest {
   amount: number;
 }
 
+interface ReservationRequest {
+  reservationId: string;
+  amount?: number;
+  expiresAt?: number;
+}
+
+export interface WalletReservation {
+  reservationId: string;
+  amount: number;
+  status: 'reserved' | 'settled' | 'released';
+  expiresAt: number;
+  settledAmount?: number;
+}
+
 type SetMetadataRequest = Pick<KVUserMetadata, 'maxConcurrency' | 'rateMultiplier' | 'stripeCustomerId'>;
 
 interface WalletResponse {
@@ -20,6 +35,7 @@ interface WalletResponse {
   error?: string;
   data?: KVUserData;
   metadata?: KVUserMetadata;
+  reservation?: WalletReservation;
 }
 
 const notFound: WalletResponse = { ok: false, error: 'user_not_found' };
@@ -63,6 +79,14 @@ export class WalletDO {
         return this.handleAdd(userId, request);
       case '/consume-free-quota':
         return this.handleConsumeFreeQuota(userId, request);
+      case '/reserve':
+        return this.handleReserve(request);
+      case '/refresh-reservation':
+        return this.handleRefreshReservation(request);
+      case '/settle-reservation':
+        return this.handleSettleReservation(userId, request);
+      case '/release-reservation':
+        return this.handleReleaseReservation(request);
       case '/suspend':
         return this.handleSetSuspended(userId, true);
       case '/unsuspend':
@@ -122,6 +146,125 @@ export class WalletDO {
       return Response.json(notFound, { status: 404 });
     }
     return Response.json({ ok: true, ...result } satisfies WalletResponse);
+  }
+
+  private async handleReserve(request: Request): Promise<Response> {
+    const { reservationId, amount, expiresAt } = (await request.json()) as ReservationRequest;
+    if (!reservationId || !Number.isFinite(amount) || !Number.isFinite(expiresAt) || amount! <= 0) {
+      return Response.json({ ok: false, error: 'invalid_reservation' } satisfies WalletResponse, { status: 400 });
+    }
+
+    const result = await this.ctx.blockConcurrencyWhile(async () => {
+      const key = `${RESERVATION_PREFIX}${reservationId}`;
+      const existing = await this.ctx.storage.get<WalletReservation>(key);
+      if (existing) return { reservation: existing };
+
+      const data = await this.ctx.storage.get<KVUserData>(DATA_KEY);
+      if (!data) return { error: 'user_not_found' as const };
+
+      const now = Date.now();
+      const reservations = await this.ctx.storage.list<WalletReservation>({ prefix: RESERVATION_PREFIX });
+      let activeTotal = 0;
+      const expiredKeys: string[] = [];
+      for (const [reservationKey, reservation] of reservations) {
+        if (reservation.expiresAt <= now) {
+          expiredKeys.push(reservationKey);
+        } else if (reservation.status === 'reserved') {
+          activeTotal += reservation.amount;
+        }
+      }
+      if (expiredKeys.length > 0) await this.ctx.storage.delete(expiredKeys);
+
+      if (data.balance - activeTotal + Number.EPSILON < amount!) {
+        return { error: 'insufficient_balance' as const };
+      }
+
+      const reservation: WalletReservation = {
+        reservationId,
+        amount: amount!,
+        expiresAt: expiresAt!,
+        status: 'reserved',
+      };
+      await this.ctx.storage.put(key, reservation);
+      return { reservation };
+    });
+
+    if ('error' in result) {
+      return Response.json({ ok: false, error: result.error } satisfies WalletResponse, {
+        status: result.error === 'insufficient_balance' ? 402 : 404,
+      });
+    }
+    return Response.json({ ok: true, reservation: result.reservation } satisfies WalletResponse);
+  }
+
+  private async handleRefreshReservation(request: Request): Promise<Response> {
+    const { reservationId, expiresAt } = (await request.json()) as ReservationRequest;
+    if (!reservationId || !Number.isFinite(expiresAt)) {
+      return Response.json({ ok: false, error: 'invalid_reservation' } satisfies WalletResponse, { status: 400 });
+    }
+    const reservation = await this.ctx.blockConcurrencyWhile(async () => {
+      const key = `${RESERVATION_PREFIX}${reservationId}`;
+      const current = await this.ctx.storage.get<WalletReservation>(key);
+      if (!current) return null;
+      if (current.status === 'reserved') {
+        current.expiresAt = expiresAt!;
+        await this.ctx.storage.put(key, current);
+      }
+      return current;
+    });
+    if (!reservation) return Response.json({ ok: false, error: 'reservation_not_found' }, { status: 404 });
+    return Response.json({ ok: true, reservation } satisfies WalletResponse);
+  }
+
+  private async handleSettleReservation(userId: string, request: Request): Promise<Response> {
+    const { reservationId, amount } = (await request.json()) as ReservationRequest;
+    if (!reservationId || !Number.isFinite(amount) || amount! < 0) {
+      return Response.json({ ok: false, error: 'invalid_reservation' } satisfies WalletResponse, { status: 400 });
+    }
+
+    const result = await this.ctx.blockConcurrencyWhile(async () => {
+      const key = `${RESERVATION_PREFIX}${reservationId}`;
+      const reservation = await this.ctx.storage.get<WalletReservation>(key);
+      const data = await this.ctx.storage.get<KVUserData>(DATA_KEY);
+      const metadata = await this.ctx.storage.get<KVUserMetadata>(METADATA_KEY);
+      if (!reservation || !data || !metadata) return null;
+      if (reservation.status === 'settled' || reservation.status === 'released') {
+        return { reservation, data, metadata };
+      }
+      const settledAmount = Math.min(amount!, reservation.amount);
+      data.balance = Math.max(0, data.balance - settledAmount);
+      reservation.status = 'settled';
+      reservation.settledAmount = settledAmount;
+      await this.ctx.storage.put({ [DATA_KEY]: data, [key]: reservation });
+      return { reservation, data, metadata };
+    });
+    if (!result) return Response.json({ ok: false, error: 'reservation_not_found' }, { status: 404 });
+    await this.env.KV.put(`user:${userId}`, JSON.stringify(result.data), { metadata: result.metadata });
+    return Response.json({ ok: true, ...result } satisfies WalletResponse);
+  }
+
+  private async handleReleaseReservation(request: Request): Promise<Response> {
+    const { reservationId } = (await request.json()) as ReservationRequest;
+    if (!reservationId) {
+      return Response.json({ ok: false, error: 'invalid_reservation' } satisfies WalletResponse, { status: 400 });
+    }
+    const reservation = await this.ctx.blockConcurrencyWhile(async () => {
+      const key = `${RESERVATION_PREFIX}${reservationId}`;
+      const current = await this.ctx.storage.get<WalletReservation>(key);
+      if (!current) return null;
+      if (current.status === 'reserved') {
+        current.status = 'released';
+        await this.ctx.storage.put(key, current);
+      }
+      return current;
+    });
+    if (!reservation) {
+      return Response.json({
+        ok: true,
+        reservation: { reservationId, amount: 0, expiresAt: 0, status: 'released' },
+      } satisfies WalletResponse);
+    }
+    return Response.json({ ok: true, reservation } satisfies WalletResponse);
   }
 
   private async handleSetSuspended(userId: string, isSuspended: boolean): Promise<Response> {

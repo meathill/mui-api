@@ -1,4 +1,11 @@
-import type { GrokImageOptions, TokenInfo, TokenUsagePayload, TtsRequestBody } from './playground-types';
+import type {
+  GrokImageOptions,
+  GrokVideoOptions,
+  TokenInfo,
+  TokenUsagePayload,
+  TtsRequestBody,
+  VideoApiResponse,
+} from './playground-types';
 import { getApiBase, toTokenInfo } from './playground-utils';
 
 /**
@@ -114,6 +121,76 @@ export async function fileToDataUrl(file: File): Promise<string> {
     binary += String.fromCharCode(...bytes.subarray(index, index + 0x8000));
   }
   return `data:${file.type || 'application/octet-stream'};base64,${btoa(binary)}`;
+}
+
+export async function sendVideoGenerationRequest(params: {
+  apiKey: string;
+  model: string;
+  prompt: string;
+  image?: File | null;
+  options: GrokVideoOptions;
+  signal: AbortSignal;
+}) {
+  const imageUrl = params.image ? await fileToDataUrl(params.image) : undefined;
+  return fetch(`${getApiBase()}/v1/videos/generations`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${params.apiKey}`,
+    },
+    body: JSON.stringify({
+      model: params.model,
+      prompt: params.prompt,
+      duration: params.options.duration,
+      aspect_ratio: params.options.aspectRatio,
+      resolution: params.options.resolution,
+      ...(imageUrl ? { image: { url: imageUrl } } : {}),
+    }),
+    signal: params.signal,
+  });
+}
+
+export function getVideoGenerationRequest(params: { apiKey: string; requestId: string; signal: AbortSignal }) {
+  return fetch(`${getApiBase()}/v1/videos/${encodeURIComponent(params.requestId)}`, {
+    headers: { Authorization: `Bearer ${params.apiKey}` },
+    signal: params.signal,
+  });
+}
+
+export async function pollVideoGeneration(params: {
+  apiKey: string;
+  requestId: string;
+  signal: AbortSignal;
+  intervalMs?: number;
+  onUpdate: (data: VideoApiResponse) => void;
+}): Promise<VideoApiResponse> {
+  while (true) {
+    const response = await getVideoGenerationRequest(params);
+    if (!response.ok) throw new Error(await readApiError(response));
+    const data = (await response.json()) as VideoApiResponse;
+    params.onUpdate(data);
+    if (data.status !== 'pending') return data;
+    await waitForPoll(params.intervalMs ?? 3_000, params.signal);
+  }
+}
+
+async function readApiError(response: Response): Promise<string> {
+  const data = (await response.json().catch(() => null)) as { error?: { message?: string } } | null;
+  return data?.error?.message ?? `Request failed (${response.status})`;
+}
+
+function waitForPoll(delayMs: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const timeoutId = setTimeout(resolve, delayMs);
+    signal.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timeoutId);
+        reject(new DOMException('Aborted', 'AbortError'));
+      },
+      { once: true },
+    );
+  });
 }
 
 export function sendChatRequest(params: { apiKey: string; model: string; prompt: string; signal: AbortSignal }) {
