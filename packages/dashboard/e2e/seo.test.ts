@@ -42,13 +42,17 @@ test.describe('SEO', () => {
 
     test('包含 JSON-LD 结构化数据', async ({ page }) => {
       const jsonLd = page.locator('script[type="application/ld+json"]');
-      await expect(jsonLd).toBeAttached();
-      const content = await jsonLd.textContent();
-      const data = JSON.parse(content!);
-      expect(data['@context']).toBe('https://schema.org');
-      expect(data['@graph']).toBeInstanceOf(Array);
-      expect(data['@graph'].some((item: { '@type': string }) => item['@type'] === 'Organization')).toBe(true);
-      expect(data['@graph'].some((item: { '@type': string }) => item['@type'] === 'WebApplication')).toBe(true);
+      await expect(jsonLd.first()).toBeAttached();
+      const structuredData = (await jsonLd.allTextContents()).map(
+        (content) => JSON.parse(content) as { '@context'?: string; '@graph'?: Array<{ '@type'?: string }> },
+      );
+      const data = structuredData.find((item) => Array.isArray(item['@graph']));
+
+      expect(data).toBeDefined();
+      expect(data?.['@context']).toBe('https://schema.org');
+      expect(data?.['@graph']).toBeInstanceOf(Array);
+      expect(data?.['@graph']?.some((item) => item['@type'] === 'Organization')).toBe(true);
+      expect(data?.['@graph']?.some((item) => item['@type'] === 'WebApplication')).toBe(true);
     });
   });
 
@@ -97,13 +101,13 @@ test.describe('SEO', () => {
   test.describe('子页面 meta', () => {
     test('登录页有独立 title', async ({ page }) => {
       await page.goto('/login');
-      await expect(page).toHaveTitle(new RegExp(defaultMessages.header.login));
+      await expect(page).toHaveTitle(new RegExp(defaultMessages.login.title));
       await expect(page).toHaveTitle(/MuiRouter/);
     });
 
     test('注册页有独立 title', async ({ page }) => {
       await page.goto('/register');
-      await expect(page).toHaveTitle(new RegExp(defaultMessages.header.register));
+      await expect(page).toHaveTitle(new RegExp(defaultMessages.register.title));
       await expect(page).toHaveTitle(/MuiRouter/);
     });
 

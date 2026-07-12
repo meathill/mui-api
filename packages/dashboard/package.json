@@ -10,6 +10,7 @@
     "preview": "opennextjs-cloudflare build && opennextjs-cloudflare preview",
     "cf-typegen": "wrangler types --env-interface CloudflareEnv ./cloudflare-env.d.ts",
     "test": "vitest run",
+    "test:e2e:prepare": "node scripts/prepare-e2e.ts",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
     "submit:indexnow": "node scripts/submit-indexnow.ts"

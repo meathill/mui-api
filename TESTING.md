@@ -50,8 +50,11 @@ pnpm --dir packages/dashboard run build
 - 运行 dashboard E2E 前，先执行：
 
 ```bash
-pnpm --dir packages/shared-db run db:migrate:local
+pnpm --dir packages/dashboard run test:e2e:prepare
+pnpm --dir packages/dashboard run test:e2e
 ```
+
+`test:e2e:prepare` 会在 `.wrangler/e2e-state` 的隔离 D1 中应用 migration，再写入 dashboard E2E 专用的最小模型 fixture，避免污染日常本地数据或依赖生产模型目录。
 
 ## 推荐顺序
 
@@ -88,9 +91,9 @@ pnpm --dir packages/dashboard run build
 - `pnpm biome check --formatter-enabled=true --linter-enabled=false --assist-enabled=false`
 - `pnpm --filter mui-api run test`
 - `pnpm --filter mui-api run test:e2e`
-- `pnpm --filter dashboard exec playwright install chromium --with-deps`
-- `pnpm --dir packages/shared-db run db:migrate:local`
-- `pnpm --filter dashboard run test:e2e`
+- `pnpm --filter mui-api-dashboard exec playwright install chromium --with-deps`
+- `pnpm --filter mui-api-dashboard run test:e2e:prepare`
+- `pnpm --filter mui-api-dashboard run test:e2e`
 
 本地维护时，建议额外执行 `pnpm run typecheck`，因为它目前不在 CI 中单独覆盖。
 

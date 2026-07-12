@@ -7,6 +7,12 @@ test.describe('营销页面', () => {
   const blogLink = { name: defaultMessages.header.blog, exact: true } as const;
   const pricingLink = { name: defaultMessages.header.pricing, exact: true } as const;
 
+  test.beforeEach(async ({ page }) => {
+    await page.route('**/api/user', async (route) => {
+      await route.fulfill({ status: 401, contentType: 'application/json', body: '{"error":"Unauthorized"}' });
+    });
+  });
+
   test('首页可访问且包含标题', async ({ page }) => {
     await page.goto('/');
     const title = page.locator('h1');
@@ -96,8 +102,8 @@ test.describe('营销页面', () => {
     await expect(page.getByRole('heading', { level: 1, name: defaultMessages.pricing.title })).toBeVisible();
     await expect(page.getByText('OpenAI').first()).toBeVisible();
     await expect(page.getByText('Gemini').first()).toBeVisible();
-    await expect(page.getByRole('cell', { name: 'GPT-5.4', exact: true }).first()).toBeVisible();
-    await expect(page.getByRole('cell', { name: 'gemini-3.1-pro-preview', exact: true }).first()).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'e2e-openai-chat', exact: true }).first()).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'e2e-gemini-chat', exact: true }).first()).toBeVisible();
   });
 
   test('博客列表展示 GPT-5.6 文章并可进入详情', async ({ page }) => {
