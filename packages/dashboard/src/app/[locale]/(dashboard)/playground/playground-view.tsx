@@ -43,6 +43,8 @@ type PlaygroundViewProps = {
   ttsVoice: string;
   voiceSample: File | null;
   uploadedImages: File[];
+  chatImages: File[];
+  isKimiK3: boolean;
   isGrokImage: boolean;
   grokImageOptions: GrokImageOptions;
   videoModel: string;
@@ -51,6 +53,7 @@ type PlaygroundViewProps = {
   loading: boolean;
   error: string;
   response: string;
+  reasoning: string;
   imageResults: ImageResult[];
   audioResult: AudioResult | null;
   videoResult: VideoResult | null;
@@ -66,6 +69,9 @@ type PlaygroundViewProps = {
   onTtsVoiceChange: (value: string) => void;
   onVoiceSampleChange: (file: File | null) => void;
   onFilesChange: (files: FileList | null) => void;
+  onChatFilesChange: (files: FileList | null) => void;
+  onRemoveChatUpload: (index: number) => void;
+  onClearChatUploads: () => void;
   onRemoveUpload: (index: number) => void;
   onClearUploads: () => void;
   onGrokImageOptionsChange: (options: GrokImageOptions) => void;
@@ -136,13 +142,23 @@ export function PlaygroundView(props: PlaygroundViewProps) {
             </div>
 
             <Tabs value={props.mode} onValueChange={props.onModeChange}>
-              <TabsPanel value="chat">
+              <TabsPanel value="chat" className="space-y-4">
                 <PromptField
                   value={props.prompt}
                   onChange={props.onPromptChange}
                   label={t('prompt')}
                   placeholder={t('promptPlaceholder')}
                 />
+                {props.isKimiK3 && (
+                  <ImageUpload
+                    files={props.chatImages}
+                    onChange={props.onChatFilesChange}
+                    onRemove={props.onRemoveChatUpload}
+                    accept="image/png,image/jpeg,image/webp,image/gif"
+                    titleKey="kimiUploadImages"
+                    hintKey="kimiUploadHint"
+                  />
+                )}
               </TabsPanel>
               <TabsPanel value="image" className="space-y-4">
                 <PromptField
@@ -237,6 +253,12 @@ export function PlaygroundView(props: PlaygroundViewProps) {
                   {t('clearUploads')}
                 </Button>
               )}
+              {props.mode === 'chat' && props.chatImages.length > 0 && (
+                <Button variant="outline" onClick={props.onClearChatUploads}>
+                  <XIcon />
+                  {t('clearUploads')}
+                </Button>
+              )}
             </div>
           </div>
         </Card>
@@ -269,8 +291,18 @@ export function PlaygroundView(props: PlaygroundViewProps) {
           {props.error && <p className="mb-3 text-sm text-destructive">{props.error}</p>}
 
           {props.mode === 'chat' ? (
-            <div className="min-h-72 rounded-lg bg-muted p-3 font-mono text-sm whitespace-pre-wrap">
-              {props.response || <span className="text-muted-foreground">{t('responsePlaceholder')}</span>}
+            <div className="space-y-3">
+              {props.reasoning && (
+                <details open={props.loading} className="rounded-lg border border-border bg-muted/40">
+                  <summary className="cursor-pointer px-3 py-2 text-sm font-medium">{t('reasoning')}</summary>
+                  <div className="max-h-72 overflow-y-auto border-t border-border p-3 font-mono text-xs whitespace-pre-wrap text-muted-foreground">
+                    {props.reasoning}
+                  </div>
+                </details>
+              )}
+              <div className="min-h-72 rounded-lg bg-muted p-3 font-mono text-sm whitespace-pre-wrap">
+                {props.response || <span className="text-muted-foreground">{t('responsePlaceholder')}</span>}
+              </div>
             </div>
           ) : props.mode === 'image' ? (
             <ImageResults results={props.imageResults} emptyLabel={t('imagePlaceholder')} saveLabel={t('saveImage')} />
@@ -283,6 +315,9 @@ export function PlaygroundView(props: PlaygroundViewProps) {
           {props.tokenInfo && (
             <div className="mt-3 flex gap-4 text-xs text-muted-foreground">
               <span>{t('inputTokens', { count: props.tokenInfo.inputTokens })}</span>
+              {props.tokenInfo.cachedInputTokens > 0 && (
+                <span>{t('cachedInputTokens', { count: props.tokenInfo.cachedInputTokens })}</span>
+              )}
               <span>{t('outputTokens', { count: props.tokenInfo.outputTokens })}</span>
             </div>
           )}

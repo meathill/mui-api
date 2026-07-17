@@ -25,10 +25,12 @@ test.describe('营销页面', () => {
 
     await expect(page.getByText('Workers AI', { exact: true })).toBeVisible();
     await expect(page.getByText('Xiaomi MiMo', { exact: true })).toBeVisible();
+    await expect(page.getByText('Moonshot AI', { exact: true })).toBeVisible();
     await expect(page.getByText('GPT-5.6 Sol', { exact: true })).toBeVisible();
     await expect(page.getByText('Grok 4.5', { exact: true })).toBeVisible();
     await expect(page.getByText('GLM-4.7 Flash', { exact: true })).toBeVisible();
     await expect(page.getByText('MiMo TTS', { exact: true })).toBeVisible();
+    await expect(page.getByText('Kimi K3 · 1M Context', { exact: true })).toBeVisible();
   });
 
   test('首页 Header 按指定顺序展示入口', async ({ page }) => {
@@ -97,13 +99,15 @@ test.describe('营销页面', () => {
     await expect(page).toHaveURL('/pricing');
   });
 
-  test('价格页展示 OpenAI 和 Gemini 的主要价格', async ({ page }) => {
+  test('价格页展示 OpenAI、Gemini 和 Moonshot 的主要价格', async ({ page }) => {
     await page.goto('/pricing');
     await expect(page.getByRole('heading', { level: 1, name: defaultMessages.pricing.title })).toBeVisible();
     await expect(page.getByText('OpenAI').first()).toBeVisible();
     await expect(page.getByText('Gemini').first()).toBeVisible();
+    await expect(page.getByText('Moonshot AI').first()).toBeVisible();
     await expect(page.getByRole('cell', { name: 'e2e-openai-chat', exact: true }).first()).toBeVisible();
     await expect(page.getByRole('cell', { name: 'e2e-gemini-chat', exact: true }).first()).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'kimi-k3', exact: true }).first()).toBeVisible();
   });
 
   test('博客列表展示 GPT-5.6 文章并可进入详情', async ({ page }) => {

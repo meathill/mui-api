@@ -44,10 +44,16 @@ export function ImageUpload({
   files,
   onChange,
   onRemove,
+  accept = 'image/png,image/jpeg,image/webp',
+  titleKey = 'uploadImages',
+  hintKey = 'uploadHint',
 }: {
   files: File[];
   onChange: (files: FileList | null) => void;
   onRemove: (index: number) => void;
+  accept?: string;
+  titleKey?: string;
+  hintKey?: string;
 }) {
   const t = useTranslations('playground');
 
@@ -55,11 +61,11 @@ export function ImageUpload({
     <div className="rounded-lg border border-dashed border-border bg-muted/30 p-4">
       <label className="flex cursor-pointer flex-col items-center justify-center gap-2 text-center">
         <UploadIcon className="size-5 text-muted-foreground" />
-        <span className="text-sm font-medium">{t('uploadImages')}</span>
-        <span className="text-xs text-muted-foreground">{t('uploadHint')}</span>
+        <span className="text-sm font-medium">{t(titleKey)}</span>
+        <span className="text-xs text-muted-foreground">{t(hintKey)}</span>
         <input
           type="file"
-          accept="image/png,image/jpeg,image/webp"
+          accept={accept}
           multiple
           className="sr-only"
           onChange={(event) => onChange(event.target.files)}

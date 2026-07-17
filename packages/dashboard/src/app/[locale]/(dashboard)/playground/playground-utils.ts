@@ -20,6 +20,7 @@ import type {
 // 网络请求 / SSE 流读取已拆到 ./playground-api.ts
 
 export const MAX_HISTORY_ITEMS = 30;
+export const MAX_KIMI_IMAGE_BYTES = 50_000_000;
 export const MAX_TTS_VOICE_SAMPLE_BYTES = 7_500_000;
 export const TTS_OUTPUT_FORMAT = 'wav';
 
@@ -139,6 +140,7 @@ export const PROVIDER_LABELS: Record<string, string> = {
   openai: 'OpenAI',
   anthropic: 'Anthropic',
   'google-ai-studio': 'Google',
+  moonshot: 'Moonshot AI',
   'workers-ai': 'Workers AI',
   'xiaomi-mimo': 'Xiaomi MiMo',
   grok: 'xAI Grok',
@@ -149,6 +151,7 @@ export const PROVIDER_ORDER: readonly string[] = [
   'anthropic',
   'openai',
   'google-ai-studio',
+  'moonshot',
   'workers-ai',
   'xiaomi-mimo',
   'grok',
@@ -185,7 +188,9 @@ export function groupModelsByProvider(models: ModelInfo[]): ModelGroup[] {
 /** 返回模型能力标签的 i18n key 列表（成品文案由组件用 t() 渲染）。 */
 export function getModelCapabilityTagKeys(model: ModelInfo): string[] {
   const keys: string[] = [];
-  if (model.longContextThresholdTokens != null) {
+  if (model.id === 'kimi-k3') {
+    keys.push('tagMillionContext', 'tagVision', 'tagAlwaysThinking');
+  } else if (model.longContextThresholdTokens != null) {
     keys.push('tagLongContext');
   }
   if (model.cachedInputPrice != null) {
@@ -276,12 +281,29 @@ export function parseHistory(raw: string): HistoryItem[] {
 export function toTokenInfo(usage?: TokenUsagePayload): TokenInfo | null {
   if (!usage) return null;
   if (typeof usage.cost_in_usd_ticks === 'number' && usage.cost_in_usd_ticks > 0) {
-    return { inputTokens: 0, outputTokens: convertUsdTicksToInternalTokens(usage.cost_in_usd_ticks) };
+    return {
+      inputTokens: 0,
+      cachedInputTokens: 0,
+      outputTokens: convertUsdTicksToInternalTokens(usage.cost_in_usd_ticks),
+    };
   }
+  const details = usage.prompt_tokens_details ?? usage.input_tokens_details;
   return {
     inputTokens: usage.input_tokens ?? usage.prompt_tokens ?? 0,
+    cachedInputTokens: details?.cached_tokens ?? usage.cached_tokens ?? 0,
     outputTokens: usage.output_tokens ?? usage.completion_tokens ?? 0,
   };
+}
+
+export function getKimiImageInputError(files: File[]): 'kimiImageUnsupportedError' | 'kimiImageTooLargeError' | null {
+  if (files.some((file) => !isSupportedKimiImage(file))) return 'kimiImageUnsupportedError';
+  const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
+  return totalBytes > MAX_KIMI_IMAGE_BYTES ? 'kimiImageTooLargeError' : null;
+}
+
+function isSupportedKimiImage(file: File): boolean {
+  if (['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(file.type)) return true;
+  return /\.(png|jpe?g|webp|gif)$/i.test(file.name);
 }
 
 export function toImageResult(item: ImageApiItem, index: number): ImageResult[] {

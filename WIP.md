@@ -2,6 +2,8 @@
 
 当前没有进行中的开发任务。
 
+> Kimi K3 产品完整接入（2026-07-17）已归档：新增 `moonshot` 直连 provider、`kimi-k3` 1M context 模型、Kimi 流式/非流式 cache usage 计费、`0020` migration、Playground 视觉输入与 reasoning 展示、首页/定价页/Admin/8 语言内容；本地 migration、format、typecheck、App/Dashboard 单测、API E2E、Dashboard Playwright 和两个 production build 全绿。生产 secret、部署、远程 migration、KV 清理、线上 smoke 与 push 在代码提交后执行。
+
 > GPT-5.6 模型目录接入（2026-07-12）已归档：`seed.ts` 增加 `gpt-5.6-sol` / `gpt-5.6` / `gpt-5.6-terra` / `gpt-5.6-luna`（官方 $5/$30、$2.5/$15、$1/$6；cache write 1.25×）；migration `0019` 已应用本地 + 远程 D1；生产 KV `models:catalog` 已清除；IndexNow 提交 120 条 URL（202）。format/typecheck/单测绿。**说明**：网关路由已走 openai provider，真实调用取决于 CF AI Gateway 上游是否已开通这些 model id。
 
 > Grok 异步视频生成与 Playground（issue #5，2026-07-12）已归档：新增 `grok-imagine-video` / `grok-imagine-video-1.5` 共享能力和定价、D1 `video_generation_jobs`、`WalletDO` 原子预占/续期/结算/释放、视频提交与归属轮询 API、ticks 优先且以授权金额封顶的幂等计费，以及 Playground 视频参数、单图上传、3 秒轮询、中止恢复、播放/保存和本地历史。migration `0018` 已应用本地与生产。format、全仓 typecheck、app/dashboard 单测、app E2E、app/dashboard build 全绿；Dashboard Playwright 因 Chromium 1208 缺失未运行。

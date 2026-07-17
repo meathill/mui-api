@@ -6,11 +6,11 @@
 
 ### CF AI Gateway Stored Keys 认证
 
-**决策**：不在本服务中存储各 AI Provider 的 API Key，而是通过 CF AI Gateway 的 Stored Keys 功能统一管理。
+**决策**：优先用 CF AI Gateway Stored Keys 管理受支持 Provider 的凭证；Moonshot AI、Xiaomi MiMo 等直连 Provider 则使用 Worker secrets，具体分流见「AI Provider 路由分发」。
 
 **原因**：
 - 集中化凭证管理，Provider Key 不暴露在代码或环境变量中
-- 本服务只需一个 `CF_AIG_TOKEN`，由 CF Gateway 负责路由到正确的 Provider
+- Gateway 路径只需 `CF_AIG_TOKEN`，由 CF Gateway 负责路由到正确的 Provider
 - 支持两种代理模式：`compat`（OpenAI 兼容）和 `native`（Provider 原生端点）
 - 认证头使用 `cf-aig-authorization: Bearer {CF_AIG_TOKEN}`
 
@@ -122,12 +122,19 @@ D1_ERROR: Network connection lost.
 
 **实现**：
 - **OpenAI / Google AI Studio**：继续走 CF AI Gateway，由其 Stored Keys 注入真实的 API Key。
+- **Moonshot AI**：不走 CF AI Gateway，使用 `MOONSHOT_API_KEY` 直连 `https://api.moonshot.ai/v1/chat/completions`，可通过 `MOONSHOT_BASE_URL` 覆盖 base URL。Provider 标识为 `moonshot`，因此请求不会出现在 AI Gateway 日志中。
 - **Xiaomi MiMo**：不走 CF AI Gateway，直接用 `MIMO_API_KEY` 请求 OpenAI 兼容接口，默认 base URL 为 `https://api.xiaomimimo.com/v1`，可通过 `MIMO_BASE_URL` 覆盖。Provider 标识为 `xiaomi-mimo`，计费 usage 按 OpenAI 兼容响应解析。
 - **Anthropic (Claude)**：经 CF AI Gateway 转发，计费模式（unified 代付 / byok 自付，详见下方「只有 Claude 走 Unified Billing + BYOK 开关」一节）由 `ANTHROPIC_CREDENTIAL_MODE` 控制。两条对外面：原生 `/v1/messages` 走 provider-native 透传（`proxyNative`，`cf-aig-authorization` 固定带，unified 时另加 `Authorization: Bearer CF_TOKEN`、byok 时改成 `x-api-key`，返回 Anthropic 原生 usage）；OpenAI 兼容 `/v1/chat/completions` 走 compat 端点（`callAnthropicCompat`，`cf-aig-authorization` 固定带，unified 时不加别的、byok 时加 `Authorization: Bearer ANTHROPIC_API_KEY`，model 带 `anthropic/` 前缀，返回 OpenAI 形 usage）。upstreamModelId 用 Anthropic 规范连字符 ID（如 `claude-haiku-4-5`）。
   - **入站认证兼容 `x-api-key`**：Anthropic 官方 SDK / Claude Code 默认用 `x-api-key` 头而非 `Authorization: Bearer` 发送凭证，`authMiddleware` 两种头都接受（`middleware/auth.ts`），否则原生 SDK 直连会全部 401。
   - **早期误区订正**：曾以为 Claude 可走 `env.AI.run`（Workers AI binding）「免 Key、按 Workers AI 计费」——这是错的：Workers AI 不托管 Claude，且 Workers AI 模型走 Gateway 也不计入 Unified Billing。Claude 必须走 Unified Billing 代付。
 - **Workers AI (`@cf/*`)**：走 `env.AI.run` + `gateway: { id }`，按 Workers AI 用量（neuron）计费，保留 Gateway 监控。
 - **xAI Grok**：经 CF AI Gateway 转发，xAI key 以 Stored Keys 形式配置在网关侧（`callGrokEndpoint()` 只带 `cf-aig-authorization`，不注入 `Authorization`），本服务不持有真实 xAI key，接入模式与 OpenAI / Google AI Studio 一致。详见下方「xAI Grok 接入」一节。
+
+### Moonshot AI Kimi K3 接入
+
+**协议与能力**：`kimi-k3` 只接入 `/v1/chat/completions`，请求中的 `reasoning_effort`、tools、`tool_choice`、`response_format`、多模态 messages 与 stream 原样透传。K3 的上下文窗口为 1,048,576 tokens，当前只支持 `reasoning_effort=max` 且始终推理。Playground 默认 `max_completion_tokens=16384`，支持 PNG/JPEG/WebP/GIF 图片；原始文件合计限制为 50MB，避免 Base64 后逼近上游 100MB request 限制。历史只保存最终答案，不保存推理过程或上传文件。本轮不代理 `/v1/files`，因此不提供视频上传，也不新增 Responses API。
+
+**计费**：1M context 全程统一使用 cache miss `$3/M`、cache hit `$0.30/M`、output `$15/M`，`markupRate=1.2`，不设置长上下文价格档位。非流式 usage 位于顶层；Kimi 流式 usage 位于最后一个 chunk 的 `choices[0].usage`。缓存输入优先兼容 OpenAI details 字段，并读取 Kimi 的 `usage.cached_tokens`；`completion_tokens` 已包含 reasoning tokens，不能重复累加。
 
 ### OpenAI Responses API 透传（/v1/responses，服务 Codex CLI）
 
@@ -307,6 +314,7 @@ API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0）
 - `ANTHROPIC_CREDENTIAL_MODE` — `unified`（默认）/ `byok`，可选；切自有 Anthropic key 时设 `byok`
 - `ANTHROPIC_API_KEY` — 自有 Anthropic key，仅 `byok` 模式需要（可选）
 - `MIMO_API_KEY` — Xiaomi MiMo API Key，仅启用 `xiaomi-mimo` 模型时需要
+- `MOONSHOT_API_KEY` — Moonshot AI API Key，仅启用 `moonshot` / `kimi-k3` 时需要
 - `ADMIN_SECRET` — 管理接口认证
 - `ADMIN_EMAIL` — 告警接收邮箱
 - `RESEND_API_KEY` — 邮件发送（可选，未配置则跳过）

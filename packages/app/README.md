@@ -38,6 +38,7 @@ pnpm install
 
 ```bash
 CF_AIG_TOKEN=your-cf-ai-gateway-token
+MOONSHOT_API_KEY=your-moonshot-api-key
 MIMO_API_KEY=your-xiaomi-mimo-api-key
 RESEND_API_KEY=re_xxx
 ADMIN_SECRET=your-admin-secret
@@ -46,7 +47,7 @@ BASE_URL=http://localhost:5173
 FROM_EMAIL=noreply@yourdomain.com
 ```
 
-> **说明**：OpenAI / Google AI Studio / xAI Grok 的 API Key 在 [CF AI Gateway 控制台](https://dash.cloudflare.com/?to=/:account/ai/ai-gateway) 配置（Stored Keys / Unified Billing），本服务使用 `CF_AIG_TOKEN` 认证网关。Xiaomi MiMo 不走 AI Gateway，直接使用 `MIMO_API_KEY` 调用 OpenAI 兼容接口；如需覆盖端点，可配置 `MIMO_BASE_URL`，默认值为 `https://api.xiaomimimo.com/v1`。
+> **说明**：OpenAI / Google AI Studio / xAI Grok 的 API Key 在 [CF AI Gateway 控制台](https://dash.cloudflare.com/?to=/:account/ai/ai-gateway) 配置（Stored Keys / Unified Billing），本服务使用 `CF_AIG_TOKEN` 认证网关。Moonshot AI 与 Xiaomi MiMo 不走 AI Gateway，分别使用 `MOONSHOT_API_KEY`、`MIMO_API_KEY` 直连 OpenAI 兼容接口；可选 `MOONSHOT_BASE_URL` 默认 `https://api.moonshot.ai/v1`，`MIMO_BASE_URL` 默认 `https://api.xiaomimimo.com/v1`。直连请求不会出现在 AI Gateway 日志中。
 
 ### 3. 配置 D1 和 KV
 
@@ -88,7 +89,7 @@ curl -X POST http://localhost:5173/admin/recharge \
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| POST | `/v1/chat/completions` | Chat Completions（支持流式；MiMo TTS 也通过此接口透传 `audio` 参数） |
+| POST | `/v1/chat/completions` | Chat Completions（支持 Kimi K3 视觉/推理/Tools 与流式；MiMo TTS 也通过此接口透传 `audio` 参数） |
 | POST | `/v1/responses` | Responses API（仅支持 openai provider；用于 OpenAI Codex CLI 等使用新版 wire format 的客户端） |
 | POST | `/v1/images/generations` | 图片生成（支持 openai / grok provider） |
 | POST | `/v1/videos/generations` | 提交 Grok 视频生成任务，返回 `request_id` |

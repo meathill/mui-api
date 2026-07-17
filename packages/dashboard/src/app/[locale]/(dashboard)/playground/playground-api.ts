@@ -14,7 +14,10 @@ import { getApiBase, toTokenInfo } from './playground-utils';
  */
 
 type ChatStreamChunk = {
-  choices?: Array<{ delta?: { content?: string } }>;
+  choices?: Array<{
+    delta?: { content?: string; reasoning_content?: string };
+    usage?: TokenUsagePayload;
+  }>;
   usage?: TokenUsagePayload;
 };
 
@@ -193,7 +196,20 @@ function waitForPoll(delayMs: number, signal: AbortSignal): Promise<void> {
   });
 }
 
-export function sendChatRequest(params: { apiKey: string; model: string; prompt: string; signal: AbortSignal }) {
+export async function sendChatRequest(params: {
+  apiKey: string;
+  model: string;
+  prompt: string;
+  images: File[];
+  signal: AbortSignal;
+}) {
+  const isKimiK3 = params.model === 'kimi-k3';
+  const imageParts = isKimiK3
+    ? await Promise.all(
+        params.images.map(async (file) => ({ type: 'image_url', image_url: { url: await fileToDataUrl(file) } })),
+      )
+    : [];
+  const content = imageParts.length > 0 ? [...imageParts, { type: 'text', text: params.prompt }] : params.prompt;
   return fetch(`${getApiBase()}/v1/chat/completions`, {
     method: 'POST',
     headers: {
@@ -202,8 +218,9 @@ export function sendChatRequest(params: { apiKey: string; model: string; prompt:
     },
     body: JSON.stringify({
       model: params.model,
-      messages: [{ role: 'user', content: params.prompt }],
+      messages: [{ role: 'user', content }],
       stream: true,
+      ...(isKimiK3 ? { reasoning_effort: 'max', max_completion_tokens: 16_384 } : {}),
     }),
     signal: params.signal,
   });
@@ -225,15 +242,17 @@ export async function readChatStream(
   res: Response,
   handlers: {
     onContent: (content: string) => void;
+    onReasoning: (reasoning: string) => void;
     onUsage: (tokenInfo: TokenInfo) => void;
   },
 ) {
   const reader = res.body?.getReader();
   const decoder = new TextDecoder();
   let fullResponse = '';
+  let fullReasoning = '';
   let pending = '';
 
-  if (!reader) return fullResponse;
+  if (!reader) return { content: fullResponse, reasoning: fullReasoning };
 
   while (true) {
     const { done, value } = await reader.read();
@@ -249,12 +268,18 @@ export async function readChatStream(
       if (data === '[DONE]') continue;
       try {
         const parsed = JSON.parse(data) as ChatStreamChunk;
-        const content = parsed.choices?.[0]?.delta?.content;
+        const firstChoice = parsed.choices?.[0];
+        const reasoning = firstChoice?.delta?.reasoning_content;
+        if (reasoning) {
+          fullReasoning += reasoning;
+          handlers.onReasoning(fullReasoning);
+        }
+        const content = firstChoice?.delta?.content;
         if (content) {
           fullResponse += content;
           handlers.onContent(fullResponse);
         }
-        const tokenInfo = toTokenInfo(parsed.usage);
+        const tokenInfo = toTokenInfo(parsed.usage ?? firstChoice?.usage);
         if (tokenInfo) handlers.onUsage(tokenInfo);
       } catch {
         // 忽略单个 SSE 片段解析失败，后续片段仍可继续读取。
@@ -262,5 +287,5 @@ export async function readChatStream(
     }
   }
 
-  return fullResponse;
+  return { content: fullResponse, reasoning: fullReasoning };
 }

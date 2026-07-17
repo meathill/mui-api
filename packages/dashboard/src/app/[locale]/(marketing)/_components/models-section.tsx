@@ -23,6 +23,12 @@ export function ModelsSection() {
       description: t('googleDesc'),
     },
     {
+      name: 'Moonshot AI',
+      color: 'bg-cyan-500/10 text-cyan-800 border border-cyan-500/30',
+      models: ['Kimi K3 · 1M Context', 'Vision', 'Always Thinking', 'Prompt Caching'],
+      description: t('moonshotDesc'),
+    },
+    {
       name: 'xAI',
       color: 'bg-[var(--brand-ink)] text-[var(--brand-cream)] border border-[var(--brand-ink-soft)]',
       models: ['Grok 4.5', 'Grok 4.3', 'Grok Imagine Image'],

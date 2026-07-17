@@ -72,11 +72,15 @@ export type TokenUsagePayload = {
   output_tokens?: number;
   prompt_tokens?: number;
   completion_tokens?: number;
+  cached_tokens?: number;
+  prompt_tokens_details?: { cached_tokens?: number };
+  input_tokens_details?: { cached_tokens?: number };
   cost_in_usd_ticks?: number;
 };
 
 export type TokenInfo = {
   inputTokens: number;
+  cachedInputTokens: number;
   outputTokens: number;
 };
 

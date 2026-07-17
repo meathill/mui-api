@@ -22,11 +22,12 @@ const PROVIDER_DISPLAY: Record<string, { label: string; sourceUrl: string }> = {
   openai: { label: 'OpenAI', sourceUrl: 'https://developers.openai.com/api/docs/pricing' },
   anthropic: { label: 'Anthropic', sourceUrl: 'https://www.anthropic.com/pricing' },
   'google-ai-studio': { label: 'Gemini', sourceUrl: 'https://ai.google.dev/pricing' },
+  moonshot: { label: 'Moonshot AI', sourceUrl: 'https://platform.kimi.ai/docs/pricing/chat-k3' },
   'xiaomi-mimo': { label: 'Xiaomi MiMo', sourceUrl: 'https://api.xiaomimimo.com/pricing' },
   grok: { label: 'xAI Grok', sourceUrl: 'https://x.ai/api' },
 };
 
-const PROVIDER_ORDER = ['openai', 'anthropic', 'google-ai-studio', 'xiaomi-mimo', 'grok'];
+const PROVIDER_ORDER = ['openai', 'anthropic', 'google-ai-studio', 'moonshot', 'xiaomi-mimo', 'grok'];
 
 const providerStyles: Record<
   string,
@@ -50,6 +51,11 @@ const providerStyles: Record<
     badgeClassName: 'border-blue-500/20 bg-blue-500/10 text-blue-700',
     surfaceClassName: 'bg-blue-500/5',
     borderClassName: 'from-blue-500/70 via-sky-400/20 to-transparent',
+  },
+  moonshot: {
+    badgeClassName: 'border-cyan-500/20 bg-cyan-500/10 text-cyan-700',
+    surfaceClassName: 'bg-cyan-500/5',
+    borderClassName: 'from-cyan-500/70 via-cyan-400/20 to-transparent',
   },
   'xiaomi-mimo': {
     badgeClassName: 'border-purple-500/20 bg-purple-500/10 text-purple-700',

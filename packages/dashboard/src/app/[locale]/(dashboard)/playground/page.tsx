@@ -27,6 +27,7 @@ import {
   buildTtsRequestBody,
   fileToTtsVoiceDataUrl,
   getDefaultTtsVoice,
+  getKimiImageInputError,
   getTtsVoiceOptions,
   getTtsInputError,
   isImageModel,
@@ -57,9 +58,11 @@ export default function PlaygroundPage() {
   const [ttsVoice, setTtsVoice] = useState(DEFAULT_TTS_VOICE);
   const [voiceSample, setVoiceSample] = useState<File | null>(null);
   const [response, setResponse] = useState('');
+  const [reasoning, setReasoning] = useState('');
   const [imageResults, setImageResults] = useState<ImageResult[]>([]);
   const [audioResult, setAudioResult] = useState<AudioResult | null>(null);
   const [uploadedImages, setUploadedImages] = useState<File[]>([]);
+  const [chatImages, setChatImages] = useState<File[]>([]);
   const [grokImageOptions, setGrokImageOptions] = useState<GrokImageOptions>(DEFAULT_GROK_IMAGE_OPTIONS);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -82,6 +85,7 @@ export default function PlaygroundPage() {
   const selectedModel =
     mode === 'chat' ? chatModel : mode === 'image' ? imageModel : mode === 'video' ? video.model : ttsModel;
   const selectedImageModel = imageModels.find((model) => model.id === imageModel);
+  const isSelectedKimiK3 = chatModel === 'kimi-k3';
   const isSelectedGrokImage = isGrokImageModel(selectedImageModel);
   const visibleModels =
     mode === 'chat' ? chatModels : mode === 'image' ? imageModels : mode === 'video' ? videoModels : ttsModels;
@@ -136,7 +140,10 @@ export default function PlaygroundPage() {
   }
 
   function handleModelChange(value: string) {
-    if (mode === 'chat') setChatModel(value);
+    if (mode === 'chat') {
+      setChatModel(value);
+      if (value !== 'kimi-k3') setChatImages([]);
+    }
     if (mode === 'image') setImageModel(value);
     if (mode === 'video') video.selectModel(value);
     if (mode === 'tts') setTtsModel(value);
@@ -150,6 +157,17 @@ export default function PlaygroundPage() {
     }
     setError('');
     setUploadedImages(nextFiles);
+  }
+
+  function handleChatFilesChange(files: FileList | null) {
+    const nextFiles = files ? Array.from(files) : [];
+    const inputError = getKimiImageInputError(nextFiles);
+    if (inputError) {
+      setError(t(inputError));
+      return;
+    }
+    setError('');
+    setChatImages(nextFiles);
   }
 
   function handleRunClick() {
@@ -178,6 +196,7 @@ export default function PlaygroundPage() {
         apiKey: key,
         model: chatModel,
         prompt,
+        images: chatImages,
         signal,
       });
       if (!res.ok) {
@@ -185,8 +204,12 @@ export default function PlaygroundPage() {
         return;
       }
 
-      const fullResponse = await readChatStream(res, { onContent: setResponse, onUsage: setTokenInfo });
-      storage.createHistory({ mode: 'chat', model: chatModel, prompt, response: fullResponse });
+      const result = await readChatStream(res, {
+        onContent: setResponse,
+        onReasoning: setReasoning,
+        onUsage: setTokenInfo,
+      });
+      storage.createHistory({ mode: 'chat', model: chatModel, prompt, response: result.content });
     } catch (e) {
       if ((e as Error).name !== 'AbortError') setError(e instanceof Error ? e.message : te('operationFailed'));
     } finally {
@@ -285,6 +308,7 @@ export default function PlaygroundPage() {
 
   function resetOutput() {
     setResponse('');
+    setReasoning('');
     setImageResults([]);
     setAudioResult(null);
     setError('');
@@ -320,6 +344,7 @@ export default function PlaygroundPage() {
     setMode(item.mode);
     setPrompt(item.prompt);
     setResponse(item.response ?? '');
+    setReasoning('');
     setImageResults([]);
     setAudioResult(null);
     setTokenInfo(null);
@@ -350,6 +375,8 @@ export default function PlaygroundPage() {
       ttsVoice={ttsVoice}
       voiceSample={voiceSample}
       uploadedImages={uploadedImages}
+      chatImages={chatImages}
+      isKimiK3={isSelectedKimiK3}
       isGrokImage={isSelectedGrokImage}
       grokImageOptions={grokImageOptions}
       grokVideoOptions={video.options}
@@ -357,6 +384,7 @@ export default function PlaygroundPage() {
       loading={mode === 'video' ? video.isLoading : loading}
       error={error}
       response={response}
+      reasoning={reasoning}
       imageResults={imageResults}
       audioResult={audioResult}
       videoResult={video.result}
@@ -372,6 +400,9 @@ export default function PlaygroundPage() {
       onTtsVoiceChange={setTtsVoice}
       onVoiceSampleChange={setVoiceSample}
       onFilesChange={handleFilesChange}
+      onChatFilesChange={handleChatFilesChange}
+      onRemoveChatUpload={(index) => setChatImages((current) => current.filter((_, itemIndex) => itemIndex !== index))}
+      onClearChatUploads={() => setChatImages([])}
       onRemoveUpload={(index) => setUploadedImages((current) => current.filter((_, itemIndex) => itemIndex !== index))}
       onClearUploads={() => setUploadedImages([])}
       onGrokImageOptionsChange={setGrokImageOptions}

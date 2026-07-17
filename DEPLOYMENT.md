@@ -57,10 +57,20 @@ pnpm --dir packages/shared-db run db:migrate:prod
 ### 可选 secrets
 
 - `RESEND_API_KEY`
+- `MOONSHOT_API_KEY` — 启用 `moonshot` provider / `kimi-k3` 时必需，直连 Moonshot AI 官方接口
+- `MOONSHOT_BASE_URL` — 可选，默认 `https://api.moonshot.ai/v1`
 - `MIMO_API_KEY` — 启用 `xiaomi-mimo` provider 时必需，直连 Xiaomi MiMo OpenAI 兼容接口
 - `MIMO_BASE_URL` — Xiaomi MiMo OpenAI 兼容接口地址，默认 `https://api.xiaomimimo.com/v1`
 - `ANTHROPIC_CREDENTIAL_MODE` — `unified`（默认）/ `byok`，切自有 Anthropic key 时设 `byok`
 - `ANTHROPIC_API_KEY` — 自有 Anthropic key，仅 `byok` 模式需要
+
+生产环境配置 Kimi K3 密钥时使用交互式 Wrangler，不要把密钥写入仓库或命令历史：
+
+```bash
+pnpm --dir packages/app exec wrangler secret put MOONSHOT_API_KEY
+```
+
+Moonshot 请求由 Worker 直接发往官方接口，不经过 CF AI Gateway，因此不会出现在 AI Gateway 日志中。
 
 ### 构建与部署
 

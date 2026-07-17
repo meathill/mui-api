@@ -4,6 +4,7 @@ import {
   appendBuiltInPlaygroundModels,
   buildTtsRequestBody,
   formatModelPrice,
+  getKimiImageInputError,
   getGrokImagePrice,
   getModelCapabilityTagKeys,
   getModelPrice,
@@ -169,12 +170,14 @@ describe('playground 模型展示元数据 helpers', () => {
       makeModel('claude-x', { provider: 'anthropic' }),
       makeModel('mystery-1', { provider: 'mystery' }),
       makeModel('claude-y', { provider: 'anthropic' }),
+      makeModel('kimi-k3', { provider: 'moonshot' }),
     ]);
 
-    expect(groups.map((group) => group.provider)).toEqual(['anthropic', 'openai', 'mystery']);
+    expect(groups.map((group) => group.provider)).toEqual(['anthropic', 'openai', 'moonshot', 'mystery']);
     expect(groups[0].items).toEqual(['claude-x', 'claude-y']);
     expect(groups[1].items).toEqual(['gpt-5']);
-    expect(groups[2].items).toEqual(['mystery-1']);
+    expect(groups[2].items).toEqual(['kimi-k3']);
+    expect(groups[3].items).toEqual(['mystery-1']);
   });
 
   it('能力标签按字段派生：长上下文 / 缓存', () => {
@@ -190,6 +193,15 @@ describe('playground 模型展示元数据 helpers', () => {
 
   it('cachedInputPrice 为 0 也算支持缓存（区别于 null）', () => {
     expect(getModelCapabilityTagKeys(makeModel('zero', { cachedInputPrice: 0 }))).toEqual(['tagCaching']);
+  });
+
+  it('Kimi K3 显示 1M、视觉、始终推理和缓存能力', () => {
+    expect(getModelCapabilityTagKeys(makeModel('kimi-k3', { provider: 'moonshot', cachedInputPrice: 0.3 }))).toEqual([
+      'tagMillionContext',
+      'tagVision',
+      'tagAlwaysThinking',
+      'tagCaching',
+    ]);
   });
 
   it('getModelPrice 取基础价；任一缺失返回 null', () => {
@@ -214,6 +226,33 @@ describe('playground 模型展示元数据 helpers', () => {
   });
 
   it('把 xAI 美元 ticks 显示为内部 output token', () => {
-    expect(toTokenInfo({ cost_in_usd_ticks: 200_000_000 })).toEqual({ inputTokens: 0, outputTokens: 20_000 });
+    expect(toTokenInfo({ cost_in_usd_ticks: 200_000_000 })).toEqual({
+      inputTokens: 0,
+      cachedInputTokens: 0,
+      outputTokens: 20_000,
+    });
+  });
+
+  it('展示总输入、缓存输入和输出 token', () => {
+    expect(toTokenInfo({ prompt_tokens: 1000, completion_tokens: 200, cached_tokens: 800 })).toEqual({
+      inputTokens: 1000,
+      cachedInputTokens: 800,
+      outputTokens: 200,
+    });
+  });
+
+  it('Kimi 图片输入支持 PNG/JPEG/WebP/GIF，并限制原始文件合计 50MB', () => {
+    expect(
+      getKimiImageInputError([
+        new File(['x'], 'one.png', { type: 'image/png' }),
+        new File(['x'], 'two.gif', { type: 'image/gif' }),
+      ]),
+    ).toBeNull();
+    expect(getKimiImageInputError([new File(['x'], 'bad.svg', { type: 'image/svg+xml' })])).toBe(
+      'kimiImageUnsupportedError',
+    );
+    const oversizedImage = new File(['x'], 'huge.jpg', { type: 'image/jpeg' });
+    Object.defineProperty(oversizedImage, 'size', { value: 50_000_001 });
+    expect(getKimiImageInputError([oversizedImage])).toBe('kimiImageTooLargeError');
   });
 });
