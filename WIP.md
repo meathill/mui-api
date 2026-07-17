@@ -2,6 +2,8 @@
 
 当前没有进行中的开发任务。
 
+> Kimi K3 发布文章（2026-07-17）已归档：按用户确认的中文稿补齐 8 语言 MDX，新增 `0021_add_kimi_k3_post.sql`、正文 loader、博客与 sitemap E2E；本地/生产 D1 migration 均已应用。MDX 编译、format、全仓 typecheck、Dashboard 单测（78 项）、Playwright（37 项）和 production build 全绿；Dashboard 生产版本 `9366a784-340d-4674-8eb5-3860b8f072af` 已上线，8 语言文章、博客列表与 sitemap 均验收通过。本次未提交 IndexNow。
+
 > Kimi K3 产品完整接入（2026-07-17）已归档：新增 `moonshot` 直连 provider、`kimi-k3` 1M context 模型、Kimi 流式/非流式 cache usage 计费、`0020` migration、Playground 视觉输入与 reasoning 展示、首页/定价页/Admin/8 语言内容；本地 migration、format、typecheck、App/Dashboard 单测、API E2E、Dashboard Playwright 和两个 production build 全绿。生产 secret、部署、远程 migration、KV 清理、线上 smoke 与 push 在代码提交后执行。
 
 > GPT-5.6 模型目录接入（2026-07-12）已归档：`seed.ts` 增加 `gpt-5.6-sol` / `gpt-5.6` / `gpt-5.6-terra` / `gpt-5.6-luna`（官方 $5/$30、$2.5/$15、$1/$6；cache write 1.25×）；migration `0019` 已应用本地 + 远程 D1；生产 KV `models:catalog` 已清除；IndexNow 提交 120 条 URL（202）。format/typecheck/单测绿。**说明**：网关路由已走 openai provider，真实调用取决于 CF AI Gateway 上游是否已开通这些 model id。

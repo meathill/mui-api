@@ -7,6 +7,17 @@ type BlogContentModule = {
 
 type BlogContentLoader = () => Promise<BlogContentModule>;
 
+const kimiK3Loaders: Record<Locale, BlogContentLoader> = {
+  en: () => import('@/content/blog/kimi-k3.mdx'),
+  zh: () => import('@/content/blog/kimi-k3.zh.mdx'),
+  fr: () => import('@/content/blog/kimi-k3.fr.mdx'),
+  es: () => import('@/content/blog/kimi-k3.es.mdx'),
+  pt: () => import('@/content/blog/kimi-k3.pt.mdx'),
+  de: () => import('@/content/blog/kimi-k3.de.mdx'),
+  th: () => import('@/content/blog/kimi-k3.th.mdx'),
+  ja: () => import('@/content/blog/kimi-k3.ja.mdx'),
+};
+
 const gpt56Loaders: Record<Locale, BlogContentLoader> = {
   en: () => import('@/content/blog/gpt-5-6.mdx'),
   zh: () => import('@/content/blog/gpt-5-6.zh.mdx'),
@@ -79,6 +90,7 @@ const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
   'codex-context-drift': codexContextDriftLoaders,
   'gpt-5-5': gpt55Loaders,
   'gpt-5-6': gpt56Loaders,
+  'kimi-k3': kimiK3Loaders,
   'xai-grok': xaiGrokLoaders,
 };
 

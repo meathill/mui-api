@@ -1,0 +1,114 @@
+2026 年 7 月 17 日，Kimi 发布了新旗舰 Kimi K3。其最引人注目的特性当然是 **2.8 万亿参数**：按照 Kimi 的说法，这是全球首个迈进 3T 级别的开放模型。所谓大力出奇迹，堆参数当然很有用；但如果只是参数，这次发布恐怕不会引得业界如此震动。
+
+昨天晚上，我群里的大佬试用 Kimi K3 后，立刻变身自来水，他的原话是：
+
+> 我试了下，好强啊
+> 已经升级到 199 套餐了，只有这个支持 1M
+> 用过之后，感觉 GPT 就是个傻子（前端方面）
+
+群里的同学在他的带动下，纷纷开始试用，开通 ¥199 级别的套餐。今天上午打开各种社交媒体，K3 已经开始刷屏。
+
+这次 Kimi 把 1M 上下文、原生视觉、长周期编程、工具调用和知识工作都放进 K3 模型；另一方面，他们的 API 价格也很激进，大约是 GPT-5.6 的 60%。Kimi 不打算陪用户聊天，他们想做出一个「能长时间自己把事情做完的 agent」的模型。
+
+我们已经把 `kimi-k3` 接入 MuiRouter。继续使用同一把 API Key 和 `/v1/chat/completions`，改一下 model 名字就可以测试；Playground 也已经支持图片输入、独立展示思考过程，以及查看缓存命中的 token。
+
+## Kimi K3 到底是什么
+
+根据 [Kimi K3 官方发布文章](https://www.kimi.com/blog/kimi-k3)和 [API 指南](https://platform.kimi.ai/docs/guide/kimi-k3-quickstart)，这次发布的核心规格如下：
+
+| 项目 | Kimi K3 |
+| --- | --- |
+| 模型规模 | 2.8T 参数，MoE 架构；每次激活 896 个专家中的 16 个 |
+| 核心架构 | Kimi Delta Attention（KDA）+ Attention Residuals（AttnRes） |
+| 上下文窗口 | 1,048,576 tokens（1M） |
+| 多模态 | 原生理解文本、图片和视频 |
+| 推理模式 | 发布时固定使用 `max` thinking effort |
+| 主要场景 | 长周期编程、知识工作、推理、视觉任务和工具调用 |
+| 开放计划 | 完整模型权重计划于 2026 年 7 月 27 日前发布 |
+
+KDA 和 AttnRes 是这次架构升级的重点：前者用更高效的注意力机制支撑长上下文，后者让模型可以跨网络深度选择性地取回信息。再加上更稀疏的 MoE，Kimi 称 K3 相比 K2 的整体 scaling efficiency 提升约 2.5 倍。
+
+参数和架构很重要，但对开发者来说，更直接的问题还是：它的性价比如何，以及能不能方便地买到。要知道，现在 GLM-5.2 coding plan 还要靠抢。
+
+## 最值得关注的四种能力
+
+### 1. 长周期编程
+
+Kimi 把 K3 的第一个主战场放在 long-horizon coding。官方案例不只是生成一个函数，而是让模型长时间操作终端、理解大型仓库、反复运行和修正代码，甚至从零实现 GPU 编译系统、优化 kernel，还完成持续 48 小时的芯片设计任务。
+
+这些案例都来自 Kimi 自己，不能直接等同于咱们项目里的实际表现。但它们至少说明了 Kimi K3 很关注现实中的研发工作流：我们日常不写冒泡排序，而是组织一套复杂的流程，实现繁复的业务逻辑。
+
+### 2. Vision in the loop
+
+K3 终于没有步 DeepSeek、Mimo、GLM 的后尘，没有单独外挂一套 OCR。官方强调它的视觉是 **vision in the loop**：模型写完代码后看真实截图，再根据画面继续调整。这对前端、游戏、CAD、数据可视化和任何需要「做出来—看一眼—继续改」的工作都很实用。事实上，它昨晚的表现也充分说明了这一点，推荐给有前端需求的同学。
+
+在 MuiRouter Playground 里，你可以直接上传 PNG、JPEG、WebP 或 GIF，让图片和文字一起进入同一条消息。我们暂时没有开放视频上传；如果你只想快速验证截图理解、UI 分析或图文问答，现有图片输入已经够用。
+
+### 3. 1M 上下文与 Prompt caching
+
+1M 上下文意味着模型可以一次读进更大的代码仓库、更多文档或更长的研究材料。更关键的是，Kimi 把自动缓存和长上下文一起设计：重复发送相同前缀时，命中的输入 token 会走更低的价格。
+
+这对 coding agent 很重要。一个长会话里，系统指令、仓库背景和历史消息会被反复带上；如果缓存命中率够高，真正需要按完整输入价支付的只是一小部分新增内容。Kimi 表示其官方 API 在编程工作负载中的缓存命中率可以超过 90%，不过这个数字仍然取决于你的 prompt 结构和会话管理方式。
+
+### 4. 工具调用与结构化输出
+
+K3 支持自定义 tools、`tool_choice`、JSON Mode 和 Structured Output。这也是现在模型不可或缺的 agentic 能力：决定调用哪个工具、生成哪些参数、读取工具结果，再继续推理。
+
+需要特别注意的是，K3 依赖完整的 thinking history。复杂的多轮工具调用里，agent harness 应该把上一轮的 `reasoning_content` 原样带回；中途从其它模型切换到 K3，也可能让表现变得不稳定。简单聊天不需要为这件事操心，但如果你要搭长时间运行的 agent，这个兼容性细节不能省。
+
+## 跑分嘛，看看就行
+
+Kimi 公布的成绩已经进入前沿模型区间，在部分编程和知识工作测试里，K3 能接近甚至超过更昂贵的闭源模型。不过这些数字主要来自 Kimi 自己的评测。Kimi 在发布文章里也说得很直接：K3 的整体体验目前仍然落后于 Claude Fable 5 和 GPT-5.6 Sol。官方还主动列出了两个限制：K3 对 thinking history 比较敏感，而且在长周期任务里可能过于主动，替用户做出没有明确授权的决定。
+
+## API 价格
+
+Moonshot AI 给 Kimi K3 的[官方价格](https://platform.kimi.ai/docs/pricing/chat-k3)是：
+
+| Token 类型 | 官方价格（每 1M tokens） |
+| --- | ---: |
+| 缓存命中输入 | $0.30 |
+| 未命中输入 | $3.00 |
+| 输出（已包含 reasoning tokens） | $15.00 |
+
+缓存命中价只有普通输入的十分之一，这是 K3 成本结构里最值得利用的一点。与此同时，K3 目前始终使用最高 thinking effort，简单任务也可能产生不少推理 token；它更适合真正需要推理、长上下文或多步骤执行的工作，而不是拿来替代所有便宜的小模型。
+
+## MuiRouter 已经接入了什么
+
+`kimi-k3` 在 MuiRouter 里已经支持：
+
+- 1M token 上下文；
+- PNG、JPEG、WebP、GIF 图片输入；
+- 始终开启的 max thinking；
+- 流式输出，以及分开显示思考过程和最终答案；
+- 自定义 tools、`tool_choice` 与 `response_format`；
+- Prompt caching，并在 Playground 显示总输入、缓存输入和输出 token；
+- 使用 OpenAI 兼容的 `/v1/chat/completions` 接口。
+
+原来的 `kimi-k2.6` 仍然保留，作为成本更低的独立选项。K3 更适合难任务、长任务和视觉任务；不需要深度推理时，没有必要为了新型号强行升级。
+
+最简单的调用方式如下：
+
+```bash
+curl https://api.muirouter.com/v1/chat/completions \
+  -H "Authorization: Bearer $MUI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kimi-k3",
+    "messages": [
+      {"role": "user", "content": "请分析这个项目，并给出下一步实现计划。"}
+    ],
+    "reasoning_effort": "max",
+    "max_completion_tokens": 16384,
+    "stream": true
+  }'
+```
+
+如果你已经在使用 OpenAI SDK，只需要把 Base URL 指向 `https://api.muirouter.com/v1`，然后把模型改成 `kimi-k3`。图片输入继续使用标准 `image_url` content part，不需要再学新接口。
+
+## 结论
+
+很高兴在这个时期，国产模型还在进化，开源模型还在突破。Kimi K3 第一次把 3T 级开放模型、1M 上下文、原生视觉和长周期 agent 能力放到同一个足够有竞争力的模型里，相信很快会有更多供应商提供 K3 接入。
+
+当然，Kimi K3 恐怕不能完全替代 Claude Fable 5 或 GPT-5.6 Sol。官方承认整体体验仍有差距，max thinking 会带来额外延迟和输出成本，复杂 agent 还需要正确保留思考历史。不过，这不耽误我们把一部分工作切换到它上面，尤其是前端开发方面。
+
+现在，你可以在 MuiRouter Playground 里直接选择 Kimi K3，用自己的代码、图片和真实任务来判断它是否适合你。依然是一把 API Key、一种请求形态，只需要改一下 model 名字。

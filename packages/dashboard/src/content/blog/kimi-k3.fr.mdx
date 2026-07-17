@@ -1,0 +1,114 @@
+Le 17 juillet 2026, Kimi a lancé son nouveau modèle phare, Kimi K3. La caractéristique qui attire immédiatement l’attention est bien sûr ses **2 800 milliards de paramètres** : selon Kimi, il s’agit du premier modèle ouvert à entrer dans la catégorie des 3T. La force brute fonctionne et davantage de paramètres aide certainement, mais la taille seule n’aurait pas provoqué autant d’agitation dans le secteur.
+
+Hier soir, un expert de mon groupe a essayé Kimi K3 et s’est aussitôt transformé en ambassadeur bénévole. Voici ses mots exacts :
+
+> Je viens de l’essayer, c’est vraiment puissant.
+> Je suis déjà passé au forfait à 199 ¥, le seul qui propose 1M.
+> Après l’avoir utilisé, GPT paraît idiot en comparaison — surtout en frontend.
+
+Dans son sillage, d’autres membres du groupe ont commencé à tester le modèle et à souscrire au forfait à 199 ¥. Ce matin, K3 était déjà partout sur les réseaux sociaux.
+
+Kimi a réuni dans K3 un contexte de 1M, la vision native, le développement de longue durée, l’appel d’outils et le travail intellectuel. Son tarif API est également agressif : environ 60 % de celui de GPT-5.6. Kimi ne cherche pas à créer un modèle qui se contente de discuter, mais un agent capable de continuer à travailler longtemps et d’aller au bout d’une tâche.
+
+Nous avons déjà ajouté `kimi-k3` à MuiRouter. Gardez la même clé API et `/v1/chat/completions` : changez simplement le nom du modèle pour commencer les essais. Le Playground accepte désormais les images, sépare le raisonnement de la réponse finale et affiche les tokens servis depuis le cache.
+
+## Qu’est-ce que Kimi K3, exactement ?
+
+D’après [l’annonce officielle de Kimi K3](https://www.kimi.com/blog/kimi-k3) et le [guide API](https://platform.kimi.ai/docs/guide/kimi-k3-quickstart), ses principales caractéristiques sont les suivantes :
+
+| Élément | Kimi K3 |
+| --- | --- |
+| Taille du modèle | 2,8T de paramètres, architecture MoE ; 16 experts actifs sur 896 à chaque passage |
+| Architecture | Kimi Delta Attention (KDA) + Attention Residuals (AttnRes) |
+| Fenêtre de contexte | 1 048 576 tokens (1M) |
+| Multimodalité | Compréhension native du texte, des images et de la vidéo |
+| Raisonnement | Effort de réflexion fixé à `max` au lancement |
+| Usages principaux | Développement long, travail intellectuel, raisonnement, vision et outils |
+| Ouverture | Poids complets prévus pour le 27 juillet 2026 au plus tard |
+
+KDA et AttnRes sont les deux principales évolutions. KDA emploie un mécanisme d’attention plus efficace pour gérer les longs contextes ; AttnRes permet au modèle de retrouver sélectivement des informations à différentes profondeurs du réseau. Avec un MoE plus parcimonieux, Kimi revendique une efficacité de mise à l’échelle environ 2,5 fois supérieure à celle de K2.
+
+Les paramètres et l’architecture comptent, mais les développeurs ont des questions plus immédiates : le rapport qualité-prix est-il bon, et peut-on y accéder facilement ? Aujourd’hui encore, il faut se battre pour obtenir un forfait coding GLM-5.2.
+
+## Les quatre capacités les plus importantes
+
+### 1. Développement de longue durée
+
+Kimi fait du long-horizon coding le premier terrain de jeu de K3. Les exemples officiels vont bien au-delà de la génération d’une fonction : le modèle utilise un terminal pendant longtemps, comprend de très grands dépôts, exécute et corrige le code à plusieurs reprises, construit un compilateur GPU depuis zéro, optimise des kernels et accomplit même une tâche de conception de puce pendant 48 heures.
+
+Ces exemples viennent de Kimi et ne garantissent pas les mêmes résultats dans nos projets. Ils montrent néanmoins que K3 vise les vrais workflows d’ingénierie. Nous ne passons pas nos journées à écrire un tri à bulles : nous coordonnons des processus complexes et implémentons une logique métier fastidieuse.
+
+### 2. Vision in the loop
+
+K3 évite la voie suivie par DeepSeek, MiMo et GLM : il n’ajoute pas un système OCR séparé. Kimi parle de **vision in the loop** : le modèle écrit du code, observe la capture réelle, puis continue à l’ajuster en fonction de ce qu’il voit. C’est utile pour le frontend, les jeux, la CAO, la visualisation de données et tous les workflows « créer — regarder — améliorer ». Ses résultats d’hier soir l’ont bien montré ; je le recommande à ceux qui font du frontend.
+
+Dans le Playground MuiRouter, vous pouvez envoyer des fichiers PNG, JPEG, WebP ou GIF avec du texte dans le même message. La vidéo n’est pas encore disponible. Pour tester rapidement l’analyse de captures, d’interfaces ou les questions image-texte, l’entrée image suffit déjà.
+
+### 3. Contexte 1M et Prompt caching
+
+Une fenêtre de 1M permet de lire en une fois de plus grands dépôts, davantage de documents ou des travaux de recherche plus longs. Plus important encore, Kimi a conçu le cache automatique avec ce long contexte : lorsqu’un préfixe répété est retrouvé dans le cache, les tokens correspondants coûtent beaucoup moins cher.
+
+C’est essentiel pour les agents de code. Au fil d’une longue session, les instructions système, le contexte du dépôt et l’historique sont renvoyés en permanence. Avec un bon taux de cache, seule une petite partie de nouveau contenu paie le plein tarif d’entrée. Kimi affirme que son API officielle dépasse 90 % de cache hit sur les charges de développement, mais le résultat dépend toujours de la structure des prompts et de la gestion des sessions.
+
+### 4. Outils et sortie structurée
+
+K3 prend en charge les outils personnalisés, `tool_choice`, JSON Mode et Structured Output. Ce sont désormais des fonctions agentiques indispensables : choisir l’outil, générer ses paramètres, lire le résultat et poursuivre le raisonnement.
+
+Un point important : K3 dépend d’un historique de réflexion complet. Dans les appels d’outils complexes et multi-tours, le harness doit renvoyer le `reasoning_content` précédent sans le modifier. Passer d’un autre modèle à K3 au milieu d’une session peut aussi déstabiliser le résultat. Ce détail importe peu pour un chat simple, mais il ne faut pas l’ignorer pour un agent de longue durée.
+
+## Les benchmarks ? À lire sans en faire une religion
+
+Les chiffres publiés par Kimi placent K3 parmi les modèles de pointe ; sur certains tests de code et de travail intellectuel, il approche ou dépasse des modèles fermés plus coûteux. Mais l’essentiel de ces résultats vient des propres évaluations de Kimi. Kimi reconnaît aussi clairement que l’expérience globale reste derrière Claude Fable 5 et GPT-5.6 Sol. L’entreprise souligne deux limites : K3 est sensible à l’historique de réflexion et peut devenir trop proactif sur les longues tâches, en prenant des décisions que l’utilisateur n’a jamais autorisées.
+
+## Prix de l’API
+
+Le [tarif officiel de Kimi K3](https://platform.kimi.ai/docs/pricing/chat-k3) chez Moonshot AI est le suivant :
+
+| Type de token | Prix officiel (pour 1M tokens) |
+| --- | ---: |
+| Entrée trouvée dans le cache | 0,30 $ |
+| Entrée hors cache | 3,00 $ |
+| Sortie, reasoning inclus | 15,00 $ |
+
+L’entrée en cache coûte un dixième du tarif normal : c’est le levier le plus intéressant dans la structure de coûts de K3. En revanche, K3 utilise toujours l’effort de réflexion maximal et même une tâche simple peut générer beaucoup de tokens de raisonnement. Il convient mieux aux tâches qui exigent vraiment du raisonnement, un long contexte ou plusieurs étapes qu’au remplacement systématique de tous les petits modèles bon marché.
+
+## Ce que MuiRouter prend en charge
+
+`kimi-k3` sur MuiRouter prend maintenant en charge :
+
+- Une fenêtre de contexte de 1M tokens ;
+- Les images PNG, JPEG, WebP et GIF ;
+- Le max thinking toujours actif ;
+- Le streaming, avec raisonnement et réponse finale séparés ;
+- Les outils personnalisés, `tool_choice` et `response_format` ;
+- Le Prompt caching, avec les tokens d’entrée, d’entrée en cache et de sortie dans le Playground ;
+- L’interface compatible OpenAI `/v1/chat/completions`.
+
+Le modèle `kimi-k2.6` reste disponible comme option indépendante moins chère. K3 convient mieux aux tâches difficiles, longues ou visuelles. Si vous n’avez pas besoin d’un raisonnement poussé, rien ne vous oblige à changer uniquement parce que le modèle est nouveau.
+
+L’appel le plus simple ressemble à ceci :
+
+```bash
+curl https://api.muirouter.com/v1/chat/completions \
+  -H "Authorization: Bearer $MUI_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "model": "kimi-k3",
+    "messages": [
+      {"role": "user", "content": "Analyse ce projet et propose le prochain plan de mise en œuvre."}
+    ],
+    "reasoning_effort": "max",
+    "max_completion_tokens": 16384,
+    "stream": true
+  }'
+```
+
+Si vous utilisez déjà le SDK OpenAI, faites pointer le Base URL vers `https://api.muirouter.com/v1` et choisissez `kimi-k3`. Les images utilisent toujours les content parts standard `image_url` : aucune nouvelle interface à apprendre.
+
+## Conclusion
+
+Il est réjouissant de voir les modèles chinois continuer à progresser et les modèles ouverts repousser leurs limites. Kimi K3 est le premier à réunir une architecture ouverte de classe 3T, un contexte de 1M, la vision native et des capacités d’agent longue durée dans une offre compétitive. D’autres fournisseurs proposeront probablement K3 très bientôt.
+
+Kimi K3 ne remplacera sans doute pas complètement Claude Fable 5 ou GPT-5.6 Sol. Kimi reconnaît un écart d’expérience ; le max thinking ajoute de la latence et des coûts de sortie ; les agents complexes doivent conserver correctement l’historique de réflexion. Rien de cela ne nous empêche de déplacer une partie du travail vers K3, en particulier le frontend.
+
+Vous pouvez maintenant choisir Kimi K3 dans le Playground MuiRouter et le tester avec votre code, vos images et vos tâches réelles. Toujours une seule clé API et un seul format de requête : il suffit de changer le nom du modèle.
