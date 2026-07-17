@@ -7,6 +7,7 @@ import {
   callAnthropicCompat,
   callGemini,
   callGrokEndpoint,
+  callMoonshot,
   callOpenAI,
   callOpenAIEndpoint,
   callXiaomiMiMo,
@@ -64,6 +65,8 @@ openai.post('/chat/completions', async (c) => {
     let billingProvider = provider;
     if (provider === 'openai') {
       upstream = await callOpenAI(c.env, upstreamBody);
+    } else if (provider === 'moonshot') {
+      upstream = await callMoonshot(c.env, upstreamBody);
     } else if (provider === 'xiaomi-mimo') {
       upstream = await callXiaomiMiMo(c.env, upstreamBody);
     } else if (provider === 'google-ai-studio') {

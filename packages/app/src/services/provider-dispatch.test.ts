@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { CloudflareBindings } from '../types';
-import { callGrokEndpoint, callXiaomiMiMo } from './provider-dispatch';
+import { callGrokEndpoint, callMoonshot, callXiaomiMiMo } from './provider-dispatch';
 
 function createEnv(overrides: Partial<CloudflareBindings> = {}): CloudflareBindings {
   return {
@@ -17,6 +17,78 @@ function createGrokEnv(overrides: Partial<CloudflareBindings> = {}): CloudflareB
     ...overrides,
   } as CloudflareBindings;
 }
+
+function createMoonshotEnv(overrides: Partial<CloudflareBindings> = {}): CloudflareBindings {
+  return {
+    MOONSHOT_API_KEY: 'test-moonshot-key',
+    ...overrides,
+  } as CloudflareBindings;
+}
+
+describe('callMoonshot', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('直连 Moonshot Chat Completions 并原样透传 K3 参数', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => Response.json({ ok: true }));
+    vi.stubGlobal('fetch', fetchMock);
+    const body = {
+      model: 'kimi-k3',
+      reasoning_effort: 'max',
+      tools: [{ type: 'function', function: { name: 'weather' } }],
+      tool_choice: 'auto',
+      response_format: { type: 'json_object' },
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'image_url', image_url: { url: 'data:image/png;base64,AA==' } },
+            { type: 'text', text: '描述图片' },
+          ],
+        },
+      ],
+      stream: true,
+    };
+
+    await callMoonshot(createMoonshotEnv(), body);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [input, init] = fetchMock.mock.calls[0];
+    expect(input).toBe('https://api.moonshot.ai/v1/chat/completions');
+    expect(init?.method).toBe('POST');
+    const headers = new Headers(init?.headers);
+    expect(headers.get('authorization')).toBe('Bearer test-moonshot-key');
+    expect(headers.get('content-type')).toBe('application/json');
+    expect(JSON.parse(String(init?.body))).toEqual(body);
+  });
+
+  it('支持通过 MOONSHOT_BASE_URL 覆盖接口地址', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => Response.json({ ok: true }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await callMoonshot(createMoonshotEnv({ MOONSHOT_BASE_URL: 'https://moonshot.example.test/custom/' }), {
+      model: 'kimi-k3',
+      messages: [{ role: 'user', content: 'hello' }],
+    });
+
+    const [input] = fetchMock.mock.calls[0];
+    expect(input).toBe('https://moonshot.example.test/custom/chat/completions');
+  });
+
+  it('缺少 MOONSHOT_API_KEY 时在请求前明确失败', async () => {
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+
+    await expect(
+      callMoonshot(createMoonshotEnv({ MOONSHOT_API_KEY: undefined }), {
+        model: 'kimi-k3',
+        messages: [{ role: 'user', content: 'hello' }],
+      }),
+    ).rejects.toThrow('缺少 MOONSHOT_API_KEY');
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+});
 
 describe('callXiaomiMiMo', () => {
   afterEach(() => {

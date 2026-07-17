@@ -22,6 +22,7 @@ describe('GET /v1/models', () => {
     expect(modelIds).toContain('gpt-image-2');
     expect(modelIds).toContain('claude-sonnet-4-20250514');
     expect(modelIds).toContain('mimo-v2.5-pro');
+    expect(modelIds).toContain('kimi-k3');
     expect(modelIds).toContain('mimo-v2.5-tts');
     expect(modelIds).toContain('mimo-v2.5-tts-voiceclone');
     expect(modelIds).toContain('mimo-v2.5-tts-voicedesign');

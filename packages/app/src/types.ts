@@ -14,6 +14,8 @@ export interface CloudflareBindings {
   CF_GATEWAY_ID: string;
   CF_TOKEN: string;
   AI: Ai;
+  MOONSHOT_API_KEY?: string;
+  MOONSHOT_BASE_URL?: string;
   MIMO_API_KEY?: string;
   MIMO_BASE_URL?: string;
   // Anthropic / Claude 接入

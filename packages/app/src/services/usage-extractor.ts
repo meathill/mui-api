@@ -27,7 +27,15 @@ export interface UsageResult {
   model: string;
 }
 
-type ProviderKey = 'openai' | 'anthropic' | 'google-ai-studio' | 'workers-ai' | 'xiaomi-mimo' | 'grok' | 'grok-image';
+type ProviderKey =
+  | 'openai'
+  | 'anthropic'
+  | 'google-ai-studio'
+  | 'workers-ai'
+  | 'moonshot'
+  | 'xiaomi-mimo'
+  | 'grok'
+  | 'grok-image';
 
 export type GrokImageUsageContext = {
   model: GrokImageModelId;
@@ -49,6 +57,7 @@ export function extractUsage(
 ): UsageResult | null {
   switch (provider as ProviderKey) {
     case 'openai':
+    case 'moonshot':
     case 'xiaomi-mimo':
       return extractOpenAIUsage(data);
     case 'anthropic':
@@ -77,7 +86,11 @@ function extractOpenAIUsage(data: Record<string, unknown>): UsageResult | null {
   // 不会误判成 Responses API 的嵌套 usage。
   const nested = data.response as Record<string, unknown> | undefined;
   const source = nested && typeof nested === 'object' && nested.usage ? nested : data;
-  const usage = source.usage as Record<string, unknown> | undefined;
+  const choices = Array.isArray(source.choices) ? source.choices : [];
+  const firstChoice = choices[0];
+  const choice = firstChoice && typeof firstChoice === 'object' ? (firstChoice as Record<string, unknown>) : undefined;
+  const usage =
+    (source.usage as Record<string, unknown> | undefined) ?? (choice?.usage as Record<string, unknown> | undefined);
   const model = (source.model as string | undefined) ?? 'unknown';
   if (!usage) return null;
 
@@ -88,7 +101,7 @@ function extractOpenAIUsage(data: Record<string, unknown>): UsageResult | null {
   const details =
     (usage.prompt_tokens_details as Record<string, unknown> | undefined) ??
     (usage.input_tokens_details as Record<string, unknown> | undefined);
-  const cachedInputTokens = numberOrZero(details?.cached_tokens);
+  const cachedInputTokens = numberOrZero(details?.cached_tokens) || numberOrZero(usage.cached_tokens);
   // prompt_tokens 包含 cached 部分，扣掉后剩下的才是非 cache 的 input
   const inputTokens = Math.max(0, promptTokens - cachedInputTokens);
   // output_tokens_details.reasoning_tokens 已经是 output_tokens 的子集（breakdown），不需要额外累加
@@ -230,6 +243,7 @@ export async function extractStreamUsage(provider: string, response: Response): 
  *             message_delta.usage.output_tokens
  * - gemini：每个 chunk 都带 usageMetadata（最后 chunk 的最新）
  * - workers-ai / xiaomi-mimo / grok：OpenAI 兼容 usage
+ * - moonshot：最后一个 chunk 的 choices[0].usage
  */
 function extractChunkUsage(provider: string, data: Record<string, unknown>): UsageResult | null {
   if (provider === 'anthropic') {
@@ -264,7 +278,7 @@ function extractChunkUsage(provider: string, data: Record<string, unknown>): Usa
   if (provider === 'google-ai-studio') {
     return extractGeminiUsage(data);
   }
-  // openai / workers-ai / xiaomi-mimo 同形
+  // openai / workers-ai / moonshot / xiaomi-mimo / grok 同形
   return extractOpenAIUsage(data);
 }
 

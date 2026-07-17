@@ -137,6 +137,25 @@ describe('extractUsage', () => {
     });
   });
 
+  it('moonshot 非流式：从顶层 usage.cached_tokens 拆分缓存输入，reasoning 不重复计费', () => {
+    const data = {
+      model: 'kimi-k3',
+      usage: {
+        prompt_tokens: 1000,
+        completion_tokens: 200,
+        cached_tokens: 800,
+        completion_tokens_details: { reasoning_tokens: 120 },
+      },
+    };
+    expect(extractUsage('moonshot', data)).toEqual({
+      model: 'kimi-k3',
+      inputTokens: 200,
+      cachedInputTokens: 800,
+      cacheWriteTokens: 0,
+      outputTokens: 200,
+    });
+  });
+
   it('grok 兼容 openai 风格 usage', () => {
     const data = { model: 'grok-4.3', usage: { prompt_tokens: 17, completion_tokens: 23 } };
     expect(extractUsage('grok', data)).toEqual({
@@ -285,6 +304,23 @@ describe('extractStreamUsage', () => {
     ]);
     const result = await extractStreamUsage('xiaomi-mimo', response);
     expect(result).toEqual({ model: 'mimo-v2.5-pro', inputTokens: 21, outputTokens: 34, ...zeroCache });
+  });
+
+  it('moonshot：从尾 chunk 的 choices[0].usage 提取缓存与输出 token', async () => {
+    const response = createSSEResponse([
+      'data: {"model":"kimi-k3","choices":[{"delta":{"reasoning_content":"思考"}}]}\n\n',
+      'data: {"model":"kimi-k3","choices":[{"delta":{"content":"答案"}}]}\n\n',
+      'data: {"model":"kimi-k3","choices":[{"delta":{},"usage":{"prompt_tokens":1000,"completion_tokens":200,"cached_tokens":800}}]}\n\n',
+      'data: [DONE]\n\n',
+    ]);
+    const result = await extractStreamUsage('moonshot', response);
+    expect(result).toEqual({
+      model: 'kimi-k3',
+      inputTokens: 200,
+      cachedInputTokens: 800,
+      cacheWriteTokens: 0,
+      outputTokens: 200,
+    });
   });
 
   it('grok：按 openai SSE usage 提取', async () => {

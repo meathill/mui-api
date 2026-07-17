@@ -2,6 +2,7 @@
  * Provider 分发：按 provider 选 SDK 调上游，返回原始 Response 透传给客户端
  * - openai          → openai SDK + AI Gateway (CF_AIG_TOKEN 鉴权)
  * - google-ai-studio → @google/genai SDK + AI Gateway (CF_AIG_TOKEN 鉴权)
+ * - moonshot        → fetch + Moonshot OpenAI 兼容接口（直连，不走 AI Gateway）
  * - xiaomi-mimo     → fetch + Xiaomi MiMo OpenAI 兼容接口（直连，不走 AI Gateway）
  * - anthropic       → fetch + AI Gateway compat 端点（Unified Billing 代付，返回 OpenAI 形）
  * - grok            → fetch + AI Gateway 原生 grok 端点（xAI key 以 CF Gateway Stored Keys 形式配置，本服务不持有）
@@ -13,6 +14,7 @@ import OpenAI from 'openai';
 import type { CloudflareBindings } from '../types';
 
 type AnyBody = Record<string, unknown>;
+const MOONSHOT_DEFAULT_BASE_URL = 'https://api.moonshot.ai/v1';
 const XIAOMI_MIMO_DEFAULT_BASE_URL = 'https://api.xiaomimimo.com/v1';
 
 function aiGatewayBase(env: CloudflareBindings, provider: string): string {
@@ -29,6 +31,10 @@ function trimTrailingSlashes(value: string): string {
 
 export function xiaomiMiMoBaseURL(env: CloudflareBindings): string {
   return trimTrailingSlashes(env.MIMO_BASE_URL ?? XIAOMI_MIMO_DEFAULT_BASE_URL);
+}
+
+export function moonshotBaseURL(env: CloudflareBindings): string {
+  return trimTrailingSlashes(env.MOONSHOT_BASE_URL ?? MOONSHOT_DEFAULT_BASE_URL);
 }
 
 /** OpenAI SDK 调用，通过 AI Gateway 转发，CF_AIG_TOKEN 鉴权 */
@@ -67,6 +73,22 @@ export async function callXiaomiMiMo(env: CloudflareBindings, body: AnyBody): Pr
     method: 'POST',
     headers: {
       Authorization: `Bearer ${env.MIMO_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+/** Moonshot 直连 OpenAI 兼容 Chat Completions 接口，不经过 Cloudflare AI Gateway。 */
+export async function callMoonshot(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  if (!env.MOONSHOT_API_KEY) {
+    throw new Error('缺少 MOONSHOT_API_KEY，无法调用 Moonshot AI');
+  }
+
+  return fetch(`${moonshotBaseURL(env)}/chat/completions`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${env.MOONSHOT_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),

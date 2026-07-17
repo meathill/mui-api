@@ -16,6 +16,7 @@ export default defineConfig({
           CF_ACCOUNT_ID: 'test-account',
           CF_GATEWAY_ID: 'test-gateway',
           CF_TOKEN: 'test-cf-token',
+          MOONSHOT_API_KEY: 'test-moonshot-key',
           MIMO_API_KEY: 'test-mimo-key',
           ANTHROPIC_API_KEY: 'test-anthropic-key',
         },

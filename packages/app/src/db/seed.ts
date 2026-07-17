@@ -437,6 +437,23 @@ export const SEED_MODELS: NewModel[] = [
     ...NO_CACHE_NO_TIER,
   },
 
+  // Moonshot AI —— Kimi K3 直连官方 OpenAI 兼容接口；1M context 统一定价
+  {
+    id: 'kimi-k3',
+    provider: 'moonshot',
+    upstreamModelId: 'kimi-k3',
+    inputPrice: 3,
+    outputPrice: 15,
+    markupRate: 1.2,
+    cachedInputPrice: 0.3,
+    cacheWritePrice: null,
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
+
   // Xiaomi MiMo —— 直连 OpenAI 兼容接口
   // 文本模型官方分 <=256K 与 >256K 两档；cache 命中按 OpenAI 兼容约 10%
   {

@@ -29,6 +29,7 @@ INSERT OR REPLACE INTO models (id, provider, upstream_model_id, input_price, out
   ('glm-4.7-flash', 'workers-ai', '@cf/zai-org/glm-4.7-flash', 0.06, 0.4, 1.2, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
   ('qwen3-30b', 'workers-ai', '@cf/qwen/qwen3-30b-a3b-fp8', 0.051, 0.335, 1.2, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
   ('kimi-k2.6', 'workers-ai', '@cf/moonshotai/kimi-k2.6', 0.95, 4, 1.2, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
+  ('kimi-k3', 'moonshot', 'kimi-k3', 3, 15, 1.2, 0.3, NULL, NULL, NULL, NULL, NULL, NULL),
   ('mimo-v2.5-pro', 'xiaomi-mimo', 'mimo-v2.5-pro', 1, 3, 1.2, 0.1, NULL, 256000, 2, 0.2, NULL, 6),
   ('mimo-v2-pro', 'xiaomi-mimo', 'mimo-v2-pro', 1, 3, 1.2, 0.1, NULL, 256000, 2, 0.2, NULL, 6),
   ('mimo-v2.5', 'xiaomi-mimo', 'mimo-v2.5', 0.4, 2, 1.2, 0.04, NULL, 256000, 0.8, 0.08, NULL, 4),
