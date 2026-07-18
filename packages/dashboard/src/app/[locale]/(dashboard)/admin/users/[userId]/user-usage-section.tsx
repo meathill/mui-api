@@ -1,13 +1,15 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { UsageLogTable } from '@/components/admin/usage-log-table';
 import { Button } from '@/components/ui/button';
+import { useAsyncResource } from '@/hooks/use-async-resource';
 import { Link } from '@/i18n/navigation';
 import { api, type Pagination, type UsageLog } from '@/lib/api';
 
 const PAGE_SIZE = 10;
+const EMPTY_PAGINATION: Pagination = { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0 };
 
 export interface UserUsageSectionProps {
   userId: string;
@@ -15,35 +17,16 @@ export interface UserUsageSectionProps {
 
 export function UserUsageSection({ userId }: UserUsageSectionProps) {
   const t = useTranslations('adminUserDetail');
-  const te = useTranslations('errors');
   const tc = useTranslations('common');
   const ta = useTranslations('adminUsage');
 
-  const [logs, setLogs] = useState<UsageLog[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0 });
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const loadLogs = useCallback(
-    async (targetPage: number) => {
-      try {
-        setLoading(true);
-        const data = await api.getUsage({ userId, page: targetPage, pageSize: PAGE_SIZE });
-        setLogs(data.logs);
-        setPagination(data.pagination);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : te('loadFailed'));
-      } finally {
-        setLoading(false);
-      }
-    },
-    [userId, te],
-  );
-
-  useEffect(() => {
-    loadLogs(page);
-  }, [page, loadLogs]);
+  const fetchLogs = useCallback(() => api.getUsage({ userId, page, pageSize: PAGE_SIZE }), [userId, page]);
+  const {
+    data: { logs, pagination },
+    loading,
+    error,
+  } = useAsyncResource(fetchLogs, { logs: [] as UsageLog[], pagination: EMPTY_PAGINATION });
 
   return (
     <section className="mb-6">

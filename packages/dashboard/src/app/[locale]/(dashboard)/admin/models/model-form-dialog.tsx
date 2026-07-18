@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDownIcon, ChevronRightIcon } from 'lucide-react';
+import { CaretDown, CaretRight } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import type { FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
@@ -154,7 +154,7 @@ export function ModelFormDialog({
               onClick={onToggleAdvanced}
               className="flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              {advancedOpen ? <ChevronDownIcon className="h-3 w-3" /> : <ChevronRightIcon className="h-3 w-3" />}
+              {advancedOpen ? <CaretDown className="h-3 w-3" /> : <CaretRight className="h-3 w-3" />}
               {t('advancedPricing')}
             </button>
             <p className="text-xs text-muted-foreground mt-1">{t('advancedHint')}</p>

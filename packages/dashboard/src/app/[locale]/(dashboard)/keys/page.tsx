@@ -1,8 +1,9 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
+import { useAsyncResource } from '@/hooks/use-async-resource';
 import {
   AlertDialog,
   AlertDialogClose,
@@ -39,10 +40,6 @@ export default function KeysPage() {
   const t = useTranslations('keys');
   const tc = useTranslations('common');
   const te = useTranslations('errors');
-  const [keys, setKeys] = useState<ApiKey[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
   const [newKeyDialogOpen, setNewKeyDialogOpen] = useState(false);
   const [newRawKey, setNewRawKey] = useState('');
   const [creating, setCreating] = useState(false);
@@ -55,21 +52,8 @@ export default function KeysPage() {
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
   const [revokeKeyId, setRevokeKeyId] = useState('');
 
-  const loadKeys = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await userApi.getKeys();
-      setKeys(data.keys);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : te('loadFailed'));
-    } finally {
-      setLoading(false);
-    }
-  }, [te]);
-
-  useEffect(() => {
-    loadKeys();
-  }, [loadKeys]);
+  const fetchKeys = useCallback(async () => (await userApi.getKeys()).keys, []);
+  const { data: keys, loading, error, reload: loadKeys } = useAsyncResource<ApiKey[]>(fetchKeys, []);
 
   async function handleCreateKey() {
     setCreating(true);

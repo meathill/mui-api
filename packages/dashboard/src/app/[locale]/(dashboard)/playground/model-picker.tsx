@@ -1,7 +1,7 @@
 'use client';
 
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
-import { ChevronsUpDownIcon } from 'lucide-react';
+import { CaretUpDown } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import * as React from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -20,15 +20,8 @@ import {
 } from '@/components/ui/combobox';
 import type { ModelInfo } from '@/lib/api';
 import { cn } from '@/lib/utils';
-import {
-  formatModelPrice,
-  getGrokImagePrice,
-  getModelCapabilityTagKeys,
-  getModelPrice,
-  groupModelsByProvider,
-  type ModelGroup,
-  PROVIDER_LABELS,
-} from './playground-utils';
+import { groupModelsByProvider, type ModelGroup, PROVIDER_LABELS } from './playground-model-catalog';
+import { formatModelPrice, getGrokImagePrice, getModelCapabilityTagKeys, getModelPrice } from './playground-utils';
 
 type ModelPickerProps = {
   models: ModelInfo[];
@@ -113,7 +106,7 @@ export function ModelPicker(props: ModelPickerProps) {
             );
           }}
         </ComboboxValue>
-        <ChevronsUpDownIcon className="size-4 shrink-0 opacity-60" />
+        <CaretUpDown className="size-4 shrink-0 opacity-60" />
       </ComboboxTrigger>
 
       <ComboboxPopup>

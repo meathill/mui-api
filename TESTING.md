@@ -45,8 +45,8 @@ pnpm --dir packages/dashboard run test:e2e
 pnpm --dir packages/dashboard run build
 ```
 
-- 单元测试使用 `vitest`，匹配 `src/**/*.test.ts`
-- E2E 使用 `playwright`
+- 单元测试使用 `vitest`，匹配 `src/**/*.test.ts`、`src/**/*.test.tsx`（组件测试，jsdom）与 `scripts/**/*.test.ts`
+- E2E 使用 `playwright`；`e2e/admin.setup.ts` 是登录态 fixture（`setup` project），生成的 storageState 供需要管理员登录态的用例复用
 - 运行 dashboard E2E 前，先执行：
 
 ```bash
@@ -90,6 +90,7 @@ pnpm --dir packages/dashboard run build
 
 - `pnpm biome check --formatter-enabled=true --linter-enabled=false --assist-enabled=false`
 - `pnpm --filter mui-api run test`
+- `pnpm --filter mui-api-dashboard run test`
 - `pnpm --filter mui-api run test:e2e`
 - `pnpm --filter mui-api-dashboard exec playwright install chromium --with-deps`
 - `pnpm --filter mui-api-dashboard run test:e2e:prepare`

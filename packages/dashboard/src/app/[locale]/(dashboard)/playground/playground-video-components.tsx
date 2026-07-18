@@ -7,12 +7,12 @@ import {
   getGrokVideoResolutions,
   isGrokVideoModelId,
 } from '@muirouter/shared-db/grok-video';
-import { DownloadIcon, LoaderCircleIcon, UploadIcon, XIcon } from 'lucide-react';
+import { Download, CircleNotch, Upload, X } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import { Button } from '@/components/ui/button';
 import { Field } from './playground-components';
 import type { GrokVideoOptions, VideoResult, VideoStatus } from './playground-types';
-import { downloadVideo } from './playground-utils';
+import { downloadVideo } from './playground-media-results';
 
 export function GrokVideoControls({
   model,
@@ -81,7 +81,7 @@ export function GrokVideoControls({
       </div>
       <div className="rounded-lg border border-dashed border-border bg-muted/30 p-4">
         <label className="flex cursor-pointer flex-col items-center justify-center gap-2 text-center">
-          <UploadIcon className="size-5 text-muted-foreground" />
+          <Upload className="size-5 text-muted-foreground" />
           <span className="text-sm font-medium">{t('videoUploadImage')}</span>
           <span className="text-xs text-muted-foreground">
             {requiresImage ? t('videoImageRequired') : t('videoImageOptional')}
@@ -100,7 +100,7 @@ export function GrokVideoControls({
             className="mt-3 inline-flex items-center gap-1 rounded-md bg-background px-2 py-1 text-xs text-muted-foreground"
           >
             {image.name}
-            <XIcon className="size-3" />
+            <X className="size-3" />
           </button>
         )}
       </div>
@@ -121,7 +121,7 @@ export function VideoResultView({
   if (status === 'pending') {
     return (
       <div className="flex min-h-72 flex-col items-center justify-center gap-3 rounded-lg bg-muted text-sm text-muted-foreground">
-        <LoaderCircleIcon className="size-6 animate-spin" />
+        <CircleNotch className="size-6 animate-spin" />
         <span>{progress == null ? t('videoPending') : t('videoProgress', { progress })}</span>
       </div>
     );
@@ -140,7 +140,7 @@ export function VideoResultView({
       <div className="flex flex-wrap items-center justify-between gap-2 bg-background p-3">
         <p className="text-xs text-muted-foreground">{t('videoTemporaryHint')}</p>
         <Button size="sm" variant="outline" onClick={() => downloadVideo(result.url)}>
-          <DownloadIcon />
+          <Download />
           {t('saveVideo')}
         </Button>
       </div>

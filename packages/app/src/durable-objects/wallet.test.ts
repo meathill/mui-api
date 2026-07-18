@@ -103,6 +103,7 @@ interface WalletResult {
     reservationId: string;
     amount: number;
     status: 'reserved' | 'settled' | 'released';
+    expiresAt: number;
     settledAmount?: number;
   };
 }
@@ -285,5 +286,115 @@ describe('WalletDO', () => {
       expiresAt: Date.now() + 60_000,
     });
     expect(next.reservation?.status).toBe('reserved');
+  });
+
+  it('/refresh-reservation 延长 reserved 状态预占的到期时间', async () => {
+    const { durableObject, kv } = createDurableObject();
+    await seedKvUser(kv, 'user-1', 10);
+    const firstExpiresAt = Date.now() + 60_000;
+    await postJson<WalletResult>(durableObject, '/reserve', 'user-1', {
+      reservationId: 'video-1',
+      amount: 5,
+      expiresAt: firstExpiresAt,
+    });
+
+    const refreshedExpiresAt = firstExpiresAt + 60_000;
+    const refreshed = await postJson<WalletResult>(durableObject, '/refresh-reservation', 'user-1', {
+      reservationId: 'video-1',
+      expiresAt: refreshedExpiresAt,
+    });
+
+    expect(refreshed.ok).toBe(true);
+    expect(refreshed.reservation?.status).toBe('reserved');
+    expect(refreshed.reservation?.expiresAt).toBe(refreshedExpiresAt);
+  });
+
+  it('/refresh-reservation 对已结算的预占是无操作，不更新到期时间', async () => {
+    const { durableObject, kv } = createDurableObject();
+    await seedKvUser(kv, 'user-1', 10);
+    const firstExpiresAt = Date.now() + 60_000;
+    await postJson<WalletResult>(durableObject, '/reserve', 'user-1', {
+      reservationId: 'video-1',
+      amount: 5,
+      expiresAt: firstExpiresAt,
+    });
+    await postJson<WalletResult>(durableObject, '/settle-reservation', 'user-1', {
+      reservationId: 'video-1',
+      amount: 5,
+    });
+
+    const refreshed = await postJson<WalletResult>(durableObject, '/refresh-reservation', 'user-1', {
+      reservationId: 'video-1',
+      expiresAt: firstExpiresAt + 60_000,
+    });
+
+    expect(refreshed.ok).toBe(true);
+    expect(refreshed.reservation?.status).toBe('settled');
+    expect(refreshed.reservation?.expiresAt).toBe(firstExpiresAt);
+  });
+
+  it('/refresh-reservation 对已释放的预占是无操作，不更新到期时间', async () => {
+    const { durableObject, kv } = createDurableObject();
+    await seedKvUser(kv, 'user-1', 10);
+    const firstExpiresAt = Date.now() + 60_000;
+    await postJson<WalletResult>(durableObject, '/reserve', 'user-1', {
+      reservationId: 'video-1',
+      amount: 5,
+      expiresAt: firstExpiresAt,
+    });
+    await postJson<WalletResult>(durableObject, '/release-reservation', 'user-1', {
+      reservationId: 'video-1',
+    });
+
+    const refreshed = await postJson<WalletResult>(durableObject, '/refresh-reservation', 'user-1', {
+      reservationId: 'video-1',
+      expiresAt: firstExpiresAt + 60_000,
+    });
+
+    expect(refreshed.ok).toBe(true);
+    expect(refreshed.reservation?.status).toBe('released');
+    expect(refreshed.reservation?.expiresAt).toBe(firstExpiresAt);
+  });
+
+  it('/refresh-reservation 对不存在的预占返回 404', async () => {
+    const { durableObject, kv } = createDurableObject();
+    await seedKvUser(kv, 'user-1', 10);
+
+    const response = await durableObject.fetch(
+      new Request('https://wallet/refresh-reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': 'user-1' },
+        body: JSON.stringify({ reservationId: 'ghost', expiresAt: Date.now() + 60_000 }),
+      }),
+    );
+
+    expect(response.status).toBe(404);
+    const body = (await response.json()) as WalletResult;
+    expect(body.error).toBe('reservation_not_found');
+  });
+
+  it('/refresh-reservation 缺少 reservationId 或 expiresAt 非法时返回 400', async () => {
+    const { durableObject, kv } = createDurableObject();
+    await seedKvUser(kv, 'user-1', 10);
+
+    const missingId = await durableObject.fetch(
+      new Request('https://wallet/refresh-reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': 'user-1' },
+        body: JSON.stringify({ expiresAt: Date.now() + 60_000 }),
+      }),
+    );
+    expect(missingId.status).toBe(400);
+    expect(((await missingId.json()) as WalletResult).error).toBe('invalid_reservation');
+
+    const invalidExpiresAt = await durableObject.fetch(
+      new Request('https://wallet/refresh-reservation', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': 'user-1' },
+        body: JSON.stringify({ reservationId: 'video-1', expiresAt: Number.NaN }),
+      }),
+    );
+    expect(invalidExpiresAt.status).toBe(400);
+    expect(((await invalidExpiresAt.json()) as WalletResult).error).toBe('invalid_reservation');
   });
 });

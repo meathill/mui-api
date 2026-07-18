@@ -1,13 +1,13 @@
-import { ImageIcon, LayersIcon, UploadIcon } from 'lucide-react';
+import { Image, Stack, Upload } from '@phosphor-icons/react/ssr';
 import { useTranslations } from 'next-intl';
 
 export function ImageSection() {
   const t = useTranslations('image');
 
   const items = [
-    { icon: ImageIcon, title: t('generateTitle'), description: t('generateDesc') },
-    { icon: UploadIcon, title: t('editTitle'), description: t('editDesc') },
-    { icon: LayersIcon, title: t('workflowTitle'), description: t('workflowDesc') },
+    { icon: Image, title: t('generateTitle'), description: t('generateDesc') },
+    { icon: Upload, title: t('editTitle'), description: t('editDesc') },
+    { icon: Stack, title: t('workflowTitle'), description: t('workflowDesc') },
   ];
 
   return (

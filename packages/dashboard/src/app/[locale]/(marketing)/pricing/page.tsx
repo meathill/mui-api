@@ -1,6 +1,6 @@
 import { isGrokImageModelId } from '@muirouter/shared-db/grok-image';
 import { asc } from 'drizzle-orm';
-import { ArrowUpRightIcon } from 'lucide-react';
+import { ArrowUpRight } from '@phosphor-icons/react/ssr';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Badge } from '@/components/ui/badge';
@@ -178,7 +178,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
                         className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
                       >
                         {display.label}
-                        <ArrowUpRightIcon size={14} />
+                        <ArrowUpRight size={14} />
                       </a>
                     </li>
                   );
@@ -246,7 +246,7 @@ async function ProviderPricingCard({ section, locale }: { section: ProviderSecti
           className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground transition-colors hover:text-primary"
         >
           {t('officialSource')}
-          <ArrowUpRightIcon size={15} />
+          <ArrowUpRight size={15} />
         </a>
       </CardHeader>
 

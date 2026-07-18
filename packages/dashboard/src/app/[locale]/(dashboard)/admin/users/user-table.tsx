@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowDownIcon, ArrowUpDownIcon, ArrowUpIcon } from 'lucide-react';
+import { ArrowDown, ArrowsDownUp, ArrowUp } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -22,12 +22,12 @@ function SortIndicator({
   sortDirection: SortDirection;
 }) {
   if (sortField !== field) {
-    return <ArrowUpDownIcon className="inline ml-1 h-3 w-3 text-muted-foreground/40" />;
+    return <ArrowsDownUp className="inline ml-1 h-3 w-3 text-muted-foreground/40" />;
   }
   return sortDirection === 'desc' ? (
-    <ArrowDownIcon className="inline ml-1 h-3 w-3" />
+    <ArrowDown className="inline ml-1 h-3 w-3" />
   ) : (
-    <ArrowUpIcon className="inline ml-1 h-3 w-3" />
+    <ArrowUp className="inline ml-1 h-3 w-3" />
   );
 }
 

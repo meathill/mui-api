@@ -63,36 +63,53 @@ export async function callOpenAIEndpoint(
   });
 }
 
-/** Xiaomi MiMo 直连 OpenAI 兼容 Chat Completions 接口，不经过 Cloudflare AI Gateway。 */
-export async function callXiaomiMiMo(env: CloudflareBindings, body: AnyBody): Promise<Response> {
-  if (!env.MIMO_API_KEY) {
-    throw new Error('缺少 MIMO_API_KEY，无法调用 Xiaomi MiMo');
+type OpenAICompatDirectConfig = {
+  apiKey: string | undefined;
+  apiKeyEnvName: string;
+  baseUrl: string;
+  providerLabel: string;
+};
+
+/** 直连 OpenAI 兼容 Chat Completions 接口的公共骨架（不经过 Cloudflare AI Gateway）。 */
+async function callOpenAICompatDirect(config: OpenAICompatDirectConfig, body: AnyBody): Promise<Response> {
+  if (!config.apiKey) {
+    throw new Error(`缺少 ${config.apiKeyEnvName}，无法调用 ${config.providerLabel}`);
   }
 
-  return fetch(`${xiaomiMiMoBaseURL(env)}/chat/completions`, {
+  return fetch(`${config.baseUrl}/chat/completions`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${env.MIMO_API_KEY}`,
+      Authorization: `Bearer ${config.apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
   });
 }
 
+/** Xiaomi MiMo 直连 OpenAI 兼容 Chat Completions 接口，不经过 Cloudflare AI Gateway。 */
+export async function callXiaomiMiMo(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  return callOpenAICompatDirect(
+    {
+      apiKey: env.MIMO_API_KEY,
+      apiKeyEnvName: 'MIMO_API_KEY',
+      baseUrl: xiaomiMiMoBaseURL(env),
+      providerLabel: 'Xiaomi MiMo',
+    },
+    body,
+  );
+}
+
 /** Moonshot 直连 OpenAI 兼容 Chat Completions 接口，不经过 Cloudflare AI Gateway。 */
 export async function callMoonshot(env: CloudflareBindings, body: AnyBody): Promise<Response> {
-  if (!env.MOONSHOT_API_KEY) {
-    throw new Error('缺少 MOONSHOT_API_KEY，无法调用 Moonshot AI');
-  }
-
-  return fetch(`${moonshotBaseURL(env)}/chat/completions`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.MOONSHOT_API_KEY}`,
-      'Content-Type': 'application/json',
+  return callOpenAICompatDirect(
+    {
+      apiKey: env.MOONSHOT_API_KEY,
+      apiKeyEnvName: 'MOONSHOT_API_KEY',
+      baseUrl: moonshotBaseURL(env),
+      providerLabel: 'Moonshot AI',
     },
-    body: JSON.stringify(body),
-  });
+    body,
+  );
 }
 
 /**

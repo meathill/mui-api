@@ -1,4 +1,4 @@
-import { ArrowRightIcon, ArrowUpRightIcon, GaugeIcon, KeyRoundIcon, PlugZapIcon, RouteIcon } from 'lucide-react';
+import { ArrowRight, ArrowUpRight, Gauge, Key, Plug, Path } from '@phosphor-icons/react/ssr';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
 import { getLocalizedPath, SITE_URL } from '@/lib/seo';
@@ -18,7 +18,7 @@ interface RouterRelatedLink {
   label: string;
 }
 
-const FEATURE_ICONS = [RouteIcon, KeyRoundIcon, GaugeIcon, PlugZapIcon];
+const FEATURE_ICONS = [Path, Key, Gauge, Plug];
 
 interface RouterLandingProps {
   /** i18n namespace holding this landing page's copy (e.g. 'aiRouter') */
@@ -82,7 +82,7 @@ export function RouterLanding({ namespace, path, locale }: RouterLandingProps) {
               className="press inline-flex h-12 items-center gap-2 rounded-lg border-2 border-[#3a2e23] bg-[var(--brand-yellow)] px-8 text-base font-semibold text-[#3a2e23] shadow-[0_3px_0_0_#3a2e23] hover:shadow-[0_4px_0_0_#3a2e23] active:shadow-[0_1px_0_0_#3a2e23]"
             >
               {t('ctaPrimary')}
-              <ArrowRightIcon size={18} />
+              <ArrowRight size={18} />
             </Link>
             <Link
               href="/pricing"
@@ -141,10 +141,7 @@ export function RouterLanding({ namespace, path, locale }: RouterLandingProps) {
                 className="group inline-flex items-center justify-between gap-2 rounded-lg border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition-colors hover:border-[var(--brand-corgi)] hover:text-[var(--brand-yellow-deep)]"
               >
                 {link.label}
-                <ArrowUpRightIcon
-                  size={16}
-                  className="text-muted-foreground group-hover:text-[var(--brand-yellow-deep)]"
-                />
+                <ArrowUpRight size={16} className="text-muted-foreground group-hover:text-[var(--brand-yellow-deep)]" />
               </Link>
             ))}
           </div>
@@ -161,7 +158,7 @@ export function RouterLanding({ namespace, path, locale }: RouterLandingProps) {
               className="press inline-flex h-12 items-center gap-2 rounded-lg border-2 border-[#3a2e23] bg-[var(--brand-yellow)] px-8 text-base font-semibold text-[#3a2e23] shadow-[0_3px_0_0_#3a2e23] hover:shadow-[0_4px_0_0_#3a2e23] active:shadow-[0_1px_0_0_#3a2e23]"
             >
               {t('ctaButton')}
-              <ArrowRightIcon size={18} />
+              <ArrowRight size={18} />
             </Link>
           </div>
         </div>

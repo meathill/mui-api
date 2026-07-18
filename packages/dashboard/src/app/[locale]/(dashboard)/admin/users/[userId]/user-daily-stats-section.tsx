@@ -2,11 +2,12 @@
 
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useAsyncResource } from '@/hooks/use-async-resource';
 import { api, type StatisticsResponse } from '@/lib/api';
 import { formatDate, formatPeriodLabel, TIME_RANGES, type TimeRange } from '@/lib/date-ranges';
 
@@ -25,12 +26,7 @@ export interface UserDailyStatsSectionProps {
 export function UserDailyStatsSection({ userId }: UserDailyStatsSectionProps) {
   const t = useTranslations('adminStats');
   const tud = useTranslations('adminUserDetail');
-  const te = useTranslations('errors');
   const tc = useTranslations('common');
-
-  const [data, setData] = useState<StatisticsData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const [startDate, setStartDate] = useState(() => {
     const d = new Date();
@@ -40,27 +36,11 @@ export function UserDailyStatsSection({ userId }: UserDailyStatsSectionProps) {
   const [endDate, setEndDate] = useState(() => formatDate(new Date()));
   const [activeRange, setActiveRange] = useState('last7days');
 
-  const loadStatistics = useCallback(
-    async (start: string, end: string) => {
-      try {
-        setLoading(true);
-        setError('');
-        const result = await api.getStatistics({ startDate: start, endDate: end, granularity: 'daily', userId });
-        setData(result);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : te('loadFailed'));
-      } finally {
-        setLoading(false);
-      }
-    },
-    [userId, te],
+  const fetchStatistics = useCallback(
+    () => api.getStatistics({ startDate, endDate, granularity: 'daily', userId }),
+    [startDate, endDate, userId],
   );
-
-  // 快捷范围只更新日期状态，交给下面的 effect 统一发起请求；
-  // 手动查询（日期没变也要能重新查）走 handleSearch 主动触发。
-  useEffect(() => {
-    loadStatistics(startDate, endDate);
-  }, [startDate, endDate, loadStatistics]);
+  const { data, loading, error, reload } = useAsyncResource<StatisticsData | null>(fetchStatistics, null);
 
   function handleRangeClick(range: TimeRange) {
     const { startDate: s, endDate: e } = range.getDates();
@@ -69,10 +49,12 @@ export function UserDailyStatsSection({ userId }: UserDailyStatsSectionProps) {
     setActiveRange(range.key);
   }
 
+  // 快捷范围只更新日期状态，靠 fetchStatistics 引用变化自动重新请求；
+  // 手动查询（日期没变也要能重新查）直接调用 reload 主动触发。
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     setActiveRange('');
-    loadStatistics(startDate, endDate);
+    reload();
   }
 
   const chartData = (data?.timeSeries ?? []).map((item) => ({

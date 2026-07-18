@@ -5,13 +5,14 @@ import {
   GROK_IMAGE_MAX_OUTPUTS,
   GROK_IMAGE_RESOLUTIONS,
 } from '@muirouter/shared-db/grok-image';
-import { DownloadIcon, Trash2Icon, UploadIcon, XIcon } from 'lucide-react';
+import { Download, Trash, Upload, X } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import type React from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import type { AudioResult, GrokImageOptions, HistoryItem, ImageResult, PlaygroundMode } from './playground-types';
-import { downloadAudio, downloadImage, getTtsVoiceOptions, isTtsVoiceCloneModel } from './playground-utils';
+import { downloadAudio, downloadImage } from './playground-media-results';
+import { getTtsVoiceOptions, isTtsVoiceCloneModel } from './playground-tts';
 
 export function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -60,7 +61,7 @@ export function ImageUpload({
   return (
     <div className="rounded-lg border border-dashed border-border bg-muted/30 p-4">
       <label className="flex cursor-pointer flex-col items-center justify-center gap-2 text-center">
-        <UploadIcon className="size-5 text-muted-foreground" />
+        <Upload className="size-5 text-muted-foreground" />
         <span className="text-sm font-medium">{t(titleKey)}</span>
         <span className="text-xs text-muted-foreground">{t(hintKey)}</span>
         <input
@@ -81,7 +82,7 @@ export function ImageUpload({
               className="inline-flex items-center gap-1 rounded-md bg-background px-2 py-1 text-xs text-muted-foreground"
             >
               {file.name}
-              <XIcon className="size-3" />
+              <X className="size-3" />
             </button>
           ))}
         </div>
@@ -193,7 +194,7 @@ export function TtsControls({
       {needsVoiceSample && (
         <div className="rounded-lg border border-dashed border-border bg-muted/30 p-4">
           <label className="flex cursor-pointer flex-col items-center justify-center gap-2 text-center">
-            <UploadIcon className="size-5 text-muted-foreground" />
+            <Upload className="size-5 text-muted-foreground" />
             <span className="text-sm font-medium">{t('ttsVoiceSampleUpload')}</span>
             <span className="text-xs text-muted-foreground">{t('ttsVoiceSampleHint')}</span>
             <input
@@ -210,7 +211,7 @@ export function TtsControls({
               className="mt-3 inline-flex items-center gap-1 rounded-md bg-background px-2 py-1 text-xs text-muted-foreground"
             >
               {voiceSample.name}
-              <XIcon className="size-3" />
+              <X className="size-3" />
             </button>
           )}
         </div>
@@ -254,7 +255,7 @@ export function ImageResults({
           <div className="flex items-center justify-between gap-2 bg-background p-2">
             <span className="truncate text-xs text-muted-foreground">{image.filename}</span>
             <Button size="sm" variant="outline" onClick={() => downloadImage(image)}>
-              <DownloadIcon />
+              <Download />
               {saveLabel}
             </Button>
           </div>
@@ -287,7 +288,7 @@ export function AudioResultView({
       <div className="mt-3 flex items-center justify-between gap-2">
         <span className="truncate text-xs text-muted-foreground">{result.filename}</span>
         <Button size="sm" variant="outline" onClick={() => downloadAudio(result)}>
-          <DownloadIcon />
+          <Download />
           {saveLabel}
         </Button>
       </div>
@@ -314,7 +315,7 @@ export function HistoryList({
           <p className="mt-1 text-xs text-muted-foreground">{t('historyHint')}</p>
         </div>
         <Button variant="outline" size="sm" onClick={onClear} disabled={history.length === 0}>
-          <Trash2Icon />
+          <Trash />
           {t('clearHistory')}
         </Button>
       </div>

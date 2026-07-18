@@ -4,6 +4,7 @@ import { formatBalance } from '@muirouter/shared-db/money';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
+import { useAsyncResource } from '@/hooks/use-async-resource';
 import {
   AlertDialog,
   AlertDialogClose,
@@ -28,16 +29,19 @@ const DEFAULT_FREE_QUOTA = {
   modelIds: [] as string[],
 };
 
+interface SettingsData {
+  config: GlobalConfig | null;
+  stats: SpendingStats | null;
+  models: ModelInfo[];
+}
+
+const EMPTY_SETTINGS_DATA: SettingsData = { config: null, stats: null, models: [] };
+
 export default function SettingsPage() {
   const t = useTranslations('adminSettings');
   const te = useTranslations('errors');
   const tc = useTranslations('common');
 
-  const [config, setConfig] = useState<GlobalConfig | null>(null);
-  const [stats, setStats] = useState<SpendingStats | null>(null);
-  const [models, setModels] = useState<ModelInfo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [msg, setMsg] = useState('');
 
   const [dailyCap, setDailyCap] = useState('');
@@ -54,34 +58,31 @@ export default function SettingsPage() {
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const loadData = useCallback(async () => {
-    try {
-      setLoading(true);
-      const [configRes, statsRes, modelsRes] = await Promise.all([
-        api.getGlobalConfig(),
-        api.getSpendingStats(),
-        api.getModels(),
-      ]);
-      const freeQuota = configRes.config.freeQuota ?? DEFAULT_FREE_QUOTA;
-      setConfig(configRes.config);
-      setStats(statsRes.stats);
-      setModels(modelsRes.models);
-      setDailyCap(String(configRes.config.dailySpendingCap || ''));
-      setMonthlyCap(String(configRes.config.monthlySpendingCap || ''));
-      setAdminEmail(configRes.config.adminEmail || '');
-      setFreeQuotaEnabled(freeQuota.enabled);
-      setFreeQuotaAmount(String(freeQuota.amount || ''));
-      setFreeQuotaModelIds(freeQuota.modelIds);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : te('loadFailed'));
-    } finally {
-      setLoading(false);
-    }
-  }, [te]);
+  const fetchSettingsData = useCallback(async (): Promise<SettingsData> => {
+    const [configRes, statsRes, modelsRes] = await Promise.all([
+      api.getGlobalConfig(),
+      api.getSpendingStats(),
+      api.getModels(),
+    ]);
+    return { config: configRes.config, stats: statsRes.stats, models: modelsRes.models };
+  }, []);
+  const {
+    data: { config, stats, models },
+    loading,
+    error,
+    reload: loadData,
+  } = useAsyncResource(fetchSettingsData, EMPTY_SETTINGS_DATA);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (!config) return;
+    const freeQuota = config.freeQuota ?? DEFAULT_FREE_QUOTA;
+    setDailyCap(String(config.dailySpendingCap || ''));
+    setMonthlyCap(String(config.monthlySpendingCap || ''));
+    setAdminEmail(config.adminEmail || '');
+    setFreeQuotaEnabled(freeQuota.enabled);
+    setFreeQuotaAmount(String(freeQuota.amount || ''));
+    setFreeQuotaModelIds(freeQuota.modelIds);
+  }, [config]);
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();

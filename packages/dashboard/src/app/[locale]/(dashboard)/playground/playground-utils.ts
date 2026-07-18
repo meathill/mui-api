@@ -1,189 +1,25 @@
 import {
   convertUsdTicksToInternalTokens,
   GROK_IMAGE_MODEL_CONFIGS,
-  GROK_IMAGE_MODEL_IDS,
   isGrokImageModelId,
 } from '@muirouter/shared-db/grok-image';
-import { GROK_VIDEO_MODEL_IDS, isGrokVideoModelId } from '@muirouter/shared-db/grok-video';
+import { isGrokVideoModelId } from '@muirouter/shared-db/grok-video';
 import type { ModelInfo } from '@/lib/api';
-import type {
-  AudioResult,
-  HistoryItem,
-  ImageApiItem,
-  ImageResult,
-  TokenInfo,
-  TokenUsagePayload,
-  TtsApiResponse,
-  TtsRequestBody,
-} from './playground-types';
+import { isTtsModelId } from './playground-tts';
+import type { HistoryItem, TokenInfo, TokenUsagePayload } from './playground-types';
 
+// 内置模型目录已拆到 ./playground-model-catalog.ts
+// TTS 相关 helpers 已拆到 ./playground-tts.ts
+// 图片/下载结果转换已拆到 ./playground-media-results.ts
 // 网络请求 / SSE 流读取已拆到 ./playground-api.ts
 
 export const MAX_HISTORY_ITEMS = 30;
-export const MAX_KIMI_IMAGE_BYTES = 50_000_000;
-export const MAX_TTS_VOICE_SAMPLE_BYTES = 7_500_000;
-export const TTS_OUTPUT_FORMAT = 'wav';
-
-export type TtsVoiceOption = {
-  id: string;
-  label: string;
-};
-
-const NO_TIER_PRICING = {
-  cachedInputPrice: null,
-  cacheWritePrice: null,
-  longContextThresholdTokens: null,
-  longContextInputPrice: null,
-  longContextCachedInputPrice: null,
-  longContextCacheWritePrice: null,
-  longContextOutputPrice: null,
-} as const;
-
-export const BUILT_IN_IMAGE_MODELS: ModelInfo[] = [
-  {
-    id: 'gpt-image-2',
-    provider: 'openai',
-    upstreamModelId: 'gpt-image-2',
-    inputPrice: 8,
-    outputPrice: 30,
-    markupRate: 1.2,
-    ...NO_TIER_PRICING,
-  },
-  ...GROK_IMAGE_MODEL_IDS.map((id) => ({
-    id,
-    provider: 'grok',
-    upstreamModelId: id,
-    inputPrice: 0,
-    outputPrice: 1,
-    markupRate: 1.05,
-    ...NO_TIER_PRICING,
-  })),
-];
-
-export const BUILT_IN_TTS_MODELS: ModelInfo[] = [
-  {
-    id: 'mimo-v2.5-tts',
-    provider: 'xiaomi-mimo',
-    upstreamModelId: 'mimo-v2.5-tts',
-    inputPrice: 0,
-    outputPrice: 0,
-    markupRate: 1.2,
-    ...NO_TIER_PRICING,
-  },
-  {
-    id: 'mimo-v2.5-tts-voiceclone',
-    provider: 'xiaomi-mimo',
-    upstreamModelId: 'mimo-v2.5-tts-voiceclone',
-    inputPrice: 0,
-    outputPrice: 0,
-    markupRate: 1.2,
-    ...NO_TIER_PRICING,
-  },
-  {
-    id: 'mimo-v2.5-tts-voicedesign',
-    provider: 'xiaomi-mimo',
-    upstreamModelId: 'mimo-v2.5-tts-voicedesign',
-    inputPrice: 0,
-    outputPrice: 0,
-    markupRate: 1.2,
-    ...NO_TIER_PRICING,
-  },
-  {
-    id: 'mimo-v2-tts',
-    provider: 'xiaomi-mimo',
-    upstreamModelId: 'mimo-v2-tts',
-    inputPrice: 0,
-    outputPrice: 0,
-    markupRate: 1.2,
-    ...NO_TIER_PRICING,
-  },
-];
-
-export const BUILT_IN_VIDEO_MODELS: ModelInfo[] = GROK_VIDEO_MODEL_IDS.map((id) => ({
-  id,
-  provider: 'grok',
-  upstreamModelId: id,
-  inputPrice: 0,
-  outputPrice: 1,
-  markupRate: 1.05,
-  ...NO_TIER_PRICING,
-}));
-
-const BUILT_IN_PLAYGROUND_MODELS = [...BUILT_IN_IMAGE_MODELS, ...BUILT_IN_VIDEO_MODELS, ...BUILT_IN_TTS_MODELS];
-
-const MIMO_V2_5_TTS_VOICES: TtsVoiceOption[] = [
-  { id: 'mimo_default', label: 'MiMo 默认' },
-  { id: '冰糖', label: '冰糖 / 中文女声' },
-  { id: '茉莉', label: '茉莉 / 中文女声' },
-  { id: '苏打', label: '苏打 / 中文男声' },
-  { id: '白桦', label: '白桦 / 中文男声' },
-  { id: 'Mia', label: 'Mia / English female' },
-  { id: 'Chloe', label: 'Chloe / English female' },
-  { id: 'Milo', label: 'Milo / English male' },
-  { id: 'Dean', label: 'Dean / English male' },
-];
-
-const MIMO_V2_TTS_VOICES: TtsVoiceOption[] = [
-  { id: 'mimo_default', label: 'MiMo 默认' },
-  { id: 'default_zh', label: 'MiMo 中文女声' },
-  { id: 'default_en', label: 'MiMo English female' },
-];
 
 export function getApiBase() {
   return process.env.NEXT_PUBLIC_API_BASE || '';
 }
 
 // ---- 模型展示元数据（从已有字段派生，无需数据库新增字段）----
-
-/** provider 显示名（品牌专有名词，硬编码不走 i18n）。 */
-export const PROVIDER_LABELS: Record<string, string> = {
-  openai: 'OpenAI',
-  anthropic: 'Anthropic',
-  'google-ai-studio': 'Google',
-  moonshot: 'Moonshot AI',
-  'workers-ai': 'Workers AI',
-  'xiaomi-mimo': 'Xiaomi MiMo',
-  grok: 'xAI Grok',
-};
-
-/** 分组展示顺序；未列出的 provider 追加到末尾，保证新 provider 不会被丢弃。 */
-export const PROVIDER_ORDER: readonly string[] = [
-  'anthropic',
-  'openai',
-  'google-ai-studio',
-  'moonshot',
-  'workers-ai',
-  'xiaomi-mimo',
-  'grok',
-];
-
-export type ModelGroup = {
-  provider: string;
-  items: string[];
-};
-
-/** 按 provider 把模型分组，组内保留原顺序，组间按 PROVIDER_ORDER 排序。 */
-export function groupModelsByProvider(models: ModelInfo[]): ModelGroup[] {
-  const idsByProvider = new Map<string, string[]>();
-  for (const model of models) {
-    const ids = idsByProvider.get(model.provider) ?? [];
-    ids.push(model.id);
-    idsByProvider.set(model.provider, ids);
-  }
-
-  const groups: ModelGroup[] = [];
-  for (const provider of PROVIDER_ORDER) {
-    const items = idsByProvider.get(provider);
-    if (items) {
-      groups.push({ provider, items });
-      idsByProvider.delete(provider);
-    }
-  }
-  for (const [provider, items] of idsByProvider) {
-    groups.push({ provider, items });
-  }
-  return groups;
-}
 
 /** 返回模型能力标签的 i18n key 列表（成品文案由组件用 t() 渲染）。 */
 export function getModelCapabilityTagKeys(model: ModelInfo): string[] {
@@ -233,42 +69,6 @@ export function isVideoModel(model: ModelInfo) {
   return isGrokVideoModelId(model.id) || Boolean(model.upstreamModelId && isGrokVideoModelId(model.upstreamModelId));
 }
 
-export function isTtsModelId(modelId: string) {
-  return modelId.toLowerCase().includes('tts');
-}
-
-export function isTtsVoiceCloneModel(modelId: string) {
-  return modelId.toLowerCase().includes('voiceclone');
-}
-
-export function isTtsVoiceDesignModel(modelId: string) {
-  return modelId.toLowerCase().includes('voicedesign');
-}
-
-export function getTtsVoiceOptions(modelId: string): TtsVoiceOption[] {
-  if (isTtsVoiceCloneModel(modelId) || isTtsVoiceDesignModel(modelId)) {
-    return [];
-  }
-  if (modelId === 'mimo-v2-tts') {
-    return MIMO_V2_TTS_VOICES;
-  }
-  return MIMO_V2_5_TTS_VOICES;
-}
-
-export function getDefaultTtsVoice(modelId: string) {
-  return getTtsVoiceOptions(modelId)[0]?.id ?? '';
-}
-
-export function appendBuiltInPlaygroundModels(models: ModelInfo[]) {
-  const mergedModels = [...models];
-  for (const model of BUILT_IN_PLAYGROUND_MODELS) {
-    if (!mergedModels.some((item) => item.id === model.id)) {
-      mergedModels.push(model);
-    }
-  }
-  return mergedModels;
-}
-
 export function parseHistory(raw: string): HistoryItem[] {
   try {
     const parsed = JSON.parse(raw);
@@ -293,140 +93,4 @@ export function toTokenInfo(usage?: TokenUsagePayload): TokenInfo | null {
     cachedInputTokens: details?.cached_tokens ?? usage.cached_tokens ?? 0,
     outputTokens: usage.output_tokens ?? usage.completion_tokens ?? 0,
   };
-}
-
-export function getKimiImageInputError(files: File[]): 'kimiImageUnsupportedError' | 'kimiImageTooLargeError' | null {
-  if (files.some((file) => !isSupportedKimiImage(file))) return 'kimiImageUnsupportedError';
-  const totalBytes = files.reduce((sum, file) => sum + file.size, 0);
-  return totalBytes > MAX_KIMI_IMAGE_BYTES ? 'kimiImageTooLargeError' : null;
-}
-
-function isSupportedKimiImage(file: File): boolean {
-  if (['image/png', 'image/jpeg', 'image/webp', 'image/gif'].includes(file.type)) return true;
-  return /\.(png|jpe?g|webp|gif)$/i.test(file.name);
-}
-
-export function toImageResult(item: ImageApiItem, index: number): ImageResult[] {
-  const format = item.output_format ?? item.mime_type?.split('/')[1] ?? 'png';
-  const mimeType = item.mime_type ?? (format === 'jpeg' ? 'image/jpeg' : `image/${format}`);
-  if (item.b64_json) {
-    return [
-      {
-        id: crypto.randomUUID(),
-        src: `data:${mimeType};base64,${item.b64_json}`,
-        mimeType,
-        filename: `muirouter-image-${index + 1}.${format === 'jpeg' ? 'jpg' : format}`,
-      },
-    ];
-  }
-  if (item.url) {
-    return [{ id: crypto.randomUUID(), src: item.url, mimeType, filename: `muirouter-image-${index + 1}.png` }];
-  }
-  return [];
-}
-
-export function toAudioResult(data: TtsApiResponse, model: string): AudioResult | null {
-  const audio = data.choices?.[0]?.message?.audio;
-  if (!audio?.data) return null;
-
-  const suffix = audio.id ? `-${audio.id}` : '';
-  return {
-    id: crypto.randomUUID(),
-    src: `data:audio/wav;base64,${audio.data}`,
-    mimeType: 'audio/wav',
-    filename: `${model}${suffix}.wav`,
-  };
-}
-
-export function downloadImage(image: ImageResult) {
-  triggerDownload(image.src, image.filename);
-}
-
-export function downloadAudio(audio: AudioResult) {
-  triggerDownload(audio.src, audio.filename);
-}
-
-export function downloadVideo(url: string) {
-  triggerDownload(url, `muirouter-video-${Date.now()}.mp4`);
-}
-
-function triggerDownload(src: string, filename: string) {
-  const anchor = document.createElement('a');
-  anchor.href = src;
-  anchor.download = filename;
-  anchor.rel = 'noreferrer';
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-}
-
-export function buildTtsRequestBody(params: {
-  model: string;
-  text: string;
-  stylePrompt: string;
-  voice: string;
-  voiceSampleDataUrl?: string;
-}): TtsRequestBody {
-  const stylePrompt = params.stylePrompt.trim();
-  const messages: TtsRequestBody['messages'] = [];
-
-  if (stylePrompt || isTtsVoiceDesignModel(params.model) || isTtsVoiceCloneModel(params.model)) {
-    messages.push({ role: 'user', content: stylePrompt });
-  }
-  messages.push({ role: 'assistant', content: params.text.trim() });
-
-  const audio: TtsRequestBody['audio'] = { format: TTS_OUTPUT_FORMAT };
-  if (isTtsVoiceCloneModel(params.model)) {
-    if (params.voiceSampleDataUrl) audio.voice = params.voiceSampleDataUrl;
-  } else if (!isTtsVoiceDesignModel(params.model) && params.voice) {
-    audio.voice = params.voice;
-  }
-
-  return {
-    model: params.model,
-    messages,
-    audio,
-    stream: false,
-  };
-}
-
-export function getTtsVoiceSampleMimeType(file: File): string | null {
-  const name = file.name.toLowerCase();
-  if (file.type === 'audio/wav' || file.type === 'audio/x-wav' || name.endsWith('.wav')) {
-    return 'audio/wav';
-  }
-  if (file.type === 'audio/mpeg' || file.type === 'audio/mp3' || name.endsWith('.mp3')) {
-    return 'audio/mpeg';
-  }
-  return null;
-}
-
-export function getTtsInputError(params: {
-  model: string;
-  stylePrompt: string;
-  voiceSample: File | null;
-}): 'ttsStyleRequired' | 'ttsVoiceSampleRequired' | 'ttsVoiceSampleTooLarge' | 'ttsVoiceSampleInvalid' | null {
-  if (isTtsVoiceDesignModel(params.model) && !params.stylePrompt.trim()) return 'ttsStyleRequired';
-  if (!isTtsVoiceCloneModel(params.model)) return null;
-  if (!params.voiceSample) return 'ttsVoiceSampleRequired';
-  if (params.voiceSample.size > MAX_TTS_VOICE_SAMPLE_BYTES) return 'ttsVoiceSampleTooLarge';
-  if (!getTtsVoiceSampleMimeType(params.voiceSample)) return 'ttsVoiceSampleInvalid';
-  return null;
-}
-
-export async function fileToTtsVoiceDataUrl(file: File): Promise<string> {
-  const mimeType = getTtsVoiceSampleMimeType(file);
-  if (!mimeType) {
-    throw new Error('unsupported_tts_voice_sample');
-  }
-
-  const buffer = await file.arrayBuffer();
-  const bytes = new Uint8Array(buffer);
-  let binary = '';
-  for (let index = 0; index < bytes.length; index += 0x8000) {
-    const chunk = bytes.subarray(index, index + 0x8000);
-    binary += String.fromCharCode(...chunk);
-  }
-
-  return `data:${mimeType};base64,${btoa(binary)}`;
 }

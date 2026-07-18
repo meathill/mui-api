@@ -1,6 +1,6 @@
 'use client';
 
-import { SearchIcon } from 'lucide-react';
+import { MagnifyingGlass } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import { type FormEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
@@ -15,6 +15,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { useAsyncResource } from '@/hooks/use-async-resource';
 import { api, type ModelCreateInput, type ModelInfo } from '@/lib/api';
 import { EMPTY_FORM, type ModelFormData, ModelFormDialog } from './model-form-dialog';
 import { ModelTable, type SortDirection, type SortField } from './model-table';
@@ -33,9 +34,6 @@ export default function ModelsPage() {
   const te = useTranslations('errors');
   const tc = useTranslations('common');
 
-  const [models, setModels] = useState<ModelInfo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ModelFormData>(EMPTY_FORM);
@@ -61,6 +59,9 @@ export default function ModelsPage() {
 
   // 高级定价折叠区
   const [advancedOpen, setAdvancedOpen] = useState(false);
+
+  const fetchModels = useCallback(async () => (await api.getModels()).models, []);
+  const { data: models, loading, error, reload: loadModels } = useAsyncResource<ModelInfo[]>(fetchModels, []);
 
   // 数据处理流水线：搜索 → 排序 → 分页
   const filteredModels = useMemo(() => {
@@ -95,22 +96,6 @@ export default function ModelsPage() {
   useEffect(() => {
     setPage(1);
   }, [search]);
-
-  const loadModels = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await api.getModels();
-      setModels(data.models);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : te('loadFailed'));
-    } finally {
-      setLoading(false);
-    }
-  }, [te]);
-
-  useEffect(() => {
-    loadModels();
-  }, [loadModels]);
 
   function handleSort(field: SortField) {
     if (sortField === field) {
@@ -228,7 +213,7 @@ export default function ModelsPage() {
 
       {/* 搜索栏 */}
       <div className="relative mb-3 max-w-sm">
-        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}

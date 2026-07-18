@@ -8,24 +8,16 @@ import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { useAsyncResource } from '@/hooks/use-async-resource';
 import { api, type Pagination, type RechargeLogItem, type UserInfo } from '@/lib/api';
+
+const EMPTY_PAGINATION: Pagination = { page: 1, pageSize: 20, total: 0, totalPages: 0 };
 
 export default function RechargeLogsPage() {
   const t = useTranslations('adminRecharge');
-  const te = useTranslations('errors');
   const tc = useTranslations('common');
   const searchParams = useSearchParams();
   const initialUserId = searchParams.get('userId') ?? '';
-
-  const [logs, setLogs] = useState<RechargeLogItem[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({
-    page: 1,
-    pageSize: 20,
-    total: 0,
-    totalPages: 0,
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   // 用户映射
   const [users, setUsers] = useState<UserInfo[]>([]);
@@ -49,25 +41,12 @@ export default function RechargeLogsPage() {
     pageSize: number;
   }>({ userId: initialUserId || undefined, page: 1, pageSize: 20 });
 
-  const loadLogs = useCallback(
-    async (params: typeof filters) => {
-      try {
-        setLoading(true);
-        const data = await api.getRechargeLogs(params);
-        setLogs(data.logs);
-        setPagination(data.pagination);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : te('loadFailed'));
-      } finally {
-        setLoading(false);
-      }
-    },
-    [te],
-  );
-
-  useEffect(() => {
-    loadLogs(filters);
-  }, [filters, loadLogs]);
+  const fetchLogs = useCallback(() => api.getRechargeLogs(filters), [filters]);
+  const {
+    data: { logs, pagination },
+    loading,
+    error,
+  } = useAsyncResource(fetchLogs, { logs: [] as RechargeLogItem[], pagination: EMPTY_PAGINATION });
 
   useEffect(() => {
     api

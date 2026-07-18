@@ -4,11 +4,12 @@ import { formatBalance } from '@muirouter/shared-db/money';
 import { ChartBar, CreditCard, Gift, Key, Wallet } from '@phosphor-icons/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { useAsyncResource } from '@/hooks/use-async-resource';
 import { type FreeQuotaStatus, type TopUpSessionResult, userApi } from '@/lib/api';
 import { TOP_UP_AMOUNTS } from '@/lib/top-up';
 
@@ -18,6 +19,14 @@ interface TopUpNotice {
   variant: 'error' | 'info' | 'success';
 }
 
+interface HomeData {
+  balance: number;
+  keyCount: number;
+  freeQuota: FreeQuotaStatus | null;
+}
+
+const EMPTY_HOME_DATA: HomeData = { balance: 0, keyCount: 0, freeQuota: null };
+
 export default function DashboardHome() {
   const t = useTranslations('dashboard');
   const tc = useTranslations('common');
@@ -26,31 +35,24 @@ export default function DashboardHome() {
   const pathname = usePathname();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [balance, setBalance] = useState<number>(0);
-  const [keyCount, setKeyCount] = useState<number>(0);
-  const [freeQuota, setFreeQuota] = useState<FreeQuotaStatus | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [topUpAmountLoading, setTopUpAmountLoading] = useState<number | null>(null);
   const [topUpNotice, setTopUpNotice] = useState<TopUpNotice | null>(null);
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    async function loadData() {
-      try {
-        const [profileRes, keysRes] = await Promise.all([userApi.getProfile(), userApi.getKeys()]);
-        setBalance(profileRes.user.balance);
-        setFreeQuota(profileRes.user.freeQuota ?? null);
-        setKeyCount(keysRes.keys.filter((k) => k.isActive).length);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : te('loadFailed'));
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadData();
-  }, [te]);
+  const fetchHomeData = useCallback(async (): Promise<HomeData> => {
+    const [profileRes, keysRes] = await Promise.all([userApi.getProfile(), userApi.getKeys()]);
+    return {
+      balance: profileRes.user.balance,
+      freeQuota: profileRes.user.freeQuota ?? null,
+      keyCount: keysRes.keys.filter((k) => k.isActive).length,
+    };
+  }, []);
+  const {
+    data: { balance, keyCount, freeQuota },
+    loading,
+    error,
+    setData,
+  } = useAsyncResource(fetchHomeData, EMPTY_HOME_DATA);
 
   useEffect(() => {
     const topUp = searchParams.get('topUp');
@@ -147,7 +149,7 @@ export default function DashboardHome() {
       }
 
       if (result.status === 'credited') {
-        setBalance(result.balanceAfter ?? balance);
+        setData((current) => ({ ...current, balance: result.balanceAfter ?? current.balance }));
         setSuccessNotice(result);
         setTopUpAmountLoading(null);
         clearTopUpQuery(router, pathname);

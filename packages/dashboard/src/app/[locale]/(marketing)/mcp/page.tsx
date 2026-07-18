@@ -1,4 +1,4 @@
-import { ArrowUpRightIcon } from 'lucide-react';
+import { ArrowUpRight } from '@phosphor-icons/react/ssr';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -183,10 +183,7 @@ curl -X POST ${MCP_URL} \\
               className="group inline-flex items-center justify-between gap-2 rounded-lg border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition-colors hover:border-[var(--brand-corgi)] hover:text-[var(--brand-yellow-deep)]"
             >
               {link.label}
-              <ArrowUpRightIcon
-                size={16}
-                className="text-muted-foreground group-hover:text-[var(--brand-yellow-deep)]"
-              />
+              <ArrowUpRight size={16} className="text-muted-foreground group-hover:text-[var(--brand-yellow-deep)]" />
             </Link>
           ))}
         </div>

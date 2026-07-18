@@ -2,12 +2,13 @@
 
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useAsyncResource } from '@/hooks/use-async-resource';
 import { Link } from '@/i18n/navigation';
 import { api, type StatisticsResponse } from '@/lib/api';
 import { formatDate, formatPeriodLabel, TIME_RANGES, type TimeRange } from '@/lib/date-ranges';
@@ -22,12 +23,7 @@ type StatisticsData = Omit<StatisticsResponse, 'success'>;
 
 export default function StatisticsPage() {
   const t = useTranslations('adminStats');
-  const te = useTranslations('errors');
   const tc = useTranslations('common');
-
-  const [data, setData] = useState<StatisticsData | null>(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
 
   // 筛选
   const [startDate, setStartDate] = useState(() => {
@@ -39,42 +35,23 @@ export default function StatisticsPage() {
   const [userId, setUserId] = useState('');
   const [activeRange, setActiveRange] = useState('last7days');
 
-  const loadStatistics = useCallback(
-    async (start: string, end: string, uid?: string) => {
-      try {
-        setLoading(true);
-        setError('');
-        const result = await api.getStatistics({
-          startDate: start,
-          endDate: end,
-          userId: uid || undefined,
-        });
-        setData(result);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : te('loadFailed'));
-      } finally {
-        setLoading(false);
-      }
-    },
-    [te],
+  const fetchStatistics = useCallback(
+    () => api.getStatistics({ startDate, endDate, userId: userId || undefined }),
+    [startDate, endDate, userId],
   );
-
-  useEffect(() => {
-    loadStatistics(startDate, endDate, userId);
-  }, [endDate, loadStatistics, startDate, userId]);
+  const { data, loading, error, reload } = useAsyncResource<StatisticsData | null>(fetchStatistics, null);
 
   function handleRangeClick(range: TimeRange) {
     const { startDate: s, endDate: e } = range.getDates();
     setStartDate(s);
     setEndDate(e);
     setActiveRange(range.key);
-    loadStatistics(s, e, userId);
   }
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
     setActiveRange('');
-    loadStatistics(startDate, endDate, userId);
+    reload();
   }
 
   // 图表数据格式化

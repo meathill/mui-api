@@ -1,7 +1,7 @@
 'use client';
 
 import { Dialog as CommandDialogPrimitive } from '@base-ui/react/dialog';
-import { SearchIcon } from 'lucide-react';
+import { MagnifyingGlass } from '@phosphor-icons/react';
 import type * as React from 'react';
 import {
   Autocomplete,
@@ -105,7 +105,7 @@ export function CommandInput({
         )}
         placeholder={placeholder}
         size="lg"
-        startAddon={<SearchIcon />}
+        startAddon={<MagnifyingGlass />}
         {...props}
       />
     </div>

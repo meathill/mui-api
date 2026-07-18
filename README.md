@@ -4,7 +4,7 @@ OpenAI 兼容的 AI / LLM / MCP 路由网关：一个 API Key 接入多家模型
 
 ## 这是什么
 
-- **统一入口**：对外暴露 `/v1/*` 接口（chat / images / videos / models）与 MCP server，按模型把请求分发到 OpenAI、Google、Anthropic、Moonshot AI、Workers AI、Xiaomi MiMo 等供应商。
+- **统一入口**：对外暴露 `/v1/*` 接口（chat / images / videos / models）与 MCP server，按模型把请求分发到 OpenAI、Google、Anthropic、Moonshot AI、xAI Grok、Workers AI、Xiaomi MiMo 等供应商。
 - **凭证集中**：调用方只持有本服务的 API Key（`sk-gw-` 前缀）或 OAuth 2.0 token；上游凭证由 CF AI Gateway Stored Keys 或 Worker secrets 托管。
 - **计费与配额**：按 token 分档计费（标准 / 长上下文、cache 命中 / 写入），支持免费额度白名单、消费限额告警、Stripe 自助充值。
 

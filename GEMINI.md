@@ -78,9 +78,11 @@
   - 文件和目录使用小写加连字符（kebab-case）
   - 避免使用缩写，除非是广泛认可的缩写
   - 函数使用动词或动宾短语命名，类使用名词命名，bool 变量使用 is/has/can 开头
-- 使用图标时，应使用 `SaveIcon` 而不是 `Save`，避免引发歧义
+- 图标统一使用 Phosphor 原生导出名（如 `FloppyDisk`、`Trash`），不加 `Icon` 后缀——lucide 的双重导出歧义在 Phosphor 下不存在，无需再套用别名规则
+- 图标默认不传 `weight`（即默认 regular，视觉上最接近线框风格）；只有需要表达"选中/激活"状态时才用 `weight="fill"`，纯装饰性场景可用 `weight="duotone"`，避免全局风格不统一
+- Server Component（无 `use client`）导入图标要用 `@phosphor-icons/react/ssr`，Client Component 用 `@phosphor-icons/react`——图标名一致，路径选错 `next build` 才会报错，`next dev` 不一定能发现，详见 DEV_NOTE.md
 - 不要使用 `const handleXXX = () => {}` 声明函数，使用 `function handleXXX() {}` 来声明
-- 不要内嵌 SVG，使用第三方图标库，比如 lucide
+- 不要内嵌 SVG，使用第三方图标库，比如 Phosphor
 - 单组件、库、脚本的长度不要超过 400 行，尽量控制在 300 行附近
 
 ## 环境约定
@@ -100,4 +102,4 @@
 
 - UI 组件使用 https://coss.com/ui/docs
 - 状态管理使用 Zustand
-- 图标库使用 lucide
+- 图标库使用 Phosphor（`@phosphor-icons/react`）

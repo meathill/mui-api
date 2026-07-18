@@ -1,7 +1,7 @@
 'use client';
 
 import { Combobox as ComboboxPrimitive } from '@base-ui/react/combobox';
-import { ChevronsUpDownIcon, XIcon } from 'lucide-react';
+import { CaretUpDown, X } from '@phosphor-icons/react';
 import * as React from 'react';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -107,7 +107,7 @@ export function ComboboxInput({
           {...triggerProps}
         >
           <ComboboxPrimitive.Icon data-slot="combobox-icon">
-            <ChevronsUpDownIcon />
+            <CaretUpDown />
           </ComboboxPrimitive.Icon>
         </ComboboxTrigger>
       )}
@@ -119,7 +119,7 @@ export function ComboboxInput({
           )}
           {...clearProps}
         >
-          <XIcon />
+          <X />
         </ComboboxClear>
       )}
     </div>
@@ -357,7 +357,7 @@ export function ComboboxChipRemove(props: ComboboxPrimitive.ChipRemove.Props): R
       data-slot="combobox-chip-remove"
       {...props}
     >
-      <XIcon />
+      <X />
     </ComboboxPrimitive.ChipRemove>
   );
 }

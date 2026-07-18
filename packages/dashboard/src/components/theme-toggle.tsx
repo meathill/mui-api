@@ -1,6 +1,6 @@
 'use client';
 
-import { MonitorIcon, MoonIcon, SunIcon } from 'lucide-react';
+import { Monitor, Moon, Sun } from '@phosphor-icons/react';
 import type * as React from 'react';
 import { useEffect, useState } from 'react';
 import {
@@ -70,7 +70,7 @@ export function ThemeToggle({ className }: { className?: string }) {
   }
 
   const resolved = mounted ? resolve(mode) : 'light';
-  const TriggerIcon = mode === 'system' ? MonitorIcon : resolved === 'dark' ? MoonIcon : SunIcon;
+  const TriggerIcon = mode === 'system' ? Monitor : resolved === 'dark' ? Moon : Sun;
 
   return (
     <DropdownMenu>
@@ -85,15 +85,15 @@ export function ThemeToggle({ className }: { className?: string }) {
       <DropdownMenuContent align="end" className="min-w-36">
         <DropdownMenuRadioGroup value={mode} onValueChange={(v) => handleSelect(v as Mode)}>
           <DropdownMenuRadioItem value="light">
-            <SunIcon />
+            <Sun />
             Light
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="dark">
-            <MoonIcon />
+            <Moon />
             Dark
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="system">
-            <MonitorIcon />
+            <Monitor />
             System
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>

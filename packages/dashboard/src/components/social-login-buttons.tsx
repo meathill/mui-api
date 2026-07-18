@@ -1,6 +1,6 @@
 'use client';
 
-import { GithubIcon } from 'lucide-react';
+import { GithubLogo } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
@@ -46,7 +46,7 @@ export function SocialLoginButtons() {
         disabled={loadingProvider !== null}
         onClick={() => handleSocialLogin('github')}
       >
-        <GithubIcon className="size-4" />
+        <GithubLogo className="size-4" />
         {loadingProvider === 'github' ? t('redirecting') : t('githubLogin')}
       </Button>
       <Button

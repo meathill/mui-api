@@ -4,10 +4,12 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { RechargeLogTable } from '@/components/admin/recharge-log-table';
 import { Button } from '@/components/ui/button';
+import { useAsyncResource } from '@/hooks/use-async-resource';
 import { Link } from '@/i18n/navigation';
 import { api, type Pagination, type RechargeLogItem, type UserInfo } from '@/lib/api';
 
 const PAGE_SIZE = 10;
+const EMPTY_PAGINATION: Pagination = { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0 };
 
 export interface UserRechargeSectionProps {
   userId: string;
@@ -15,15 +17,10 @@ export interface UserRechargeSectionProps {
 
 export function UserRechargeSection({ userId }: UserRechargeSectionProps) {
   const t = useTranslations('adminUserDetail');
-  const te = useTranslations('errors');
   const tc = useTranslations('common');
   const ta = useTranslations('adminRecharge');
 
-  const [logs, setLogs] = useState<RechargeLogItem[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({ page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 0 });
   const [page, setPage] = useState(1);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   // 操作者（管理员）邮箱映射，与「用户是谁」是两个不同维度
   const [users, setUsers] = useState<UserInfo[]>([]);
@@ -33,25 +30,12 @@ export function UserRechargeSection({ userId }: UserRechargeSectionProps) {
     return map;
   }, [users]);
 
-  const loadLogs = useCallback(
-    async (targetPage: number) => {
-      try {
-        setLoading(true);
-        const data = await api.getRechargeLogs({ userId, page: targetPage, pageSize: PAGE_SIZE });
-        setLogs(data.logs);
-        setPagination(data.pagination);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : te('loadFailed'));
-      } finally {
-        setLoading(false);
-      }
-    },
-    [userId, te],
-  );
-
-  useEffect(() => {
-    loadLogs(page);
-  }, [page, loadLogs]);
+  const fetchLogs = useCallback(() => api.getRechargeLogs({ userId, page, pageSize: PAGE_SIZE }), [userId, page]);
+  const {
+    data: { logs, pagination },
+    loading,
+    error,
+  } = useAsyncResource(fetchLogs, { logs: [] as RechargeLogItem[], pagination: EMPTY_PAGINATION });
 
   useEffect(() => {
     api

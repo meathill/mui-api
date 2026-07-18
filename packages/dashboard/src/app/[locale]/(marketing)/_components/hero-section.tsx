@@ -1,4 +1,4 @@
-import { ArrowRightIcon } from 'lucide-react';
+import { ArrowRight } from '@phosphor-icons/react/ssr';
 import { useTranslations } from 'next-intl';
 import { PawIcon } from '@/components/brand/paw-icon';
 import { Link } from '@/i18n/navigation';
@@ -39,7 +39,7 @@ export function HeroSection() {
             className="press inline-flex h-12 items-center gap-2 rounded-lg border-2 border-[#3a2e23] bg-[var(--brand-yellow)] px-8 text-base font-semibold text-[#3a2e23] shadow-[0_3px_0_0_#3a2e23] hover:shadow-[0_4px_0_0_#3a2e23] active:shadow-[0_1px_0_0_#3a2e23]"
           >
             {t('ctaPrimary')}
-            <ArrowRightIcon size={18} />
+            <ArrowRight size={18} />
           </Link>
           <Link
             href="/pricing"
@@ -55,7 +55,7 @@ export function HeroSection() {
             className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >
             {t('ctaLearn')}
-            <ArrowRightIcon size={14} />
+            <ArrowRight size={14} />
           </Link>
         </div>
 

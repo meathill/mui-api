@@ -1,8 +1,8 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { formatDate, formatPeriodLabel, TIME_RANGES } from './date-ranges';
 
-// TIME_RANGES 内部混用本地时区的 getDate()/getMonth() 和基于 UTC 的 formatDate，
-// 钉死 TZ 避免测试结果随运行环境时区漂移（尤其是 UTC+12~+14 会导致本地日期跨天）。
+// TIME_RANGES 依赖 new Date() 的本地时区分量计算日期边界，钉死 TZ 让这些用例的断言
+// 不随运行环境时区漂移（尤其是 UTC+12~+14 会导致本地日期跨天）。
 const originalTz = process.env.TZ;
 
 beforeAll(() => {
@@ -26,6 +26,18 @@ describe('formatDate', () => {
 
   it('个位数月份/日期补零', () => {
     expect(formatDate(new Date('2026-01-05T00:00:00Z'))).toBe('2026-01-05');
+  });
+
+  it('按本地时区分量计算，不与 UTC 混用', () => {
+    const tzBefore = process.env.TZ;
+    process.env.TZ = 'America/Los_Angeles';
+    try {
+      // 2026-01-01T02:00:00Z 在洛杉矶（UTC-8）对应本地时间 2025-12-31T18:00，
+      // 若仍按 UTC 计算会错误地返回 2026-01-01。
+      expect(formatDate(new Date('2026-01-01T02:00:00Z'))).toBe('2025-12-31');
+    } finally {
+      process.env.TZ = tzBefore;
+    }
   });
 });
 

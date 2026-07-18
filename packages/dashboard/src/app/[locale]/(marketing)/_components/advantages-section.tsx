@@ -1,14 +1,14 @@
-import { ArrowLeftRightIcon, CodeIcon, GlobeIcon, WalletIcon } from 'lucide-react';
+import { ArrowsLeftRight, Code, Globe, Wallet } from '@phosphor-icons/react/ssr';
 import { useTranslations } from 'next-intl';
 
 export function AdvantagesSection() {
   const t = useTranslations('advantages');
 
   const advantages = [
-    { icon: GlobeIcon, title: t('noVpnTitle'), description: t('noVpnDesc') },
-    { icon: WalletIcon, title: t('payPerUseTitle'), description: t('payPerUseDesc') },
-    { icon: CodeIcon, title: t('compatibleTitle'), description: t('compatibleDesc') },
-    { icon: ArrowLeftRightIcon, title: t('passthroughTitle'), description: t('passthroughDesc') },
+    { icon: Globe, title: t('noVpnTitle'), description: t('noVpnDesc') },
+    { icon: Wallet, title: t('payPerUseTitle'), description: t('payPerUseDesc') },
+    { icon: Code, title: t('compatibleTitle'), description: t('compatibleDesc') },
+    { icon: ArrowsLeftRight, title: t('passthroughTitle'), description: t('passthroughDesc') },
   ];
 
   return (

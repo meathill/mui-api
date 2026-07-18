@@ -12,7 +12,7 @@ const schema = { ...authSchema, ...appSchema };
 // 内部路径，和查询负载无关（wrangler d1 insights 显示生产查询量很低）。
 // 见 DEV_NOTE.md「D1 Sessions API 网络瞬时错误」。继续保留诊断日志，方便观察
 // 重试是否真的能把这类瞬时失败挡住。
-function logD1Failure(event: D1RetryAttemptFailure): void {
+export function logD1Failure(event: D1RetryAttemptFailure): void {
   const causeChain: string[] = [];
   let current: unknown = event.error;
   let depth = 0;

@@ -1,27 +1,20 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useAsyncResource } from '@/hooks/use-async-resource';
 import { type Pagination, type UsageLog, type UsageQueryParams, userApi } from '@/lib/api';
+
+const EMPTY_PAGINATION: Pagination = { page: 1, pageSize: 20, total: 0, totalPages: 0 };
 
 export default function UserUsagePage() {
   const t = useTranslations('usage');
   const tc = useTranslations('common');
-  const te = useTranslations('errors');
-  const [logs, setLogs] = useState<UsageLog[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({
-    page: 1,
-    pageSize: 20,
-    total: 0,
-    totalPages: 0,
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const [filters, setFilters] = useState<Omit<UsageQueryParams, 'userId'>>({
     page: 1,
@@ -31,25 +24,12 @@ export default function UserUsagePage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const loadUsage = useCallback(
-    async (params: Omit<UsageQueryParams, 'userId'>) => {
-      try {
-        setLoading(true);
-        const data = await userApi.getUsage(params);
-        setLogs(data.logs);
-        setPagination(data.pagination);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : te('loadFailed'));
-      } finally {
-        setLoading(false);
-      }
-    },
-    [te],
-  );
-
-  useEffect(() => {
-    loadUsage(filters);
-  }, [filters, loadUsage]);
+  const fetchUsage = useCallback(() => userApi.getUsage(filters), [filters]);
+  const {
+    data: { logs, pagination },
+    loading,
+    error,
+  } = useAsyncResource(fetchUsage, { logs: [] as UsageLog[], pagination: EMPTY_PAGINATION });
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();

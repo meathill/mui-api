@@ -136,6 +136,14 @@ D1_ERROR: Network connection lost.
 
 **计费**：1M context 全程统一使用 cache miss `$3/M`、cache hit `$0.30/M`、output `$15/M`，`markupRate=1.2`，不设置长上下文价格档位。非流式 usage 位于顶层；Kimi 流式 usage 位于最后一个 chunk 的 `choices[0].usage`。缓存输入优先兼容 OpenAI details 字段，并读取 Kimi 的 `usage.cached_tokens`；`completion_tokens` 已包含 reasoning tokens，不能重复累加。
 
+### GPT-5.6 模型目录接入（Sol / Terra / Luna）
+
+**决策**：`gpt-5.6-sol`（含短名 alias `gpt-5.6`）/ `gpt-5.6-terra` / `gpt-5.6-luna` 作为纯 `provider: 'openai'` 目录数据接入种子库，复用既有 OpenAI Chat Completions 路由分发与计费链路（`callOpenAI` + `openaiCacheWithWrite`），未新增任何 provider 专属代码路径或计价逻辑。
+
+**定价**：官方 list price（$/1M tokens）：Sol $5/$30、Terra $2.5/$15、Luna $1/$6；cache write 统一为 input 的 1.25×（`openaiCacheWithWrite` helper，GPT-5.6 起生效，早于此的 GPT-5 系列 cache write 倍率不同，不要混用）。`markupRate` 统一 1.2。
+
+**运营须知**：网关路由已经能转发这些 model id，但真实调用能否成功取决于 CF AI Gateway 上游是否已对这几个具体 model id 开通访问——本项目侧无法验证，接入当天未做真实调用冒烟，只验证了 format/typecheck/单测/构建。
+
 ### OpenAI Responses API 透传（/v1/responses，服务 Codex CLI）
 
 **背景**：OpenAI Codex CLI 的自定义 provider 只支持 Responses API（`wire_api = "responses"`），不支持 Chat Completions；Cloudflare AI Gateway 官方文档已确认 `.../openai/responses` 是受支持的透传路径，与 `.../openai/chat/completions` 同构。
@@ -187,7 +195,7 @@ D1_ERROR: Network connection lost.
 
 ### Claude Sonnet 5 限时定价
 
-**决策**：`claude-sonnet-5` 种子数据按 Anthropic 发布时的限时价 $2/$10（input/output，`anthropicCache(2)` → cache read $0.2、write $2.5）录入，markup 1.1，与其它 Claude 型号一致。
+**决策**：`claude-sonnet-5` 种子数据按 Anthropic 发布时的限时价 $2/$10（input/output，`anthropicCache(2)` → cache read $0.2、write $2.5）录入，markup 1.05，与其它 Claude 型号一致。
 
 **原因**：Anthropic 官方公告明确该价格仅到 **2026-08-31**，2026-09-01 起涨回标准价 $3/$15（与 `claude-sonnet-4-6` 同价）。
 
@@ -208,6 +216,12 @@ D1_ERROR: Network connection lost.
 **背景**：`og-image/route.tsx` 长期被 Next.js 当作全动态路由处理，即使 `[locale]/layout.tsx` 早已声明了 `generateStaticParams()`。根因是 Next.js 内部按文件类型走两条不同的静态参数收集路径：`page.tsx` 用 `collectAppPageSegments`，会遍历整条 loader 树，因此自动拿到祖先 layout 声明的 `generateStaticParams`；`route.tsx` 用 `collectAppRouteSegments`，只读取路由文件自身的导出，不继承任何祖先声明。结果是所有 `[locale]/.../route.tsx` 只要没有自己单独声明 `generateStaticParams`，就会一直是动态路由，每次请求都现算、不进静态缓存——这条路由曾因此导致 og:image 抓取超时（Twitter/Facebook 卡片完全不带图，2.9~6.5s 无缓存响应，修复后降到几毫秒）。
 
 **结论**：任何新增的 `[locale]/**/route.tsx` 如果希望走静态生成（尤其是 `next/og` 这类计算成本高的响应），必须在文件里单独写一份 `generateStaticParams`（通常就是 `routing.locales.map((locale) => ({ locale }))`），不能指望祖先 layout 的声明会生效；同时建议加 `export const dynamic = 'force-static'` 让意图显式化。
+
+### Phosphor 图标在 Server Component 里必须从 `/ssr` 子路径导入
+
+**背景**：2026-07-18 把图标库从 lucide-react 迁移到 Phosphor 时，`next build` 在 8 个营销页 Server Component（无 `use client`）和 `components/ui/spinner.tsx` 上报 `TypeError: (0 , b.createContext) is not a function`，构建直接失败。lucide-react 的图标是无状态的纯 SVG 包装组件，在 Server/Client Component 里导入方式完全一样，之前从未遇到过这类问题；Phosphor 默认导出（`@phosphor-icons/react`）内部依赖 `IconContext`（`React.createContext`）做 weight/color/size 的上下文继承，这个实现只能在 Client Component 的 React 运行时里工作，Server Component 渲染时找不到对应的 `createContext` 实现就会在模块求值阶段直接抛错。
+
+**结论**：Phosphor 官方为此提供了单独的 SSR 版本，图标名完全一致，只是包路径不同——**没有 `'use client'` 的文件**（Server Component）必须从 `@phosphor-icons/react/ssr` 导入图标，**有 `'use client'` 的文件**（Client Component）继续从 `@phosphor-icons/react` 导入。新增用到图标的文件时，先看这个文件是不是 Server Component，选错路径本地 `next dev` 不一定会立刻报错，要跑一次 `next build` 才会在"Collecting page data"阶段暴露。
 
 ### 多语言与国际化 (i18n)
 
@@ -281,6 +295,16 @@ D1_ERROR: Network connection lost.
 - 通过 `recharge_logs(source, source_id)` 唯一标识和 `stripe_topup_sessions` 状态表做幂等，可以避免重复加余额
 - 复用 KV 中的 `stripeCustomerId`，能保留 Stripe Customer 关联，减少重复建档
 
+### 用量统计增加用户维度、新增用户详情页
+
+**决策**：新增 `/admin/users/[userId]` 详情页，聚合展示指定用户的信息卡、充值记录、用量记录、按天用量统计（趋势图 + 明细表），并从用户管理、用量统计、统计分析三处提供跳转入口；`RechargeLogTable` / `UsageLogTable` / `lib/date-ranges.ts` 抽出供多处复用。充值/用量列表页同时支持 URL 参数 `userId` 预填筛选，配合详情页"查看全部"链接跳转定位。
+
+**顺带修复的两个 bug（因无 UI 调用、一直未被发现）**：
+- `GET /api/admin/user` 缺失 `rateMultiplier` 字段
+- `GET /api/admin/statistics` 按 `userId` 筛选聚合数据时，模型分布未生效过滤条件
+
+**教训**：这两个 bug 能存在这么久，是因为在这次新增详情页之前，`stats-aggregation-core.ts` 里已有的按用户维度聚合能力（`e2e/cron-aggregation.test.ts` 早就验证过聚合结果本身正确）从未真正接了前端 UI，契约层的字段缺失和过滤条件错误没有任何调用方能触发。2026-07-18 维护轮次为 `admin/users/[userId]` 补了组件测试 + 一条登录态 e2e（覆盖渲染与真实 D1 契约），就是为了避免同类"数据正确但契约层没人验证"的问题再次潜伏。
+
 ## 关键模式
 
 ### Claim Token（一次性密钥查看）
@@ -308,25 +332,11 @@ API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0）
 
 ### 必需的 Secrets
 
-**App (packages/app)**：
-- `CF_AIG_TOKEN` — CF AI Gateway 网关认证 token（cf-aig-authorization）
-- `CF_TOKEN` — CF API Token，Claude Unified Billing 代付凭证（原生透传端点用）
-- `ANTHROPIC_CREDENTIAL_MODE` — `unified`（默认）/ `byok`，可选；切自有 Anthropic key 时设 `byok`
-- `ANTHROPIC_API_KEY` — 自有 Anthropic key，仅 `byok` 模式需要（可选）
-- `MIMO_API_KEY` — Xiaomi MiMo API Key，仅启用 `xiaomi-mimo` 模型时需要
-- `MOONSHOT_API_KEY` — Moonshot AI API Key，仅启用 `moonshot` / `kimi-k3` 时需要
-- `ADMIN_SECRET` — 管理接口认证
-- `ADMIN_EMAIL` — 告警接收邮箱
-- `RESEND_API_KEY` — 邮件发送（可选，未配置则跳过）
-- `BASE_URL` — 服务基础 URL
-- `FROM_EMAIL` — 发件人地址
+**具体清单以 [DEPLOYMENT.md](./DEPLOYMENT.md) 为单一权威来源**（含必需/可选划分、默认值、配置命令），不在此处重复维护第二份清单——两份独立清单曾经出现过其中一份漏更新新增 provider 的情况（见下方「SEO 重定位」一节 README 漏加 Grok 的同类教训）。
 
-**Dashboard (packages/dashboard)**：
-- `BETTER_AUTH_SECRET` — 认证密钥
-- `RESEND_API_KEY` — 邮件发送
-- `FROM_EMAIL` — 发件人地址
-- `STRIPE_SECRET_KEY` — Stripe 服务端密钥
-- `STRIPE_WEBHOOK_SECRET` — Stripe webhook 签名密钥
+这里只记录清单本身解释不到的决策性说明：
+- `CF_TOKEN` 只在 Claude Unified Billing（原生 `/v1/messages` 透传）代付时使用，`byok` 模式下不应再配置，否则会被当作 Anthropic key 触发 401（见上方「只有 Claude 走 Unified Billing / BYOK」一节）。
+- `MOONSHOT_API_KEY` / `MIMO_API_KEY` 对应的请求都不经过 CF AI Gateway，因此不会出现在 Gateway 日志里，排查问题时不要去 Gateway 后台找。
 
 ### Cloudflare Bindings
 

@@ -8,6 +8,7 @@ import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { useAsyncResource } from '@/hooks/use-async-resource';
 import {
   api,
   type Pagination,
@@ -17,22 +18,13 @@ import {
   type UserInfo,
 } from '@/lib/api';
 
+const EMPTY_PAGINATION: Pagination = { page: 1, pageSize: 20, total: 0, totalPages: 0 };
+
 export default function UsagePage() {
   const t = useTranslations('adminUsage');
-  const te = useTranslations('errors');
   const tc = useTranslations('common');
   const searchParams = useSearchParams();
   const initialUserId = searchParams.get('userId') ?? '';
-
-  const [logs, setLogs] = useState<UsageLog[]>([]);
-  const [pagination, setPagination] = useState<Pagination>({
-    page: 1,
-    pageSize: 20,
-    total: 0,
-    totalPages: 0,
-  });
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   // 用户映射：userId -> email
   const [users, setUsers] = useState<UserInfo[]>([]);
@@ -55,25 +47,12 @@ export default function UsagePage() {
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
 
-  const loadUsage = useCallback(
-    async (params: UsageQueryParams) => {
-      try {
-        setLoading(true);
-        const data = await api.getUsage(params);
-        setLogs(data.logs);
-        setPagination(data.pagination);
-      } catch (e) {
-        setError(e instanceof Error ? e.message : te('loadFailed'));
-      } finally {
-        setLoading(false);
-      }
-    },
-    [te],
-  );
-
-  useEffect(() => {
-    loadUsage(filters);
-  }, [filters, loadUsage]);
+  const fetchLogs = useCallback(() => api.getUsage(filters), [filters]);
+  const {
+    data: { logs, pagination },
+    loading,
+    error,
+  } = useAsyncResource(fetchLogs, { logs: [] as UsageLog[], pagination: EMPTY_PAGINATION });
 
   useEffect(() => {
     api

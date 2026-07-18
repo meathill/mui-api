@@ -1,6 +1,6 @@
 'use client';
 
-import { ImageIcon, LoaderCircleIcon, MessageSquareIcon, SaveIcon, VideoIcon, Volume2Icon, XIcon } from 'lucide-react';
+import { Image, CircleNotch, ChatCircleText, FloppyDisk, VideoCamera, SpeakerHigh, X } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -96,19 +96,19 @@ export function PlaygroundView(props: PlaygroundViewProps) {
           <Tabs value={props.mode} onValueChange={props.onModeChange}>
             <TabsList>
               <TabsTab value="chat">
-                <MessageSquareIcon />
+                <ChatCircleText />
                 {t('chatMode')}
               </TabsTab>
               <TabsTab value="image">
-                <ImageIcon />
+                <Image />
                 {t('imageMode')}
               </TabsTab>
               <TabsTab value="video">
-                <VideoIcon />
+                <VideoCamera />
                 {t('videoMode')}
               </TabsTab>
               <TabsTab value="tts">
-                <Volume2Icon />
+                <SpeakerHigh />
                 {t('ttsMode')}
               </TabsTab>
             </TabsList>
@@ -239,7 +239,7 @@ export function PlaygroundView(props: PlaygroundViewProps) {
               )}
               {props.loading && props.mode !== 'chat' && (
                 <span className="inline-flex items-center gap-2 rounded-md border border-border bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
-                  <LoaderCircleIcon className="size-4 animate-spin" />
+                  <CircleNotch className="size-4 animate-spin" />
                   {props.mode === 'image'
                     ? t('generating')
                     : props.mode === 'video'
@@ -249,13 +249,13 @@ export function PlaygroundView(props: PlaygroundViewProps) {
               )}
               {props.mode === 'image' && props.uploadedImages.length > 0 && (
                 <Button variant="outline" onClick={props.onClearUploads}>
-                  <XIcon />
+                  <X />
                   {t('clearUploads')}
                 </Button>
               )}
               {props.mode === 'chat' && props.chatImages.length > 0 && (
                 <Button variant="outline" onClick={props.onClearChatUploads}>
-                  <XIcon />
+                  <X />
                   {t('clearUploads')}
                 </Button>
               )}
@@ -276,13 +276,13 @@ export function PlaygroundView(props: PlaygroundViewProps) {
             </label>
             {props.mode === 'image' && props.imageResults.length > 0 && (
               <span className="text-xs text-muted-foreground">
-                <SaveIcon className="mr-1 inline size-3.5" />
+                <FloppyDisk className="mr-1 inline size-3.5" />
                 {t('imageSaveHint')}
               </span>
             )}
             {props.mode === 'tts' && props.audioResult && (
               <span className="text-xs text-muted-foreground">
-                <SaveIcon className="mr-1 inline size-3.5" />
+                <FloppyDisk className="mr-1 inline size-3.5" />
                 {t('ttsSaveHint')}
               </span>
             )}

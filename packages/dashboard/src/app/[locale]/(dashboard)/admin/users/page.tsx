@@ -1,7 +1,7 @@
 'use client';
 
 import { formatBalance } from '@muirouter/shared-db/money';
-import { SearchIcon } from 'lucide-react';
+import { MagnifyingGlass } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
@@ -17,6 +17,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { useAsyncResource } from '@/hooks/use-async-resource';
 import { Link } from '@/i18n/navigation';
 import { api, type UserInfo } from '@/lib/api';
 import { type EditFormData, UserEditDialog } from './user-edit-dialog';
@@ -28,10 +29,6 @@ export default function UsersPage() {
   const t = useTranslations('adminUsers');
   const te = useTranslations('errors');
   const tc = useTranslations('common');
-
-  const [users, setUsers] = useState<UserInfo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   // 充值
   const [rechargeEmail, setRechargeEmail] = useState('');
@@ -58,6 +55,9 @@ export default function UsersPage() {
   // 错误弹窗
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  const fetchUsers = useCallback(async () => (await api.getUsers()).users, []);
+  const { data: users, loading, error, reload: loadUsers } = useAsyncResource<UserInfo[]>(fetchUsers, []);
 
   // 数据处理流水线：搜索 → 排序 → 分页
   const filteredUsers = useMemo(() => {
@@ -96,22 +96,6 @@ export default function UsersPage() {
   useEffect(() => {
     setPage(1);
   }, [search]);
-
-  const loadUsers = useCallback(async () => {
-    try {
-      setLoading(true);
-      const data = await api.getUsers();
-      setUsers(data.users);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : te('loadFailed'));
-    } finally {
-      setLoading(false);
-    }
-  }, [te]);
-
-  useEffect(() => {
-    loadUsers();
-  }, [loadUsers]);
 
   function handleSort(field: SortField) {
     if (sortField === field) {
@@ -257,7 +241,7 @@ export default function UsersPage() {
 
       {/* 搜索栏 */}
       <div className="relative mb-4 max-w-sm">
-        <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={search}
           onChange={(e) => setSearch(e.target.value)}

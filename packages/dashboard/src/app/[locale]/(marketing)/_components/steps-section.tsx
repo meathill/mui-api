@@ -1,13 +1,13 @@
-import { CreditCardIcon, RocketIcon, UserPlusIcon } from 'lucide-react';
+import { CreditCard, RocketLaunch, UserPlus } from '@phosphor-icons/react/ssr';
 import { useTranslations } from 'next-intl';
 
 export function StepsSection() {
   const t = useTranslations('steps');
 
   const steps = [
-    { icon: UserPlusIcon, step: '01', title: t('step1Title'), description: t('step1Desc') },
-    { icon: CreditCardIcon, step: '02', title: t('step2Title'), description: t('step2Desc') },
-    { icon: RocketIcon, step: '03', title: t('step3Title'), description: t('step3Desc') },
+    { icon: UserPlus, step: '01', title: t('step1Title'), description: t('step1Desc') },
+    { icon: CreditCard, step: '02', title: t('step2Title'), description: t('step2Desc') },
+    { icon: RocketLaunch, step: '03', title: t('step3Title'), description: t('step3Desc') },
   ];
 
   return (
