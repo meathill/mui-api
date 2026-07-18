@@ -14,11 +14,16 @@ export default defineConfig({
   },
   projects: [
     {
+      name: 'setup',
+      testMatch: /admin\.setup\.ts/,
+    },
+    {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
         channel: useSystemChrome ? 'chrome' : undefined,
       },
+      dependencies: ['setup'],
     },
   ],
   webServer: {
