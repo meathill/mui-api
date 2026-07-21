@@ -1,7 +1,7 @@
 import { calculateGrokVideoInternalTokens, isGrokVideoModelId } from '@muirouter/shared-db/grok-video';
 import { and, eq, isNull } from 'drizzle-orm';
 import { Hono } from 'hono';
-import { badRequest, createErrorResponse, ErrorTypes, gatewayError, notFound } from '../lib/errors';
+import { badRequest, createErrorResponse, ErrorTypes, gatewayError, notFound, upstreamError } from '../lib/errors';
 import { parseGrokVideoGenerationRequest } from '../lib/grok-video';
 import { paidAuthMiddleware } from '../middleware/auth';
 import { usageLogs, videoGenerationJobs } from '../db/schema';
@@ -63,7 +63,7 @@ videos.post('/videos/generations', paidAuthMiddleware, async (c) => {
     });
     if (!upstream.ok) {
       await services.walletService.releaseReservation(userId, reservationId);
-      return gatewayError(c, `上游 grok-video 错误 (${upstream.status}): ${await upstream.text()}`);
+      return upstreamError(c, upstream.status, `上游 grok-video 错误 (${upstream.status}): ${await upstream.text()}`);
     }
     const data = (await upstream.json()) as Record<string, unknown>;
     if (typeof data.request_id !== 'string' || !data.request_id) {
@@ -103,7 +103,8 @@ videos.get('/videos/:requestId', paidAuthMiddleware, async (c) => {
 
   try {
     const upstream = await callGrokEndpoint(c.env, `/v1/videos/${encodeURIComponent(requestId)}`, undefined, {}, 'GET');
-    if (!upstream.ok) return gatewayError(c, `上游 grok-video 错误 (${upstream.status}): ${await upstream.text()}`);
+    if (!upstream.ok)
+      return upstreamError(c, upstream.status, `上游 grok-video 错误 (${upstream.status}): ${await upstream.text()}`);
     const data = (await upstream.json()) as Record<string, unknown>;
     const status = data.status;
     if (status !== 'pending' && status !== 'done' && status !== 'failed' && status !== 'expired') {

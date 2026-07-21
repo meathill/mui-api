@@ -12,6 +12,12 @@
 import { GoogleGenAI } from '@google/genai';
 import OpenAI from 'openai';
 import type { CloudflareBindings } from '../types';
+import {
+  type ChatCompletionMeta,
+  toOpenAIChatChunks,
+  toOpenAIChatCompletion,
+  translateChatRequest,
+} from './gemini-compat';
 
 type AnyBody = Record<string, unknown>;
 const MOONSHOT_DEFAULT_BASE_URL = 'https://api.moonshot.ai/v1';
@@ -113,9 +119,10 @@ export async function callMoonshot(env: CloudflareBindings, body: AnyBody): Prom
 }
 
 /**
- * Gemini @google/genai SDK 调用
- * 调用方需按 Gemini 原生 shape 发 body：{ contents, config?, stream? }
- * 返回 Response，流式为 SSE，非流式为 JSON
+ * Gemini @google/genai SDK 调用，接收标准 OpenAI chat body。
+ * 请求经 gemini-compat 翻译为 { contents, config }，响应翻译回 OpenAI
+ * chat.completion(.chunk) 形——本服务对外只有 OpenAI 兼容接口，没有任何调用方
+ * 会构造 Gemini 原生 shape。usage 为 OpenAI 形，计费按 openai provider 解析。
  */
 export async function callGemini(env: CloudflareBindings, upstreamModel: string, body: AnyBody): Promise<Response> {
   const ai = new GoogleGenAI({
@@ -126,10 +133,16 @@ export async function callGemini(env: CloudflareBindings, upstreamModel: string,
   });
 
   const isStream = body.stream === true;
+  const { contents, config } = translateChatRequest(body);
   const args = {
     model: upstreamModel,
-    contents: body.contents as never,
-    config: body.config as never,
+    contents: contents as never,
+    config: config as never,
+  };
+  const meta: ChatCompletionMeta = {
+    id: `chatcmpl-${crypto.randomUUID()}`,
+    created: Math.floor(Date.now() / 1000),
+    model: upstreamModel,
   };
 
   if (isStream) {
@@ -138,8 +151,12 @@ export async function callGemini(env: CloudflareBindings, upstreamModel: string,
     const stream = new ReadableStream<Uint8Array>({
       async start(controller) {
         try {
+          let isFirst = true;
           for await (const chunk of iter) {
-            controller.enqueue(encoder.encode(`data: ${JSON.stringify(chunk)}\n\n`));
+            for (const openaiChunk of toOpenAIChatChunks(chunk as never, meta, isFirst)) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify(openaiChunk)}\n\n`));
+            }
+            isFirst = false;
           }
           controller.enqueue(encoder.encode('data: [DONE]\n\n'));
         } catch (err) {
@@ -158,7 +175,7 @@ export async function callGemini(env: CloudflareBindings, upstreamModel: string,
   }
 
   const resp = await ai.models.generateContent(args);
-  return new Response(JSON.stringify(resp), {
+  return new Response(JSON.stringify(toOpenAIChatCompletion(resp as never, meta)), {
     headers: { 'Content-Type': 'application/json' },
   });
 }

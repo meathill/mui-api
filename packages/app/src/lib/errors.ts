@@ -1,4 +1,5 @@
 import type { Context } from 'hono';
+import type { ContentfulStatusCode } from 'hono/utils/http-status';
 import type { ZodError } from 'zod';
 
 /**
@@ -85,4 +86,20 @@ export function internalError(c: Context, message: string = '内部错误', deta
 
 export function gatewayError(c: Context, message: string, details?: unknown) {
   return c.json(createErrorResponse(message, ErrorTypes.API_ERROR, undefined, details), 502);
+}
+
+/**
+ * 上游非 2xx 的统一出口：
+ * - 4xx（除 401/403）原状态码透传，让客户端能分辨是自己的请求问题（参数不合法、超限等）
+ * - 401/403 是本服务与上游之间的凭证问题，对客户端而言仍是网关故障 → 502
+ * - 5xx → 502
+ */
+export function upstreamError(c: Context, upstreamStatus: number, message: string, details?: unknown) {
+  const isPassthrough =
+    upstreamStatus >= 400 && upstreamStatus < 500 && upstreamStatus !== 401 && upstreamStatus !== 403;
+  if (!isPassthrough) {
+    return gatewayError(c, message, details);
+  }
+  const type = upstreamStatus === 429 ? ErrorTypes.RATE_LIMIT : ErrorTypes.INVALID_REQUEST;
+  return c.json(createErrorResponse(message, type, undefined, details), upstreamStatus as ContentfulStatusCode);
 }

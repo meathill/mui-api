@@ -11,6 +11,7 @@ import {
   notFound,
   tooManyRequests,
   unauthorized,
+  upstreamError,
   zodErrorToApiError,
 } from './errors';
 
@@ -148,5 +149,34 @@ describe('HTTP Error Helpers', () => {
     expect(res.status).toBe(502);
     expect(res.body.error.message).toBe('gateway failed');
     expect(res.body.error.details).toEqual({ reason: 'timeout' });
+  });
+
+  describe('upstreamError', () => {
+    it('上游 400 原状态码透传，type 为 invalid_request_error', () => {
+      const res = upstreamError(mockContext, 400, 'Unsupported parameter') as any;
+      expect(res.status).toBe(400);
+      expect(res.body.error.type).toBe(ErrorTypes.INVALID_REQUEST);
+      expect(res.body.error.message).toBe('Unsupported parameter');
+    });
+
+    it('上游 429 透传且 type 为 rate_limit_exceeded', () => {
+      const res = upstreamError(mockContext, 429, 'rate limited') as any;
+      expect(res.status).toBe(429);
+      expect(res.body.error.type).toBe(ErrorTypes.RATE_LIMIT);
+    });
+
+    it('上游 401/403 是本服务与上游的凭证问题，包成 502', () => {
+      for (const status of [401, 403]) {
+        const res = upstreamError(mockContext, status, 'upstream auth failed') as any;
+        expect(res.status).toBe(502);
+        expect(res.body.error.type).toBe(ErrorTypes.API_ERROR);
+      }
+    });
+
+    it('上游 5xx 包成 502', () => {
+      const res = upstreamError(mockContext, 503, 'upstream down') as any;
+      expect(res.status).toBe(502);
+      expect(res.body.error.type).toBe(ErrorTypes.API_ERROR);
+    });
   });
 });

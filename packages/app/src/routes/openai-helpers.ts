@@ -1,6 +1,6 @@
 import type { Context } from 'hono';
 import type { Model } from '../db/schema';
-import { badRequest, createErrorResponse, ErrorTypes, gatewayError } from '../lib/errors';
+import { badRequest, createErrorResponse, ErrorTypes, upstreamError } from '../lib/errors';
 import { MIN_BALANCE } from '../middleware/auth';
 import type { ModelPricing } from '../services/billing-service';
 import type { ProxyServices } from '../services/service-factory';
@@ -190,7 +190,7 @@ export async function proxyOpenAIImageResponse(
 ) {
   if (!upstream.ok) {
     const errText = await upstream.text();
-    return gatewayError(c, `上游 ${billingProvider} 错误 (${upstream.status}): ${errText}`);
+    return upstreamError(c, upstream.status, `上游 ${billingProvider} 错误 (${upstream.status}): ${errText}`);
   }
 
   const [clientResp, billingResp] = [upstream.clone(), upstream];

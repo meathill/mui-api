@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { badRequest, gatewayError } from '../lib/errors';
+import { badRequest, gatewayError, upstreamError } from '../lib/errors';
 import { authMiddleware } from '../middleware/auth';
 import { callOpenAIEndpoint } from '../services/provider-dispatch';
 import { createProxyServices } from '../services/service-factory';
@@ -58,7 +58,7 @@ responses.post('/responses', authMiddleware, async (c) => {
 
     if (!upstream.ok) {
       const errText = await upstream.text();
-      return gatewayError(c, `上游 openai 错误 (${upstream.status}): ${errText}`);
+      return upstreamError(c, upstream.status, `上游 openai 错误 (${upstream.status}): ${errText}`);
     }
 
     const contentType = upstream.headers.get('content-type') ?? '';

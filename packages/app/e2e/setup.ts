@@ -92,6 +92,9 @@ await db.batch([
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-4.3', 'grok', 'grok-4.3', 1.25, 2.5, 1.2)",
   ),
   db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('gemini-2.5-flash', 'google-ai-studio', 'gemini-2.5-flash', 0.3, 2.5, 1.2)",
+  ),
+  db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-imagine-image', 'grok', 'grok-imagine-image', 0, 1, 1.05)",
   ),
   db.prepare(

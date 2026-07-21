@@ -1,7 +1,9 @@
 import { Hono } from 'hono';
-import { badRequest, gatewayError } from '../lib/errors';
+import { normalizeChatBody } from '../lib/chat-body-normalize';
+import { badRequest, gatewayError, upstreamError } from '../lib/errors';
 import { parseGrokImageEditRequest, parseGrokImageGenerationRequest } from '../lib/grok-image';
 import { authMiddleware } from '../middleware/auth';
+import { findUnsupportedChatFeature } from '../services/gemini-compat';
 import {
   callAiBinding,
   callAnthropicCompat,
@@ -32,8 +34,9 @@ openai.use('/*', authMiddleware);
 
 /**
  * POST /v1/chat/completions
- * 按 DB 记录的 provider 分发到对应 SDK / binding，响应原样透传
- * 调用方需按目标 provider 原生 shape 构造请求体（OpenAI / Xiaomi MiMo / Anthropic Messages / Gemini generateContent / Workers AI）
+ * 接收标准 OpenAI chat 请求体，按 DB 记录的 provider 分发到对应 SDK / binding。
+ * 转发前经 normalizeChatBody 抹平 provider 参数差异；google-ai-studio 经
+ * gemini-compat 做请求/响应双向翻译，其余 provider 响应原样透传。
  */
 openai.post('/chat/completions', async (c) => {
   const body = await readJsonBody(c);
@@ -56,12 +59,13 @@ openai.post('/chat/completions', async (c) => {
   const provider = modelConfig.provider;
   const isStream = body.stream === true;
 
-  // 上游的 model 字段应当用 upstreamModelId，dispatch 之前改写一次
-  const upstreamBody = { ...body, model: upstreamModel };
+  // 上游的 model 字段应当用 upstreamModelId；再按 provider 抹平参数差异
+  const upstreamBody = normalizeChatBody({ ...body, model: upstreamModel }, provider);
 
   try {
     let upstream: Response;
-    // 计费/usage 解析用的 provider：anthropic 走 compat 端点返回 OpenAI 形 usage，故按 openai 解析
+    // 计费/usage 解析用的 provider：anthropic（compat 端点）与 gemini（翻译层）
+    // 返回的都是 OpenAI 形 usage，按 openai 解析
     let billingProvider = provider;
     if (provider === 'openai') {
       upstream = await callOpenAI(c.env, upstreamBody);
@@ -70,7 +74,12 @@ openai.post('/chat/completions', async (c) => {
     } else if (provider === 'xiaomi-mimo') {
       upstream = await callXiaomiMiMo(c.env, upstreamBody);
     } else if (provider === 'google-ai-studio') {
+      const unsupported = findUnsupportedChatFeature(body);
+      if (unsupported) {
+        return badRequest(c, `Gemini OpenAI 兼容层暂不支持 ${unsupported}`);
+      }
       upstream = await callGemini(c.env, upstreamModel, upstreamBody);
+      billingProvider = 'openai';
     } else if (provider === 'anthropic') {
       upstream = await callAnthropicCompat(c.env, upstreamModel, upstreamBody);
       billingProvider = 'openai';
@@ -84,7 +93,7 @@ openai.post('/chat/completions', async (c) => {
 
     if (!upstream.ok) {
       const errText = await upstream.text();
-      return gatewayError(c, `上游 ${provider} 错误 (${upstream.status}): ${errText}`);
+      return upstreamError(c, upstream.status, `上游 ${provider} 错误 (${upstream.status}): ${errText}`);
     }
 
     // 流式：tee，一路给客户端，一路抽 usage
@@ -111,6 +120,11 @@ openai.post('/chat/completions', async (c) => {
   } catch (error) {
     console.error(`[${provider}] 调用失败:`, error);
     const message = error instanceof Error ? error.message : '上游调用失败';
+    // openai / @google/genai SDK 对非 2xx 抛异常而不是返回 Response，从异常上取上游状态码
+    const status = (error as { status?: unknown }).status;
+    if (typeof status === 'number') {
+      return upstreamError(c, status, `上游 ${provider} 错误 (${status}): ${message}`);
+    }
     return gatewayError(c, message);
   }
 });

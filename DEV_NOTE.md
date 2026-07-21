@@ -305,6 +305,20 @@ D1_ERROR: Network connection lost.
 
 **教训**：这两个 bug 能存在这么久，是因为在这次新增详情页之前，`stats-aggregation-core.ts` 里已有的按用户维度聚合能力（`e2e/cron-aggregation.test.ts` 早就验证过聚合结果本身正确）从未真正接了前端 UI，契约层的字段缺失和过滤条件错误没有任何调用方能触发。2026-07-18 维护轮次为 `admin/users/[userId]` 补了组件测试 + 一条登录态 e2e（覆盖渲染与真实 D1 契约），就是为了避免同类"数据正确但契约层没人验证"的问题再次潜伏。
 
+### Chat 请求体按 provider 归一化 + Gemini OpenAI 兼容翻译层（2026-07-21）
+
+**背景**：opencode 连接本服务报 400 `Unsupported parameter: 'max_tokens'`。排查确认是本服务的问题：`/v1/chat/completions` 原样透传参数，而各上游对标准 OpenAI 参数支持不一。playground 没触发只是因为它不发 `max_tokens`。
+
+**决策**：
+- 转发前经 `lib/chat-body-normalize.ts` 归一化：openai `max_tokens`→`max_completion_tokens`（gpt-5 系列拒收旧参数，全部现役模型接受新参数）；grok strip `stop`/`presence_penalty`/`frequency_penalty`（grok-4 系推理模型发这三个会报错，xAI 文档明确）。
+- google-ai-studio 经 `services/gemini-compat.ts` 做双向翻译（messages→contents / 响应与 SSE 翻译回 chat.completion 形）。此前 `callGemini` 只读 `body.contents`，任何 OpenAI 客户端（含 playground）都不可用；且路由本身强制要求 `messages`，"原生 Gemini shape 调用方"这条路径从来不存在。翻译后 usage 为 OpenAI 形，计费与 anthropic compat 一样按 `billingProvider = 'openai'` 解析；completion_tokens 含 thinking token（`thoughtsTokenCount`），比旧的 gemini 解析（只算 candidatesTokenCount）更接近上游真实计费。
+- 上游错误经 `lib/errors.ts#upstreamError`：4xx（除 401/403）原状态码透传，客户端能分辨是自己的请求问题；401/403 是本服务与上游的凭证问题、连同 5xx 维持 502。
+
+**已核实但暂不处理的兼容性差异**（有人报问题再说）：
+- Moonshot temperature 范围 [0,1]（OpenAI 为 [0,2]），越界会被上游拒
+- Workers AI `max_tokens` 默认 256，客户端不传会静默截断
+- Gemini 翻译层暂不支持 tools / tool_choice / 图片 content，命中返回 400 说明
+
 ## 关键模式
 
 ### Claim Token（一次性密钥查看）

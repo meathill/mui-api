@@ -1,5 +1,5 @@
 import { Hono } from 'hono';
-import { badRequest, gatewayError } from '../lib/errors';
+import { badRequest, gatewayError, upstreamError } from '../lib/errors';
 import { authMiddleware } from '../middleware/auth';
 import { createProxyServices } from '../services/service-factory';
 import type { CloudflareBindings } from '../types';
@@ -58,7 +58,7 @@ anthropic.post('/messages', authMiddleware, async (c) => {
 
     if (!upstream.ok) {
       const errText = await upstream.text();
-      return gatewayError(c, `上游 anthropic 错误 (${upstream.status}): ${errText}`);
+      return upstreamError(c, upstream.status, `上游 anthropic 错误 (${upstream.status}): ${errText}`);
     }
 
     const contentType = upstream.headers.get('content-type') ?? '';
