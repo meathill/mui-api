@@ -12,7 +12,6 @@ import {
   type NewUsageLog,
   type NewUsageStat,
   type NewVideoGenerationJob,
-  type NewWallet,
   type OauthClient,
   type OauthCode,
   type OauthToken,
@@ -31,8 +30,6 @@ import {
   usageStats,
   type VideoGenerationJob,
   videoGenerationJobs,
-  type Wallet,
-  wallets,
 } from '@muirouter/shared-db/business';
 
 // 向后兼容 app 侧既有命名；底层已切到 better-auth 的 user 表。
@@ -49,7 +46,6 @@ export {
   usageLogs,
   usageStats,
   videoGenerationJobs,
-  wallets,
 };
 
 export type {
@@ -64,7 +60,6 @@ export type {
   NewUsageLog,
   NewUsageStat,
   NewVideoGenerationJob,
-  NewWallet,
   OauthClient,
   OauthCode,
   OauthToken,
@@ -76,5 +71,4 @@ export type {
   VideoGenerationJob,
   User,
   NewUser,
-  Wallet,
 };

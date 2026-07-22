@@ -1,6 +1,9 @@
 export const TOP_UP_AMOUNTS = [10, 20, 50] as const;
 export const TOP_UP_CURRENCY = 'USD';
 export const STRIPE_TOP_UP_SOURCE = 'stripe_checkout';
+// processing 超过该秒数视为 worker 硬终止残留（Workers 单请求生命周期远短于此），
+// 允许被重新 claim 入账；双重入账仍由原子 claim + 流水复查 + UNIQUE(source, source_id) 兜底
+export const TOP_UP_PROCESSING_STALE_SECONDS = 600;
 
 export type TopUpAmount = (typeof TOP_UP_AMOUNTS)[number];
 export type TopUpSessionState = 'created' | 'processing' | 'credited' | 'failed' | 'cancelled';

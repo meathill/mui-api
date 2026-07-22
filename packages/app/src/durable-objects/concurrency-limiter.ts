@@ -1,4 +1,4 @@
-import type { CloudflareBindings, KVUserData, KVUserMetadata } from '../types';
+import type { CloudflareBindings } from '../types';
 
 const LEASE_PREFIX = 'lease:';
 const REQUEST_PREFIX = 'request:';
@@ -286,25 +286,22 @@ export class ConcurrencyLimiterDO {
     await this.ctx.storage.setAlarm(nextExpiresAt);
   }
 
+  /**
+   * 并发数展示镜像经 WalletDO /set-concurrency 同步：`user:{userId}` KV 记录的唯一写者是
+   * WalletDO，这里绝不能直接读-改-写 KV——旁路整条覆盖会把并发期间已变化的 balance
+   * 用旧值写回（2026-07-21 充值"未到账"事故的根因）。
+   * 并发数是纯展示字段（准入判断靠本 DO 的 lease 计数），同步失败不影响主流程。
+   */
   private async syncConcurrencyMirror(userId: string, activeCount: number): Promise<void> {
-    const key = `user:${userId}`;
-    const result = await this.env.KV.getWithMetadata<KVUserData, KVUserMetadata>(key, 'json');
-
-    if (!result.value || !result.metadata) {
-      return;
+    try {
+      const stub = this.env.WALLET.get(this.env.WALLET.idFromName(userId));
+      await stub.fetch('https://wallet/set-concurrency', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+        body: JSON.stringify({ concurrency: activeCount }),
+      });
+    } catch (error) {
+      console.warn(`同步并发数镜像失败 (userId=${userId}):`, error);
     }
-
-    if (result.value.concurrency === activeCount) {
-      return;
-    }
-
-    const nextValue: KVUserData = {
-      ...result.value,
-      concurrency: activeCount,
-    };
-
-    await this.env.KV.put(key, JSON.stringify(nextValue), {
-      metadata: result.metadata,
-    });
   }
 }

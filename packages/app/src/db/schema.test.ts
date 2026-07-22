@@ -9,7 +9,6 @@ import {
   usageStats,
   videoGenerationJobs,
   users,
-  wallets,
 } from './schema';
 
 describe('Database Schema', () => {
@@ -26,20 +25,6 @@ describe('Database Schema', () => {
       expect(columnNames).toContain('emailVerified');
       expect(columnNames).toContain('image');
       expect(columnNames).toContain('createdAt');
-      expect(columnNames).toContain('updatedAt');
-    });
-  });
-
-  describe('wallets table', () => {
-    it('should have correct table name', () => {
-      expect(getTableName(wallets)).toBe('wallets');
-    });
-
-    it('should have required columns', () => {
-      const columnNames = Object.keys(wallets);
-      expect(columnNames).toContain('userId');
-      expect(columnNames).toContain('balance');
-      expect(columnNames).toContain('currency');
       expect(columnNames).toContain('updatedAt');
     });
   });

@@ -74,15 +74,17 @@ pnpm dev
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| POST | `/admin/recharge` | 充值（自动区分新老用户） |
 | POST | `/admin/set-concurrency` | 设置用户最大并发数 |
+| POST | `/admin/sync-wallet-mirror` | 把 KV 展示镜像刷新为 WalletDO 权威账本（运维用） |
 
-**充值示例**：
+充值请使用 dashboard 管理后台（写入 recharge_logs 流水并记录操作者）。
+
+**镜像同步示例**：
 ```bash
-curl -X POST http://localhost:5173/admin/recharge \
+curl -X POST http://localhost:5173/admin/sync-wallet-mirror \
   -H "X-Admin-Secret: your-secret" \
   -H "Content-Type: application/json" \
-  -d '{"email": "user@example.com", "amount": 10}'
+  -d '{"email": "user@example.com"}'
 ```
 
 ### OpenAI 兼容接口

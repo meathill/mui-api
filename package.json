@@ -5,7 +5,8 @@
   "scripts": {
     "format": "biome format --write",
     "typecheck": "pnpm -r run typecheck",
-    "reset:concurrency-mirror": "node scripts/reset-concurrency-mirror.ts"
+    "reset:concurrency-mirror": "node scripts/reset-concurrency-mirror.ts",
+    "backfill:recharge": "node scripts/backfill-recharge-log.ts"
   },
   "keywords": [],
   "author": "",

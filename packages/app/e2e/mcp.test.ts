@@ -28,17 +28,16 @@ describe('MCP server', () => {
     expect(body.result.serverInfo.name).toBe('muirouter');
   });
 
-  it('tools/list 返回 6 个工具', async () => {
+  it('tools/list 返回 5 个工具', async () => {
     const userId = 'mcp-user-2';
     const apiKey = await seedApiKey(userId, 10);
     const res = await rpc(apiKey, 'tools/list');
     const body = (await res.json()) as any;
-    expect(body.result.tools).toHaveLength(6);
+    expect(body.result.tools).toHaveLength(5);
     const names = body.result.tools.map((t: any) => t.name).sort();
     expect(names).toContain('get_balance');
     expect(names).toContain('list_models');
     expect(names).toContain('image_generation');
-    expect(names).toContain('create_topup_session');
   });
 
   it('tools/call get_balance 返回 spec 字段', async () => {
@@ -48,9 +47,6 @@ describe('MCP server', () => {
       "INSERT OR REPLACE INTO user (id, name, email, email_verified, image, created_at, updated_at) VALUES (?, 'x', ?, 1, NULL, unixepoch(), unixepoch())",
     )
       .bind(userId, `${userId}@test.com`)
-      .run();
-    await env.DB.prepare("INSERT OR REPLACE INTO wallets (user_id, balance, currency) VALUES (?, 5.0, 'USD')")
-      .bind(userId)
       .run();
     const res = await rpc(apiKey, 'tools/call', { name: 'get_balance', arguments: {} });
     const body = (await res.json()) as any;

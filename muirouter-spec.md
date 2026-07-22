@@ -34,8 +34,8 @@ muirouter 现在已经在用户 sign-up 后给出 API key，建议确认 / 调�
 > - **Key 前缀**：当前为 `sk-gw-`（不是 `mr_`）。spec §1 已说明前缀可替换。
 > - **币种**：返回 wallet 真实币种，目前默认 `USD`（不是 `CNY`）。
 > - 错误体严格遵循 spec §2 顶层 `{error, message}` 形态。
-> - 已附带的额外端点：`GET /v1/usage`、`GET /v1/recharges`、`GET /v1/public-models`、`POST /v1/topup-sessions`、`POST /webhooks/stripe`。
-> - **MCP server**：`POST /mcp`（streamable-http JSON-RPC，Bearer sk-gw- 鉴权），暴露 6 个工具：`get_balance`、`get_usage`、`list_recharges`、`list_models`、`create_topup_session`、`image_generation`。
+> - 已附带的额外端点：`GET /v1/usage`、`GET /v1/recharges`、`GET /v1/public-models`。（充值统一走 dashboard 的 Stripe Checkout，API 侧不再提供 `topup-sessions`/webhook。）
+> - **MCP server**：`POST /mcp`（streamable-http JSON-RPC，Bearer sk-gw- 鉴权），暴露 5 个工具：`get_balance`、`get_usage`、`list_recharges`、`list_models`、`image_generation`。
 
 ## 2. Balance endpoint（最小必需）
 

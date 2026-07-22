@@ -1,8 +1,6 @@
 import { Hono } from 'hono';
-import { z } from 'zod';
 import { models } from '../db';
 import { readAuthMiddleware } from '../middleware/read-auth';
-import { createTopupSession } from '../services/stripe-service';
 import { getBalanceSnapshot, listRecharges, listUsage } from '../services/wallet-query-service';
 import type { CloudflareBindings } from '../types';
 
@@ -68,48 +66,6 @@ v1User.get('/public-models', async (c) => {
       markup_rate: m.markupRate ?? 1.2,
     })),
   });
-});
-
-const TopupSchema = z.object({
-  amount_cents: z.number().int().positive().max(100_000_00),
-  currency: z.string().length(3).optional(),
-  success_url: z.string().url().optional(),
-  cancel_url: z.string().url().optional(),
-});
-
-/**
- * POST /v1/topup-sessions — 创建 Stripe checkout session
- */
-v1User.post('/topup-sessions', readAuthMiddleware, async (c) => {
-  const userId = c.get('userId');
-  let body: unknown;
-  try {
-    body = await c.req.json();
-  } catch {
-    return specError(c, 400, 'invalid_request', '请求体必须是有效 JSON');
-  }
-  const parsed = TopupSchema.safeParse(body);
-  if (!parsed.success) {
-    return specError(c, 400, 'invalid_request', parsed.error.issues.map((i) => i.message).join('; '));
-  }
-
-  if (!c.env.STRIPE_SECRET_KEY) {
-    return specError(c, 503, 'stripe_unconfigured', 'Stripe 充值通道未配置');
-  }
-
-  try {
-    const result = await createTopupSession(c.env, c.get('db'), {
-      userId,
-      amountCents: parsed.data.amount_cents,
-      currency: (parsed.data.currency ?? 'usd').toLowerCase(),
-      successUrl: parsed.data.success_url,
-      cancelUrl: parsed.data.cancel_url,
-    });
-    return c.json(result, 201);
-  } catch (err) {
-    console.error('topup-sessions failed:', err);
-    return specError(c, 502, 'stripe_error', String(err instanceof Error ? err.message : err));
-  }
 });
 
 export default v1User;

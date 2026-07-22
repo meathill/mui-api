@@ -20,7 +20,6 @@
     "hono": "^4.12.9",
     "openai": "^6.34.0",
     "resend": "^6.9.4",
-    "stripe": "21.0.1",
     "zod": "^4.3.6"
   },
   "devDependencies": {

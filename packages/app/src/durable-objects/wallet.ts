@@ -1,42 +1,17 @@
 import type { CloudflareBindings, KVUserData, KVUserMetadata } from '../types';
+import {
+  DATA_KEY,
+  METADATA_KEY,
+  handleRefreshReservation,
+  handleReleaseReservation,
+  handleReserve,
+  handleSettleReservation,
+} from './wallet-reservations';
+import type { AmountRequest, CreateRequest, SetMetadataRequest, WalletResponse } from './wallet-types';
+
+export type { WalletReservation } from './wallet-types';
 
 const USER_ID_KEY = 'meta:userId';
-const DATA_KEY = 'data';
-const METADATA_KEY = 'metadata';
-const RESERVATION_PREFIX = 'reservation:';
-
-interface CreateRequest {
-  email: string;
-  initialBalance?: number;
-}
-
-interface AmountRequest {
-  amount: number;
-}
-
-interface ReservationRequest {
-  reservationId: string;
-  amount?: number;
-  expiresAt?: number;
-}
-
-export interface WalletReservation {
-  reservationId: string;
-  amount: number;
-  status: 'reserved' | 'settled' | 'released';
-  expiresAt: number;
-  settledAmount?: number;
-}
-
-type SetMetadataRequest = Pick<KVUserMetadata, 'maxConcurrency' | 'rateMultiplier' | 'stripeCustomerId'>;
-
-interface WalletResponse {
-  ok: boolean;
-  error?: string;
-  data?: KVUserData;
-  metadata?: KVUserMetadata;
-  reservation?: WalletReservation;
-}
 
 const notFound: WalletResponse = { ok: false, error: 'user_not_found' };
 
@@ -56,6 +31,9 @@ const notFound: WalletResponse = { ok: false, error: 'user_not_found' };
  * 不需要一次性 batch 迁移脚本。
  */
 export class WalletDO {
+  private mirrorSyncInFlight?: Promise<void>;
+  private mirrorSyncPending = false;
+
   constructor(
     private ctx: DurableObjectState,
     private env: CloudflareBindings,
@@ -80,19 +58,23 @@ export class WalletDO {
       case '/consume-free-quota':
         return this.handleConsumeFreeQuota(userId, request);
       case '/reserve':
-        return this.handleReserve(request);
+        return handleReserve(this.ctx, request);
       case '/refresh-reservation':
-        return this.handleRefreshReservation(request);
+        return handleRefreshReservation(this.ctx, request);
       case '/settle-reservation':
-        return this.handleSettleReservation(userId, request);
+        return handleSettleReservation(this.ctx, request, () => this.syncMirror(userId));
       case '/release-reservation':
-        return this.handleReleaseReservation(request);
+        return handleReleaseReservation(this.ctx, request);
       case '/suspend':
         return this.handleSetSuspended(userId, true);
       case '/unsuspend':
         return this.handleSetSuspended(userId, false);
       case '/set-metadata':
         return this.handleSetMetadata(userId, request);
+      case '/set-concurrency':
+        return this.handleSetConcurrency(userId, request);
+      case '/sync-mirror':
+        return this.handleSyncMirror(userId);
       default:
         return Response.json({ error: 'not_found' }, { status: 404 });
     }
@@ -148,125 +130,6 @@ export class WalletDO {
     return Response.json({ ok: true, ...result } satisfies WalletResponse);
   }
 
-  private async handleReserve(request: Request): Promise<Response> {
-    const { reservationId, amount, expiresAt } = (await request.json()) as ReservationRequest;
-    if (!reservationId || !Number.isFinite(amount) || !Number.isFinite(expiresAt) || amount! <= 0) {
-      return Response.json({ ok: false, error: 'invalid_reservation' } satisfies WalletResponse, { status: 400 });
-    }
-
-    const result = await this.ctx.blockConcurrencyWhile(async () => {
-      const key = `${RESERVATION_PREFIX}${reservationId}`;
-      const existing = await this.ctx.storage.get<WalletReservation>(key);
-      if (existing) return { reservation: existing };
-
-      const data = await this.ctx.storage.get<KVUserData>(DATA_KEY);
-      if (!data) return { error: 'user_not_found' as const };
-
-      const now = Date.now();
-      const reservations = await this.ctx.storage.list<WalletReservation>({ prefix: RESERVATION_PREFIX });
-      let activeTotal = 0;
-      const expiredKeys: string[] = [];
-      for (const [reservationKey, reservation] of reservations) {
-        if (reservation.expiresAt <= now) {
-          expiredKeys.push(reservationKey);
-        } else if (reservation.status === 'reserved') {
-          activeTotal += reservation.amount;
-        }
-      }
-      if (expiredKeys.length > 0) await this.ctx.storage.delete(expiredKeys);
-
-      if (data.balance - activeTotal + Number.EPSILON < amount!) {
-        return { error: 'insufficient_balance' as const };
-      }
-
-      const reservation: WalletReservation = {
-        reservationId,
-        amount: amount!,
-        expiresAt: expiresAt!,
-        status: 'reserved',
-      };
-      await this.ctx.storage.put(key, reservation);
-      return { reservation };
-    });
-
-    if ('error' in result) {
-      return Response.json({ ok: false, error: result.error } satisfies WalletResponse, {
-        status: result.error === 'insufficient_balance' ? 402 : 404,
-      });
-    }
-    return Response.json({ ok: true, reservation: result.reservation } satisfies WalletResponse);
-  }
-
-  private async handleRefreshReservation(request: Request): Promise<Response> {
-    const { reservationId, expiresAt } = (await request.json()) as ReservationRequest;
-    if (!reservationId || !Number.isFinite(expiresAt)) {
-      return Response.json({ ok: false, error: 'invalid_reservation' } satisfies WalletResponse, { status: 400 });
-    }
-    const reservation = await this.ctx.blockConcurrencyWhile(async () => {
-      const key = `${RESERVATION_PREFIX}${reservationId}`;
-      const current = await this.ctx.storage.get<WalletReservation>(key);
-      if (!current) return null;
-      if (current.status === 'reserved') {
-        current.expiresAt = expiresAt!;
-        await this.ctx.storage.put(key, current);
-      }
-      return current;
-    });
-    if (!reservation) return Response.json({ ok: false, error: 'reservation_not_found' }, { status: 404 });
-    return Response.json({ ok: true, reservation } satisfies WalletResponse);
-  }
-
-  private async handleSettleReservation(userId: string, request: Request): Promise<Response> {
-    const { reservationId, amount } = (await request.json()) as ReservationRequest;
-    if (!reservationId || !Number.isFinite(amount) || amount! < 0) {
-      return Response.json({ ok: false, error: 'invalid_reservation' } satisfies WalletResponse, { status: 400 });
-    }
-
-    const result = await this.ctx.blockConcurrencyWhile(async () => {
-      const key = `${RESERVATION_PREFIX}${reservationId}`;
-      const reservation = await this.ctx.storage.get<WalletReservation>(key);
-      const data = await this.ctx.storage.get<KVUserData>(DATA_KEY);
-      const metadata = await this.ctx.storage.get<KVUserMetadata>(METADATA_KEY);
-      if (!reservation || !data || !metadata) return null;
-      if (reservation.status === 'settled' || reservation.status === 'released') {
-        return { reservation, data, metadata };
-      }
-      const settledAmount = Math.min(amount!, reservation.amount);
-      data.balance = Math.max(0, data.balance - settledAmount);
-      reservation.status = 'settled';
-      reservation.settledAmount = settledAmount;
-      await this.ctx.storage.put({ [DATA_KEY]: data, [key]: reservation });
-      return { reservation, data, metadata };
-    });
-    if (!result) return Response.json({ ok: false, error: 'reservation_not_found' }, { status: 404 });
-    await this.env.KV.put(`user:${userId}`, JSON.stringify(result.data), { metadata: result.metadata });
-    return Response.json({ ok: true, ...result } satisfies WalletResponse);
-  }
-
-  private async handleReleaseReservation(request: Request): Promise<Response> {
-    const { reservationId } = (await request.json()) as ReservationRequest;
-    if (!reservationId) {
-      return Response.json({ ok: false, error: 'invalid_reservation' } satisfies WalletResponse, { status: 400 });
-    }
-    const reservation = await this.ctx.blockConcurrencyWhile(async () => {
-      const key = `${RESERVATION_PREFIX}${reservationId}`;
-      const current = await this.ctx.storage.get<WalletReservation>(key);
-      if (!current) return null;
-      if (current.status === 'reserved') {
-        current.status = 'released';
-        await this.ctx.storage.put(key, current);
-      }
-      return current;
-    });
-    if (!reservation) {
-      return Response.json({
-        ok: true,
-        reservation: { reservationId, amount: 0, expiresAt: 0, status: 'released' },
-      } satisfies WalletResponse);
-    }
-    return Response.json({ ok: true, reservation } satisfies WalletResponse);
-  }
-
   private async handleSetSuspended(userId: string, isSuspended: boolean): Promise<Response> {
     const result = await this.mutateExisting(userId, (data) => {
       data.isSuspended = isSuspended;
@@ -294,6 +157,74 @@ export class WalletDO {
       return Response.json(notFound, { status: 404 });
     }
     return Response.json({ ok: true, ...result } satisfies WalletResponse);
+  }
+
+  /**
+   * 并发数展示镜像的唯一入口：ConcurrencyLimiterDO 通过这里同步 activeCount，
+   * 由本 DO 从权威 storage 出发写镜像，避免旁路读-改-写 KV 时把旧 balance 一起覆盖回去
+   * （2026-07-21 充值"未到账"事故的根因）。
+   */
+  private async handleSetConcurrency(userId: string, request: Request): Promise<Response> {
+    const { concurrency } = (await request.json()) as { concurrency: number };
+    if (!Number.isFinite(concurrency)) {
+      return Response.json({ ok: false, error: 'invalid_concurrency' } satisfies WalletResponse, { status: 400 });
+    }
+
+    const next = Math.max(0, concurrency);
+    const existing = await this.ctx.storage.get<KVUserData>(DATA_KEY);
+    if (existing && existing.concurrency === next) {
+      // 数值未变化时跳过写入，保留原实现的防抖优化
+      const metadata = await this.ctx.storage.get<KVUserMetadata>(METADATA_KEY);
+      return Response.json({ ok: true, data: existing, metadata } satisfies WalletResponse);
+    }
+
+    const result = await this.mutateExisting(userId, (data) => {
+      data.concurrency = next;
+    });
+    if (!result) {
+      return Response.json(notFound, { status: 404 });
+    }
+    return Response.json({ ok: true, ...result } satisfies WalletResponse);
+  }
+
+  /**
+   * 运维端点：把 KV 展示镜像强制刷新为权威 storage 的当前值。
+   * 用于修复镜像被旁路写脏的场景（如 2026-07-21 充值"未到账"事故的数据修复）。
+   */
+  private async handleSyncMirror(userId: string): Promise<Response> {
+    const data = await this.ctx.storage.get<KVUserData>(DATA_KEY);
+    const metadata = await this.ctx.storage.get<KVUserMetadata>(METADATA_KEY);
+    if (!data || !metadata) {
+      return Response.json(notFound, { status: 404 });
+    }
+    await this.syncMirror(userId);
+    return Response.json({ ok: true, data, metadata } satisfies WalletResponse);
+  }
+
+  /**
+   * 镜像同步 single-flight：并发调用合并到进行中的循环，每轮 put 前重新快照
+   * 当前 storage，保证最后落地的永远是最新账本——旧快照不可能后落地。
+   * （之前直接在各写路径 KV.put 各自的结果快照，锁外的 put 一旦乱序，
+   * 旧余额就会覆盖新余额且无人纠正。）
+   */
+  private async syncMirror(userId: string): Promise<void> {
+    if (this.mirrorSyncInFlight) {
+      this.mirrorSyncPending = true;
+      return this.mirrorSyncInFlight;
+    }
+    this.mirrorSyncInFlight = (async () => {
+      do {
+        this.mirrorSyncPending = false;
+        const data = await this.ctx.storage.get<KVUserData>(DATA_KEY);
+        const metadata = await this.ctx.storage.get<KVUserMetadata>(METADATA_KEY);
+        if (data && metadata) {
+          await this.env.KV.put(`user:${userId}`, JSON.stringify(data), { metadata });
+        }
+      } while (this.mirrorSyncPending);
+    })().finally(() => {
+      this.mirrorSyncInFlight = undefined;
+    });
+    return this.mirrorSyncInFlight;
   }
 
   /**
@@ -339,8 +270,8 @@ export class WalletDO {
 
   /**
    * 核心并发安全原语：读 storage → 应用变更 → 写 storage，整体在 blockConcurrencyWhile 里
-   * 执行（不含任何外部 I/O，符合「不要跨外部 I/O 持锁」的准则）。KV 镜像同步放锁外——
-   * 那只是展示副本，即便偶尔与其它并发请求的镜像写交错也不影响 storage 里的权威账本。
+   * 执行（不含任何外部 I/O，符合「不要跨外部 I/O 持锁」的准则）。KV 镜像同步放锁外，
+   * 经 syncMirror single-flight 串行落地，保证镜像最终等于权威账本。
    */
   private async mutate(
     userId: string,
@@ -358,7 +289,7 @@ export class WalletDO {
       return { data, metadata };
     });
 
-    await this.env.KV.put(`user:${userId}`, JSON.stringify(result.data), { metadata: result.metadata });
+    await this.syncMirror(userId);
     return result;
   }
 

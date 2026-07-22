@@ -34,14 +34,10 @@ describe('GET /v1/balance', () => {
   it('合法 key 返回 spec 字段，金额 cents 一致', async () => {
     const userId = 'balance-user-1';
     const apiKey = await seedApiKey(userId, 12.34);
-    // 写 wallets 行（D1）
     await env.DB.prepare(
       "INSERT OR REPLACE INTO user (id, name, email, email_verified, image, created_at, updated_at) VALUES (?, 'x', ?, 1, NULL, unixepoch(), unixepoch())",
     )
       .bind(userId, `${userId}@test.com`)
-      .run();
-    await env.DB.prepare("INSERT OR REPLACE INTO wallets (user_id, balance, currency) VALUES (?, 12.34, 'USD')")
-      .bind(userId)
       .run();
     await env.DB.prepare("INSERT INTO recharge_logs (id, user_id, amount, source) VALUES ('r1', ?, 50.00, 'admin')")
       .bind(userId)
@@ -120,31 +116,5 @@ describe('GET /v1/public-models', () => {
     expect(res.status).toBe(200);
     const body = (await res.json()) as { items: Array<{ id: string }> };
     expect(body.items.length).toBeGreaterThan(0);
-  });
-});
-
-describe('POST /v1/topup-sessions', () => {
-  it('未配置 Stripe 时返回 503', async () => {
-    const userId = 'topup-user-1';
-    const apiKey = await seedApiKey(userId, 0);
-    const res = await SELF.fetch('http://localhost/v1/topup-sessions', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ amount_cents: 1000 }),
-    });
-    expect(res.status).toBe(503);
-    const body = (await res.json()) as SpecError;
-    expect(body.error).toBe('stripe_unconfigured');
-  });
-
-  it('参数非法 → 400', async () => {
-    const userId = 'topup-user-2';
-    const apiKey = await seedApiKey(userId, 0);
-    const res = await SELF.fetch('http://localhost/v1/topup-sessions', {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${apiKey}`, 'content-type': 'application/json' },
-      body: JSON.stringify({ amount_cents: -1 }),
-    });
-    expect(res.status).toBe(400);
   });
 });

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { WalletDO } from './wallet';
 
 interface StoredValue {
@@ -219,6 +219,48 @@ describe('WalletDO', () => {
     expect(afterRateMultiplier.metadata?.maxConcurrency).toBe(5);
   });
 
+  it('/set-concurrency 只更新并发数，不动余额，并刷新镜像', async () => {
+    const { durableObject, kv } = createDurableObject();
+    await seedKvUser(kv, 'user-1', 10);
+
+    const result = await postJson<WalletResult>(durableObject, '/set-concurrency', 'user-1', { concurrency: 3 });
+
+    expect(result.ok).toBe(true);
+    expect(result.data?.concurrency).toBe(3);
+    expect(result.data?.balance).toBe(10);
+    const mirrored = JSON.parse(kv.store.get('user:user-1')!.value);
+    expect(mirrored.concurrency).toBe(3);
+    expect(mirrored.balance).toBe(10);
+  });
+
+  it('/set-concurrency 数值未变化时跳过镜像写入，负数收敛为 0', async () => {
+    const { durableObject, kv } = createDurableObject();
+    await seedKvUser(kv, 'user-1', 10);
+    await postJson<WalletResult>(durableObject, '/set-concurrency', 'user-1', { concurrency: 2 });
+
+    const putSpy = vi.spyOn(kv, 'put');
+    const repeated = await postJson<WalletResult>(durableObject, '/set-concurrency', 'user-1', { concurrency: 2 });
+    expect(repeated.ok).toBe(true);
+    expect(putSpy).not.toHaveBeenCalled();
+
+    const negative = await postJson<WalletResult>(durableObject, '/set-concurrency', 'user-1', { concurrency: -5 });
+    expect(negative.data?.concurrency).toBe(0);
+  });
+
+  it('/set-concurrency 对不存在的用户返回 404', async () => {
+    const { durableObject } = createDurableObject();
+
+    const response = await durableObject.fetch(
+      new Request('https://wallet/set-concurrency', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': 'ghost' },
+        body: JSON.stringify({ concurrency: 1 }),
+      }),
+    );
+
+    expect(response.status).toBe(404);
+  });
+
   it('每次变更都会更新 KV 展示镜像', async () => {
     const { durableObject, kv } = createDurableObject();
     await seedKvUser(kv, 'user-1', 10);
@@ -227,6 +269,66 @@ describe('WalletDO', () => {
 
     const mirrored = JSON.parse(kv.store.get('user:user-1')!.value);
     expect(mirrored.balance).toBe(6);
+  });
+
+  it('/sync-mirror 用权威账本重写脏 KV 镜像', async () => {
+    const { durableObject, kv } = createDurableObject();
+    await seedKvUser(kv, 'user-1', 26.44);
+    // 先触达一次让 storage 完成自愈迁移（账本 = 26.44）
+    await postJson<WalletResult>(durableObject, '/add', 'user-1', { amount: 0 });
+
+    // 模拟镜像被旁路写脏
+    await kv.put('user:user-1', JSON.stringify({ balance: 6.44, concurrency: 0 }), {
+      metadata: { email: 'user-1@test.com', createdAt: '2026-04-19T00:00:00.000Z' },
+    });
+
+    const result = await postJson<WalletResult>(durableObject, '/sync-mirror', 'user-1', {});
+
+    expect(result.ok).toBe(true);
+    expect(result.data?.balance).toBe(26.44);
+    expect(JSON.parse(kv.store.get('user:user-1')!.value).balance).toBe(26.44);
+  });
+
+  it('/sync-mirror 对不存在的用户返回 404', async () => {
+    const { durableObject } = createDurableObject();
+
+    const response = await durableObject.fetch(
+      new Request('https://wallet/sync-mirror', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': 'ghost' },
+        body: JSON.stringify({}),
+      }),
+    );
+
+    expect(response.status).toBe(404);
+  });
+
+  it('镜像写并发时 single-flight 串行落地，终值等于权威账本', async () => {
+    const { durableObject, kv } = createDurableObject();
+    await seedKvUser(kv, 'user-1', 10);
+    await postJson<WalletResult>(durableObject, '/add', 'user-1', { amount: 0 });
+
+    // 让第一次镜像 put 挂起：旧实现里后发先至的 put 会把旧余额留在 KV
+    let release!: () => void;
+    const gate = new Promise<void>((resolve) => {
+      release = resolve;
+    });
+    const originalPut = kv.put.bind(kv);
+    let shouldDelay = true;
+    vi.spyOn(kv, 'put').mockImplementation(async (key: string, value: string, options?: { metadata?: unknown }) => {
+      if (shouldDelay) {
+        shouldDelay = false;
+        await gate;
+      }
+      return originalPut(key, value, options);
+    });
+
+    const first = postJson<WalletResult>(durableObject, '/deduct', 'user-1', { amount: 1 });
+    const second = postJson<WalletResult>(durableObject, '/deduct', 'user-1', { amount: 2 });
+    release();
+    await Promise.all([first, second]);
+
+    expect(JSON.parse(kv.store.get('user:user-1')!.value).balance).toBe(7);
   });
 
   it('预占会扣减可用余额，但只在结算时修改实际余额', async () => {

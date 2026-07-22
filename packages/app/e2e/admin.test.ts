@@ -1,15 +1,7 @@
 import { env, SELF } from 'cloudflare:test';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 
 const ADMIN_SECRET = 'test-admin-secret';
-
-function stubEmailFetch(): ReturnType<typeof vi.fn> {
-  // 充值/告警流程会通过全局 fetch 调用 Resend 发邮件（已改为 waitUntil 异步）。
-  // e2e 不应依赖外网/代理，也不应发真实邮件，故 stub 掉全局 fetch。
-  const fetchMock = vi.fn(async () => Response.json({ id: 'test-email-id' }));
-  vi.stubGlobal('fetch', fetchMock);
-  return fetchMock;
-}
 
 describe('管理员接口', () => {
   describe('认证', () => {
@@ -66,54 +58,46 @@ describe('管理员接口', () => {
     });
   });
 
-  describe('充值', () => {
-    afterEach(() => {
-      vi.unstubAllGlobals();
-    });
-
-    it('可以给用户充值（新用户，经 WalletDO 初始化）', async () => {
-      // 注：vi.mock('resend') 在 workers 池里无法拦截被测 Worker 的模块图，stub 全局 fetch 才有效。
-      const fetchMock = stubEmailFetch();
-
-      const res = await SELF.fetch('http://localhost/admin/recharge', {
-        method: 'POST',
-        headers: {
-          'X-Admin-Secret': ADMIN_SECRET,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: 'test@example.com',
-          amount: 5,
-        }),
+  describe('钱包镜像同步', () => {
+    it('sync-wallet-mirror 用权威账本重写被写脏的 KV 镜像', async () => {
+      const userId = 'admin-sync-mirror-user';
+      // 先经 KV 播种并触达 WalletDO，让权威 storage 完成自愈迁移（账本 = 26.44）
+      await env.KV.put(`user:${userId}`, JSON.stringify({ balance: 26.44, concurrency: 0 }), {
+        metadata: { email: `${userId}@test.com`, createdAt: new Date().toISOString() },
       });
+      const stub = env.WALLET.get(env.WALLET.idFromName(userId));
+      await stub.fetch('https://wallet/add', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-user-id': userId },
+        body: JSON.stringify({ amount: 0 }),
+      });
+
+      // 模拟镜像被旁路写脏（2026-07-21 事故现场）
+      await env.KV.put(`user:${userId}`, JSON.stringify({ balance: 6.44, concurrency: 0 }), {
+        metadata: { email: `${userId}@test.com`, createdAt: new Date().toISOString() },
+      });
+
+      const res = await SELF.fetch('http://localhost/admin/sync-wallet-mirror', {
+        method: 'POST',
+        headers: { 'X-Admin-Secret': ADMIN_SECRET, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId }),
+      });
+
       expect(res.status).toBe(200);
-      const body = await res.json<{ isNewUser: boolean; balance: number }>();
-      expect(body.isNewUser).toBe(true);
-      expect(body.balance).toBe(5);
-      // 等待 waitUntil 里的邮件发送命中 stub，确保在 unstub 前完成、不泄漏到真实网络
-      await vi.waitFor(() => expect(fetchMock).toHaveBeenCalled());
+      const body = await res.json<{ success: boolean; balance: number }>();
+      expect(body.success).toBe(true);
+      expect(body.balance).toBe(26.44);
+      const mirrored = await env.KV.get<{ balance: number }>(`user:${userId}`, 'json');
+      expect(mirrored?.balance).toBe(26.44);
     });
 
-    it('二次充值走已有用户分支，余额通过 WalletDO 正确累加', async () => {
-      stubEmailFetch();
-      const email = 'repeat-recharge@example.com';
-
-      const first = await SELF.fetch('http://localhost/admin/recharge', {
+    it('sync-wallet-mirror 对不存在的用户返回 404', async () => {
+      const res = await SELF.fetch('http://localhost/admin/sync-wallet-mirror', {
         method: 'POST',
         headers: { 'X-Admin-Secret': ADMIN_SECRET, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, amount: 10 }),
+        body: JSON.stringify({ email: 'ghost-no-such-user@example.com' }),
       });
-      expect(first.status).toBe(200);
-
-      const second = await SELF.fetch('http://localhost/admin/recharge', {
-        method: 'POST',
-        headers: { 'X-Admin-Secret': ADMIN_SECRET, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, amount: 7 }),
-      });
-      expect(second.status).toBe(200);
-      const body = await second.json<{ isNewUser: boolean; balance: number }>();
-      expect(body.isNewUser).toBe(false);
-      expect(body.balance).toBe(17);
+      expect(res.status).toBe(404);
     });
   });
 

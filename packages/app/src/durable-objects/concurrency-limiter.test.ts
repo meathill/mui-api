@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ConcurrencyLimiterDO } from './concurrency-limiter';
+import { WalletDO } from './wallet';
 
 interface StoredValue {
   value: string;
@@ -83,16 +84,45 @@ function createDurableObject() {
   const kv = createMockKV();
   const storage = createMockStorage();
 
+  // 真实 WalletDO 接入 WALLET 绑定：镜像同步统一走 /set-concurrency，
+  // KV 里的镜像由 WalletDO 从自己的权威 storage 写出。
+  const walletStorage = createMockStorage();
+  const walletDO = new WalletDO(
+    {
+      storage: walletStorage as unknown as DurableObjectStorage,
+      blockConcurrencyWhile: async <T>(fn: () => Promise<T>) => fn(),
+    } as unknown as DurableObjectState,
+    { KV: kv } as unknown as import('../types').CloudflareBindings,
+  );
+
+  // 限流器自己的 env.KV 用探针替代：改造后它不应再直接读写 KV
+  const limiterKvCalls: string[] = [];
+  const limiterKvProbe = {
+    async getWithMetadata() {
+      limiterKvCalls.push('getWithMetadata');
+      return { value: null, metadata: null };
+    },
+    async put() {
+      limiterKvCalls.push('put');
+    },
+  };
+
   const durableObject = new ConcurrencyLimiterDO(
     {
       storage: storage as unknown as DurableObjectStorage,
     } as DurableObjectState,
     {
-      KV: kv,
+      KV: limiterKvProbe,
+      WALLET: {
+        idFromName: (name: string) => name,
+        get: () => ({
+          fetch: (url: string, init?: RequestInit) => walletDO.fetch(new Request(url, init)),
+        }),
+      },
     } as unknown as import('../types').CloudflareBindings,
   );
 
-  return { durableObject, kv, storage };
+  return { durableObject, kv, storage, walletDO, walletStorage, limiterKvCalls };
 }
 
 async function seedUser(kv: ReturnType<typeof createMockKV>, userId: string): Promise<void> {
@@ -114,7 +144,7 @@ async function seedUser(kv: ReturnType<typeof createMockKV>, userId: string): Pr
 }
 
 async function postJson<T>(
-  durableObject: ConcurrencyLimiterDO,
+  durableObject: ConcurrencyLimiterDO | WalletDO,
   path: string,
   userId: string,
   body: unknown,
@@ -144,7 +174,7 @@ describe('ConcurrencyLimiterDO', () => {
   });
 
   it('未超限时可以获取 lease 并同步镜像', async () => {
-    const { durableObject, kv } = createDurableObject();
+    const { durableObject, kv, limiterKvCalls } = createDurableObject();
     await seedUser(kv, 'user-1');
 
     const result = await postJson<{
@@ -164,6 +194,8 @@ describe('ConcurrencyLimiterDO', () => {
 
     const userRecord = await kv.getWithMetadata<{ concurrency: number }, unknown>('user:user-1', 'json');
     expect(userRecord.value?.concurrency).toBe(1);
+    // 镜像必须经 WalletDO 写出，限流器不允许直接触碰 KV
+    expect(limiterKvCalls).toEqual([]);
   });
 
   it('达到上限时拒绝新的 lease', async () => {
@@ -272,5 +304,32 @@ describe('ConcurrencyLimiterDO', () => {
     });
     expect(reacquire.ok).toBe(true);
     expect(reacquire.activeCount).toBe(1);
+  });
+
+  it('alarm 同步镜像不会用旧余额覆盖 KV（2026-07-21 充值未到账事故回归）', async () => {
+    const { durableObject, kv, walletDO, limiterKvCalls } = createDurableObject();
+    await seedUser(kv, 'user-1');
+
+    // 请求进行中（持有 lease），随后钱包发生充值
+    await postJson(durableObject, '/acquire', 'user-1', {
+      requestId: 'req-1',
+      maxConcurrency: 1,
+      leaseTtlMs: 10,
+    });
+    await postJson(walletDO, '/add', 'user-1', { amount: 20 });
+
+    // 模拟旧实现的事故现场：KV 镜像被写回充值前的旧值
+    await kv.put(`user:user-1`, JSON.stringify({ balance: 10, concurrency: 1, isSuspended: false }), {
+      metadata: { email: 'user-1@test.com', createdAt: '2026-04-19T00:00:00.000Z', maxConcurrency: 2 },
+    });
+
+    // lease 过期，alarm 清理并同步镜像：必须以权威账本为准，而不是把 KV 旧值抄回去
+    vi.setSystemTime(new Date('2026-04-19T00:00:01.000Z'));
+    await durableObject.alarm();
+
+    const mirrored = await kv.getWithMetadata<{ balance: number; concurrency: number }, unknown>('user:user-1', 'json');
+    expect(mirrored.value?.balance).toBe(30);
+    expect(mirrored.value?.concurrency).toBe(0);
+    expect(limiterKvCalls).toEqual([]);
   });
 });

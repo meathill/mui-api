@@ -25,10 +25,6 @@ export interface CloudflareBindings {
   ANTHROPIC_API_KEY?: string;
   DEFAULT_MAX_CONCURRENCY?: string; // 默认 "3"
   // Stripe 充值
-  STRIPE_SECRET_KEY?: string;
-  STRIPE_WEBHOOK_SECRET?: string;
-  STRIPE_DEFAULT_SUCCESS_URL?: string;
-  STRIPE_DEFAULT_CANCEL_URL?: string;
 }
 
 // KV 数据形状定义已上移到 shared-db（app / dashboard 共用），此处转发保持既有 import 路径

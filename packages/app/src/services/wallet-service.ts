@@ -78,6 +78,11 @@ export class WalletService {
     return this.request(userId, '/set-metadata', patch);
   }
 
+  /** 把 KV 展示镜像强制刷新为权威账本当前值（运维用） */
+  async syncMirror(userId: string): Promise<WalletRecord> {
+    return this.request(userId, '/sync-mirror', {});
+  }
+
   private async request(userId: string, path: string, payload: unknown): Promise<WalletRecord> {
     const stub = this.getStub(userId);
     const response = await stub.fetch(`https://wallet${path}`, {

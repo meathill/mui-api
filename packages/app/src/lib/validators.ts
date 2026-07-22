@@ -2,13 +2,6 @@ import { z } from 'zod';
 
 // ==================== 管理员接口 ====================
 
-export const RechargeSchema = z.object({
-  email: z.string().email('邮箱格式无效'),
-  amount: z.number().positive('金额必须大于 0'),
-  note: z.string().optional(),
-});
-export type RechargeInput = z.infer<typeof RechargeSchema>;
-
 export const SetConcurrencySchema = z.object({
   userId: z.string().min(1, 'userId 不能为空'),
   maxConcurrency: z.number().int().min(1, '并发数至少为 1').max(100, '并发数最大 100'),

@@ -4,7 +4,7 @@
 // `user:{userId}` 记录的 data 部分。只读展示镜像，唯一写者是 WalletDO。
 export interface KVUserData {
   balance: number;
-  concurrency: number; // Durable Object 同步回 KV 的并发展示镜像，不参与准入判断
+  concurrency: number; // ConcurrencyLimiterDO 经 WalletDO /set-concurrency 同步的并发展示镜像，不参与准入判断
   freeQuotaUsed?: number; // 已消耗的全局免费额度，单位 USD
   isSuspended?: boolean;
 }

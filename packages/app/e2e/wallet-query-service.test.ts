@@ -1,12 +1,12 @@
 import { env } from 'cloudflare:test';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { createDb } from '../src/db';
-import { rechargeLogs, usageLogs, users, wallets } from '../src/db/schema';
+import { rechargeLogs, usageLogs, users } from '../src/db/schema';
 import { getBalanceSnapshot, listRecharges, listUsage } from '../src/services/wallet-query-service';
 
 /**
  * wallet-query-service E2E：真实 D1。重点验证游标分页（limit+1 探测、next_cursor 翻页）、
- * 过滤条件、以及余额快照「KV 优先、D1 副本兜底」的口径。
+ * 过滤条件、以及余额快照「余额只来自 KV 镜像」的口径。
  */
 
 const db = createDb(env.DB);
@@ -26,7 +26,6 @@ beforeAll(async () => {
     createdAt: new Date(),
     updatedAt: new Date(),
   });
-  await db.insert(wallets).values({ userId: USER_ID, balance: 7.5, currency: 'USD' });
 
   await db.insert(rechargeLogs).values([
     { id: 'wr-1', userId: USER_ID, amount: 10, source: 'admin', createdAt: T30 },
@@ -49,10 +48,10 @@ beforeAll(async () => {
 });
 
 describe('getBalanceSnapshot', () => {
-  it('无 KV 时余额来自 D1 wallets 副本，lifetime 按 logs 聚合', async () => {
+  it('无 KV 记录时余额为 0，lifetime 按 logs 聚合', async () => {
     const snap = await getBalanceSnapshot(db, USER_ID);
     expect(snap.currency).toBe('USD');
-    expect(snap.balance_cents).toBe(750);
+    expect(snap.balance_cents).toBe(0);
     expect(snap.lifetime_topped_up_cents).toBe(3000); // 10 + 20
     expect(snap.lifetime_spent_cents).toBe(175); // 0.5 + 1.0 + 0.25
   });

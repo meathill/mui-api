@@ -4,7 +4,7 @@ import type Stripe from 'stripe';
 import { stripeTopupSessions } from '@/db/app-schema';
 import { getDb } from '@/lib/db';
 import { getUserData, type KVUserData, type KVUserMetadata } from '@/lib/kv';
-import { TOP_UP_CURRENCY, type TopUpSessionState } from '@/lib/top-up';
+import { TOP_UP_CURRENCY, TOP_UP_PROCESSING_STALE_SECONDS, type TopUpSessionState } from '@/lib/top-up';
 import { createWalletUser, setWalletMetadata } from '@/lib/wallet-do';
 import type { SessionUser, StripeTopUpMetadata } from './types';
 import { getStripeObjectId } from './utils';
@@ -60,10 +60,13 @@ export async function claimTopUpProcessing(checkoutSessionId: string, paymentSta
           updated_at = unixepoch(),
           last_error = NULL
       WHERE checkout_session_id = ?
-        AND status IN ('created', 'failed')
+        AND (
+          status IN ('created', 'failed')
+          OR (status = 'processing' AND updated_at <= unixepoch() - ?)
+        )
     `,
   )
-    .bind(paymentStatus, checkoutSessionId)
+    .bind(paymentStatus, checkoutSessionId, TOP_UP_PROCESSING_STALE_SECONDS)
     .run();
 
   return (result.meta?.changes ?? 0) > 0;

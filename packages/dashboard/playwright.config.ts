@@ -2,6 +2,9 @@ import { defineConfig, devices } from '@playwright/test';
 
 const e2eStatePath = '.wrangler/e2e-state';
 const useSystemChrome = process.env.PLAYWRIGHT_USE_SYSTEM_CHROME === '1';
+// 本地网络下载不了 chromium headless shell 时，PLAYWRIGHT_CHROMIUM_CHANNEL=chromium
+// 可改用完整版 chromium 的新 headless 模式（只需要主包，不需要 headless shell）
+const chromiumChannel = useSystemChrome ? 'chrome' : process.env.PLAYWRIGHT_CHROMIUM_CHANNEL;
 
 export default defineConfig({
   testDir: './e2e',
@@ -11,6 +14,8 @@ export default defineConfig({
   use: {
     baseURL: 'http://localhost:3035',
     trace: 'on-first-retry',
+    // setup project 也要跑真实浏览器上下文，channel 必须放在顶层 use 才能全局生效
+    channel: chromiumChannel,
   },
   projects: [
     {
@@ -21,7 +26,6 @@ export default defineConfig({
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
-        channel: useSystemChrome ? 'chrome' : undefined,
       },
       dependencies: ['setup'],
     },

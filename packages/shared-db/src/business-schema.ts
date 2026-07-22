@@ -2,15 +2,6 @@ import { sql } from 'drizzle-orm';
 import { integer, primaryKey, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { user } from './auth-schema';
 
-export const wallets = sqliteTable('wallets', {
-  userId: text('user_id')
-    .primaryKey()
-    .references(() => user.id),
-  balance: real('balance').default(0.0),
-  currency: text('currency').default('USD'),
-  updatedAt: integer('updated_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
-});
-
 export const models = sqliteTable('models', {
   id: text('id').primaryKey(),
   provider: text('provider').notNull(),
@@ -143,9 +134,6 @@ export const blogPostTranslations = sqliteTable(
   },
   (table) => [primaryKey({ columns: [table.slug, table.locale] })],
 );
-
-export type Wallet = typeof wallets.$inferSelect;
-export type NewWallet = typeof wallets.$inferInsert;
 
 export type Model = typeof models.$inferSelect;
 export type NewModel = typeof models.$inferInsert;

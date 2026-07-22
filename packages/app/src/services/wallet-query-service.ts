@@ -1,8 +1,11 @@
 import { formatBalance, toCents } from '@muirouter/shared-db/money';
 import { and, desc, eq, gte, lt, lte, sql } from 'drizzle-orm';
 import type { Database } from '../db';
-import { rechargeLogs, usageLogs, wallets } from '../db';
+import { rechargeLogs, usageLogs } from '../db';
 import { KVService } from './kv-service';
+
+// KV 没有 currency 字段，全局假设 USD
+const CURRENCY = 'USD';
 
 export interface BalanceSnapshot {
   currency: string;
@@ -76,18 +79,12 @@ function toIso(value: Date | number | null | undefined): string {
 }
 
 /**
- * 余额快照。**balance 真账本在 KV**（auth middleware 在那里扣账），D1 wallets 表只是
- * 早期方案残留的非同步副本。以前 MCP / `/v1/balance` 直接读 D1 副本会拿到 0 + 1970-01-01
- * （副本从没被写入），跟 dashboard 显示对不上。
- *
- * 现行做法：balance 从 KV 读，单位 USD；lifetime_topped_up / spent 仍按 D1 logs aggregate
- * （这些是审计记录，写入双写比较稳）。updated_at fallback 到 wallets.updatedAt 或当前时间。
- *
- * KV 没有 currency 字段，全局假设 USD（与 wallets.currency 默认一致）。
+ * 余额快照。**balance 真账本在 WalletDO，KV 是只读展示镜像**，这里从 KV 读；
+ * lifetime_topped_up / spent 按 D1 logs aggregate（审计记录）。
+ * 早期方案的 D1 wallets 副本（从未被现行写路径维护）已随遗留 Stripe 集成一并删除。
  */
 export async function getBalanceSnapshot(db: Database, userId: string, kv?: KVNamespace): Promise<BalanceSnapshot> {
-  const [wallet, kvData, topupAgg, spendAgg] = await Promise.all([
-    db.query.wallets.findFirst({ where: eq(wallets.userId, userId) }),
+  const [kvData, topupAgg, spendAgg] = await Promise.all([
     kv ? new KVService(kv).getUser(userId) : Promise.resolve({ data: null, metadata: null }),
     db
       .select({ total: sql<number>`COALESCE(SUM(${rechargeLogs.amount}), 0)` })
@@ -99,19 +96,17 @@ export async function getBalanceSnapshot(db: Database, userId: string, kv?: KVNa
       .where(eq(usageLogs.userId, userId)),
   ]);
 
-  const currency = wallet?.currency ?? 'USD';
-  // KV 优先；KV 没值（极少：还没初始化）才 fallback 到 wallets 副本
-  const balance = kvData.data?.balance ?? wallet?.balance ?? 0;
-  const updatedAt = kvData.data ? new Date() : (wallet?.updatedAt ?? null);
+  const balance = kvData.data?.balance ?? 0;
+  const updatedAt = kvData.data ? new Date() : null;
   const toppedUp = Number(topupAgg[0]?.total ?? 0);
   const spent = Number(spendAgg[0]?.total ?? 0);
 
   return {
-    currency,
-    balance: formatBalance(balance, currency),
-    balance_cents: toCents(balance, currency),
-    lifetime_topped_up_cents: toCents(toppedUp, currency),
-    lifetime_spent_cents: toCents(spent, currency),
+    currency: CURRENCY,
+    balance: formatBalance(balance, CURRENCY),
+    balance_cents: toCents(balance, CURRENCY),
+    lifetime_topped_up_cents: toCents(toppedUp, CURRENCY),
+    lifetime_spent_cents: toCents(spent, CURRENCY),
     updated_at: toIso(updatedAt),
   };
 }
@@ -129,8 +124,6 @@ export async function listUsage(
 ): Promise<PageResult<UsageItem>> {
   const limit = clampLimit(opts.limit);
   const cursor = decodeCursor(opts.cursor);
-  const wallet = await db.query.wallets.findFirst({ where: eq(wallets.userId, userId) });
-  const currency = wallet?.currency ?? 'USD';
 
   const conds = [eq(usageLogs.userId, userId)];
   if (opts.model) conds.push(eq(usageLogs.modelId, opts.model));
@@ -161,7 +154,7 @@ export async function listUsage(
     input_tokens: r.inputTokens,
     output_tokens: r.outputTokens,
     cost: r.cost ?? 0,
-    cost_cents: toCents(r.cost ?? 0, currency),
+    cost_cents: toCents(r.cost ?? 0, CURRENCY),
     created_at: toIso(r.createdAt),
   }));
 
@@ -176,8 +169,6 @@ export async function listRecharges(
 ): Promise<PageResult<RechargeItem>> {
   const limit = clampLimit(opts.limit);
   const cursor = decodeCursor(opts.cursor);
-  const wallet = await db.query.wallets.findFirst({ where: eq(wallets.userId, userId) });
-  const currency = wallet?.currency ?? 'USD';
 
   const conds = [eq(rechargeLogs.userId, userId)];
   if (cursor) {
@@ -196,7 +187,7 @@ export async function listRecharges(
   const items: RechargeItem[] = slice.map((r) => ({
     id: r.id,
     amount: r.amount,
-    amount_cents: toCents(r.amount, currency),
+    amount_cents: toCents(r.amount, CURRENCY),
     source: r.source ?? 'admin',
     source_id: r.sourceId,
     note: r.note,

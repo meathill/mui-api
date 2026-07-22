@@ -43,6 +43,8 @@
 
 **踩过的坑：`blockConcurrencyWhile` 用在哪一层**。最初的实现只在「首次 bootstrap（从 KV adopt）」这一步加了 `blockConcurrencyWhile`，以为 DO 的「一次只处理一个请求」保证会自动覆盖后续的稳态读-改-写。写了一个真并发的回归测试（`e2e/wallet-concurrency.test.ts`，用 `cloudflare:test` 的真实 DO 运行时对同一实例并发发起多个 `/deduct`）才发现：**DO 的 input/output gate 只保护 `ctx.storage` 操作之间的互斥**，一旦某个请求在两次 storage 操作之间 `await` 了外部 I/O（这里是 KV 读/写），其它并发请求就能插进来读到同一份旧值——稳态的读-改-写照样会丢更新，不只是首次 bootstrap。最终修复：把「读 storage → 应用变更 → 写 storage」整体包进 `blockConcurrencyWhile`（这段本身不含任何外部 I/O，符合官方「不要跨外部 I/O 持锁」的准则），KV 镜像同步放到锁外——镜像只是展示副本，偶尔与其它并发请求交错不影响 storage 里的权威账本。**教训：写涉及 DO 并发正确性的代码时，必须用真实 DO 运行时的并发测试验证，纯 mock 的单测测不出真正的并发语义。**
 
+**2026-07-21 充值"未到账"事故与镜像单一写者的硬化**：用户 Stripe 充值 $20 已正确写入 WalletDO 权威账本，但用户与后台看到的余额没变。根因是 `ConcurrencyLimiterDO.syncConcurrencyMirror` 旁路对 `user:{userId}` 做 KV 读-改-写整条覆盖（只想改 `concurrency`，却把并发期间已变化的 `balance` 用旧值写回）——lease 过期 alarm 恰在充值后触发，把镜像覆盖回充值前余额，且此后用户无任何钱包变动，脏值无人纠正。两点修复：① 并发数镜像统一走 WalletDO `/set-concurrency`，限流器不再直接触碰 KV，"WalletDO 是该键唯一写者"从注释约定升级为结构保证；② WalletDO 镜像写改为 single-flight（每轮 put 前重新快照 storage），并发变更的镜像写不再乱序。另配套 `/sync-mirror` + `POST /admin/sync-wallet-mirror` 运维端点，可把脏镜像强制刷回权威账本。**教训：声明"唯一写者"的键，要用结构（收敛写入口）而不是注释去保证；任何"只改一个字段"的 KV 读-改-写都是整条记录的覆盖写。**
+
 **本地开发限制**：`packages/dashboard`（Next.js / OpenNext，`next dev`）和 `packages/app`（`@cloudflare/vite-plugin`，`vite dev`）是两个独立的本地 dev 进程，不共享跨 Worker 的 service/DO 绑定发现机制。本地同时跑两个 dev server 时，dashboard 侧调用 `env.WALLET`（跨 Worker 绑定到 `mui-api`）会收到 "Service Unavailable"——这是本地工具链的已知限制，不是代码 bug；两个 Worker 都部署到 Cloudflare 后，跨 Worker DO 绑定按标准机制工作。本地要完整验证 dashboard 侧钱包写路径，需要用单个 `wrangler dev` 进程加载两份 config（未配置），或直接在预发环境验证。
 
 ### D1 Read Replication（Sessions API）

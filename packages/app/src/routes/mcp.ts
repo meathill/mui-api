@@ -2,7 +2,6 @@ import { type ExecutionContext, Hono } from 'hono';
 import type { Database } from '../db';
 import { models } from '../db';
 import { readAuthMiddleware } from '../middleware/read-auth';
-import { createTopupSession } from '../services/stripe-service';
 import { getBalanceSnapshot, listRecharges, listUsage } from '../services/wallet-query-service';
 import type { CloudflareBindings } from '../types';
 import openai from './openai';
@@ -11,7 +10,7 @@ import openai from './openai';
  * 极简 MCP server (Streamable HTTP / JSON-RPC 2.0)
  * - 无状态：每个请求都是独立 JSON-RPC 调用
  * - 鉴权：复用 readAuthMiddleware（Bearer sk-gw-...）
- * - 暴露 6 个工具，全部沿用 service 层
+ * - 暴露 5 个工具，全部沿用 service 层
  *
  * 不引入 @modelcontextprotocol/sdk 的 transport 实现，规避 Node 依赖；
  * 只实现 initialize/tools/list/tools/call 三个核心方法，足够覆盖
@@ -91,29 +90,6 @@ const tools: ToolDef[] = [
         })),
       };
     },
-  },
-  {
-    name: 'create_topup_session',
-    description: '创建一次 Stripe 充值会话，返回支付链接。',
-    inputSchema: {
-      type: 'object',
-      required: ['amount_cents'],
-      properties: {
-        amount_cents: { type: 'integer', minimum: 1, description: '充值金额（最小单位）' },
-        currency: { type: 'string', minLength: 3, maxLength: 3, description: '默认 usd' },
-        success_url: { type: 'string', format: 'uri' },
-        cancel_url: { type: 'string', format: 'uri' },
-      },
-      additionalProperties: false,
-    },
-    handler: async (env, db, userId, args) =>
-      createTopupSession(env, db, {
-        userId,
-        amountCents: Number(args.amount_cents),
-        currency: String(args.currency ?? 'usd').toLowerCase(),
-        successUrl: args.success_url,
-        cancelUrl: args.cancel_url,
-      }),
   },
   {
     name: 'image_generation',

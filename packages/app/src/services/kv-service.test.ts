@@ -67,36 +67,6 @@ describe('KVService', () => {
     });
   });
 
-  describe('Concurrency Control', () => {
-    it('should update concurrency mirror', async () => {
-      const service = new KVService(mockKV as unknown as KVNamespace, 3);
-      const [userId, data, metadata] = seedUser('user-1', 'test@example.com', 10);
-      await service.setUser(userId, data, metadata);
-
-      await service.setConcurrencyMirror('user-1', 2);
-
-      const { data: updated } = await service.getUser('user-1');
-      expect(updated?.concurrency).toBe(2);
-    });
-
-    it('should keep mirror non-negative', async () => {
-      const service = new KVService(mockKV as unknown as KVNamespace, 3);
-      const [userId, data, metadata] = seedUser('user-1', 'test@example.com', 10);
-      await service.setUser(userId, data, metadata);
-
-      await service.setConcurrencyMirror('user-1', -3);
-
-      const { data: updated } = await service.getUser('user-1');
-      expect(updated?.concurrency).toBe(0);
-    });
-
-    it('should no-op for missing user', async () => {
-      const service = new KVService(mockKV as unknown as KVNamespace, 3);
-
-      await expect(service.setConcurrencyMirror('missing', 1)).resolves.toBeUndefined();
-    });
-  });
-
   describe('Find User By Email', () => {
     it('should find user by email', async () => {
       const service = new KVService(mockKV as unknown as KVNamespace, 3);

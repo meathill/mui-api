@@ -1,9 +1,6 @@
-import { generateId } from '@muirouter/shared-db/crypto';
 import { Hono } from 'hono';
-import { rechargeLogs } from '../../db';
 import { internalError, notFound, zodErrorToApiError } from '../../lib/errors';
-import { GetUserSchema, RechargeSchema, SetConcurrencySchema } from '../../lib/validators';
-import { EmailService } from '../../services/email-service';
+import { GetUserSchema, SetConcurrencySchema } from '../../lib/validators';
 import { KVService } from '../../services/kv-service';
 import { WalletService } from '../../services/wallet-service';
 import type { CloudflareBindings } from '../../types';
@@ -49,81 +46,34 @@ users.get('/', async (c) => {
 });
 
 /**
- * POST /admin/recharge
- * 充值接口：自动区分新老用户
+ * POST /admin/sync-wallet-mirror
+ * 把用户的 KV 展示镜像强制刷新为 WalletDO 权威账本当前值（运维用，
+ * 修复镜像被旁路写脏的场景）。Body: { userId?: string, email?: string }
  */
-users.post('/recharge', async (c) => {
-  const body = await c.req.json();
-  const result = RechargeSchema.safeParse(body);
+users.post('/sync-wallet-mirror', async (c) => {
+  const body = (await c.req.json().catch(() => ({}))) as { userId?: string; email?: string };
+  let userId = body.userId;
 
-  if (!result.success) {
-    return c.json(zodErrorToApiError(result.error), 400);
+  if (!userId && body.email) {
+    const kvService = new KVService(c.env.KV);
+    userId = (await kvService.findUserByEmail(body.email)) ?? undefined;
+  }
+  if (!userId) {
+    return notFound(c, '用户不存在（需提供 userId 或已注册的 email）');
   }
 
-  const { email, amount, note } = result.data;
-  const defaultMaxConcurrency = Number(c.env.DEFAULT_MAX_CONCURRENCY) || 3;
-  const kvService = new KVService(c.env.KV, defaultMaxConcurrency);
-  const walletService = new WalletService(c.env);
-  const emailService = new EmailService({
-    apiKey: c.env.RESEND_API_KEY,
-    fromEmail: c.env.FROM_EMAIL,
-  });
-  const db = c.get('db');
-
   try {
-    let userId = await kvService.findUserByEmail(email);
-
-    if (!userId) {
-      userId = generateId();
-      await walletService.create(userId, email, amount);
-
-      await db.insert(rechargeLogs).values({
-        id: generateId(),
-        userId,
-        operatorId: null,
-        amount,
-        balanceAfter: amount,
-        note: note || null,
-      });
-
-      const dashboardUrl = `${c.env.BASE_URL}`;
-      // 邮件发送走 waitUntil 异步：充值的真相是 KV/DB 写入，响应不应被邮件服务的延迟或故障阻塞
-      c.executionCtx.waitUntil(emailService.sendWelcomeEmail(email, amount, dashboardUrl));
-
-      return c.json({
-        success: true,
-        isNewUser: true,
-        message: '新用户已创建，欢迎邮件发送中',
-        userId,
-        balance: amount,
-      });
-    }
-
-    const { data: walletData } = await walletService.add(userId, amount);
-    const newBalance = walletData.balance;
-
-    await db.insert(rechargeLogs).values({
-      id: generateId(),
-      userId,
-      operatorId: null,
-      amount,
-      balanceAfter: newBalance,
-      note: note || null,
-    });
-
-    // 同上：邮件异步发送，不阻塞充值响应
-    c.executionCtx.waitUntil(emailService.sendRechargeSuccessEmail(email, amount, newBalance));
-
+    const walletService = new WalletService(c.env);
+    const { data } = await walletService.syncMirror(userId);
     return c.json({
       success: true,
-      isNewUser: false,
-      message: '充值成功，通知邮件发送中',
       userId,
-      balance: newBalance,
+      balance: data.balance,
+      concurrency: data.concurrency,
     });
   } catch (error) {
-    console.error('充值失败:', error);
-    return internalError(c, '充值失败', String(error));
+    console.error('同步钱包镜像失败:', error);
+    return internalError(c, '同步钱包镜像失败', String(error));
   }
 });
 

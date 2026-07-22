@@ -24,9 +24,6 @@ await db.batch([
     "CREATE TABLE IF NOT EXISTS video_generation_jobs (request_id TEXT PRIMARY KEY NOT NULL, reservation_id TEXT NOT NULL UNIQUE, user_id TEXT NOT NULL, api_key_id TEXT, model_id TEXT NOT NULL, duration INTEGER NOT NULL, resolution TEXT NOT NULL, estimated_cost REAL NOT NULL, markup_rate REAL NOT NULL, rate_multiplier REAL NOT NULL, status TEXT NOT NULL DEFAULT 'pending', actual_cost REAL, settled_cost REAL, billed_at INTEGER, created_at INTEGER NOT NULL DEFAULT (unixepoch()), updated_at INTEGER NOT NULL DEFAULT (unixepoch()))",
   ),
   db.prepare(
-    "CREATE TABLE IF NOT EXISTS wallets (user_id TEXT PRIMARY KEY NOT NULL, balance REAL DEFAULT 0, currency TEXT DEFAULT 'USD', updated_at INTEGER DEFAULT (unixepoch()), FOREIGN KEY (user_id) REFERENCES user(id))",
-  ),
-  db.prepare(
     'CREATE TABLE IF NOT EXISTS spending_limits (user_id TEXT PRIMARY KEY NOT NULL, monthly_limit REAL, alert_threshold REAL DEFAULT 0.8, is_suspended INTEGER DEFAULT false, last_alert_at INTEGER, updated_at INTEGER DEFAULT (unixepoch()), FOREIGN KEY (user_id) REFERENCES user(id))',
   ),
 
@@ -59,11 +56,9 @@ await db.batch([
   db.prepare(
     "INSERT OR IGNORE INTO user (id, name, email, email_verified, image, created_at, updated_at) VALUES ('test-user-1', 'test@example.com', 'test@example.com', 1, NULL, unixepoch(), unixepoch())",
   ),
-  db.prepare("INSERT OR IGNORE INTO wallets (user_id, balance) VALUES ('test-user-1', 10.0)"),
   db.prepare(
     "INSERT OR IGNORE INTO user (id, name, email, email_verified, image, created_at, updated_at) VALUES ('test-user-broke', 'broke@example.com', 'broke@example.com', 1, NULL, unixepoch(), unixepoch())",
   ),
-  db.prepare("INSERT OR IGNORE INTO wallets (user_id, balance) VALUES ('test-user-broke', 0.0)"),
 
   // 种子数据：测试模型
   db.prepare(

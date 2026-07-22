@@ -80,21 +80,6 @@ export class KVService {
     return metadata?.maxConcurrency ?? this.defaultMaxConcurrency;
   }
 
-  /**
-   * 更新并发展示镜像
-   */
-  async setConcurrencyMirror(userId: string, concurrency: number): Promise<void> {
-    const { data, metadata } = await this.getUser(userId);
-    if (!data || !metadata) return;
-
-    if (data.concurrency === concurrency) {
-      return;
-    }
-
-    data.concurrency = Math.max(0, concurrency);
-    await this.setUser(userId, data, metadata);
-  }
-
   // ==================== API Key ====================
 
   /**

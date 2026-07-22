@@ -15,7 +15,6 @@ import providers from './routes/providers';
 import responses from './routes/responses';
 import v1User from './routes/v1-user';
 import videos from './routes/videos';
-import webhooks from './routes/webhooks';
 import { aggregateDaily, aggregateHourly, aggregateMonthly, aggregateWeekly } from './services/stats-aggregator';
 import type { CloudflareBindings } from './types';
 
@@ -47,7 +46,6 @@ app.route('/v1', responses);
 app.route('/v1', videos);
 app.route('/v1', openai);
 app.route('/providers', providers);
-app.route('/webhooks', webhooks);
 app.route('/mcp', mcp);
 app.route('/oauth', oauth);
 // 首页

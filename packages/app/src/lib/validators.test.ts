@@ -5,28 +5,10 @@ import {
   GlobalConfigSchema,
   ModelCreateSchema,
   ModelUpdateSchema,
-  RechargeSchema,
   SetConcurrencySchema,
   SpendingLimitSchema,
   UsageQuerySchema,
 } from './validators';
-
-describe('RechargeSchema', () => {
-  it('接受合法输入', () => {
-    const result = RechargeSchema.safeParse({ email: 'a@b.com', amount: 10 });
-    expect(result.success).toBe(true);
-  });
-
-  it('拒绝无效邮箱', () => {
-    const result = RechargeSchema.safeParse({ email: 'invalid', amount: 10 });
-    expect(result.success).toBe(false);
-  });
-
-  it('拒绝非正数金额', () => {
-    expect(RechargeSchema.safeParse({ email: 'a@b.com', amount: 0 }).success).toBe(false);
-    expect(RechargeSchema.safeParse({ email: 'a@b.com', amount: -5 }).success).toBe(false);
-  });
-});
 
 describe('SetConcurrencySchema', () => {
   it('接受合法输入', () => {
