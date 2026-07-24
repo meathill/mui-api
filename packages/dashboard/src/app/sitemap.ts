@@ -14,6 +14,9 @@ type SitemapPage = {
 
 // 静态页 lastModified 维护时手动更新；避免 sitemap 每次构建都变更欺骗搜索引擎。
 const STATIC_PAGES_UPDATED_AT = new Date('2026-07-11');
+// issue #7：本轮新增的 SEO 内容页（provider 落地页 + 对比/榜单页）首次发布日期，
+// 独立于上面的旧静态页常量，避免把未改动的既有页面也标记为「今天更新过」。
+const NEW_SEO_PAGES_PUBLISHED_AT = new Date('2026-07-24');
 
 function toAbsoluteAlternates(altPaths: Record<string, string>): Record<string, string> {
   return Object.fromEntries(Object.entries(altPaths).map(([key, path]) => [key, `${SITE_URL}${path}`]));
@@ -40,6 +43,54 @@ export function buildSitemapEntries(blogPosts: Awaited<ReturnType<typeof getPubl
       lastModified: STATIC_PAGES_UPDATED_AT,
     },
     { path: '/mcp-router', changeFrequency: 'monthly', priority: 0.7, lastModified: STATIC_PAGES_UPDATED_AT },
+    {
+      path: '/claude-api-gateway',
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
+    },
+    {
+      path: '/gpt-api-gateway',
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
+    },
+    {
+      path: '/gemini-api-gateway',
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
+    },
+    {
+      path: '/grok-api-gateway',
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
+    },
+    {
+      path: '/muirouter-vs-openrouter',
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
+    },
+    {
+      path: '/litellm-vs-openrouter',
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
+    },
+    {
+      path: '/openrouter-alternatives',
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
+    },
+    {
+      path: '/best-llm-gateway',
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
+    },
     { path: '/register', changeFrequency: 'monthly', priority: 0.6, lastModified: STATIC_PAGES_UPDATED_AT },
     // /login 不在 sitemap：layout 已设 robots: noindex，与 sitemap 收录冲突会让 GSC 报错。
   ];

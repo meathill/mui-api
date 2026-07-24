@@ -15,7 +15,9 @@
     "aiRouter": "AI 路由",
     "llmRouter": "大模型路由",
     "openaiCompatibleRouter": "OpenAI 兼容",
-    "mcpRouter": "MCP 路由"
+    "mcpRouter": "MCP 路由",
+    "bestLlmGateway": "最佳 LLM 网关",
+    "openrouterAlternatives": "OpenRouter 替代品"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo——一个路由全搞定",
@@ -666,7 +668,8 @@
       { "href": "/llm-router", "label": "大模型路由" },
       { "href": "/openai-compatible-router", "label": "OpenAI 兼容路由" },
       { "href": "/mcp-router", "label": "MCP 路由与服务" },
-      { "href": "/pricing", "label": "按 token 计费的价格" }
+      { "href": "/pricing", "label": "按 token 计费的价格" },
+      { "href": "/best-llm-gateway", "label": "2026 最佳 LLM 网关" }
     ],
     "ctaTitle": "几分钟内路由你的第一个模型",
     "ctaDescription": "创建免费账户，获取 API Key，把你的 OpenAI SDK 指向 MuiRouter。",
@@ -719,7 +722,11 @@
     "related": [
       { "href": "/ai-router", "label": "AI API 路由" },
       { "href": "/openai-compatible-router", "label": "OpenAI 兼容路由" },
-      { "href": "/mcp-router", "label": "MCP 路由与服务" }
+      { "href": "/mcp-router", "label": "MCP 路由与服务" },
+      { "href": "/claude-api-gateway", "label": "Claude API 网关" },
+      { "href": "/gpt-api-gateway", "label": "GPT API 网关" },
+      { "href": "/gemini-api-gateway", "label": "Gemini API 网关" },
+      { "href": "/grok-api-gateway", "label": "Grok API 网关" }
     ],
     "ctaTitle": "用一个 Key 路由每一个大模型",
     "ctaDescription": "免费注册，从 MiMo 起步，随时按需接入 OpenAI、Claude 和 Gemini。",
@@ -772,7 +779,8 @@
     "related": [
       { "href": "/ai-router", "label": "AI API 路由" },
       { "href": "/llm-router", "label": "大模型路由" },
-      { "href": "/pricing", "label": "按 token 计费的价格" }
+      { "href": "/pricing", "label": "按 token 计费的价格" },
+      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" }
     ],
     "ctaTitle": "把你的 Base URL 指向 MuiRouter",
     "ctaDescription": "获取免费 API Key，几分钟内路由你的第一个 OpenAI 兼容请求。",
@@ -825,10 +833,548 @@
     "related": [
       { "href": "/mcp", "label": "MCP 配置指南" },
       { "href": "/ai-router", "label": "AI API 路由" },
-      { "href": "/llm-router", "label": "大模型路由" }
+      { "href": "/llm-router", "label": "大模型路由" },
+      { "href": "/claude-api-gateway", "label": "Claude API 网关" }
     ],
     "ctaTitle": "把你的 AI 客户端连接到 MuiRouter",
     "ctaDescription": "创建免费账户，生成 Key，把 MCP 服务器添加到 Claude、Cursor 或 Cline。",
+    "ctaButton": "免费开始"
+  },
+  "claudeApiGateway": {
+    "metaTitle": "Claude API 网关——一个 API 调用 Claude，无需 Anthropic 账号",
+    "metaDescription": "通过 MuiRouter 原生 /v1/messages 端点或 OpenAI 兼容端点调用 Claude。Claude Code 和 Anthropic SDK 只需改一个 Base URL 即可接入——无需单独的 Anthropic 账号，一个钱包按 token 计费。",
+    "eyebrow": "Claude API 网关",
+    "title": "一个 API ",
+    "titleHighlight": "调用 Claude",
+    "intro": "把 Claude Code、Anthropic SDK 或任意 OpenAI 兼容客户端指向 MuiRouter，一个 Key 即可调用 Claude。无需单独的 Anthropic 账号，prompt caching 折扣照常生效，同一个 Key 还能调用 GPT、Gemini 和 Grok。",
+    "ctaPrimary": "免费开始",
+    "ctaSecondary": "查看定价",
+    "featuresTitle": "调用 Claude 所需的一切",
+    "features": [
+      {
+        "title": "原生 Anthropic 端点",
+        "description": "MuiRouter 提供原生 /v1/messages 端点，Claude Code、Anthropic SDK 和任何 Anthropic 原生客户端只需改一下 Base URL 和 Key 即可接入。"
+      },
+      {
+        "title": "无需 Anthropic 账号",
+        "description": "调用直接从你的 MuiRouter 余额里扣费——注册、生成一个 Key，不用再单独开 Anthropic 账号。"
+      },
+      {
+        "title": "Prompt caching 折扣照常生效",
+        "description": "命中缓存的重复系统提示词和长上下文，会自动按更低的缓存输入价计费。"
+      },
+      {
+        "title": "也能用 OpenAI 兼容方式调用",
+        "description": "更喜欢 OpenAI 的请求格式？同样这些 Claude 模型也能通过 MuiRouter 的 OpenAI 兼容端点调用。"
+      }
+    ],
+    "faqTitle": "Claude API 网关常见问题",
+    "faq": [
+      {
+        "question": "可以用 Claude Code 或 Anthropic SDK 接入 MuiRouter 吗？",
+        "answer": "可以。MuiRouter 提供 Anthropic 原生 /v1/messages 端点。把 ANTHROPIC_BASE_URL 指向 MuiRouter，用你的 sk-gw- key——Claude Code、Anthropic SDK 以及任何 Anthropic 原生客户端都能用你的 MuiRouter 余额跑，无需 Anthropic 账号。"
+      },
+      {
+        "question": "需要自己的 Anthropic API key 吗？",
+        "answer": "不需要——有 MuiRouter 的 Key 就够了。请求按 token 从你的 MuiRouter 余额里扣费，不用单独开 Anthropic 账号。"
+      },
+      {
+        "question": "MuiRouter 支持 Claude 的 prompt caching 吗？",
+        "answer": "支持。请求命中缓存前缀时，缓存部分的输入 token 会自动按更低的缓存价计费。"
+      }
+    ],
+    "relatedTitle": "相关页面",
+    "related": [
+      { "href": "/gpt-api-gateway", "label": "GPT API 网关" },
+      { "href": "/gemini-api-gateway", "label": "Gemini API 网关" },
+      { "href": "/grok-api-gateway", "label": "Grok API 网关" },
+      { "href": "/llm-router", "label": "大模型路由" }
+    ],
+    "ctaTitle": "现在就开始调用 Claude",
+    "ctaDescription": "注册一个免费账号，拿到 Key，几分钟内就能把 Claude Code 或你的 SDK 接到 MuiRouter。",
+    "ctaButton": "免费开始"
+  },
+  "gptApiGateway": {
+    "metaTitle": "GPT API 网关——一个 API 调用 OpenAI 的 GPT",
+    "metaDescription": "通过 MuiRouter 原生的 OpenAI Chat Completions 和 Responses API 端点调用 GPT，支持 Codex CLI。同一个 Key 还能调用 Claude、Gemini 和 Grok，一个钱包按 token 计费。",
+    "eyebrow": "GPT API 网关",
+    "title": "一个 API ",
+    "titleHighlight": "调用 GPT",
+    "intro": "MuiRouter 原生就是 OpenAI 的 API 格式，GPT 请求不经过任何转译层直接透传。同一个 Key 还能调用面向 Codex CLI 的原生 Responses API，以及 Claude、Gemini 和 Grok。",
+    "ctaPrimary": "免费开始",
+    "ctaSecondary": "查看定价",
+    "featuresTitle": "调用 GPT 所需的一切",
+    "features": [
+      {
+        "title": "零转译开销",
+        "description": "GPT 请求直接使用 MuiRouter 的原生请求格式——你的客户端和 OpenAI Chat Completions API 之间没有兼容层。"
+      },
+      {
+        "title": "面向 Codex 的原生 Responses API",
+        "description": "MuiRouter 同时提供 OpenAI 原生的 /v1/responses 端点，Codex CLI 等 Responses API 客户端把 base URL 指过来就能用。"
+      },
+      {
+        "title": "内置生图能力",
+        "description": "同一个端点、同一个 Key，也能用 gpt-image-2 生成图片。"
+      },
+      {
+        "title": "所有模型共用一个钱包",
+        "description": "GPT 调用可以和 Claude、Gemini、Grok 混用同一个 Key、同一份用量记录和余额。"
+      }
+    ],
+    "faqTitle": "GPT API 网关常见问题",
+    "faq": [
+      {
+        "question": "用 MuiRouter 需要改我的 OpenAI 客户端代码吗？",
+        "answer": "只需要改 Base URL 和 API Key。请求和响应格式跟 OpenAI API 完全一致，因为这就是 MuiRouter 的原生格式。"
+      },
+      {
+        "question": "MuiRouter 支持面向 Codex CLI 的 Responses API 吗？",
+        "answer": "支持。MuiRouter 提供原生 /v1/responses 端点——把 Codex 的 base URL 指向 MuiRouter，用你的 sk-gw- key 即可。"
+      },
+      {
+        "question": "能用同一个 API 生成图片吗？",
+        "answer": "可以。gpt-image-2 和 GPT 聊天补全共用同一个端点和 Key。"
+      }
+    ],
+    "relatedTitle": "相关页面",
+    "related": [
+      { "href": "/claude-api-gateway", "label": "Claude API 网关" },
+      { "href": "/gemini-api-gateway", "label": "Gemini API 网关" },
+      { "href": "/grok-api-gateway", "label": "Grok API 网关" },
+      { "href": "/llm-router", "label": "大模型路由" }
+    ],
+    "ctaTitle": "现在就开始调用 GPT",
+    "ctaDescription": "注册一个免费账号，拿到 Key，几分钟内就能把你的 OpenAI SDK 或 Codex CLI 接到 MuiRouter。",
+    "ctaButton": "免费开始"
+  },
+  "geminiApiGateway": {
+    "metaTitle": "Gemini API 网关——一个 API 调用 Google 的 Gemini",
+    "metaDescription": "用你现有的 OpenAI 兼容客户端或原生透传，通过 MuiRouter 调用 Gemini。长上下文自动按对应价格计费，同一个 Key 还能调用 Claude、GPT 和 Grok。",
+    "eyebrow": "Gemini API 网关",
+    "title": "一个 API ",
+    "titleHighlight": "调用 Gemini",
+    "intro": "MuiRouter 把标准的 OpenAI 格式聊天请求自动翻译成 Gemini 原生格式，再把响应翻译回来，你不用学一套新 SDK 就能调用 Gemini。翻译层暂不覆盖的功能，可以用原生透传来触达。",
+    "ctaPrimary": "免费开始",
+    "ctaSecondary": "查看定价",
+    "featuresTitle": "调用 Gemini 所需的一切",
+    "features": [
+      {
+        "title": "OpenAI 格式的请求，背后是 Gemini",
+        "description": "发一个标准的 chat completions 请求，MuiRouter 会自动翻译成 Gemini 原生格式，再把响应翻译回来。"
+      },
+      {
+        "title": "原生透传覆盖全部能力",
+        "description": "工具调用和多模态内容目前还不在兼容层范围内——用同一个 Key 走原生透传即可触达。"
+      },
+      {
+        "title": "长上下文自动切换价格",
+        "description": "请求超过 provider 的上下文阈值时，符合条件的 Gemini 模型会自动切换到长上下文价格，短请求不会多付钱。"
+      },
+      {
+        "title": "所有模型共用一个钱包",
+        "description": "Gemini 调用可以和 Claude、GPT、Grok 混用同一个 Key、同一份用量记录和余额。"
+      }
+    ],
+    "faqTitle": "Gemini API 网关常见问题",
+    "faq": [
+      {
+        "question": "能用我现有的 OpenAI 客户端调用 Gemini 吗？",
+        "answer": "可以，标准文本聊天请求没问题——MuiRouter 会自动翻译请求和响应格式。"
+      },
+      {
+        "question": "OpenAI 兼容端点支持 Gemini 的工具调用或图片输入吗？",
+        "answer": "兼容层暂时还不支持。用同一个 MuiRouter Key 走原生透传即可触达 Gemini API 的这部分能力。"
+      },
+      {
+        "question": "Gemini 的长上下文是怎么计价的？",
+        "answer": "请求超过 provider 的 token 阈值后，符合条件的模型会按长上下文价格计费——具体价格见定价页。"
+      }
+    ],
+    "relatedTitle": "相关页面",
+    "related": [
+      { "href": "/claude-api-gateway", "label": "Claude API 网关" },
+      { "href": "/gpt-api-gateway", "label": "GPT API 网关" },
+      { "href": "/grok-api-gateway", "label": "Grok API 网关" },
+      { "href": "/llm-router", "label": "大模型路由" }
+    ],
+    "ctaTitle": "现在就开始调用 Gemini",
+    "ctaDescription": "注册一个免费账号，拿到 Key，几分钟内就能发出第一个 Gemini 请求。",
+    "ctaButton": "免费开始"
+  },
+  "grokApiGateway": {
+    "metaTitle": "Grok API 网关——一个 API 调用 xAI 的 Grok",
+    "metaDescription": "通过一个 OpenAI 兼容 API 调用 Grok 的聊天、生图和生视频能力。不需要 xAI SDK——同一个 Key 还能调用 Claude、GPT 和 Gemini，一个钱包按 token 计费。",
+    "eyebrow": "Grok API 网关",
+    "title": "一个 API ",
+    "titleHighlight": "调用 Grok",
+    "intro": "MuiRouter 用你调用其他模型时同样的 OpenAI 兼容端点，把聊天、生图和生视频请求路由给 Grok——不需要 xAI SDK。",
+    "ctaPrimary": "免费开始",
+    "ctaSecondary": "查看定价",
+    "featuresTitle": "调用 Grok 所需的一切",
+    "features": [
+      {
+        "title": "聊天、生图、生视频，同一个模型家族",
+        "description": "除了文本对话，Grok 的生图和生视频模型也走同一个端点和 Key。"
+      },
+      {
+        "title": "OpenAI 兼容的请求格式",
+        "description": "Grok 用的是和 MuiRouter 上其他所有模型一样的 Chat Completions 格式——不需要 xAI SDK。"
+      },
+      {
+        "title": "一个钱包，一份用量记录",
+        "description": "Grok 的聊天、生图和生视频调用都从同一个 MuiRouter 余额里扣费，出现在同一份用量记录里。"
+      },
+      {
+        "title": "改一个字符串即可切换模型",
+        "description": "改一下请求里的模型名称，就能在 Grok、Claude、GPT 和 Gemini 之间切换。"
+      }
+    ],
+    "faqTitle": "Grok API 网关常见问题",
+    "faq": [
+      {
+        "question": "能用 MuiRouter 调用 Grok 生图和生视频吗？",
+        "answer": "可以。Grok 的生图和生视频模型跟 Grok 聊天用的是同一个 API Key 和端点。"
+      },
+      {
+        "question": "用 Grok 需要 xAI SDK 吗？",
+        "answer": "不需要。MuiRouter 用跟其他所有模型一样的 OpenAI 兼容 Chat Completions 格式暴露 Grok。"
+      },
+      {
+        "question": "Grok 的用量会和其他模型分开计费吗？",
+        "answer": "不会——Grok 的聊天、生图和生视频调用都从同一个 MuiRouter 钱包里扣费，出现在同一份用量记录里。"
+      }
+    ],
+    "relatedTitle": "相关页面",
+    "related": [
+      { "href": "/claude-api-gateway", "label": "Claude API 网关" },
+      { "href": "/gpt-api-gateway", "label": "GPT API 网关" },
+      { "href": "/gemini-api-gateway", "label": "Gemini API 网关" },
+      { "href": "/llm-router", "label": "大模型路由" }
+    ],
+    "ctaTitle": "现在就开始调用 Grok",
+    "ctaDescription": "注册一个免费账号，拿到 Key，几分钟内就能调用 Grok 的聊天、生图或生视频能力。",
+    "ctaButton": "免费开始"
+  },
+  "muirouterVsOpenrouter": {
+    "metaTitle": "MuiRouter vs OpenRouter——定价、模型与 API 兼容性对比",
+    "metaDescription": "对比 MuiRouter 和 OpenRouter 的计价方式、模型覆盖广度、OpenAI 兼容性、原生 provider 端点、BYOK 费率和免费模型——数据均标注来源。",
+    "eyebrow": "MuiRouter vs OpenRouter",
+    "title": "MuiRouter vs OpenRouter——",
+    "titleHighlight": "正面对比",
+    "intro": "两者都是 OpenAI 兼容网关，让你用一个 API 调用多家 LLM provider。以下是 MuiRouter 和 OpenRouter 在计价、模型覆盖广度和原生 provider 访问上的真实差异，数据来自双方官方文档。",
+    "ctaPrimary": "免费开始",
+    "ctaSecondary": "查看定价",
+    "featuresTitle": "MuiRouter vs OpenRouter 一览",
+    "comparisonRows": [
+      {
+        "label": "计价方式",
+        "values": [
+          "每 token 价格已包含平台成本——充值没有额外手续费",
+          "按 provider 原价透传，每次充值另收 5.5% 信用卡手续费（加密货币 5%）"
+        ]
+      },
+      {
+        "label": "模型覆盖",
+        "values": [
+          "精选：OpenAI、Claude、Gemini、Grok、Workers AI、Moonshot 和 MiMo",
+          "覆盖数十家 provider、数百个模型的庞大目录"
+        ]
+      },
+      {
+        "label": "OpenAI 兼容性",
+        "values": ["支持——Chat Completions 兼容端点", "支持——请求格式紧密贴合 OpenAI Chat API"]
+      },
+      {
+        "label": "原生 provider 端点",
+        "values": [
+          "原生 Anthropic /v1/messages 和 OpenAI /v1/responses，同一个 Key 和余额",
+          "请求统一规范化为一套 OpenAI 格式"
+        ]
+      },
+      {
+        "label": "自带密钥（BYOK）",
+        "values": ["不需要——一个 MuiRouter Key 覆盖所有 provider", "支持；每月前 100 万次请求免费，之后收 5% 费用"]
+      },
+      {
+        "label": "免费额度",
+        "values": ["无免费额度——从第一个 token 起按量计费", "有限速的免费模型（充值满 $10 后每天 1,000 次请求）"]
+      }
+    ],
+    "faqTitle": "MuiRouter vs OpenRouter 常见问题",
+    "faq": [
+      {
+        "question": "MuiRouter 比 OpenRouter 便宜吗？",
+        "answer": "这取决于你的用量模式。MuiRouter 的每 token 价格已经包含平台成本，充值没有额外手续费。OpenRouter 按 provider 原价透传、不加价，但信用卡充值收 5.5% 手续费（加密货币 5%），BYOK 超出每月免费额度后收 5% 费用。具体每个模型的价格可以在定价页对比。"
+      },
+      {
+        "question": "MuiRouter 支持的模型和 OpenRouter 一样多吗？",
+        "answer": "不一样——MuiRouter 是精选的 OpenAI、Claude、Gemini、Grok、Workers AI、Moonshot 和 MiMo 模型集合，OpenRouter 的目录覆盖数十家 provider 的数百个模型。如果你只需要几家主流 provider 并要原生端点访问，MuiRouter 更聚焦；如果你需要长尾模型的丰富选择，OpenRouter 覆盖更广。"
+      },
+      {
+        "question": "从 OpenRouter 换到 MuiRouter 需要重写代码吗？",
+        "answer": "不需要。两者都是 OpenAI 兼容的，标准聊天补全场景只需要改 Base URL 和 API Key。个别 provider 专属参数可能要微调——具体可以看 OpenAI 兼容路由页。"
+      }
+    ],
+    "relatedTitle": "相关页面",
+    "related": [
+      { "href": "/llm-router", "label": "大模型路由" },
+      { "href": "/ai-router", "label": "AI API 路由" },
+      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
+      { "href": "/pricing", "label": "定价" }
+    ],
+    "ctaTitle": "自己核对一下数字",
+    "ctaDescription": "注册一个免费账号，换之前先看看每个模型的真实价格。",
+    "ctaButton": "免费开始"
+  },
+  "litellmVsOpenrouter": {
+    "metaTitle": "LiteLLM vs OpenRouter——自建代理与托管 LLM 网关对比",
+    "metaDescription": "对比 LiteLLM 和 OpenRouter 的部署方式、计价、provider 覆盖和运维负担——以及 MuiRouter 作为托管、OpenAI 兼容替代方案的定位。",
+    "eyebrow": "LiteLLM vs OpenRouter",
+    "title": "LiteLLM vs OpenRouter——",
+    "titleHighlight": "对比",
+    "intro": "LiteLLM 是一个需要自己部署的开源代理；OpenRouter 是一个模型目录广泛的托管 API 网关。以下是两者在部署方式、计价和运维上的差异——以及 MuiRouter 作为托管、OpenAI 兼容、带原生 provider 端点的替代方案定位在哪里。",
+    "ctaPrimary": "免费开始",
+    "ctaSecondary": "查看定价",
+    "featuresTitle": "LiteLLM vs OpenRouter vs MuiRouter 一览",
+    "comparisonRows": [
+      {
+        "label": "部署方式",
+        "values": [
+          "开源、自己部署——代理服务器需要你自己运行和维护",
+          "托管 SaaS——注册后直接调用 API，无需运维基础设施",
+          "托管 SaaS——注册后直接调用 API，无需运维基础设施"
+        ]
+      },
+      {
+        "label": "计价方式",
+        "values": [
+          "开源核心免费；企业版加 SSO/审计/支持，价格需联系销售",
+          "按 provider 原价透传，每次充值另收 5.5% 信用卡手续费（加密货币 5%）",
+          "每 token 价格已包含平台成本——充值没有额外手续费"
+        ]
+      },
+      {
+        "label": "模型覆盖",
+        "values": [
+          "100+ provider——三者中覆盖最广",
+          "覆盖数十家 provider、数百个模型的庞大目录",
+          "精选：OpenAI、Claude、Gemini、Grok、Workers AI、Moonshot 和 MiMo"
+        ]
+      },
+      {
+        "label": "OpenAI 兼容性",
+        "values": [
+          "支持——把每家 provider 都翻译成统一的 OpenAI 格式响应",
+          "支持——请求格式紧密贴合 OpenAI Chat API",
+          "支持——Chat Completions 兼容端点"
+        ]
+      },
+      {
+        "label": "运维负担",
+        "values": [
+          "可用性、扩容、升级、key 管理都要自己负责",
+          "无——全托管，不需要运行服务器",
+          "无——全托管，不需要运行服务器"
+        ]
+      },
+      {
+        "label": "原生 provider 端点",
+        "values": [
+          "支持按次自定义 api_base 和 api_key 透传",
+          "请求统一规范化为一套 OpenAI 格式",
+          "原生 Anthropic /v1/messages 和 OpenAI /v1/responses，同一个 Key 和余额"
+        ]
+      }
+    ],
+    "faqTitle": "LiteLLM vs OpenRouter 常见问题",
+    "faq": [
+      {
+        "question": "LiteLLM 免费吗？",
+        "answer": "开源核心（Python SDK 和 Proxy Server）免费、自己部署——基础设施需要你自己运行。LiteLLM 企业版给生产环境团队加上 SSO/SCIM、审计日志和 24/7 支持，价格需联系销售。"
+      },
+      {
+        "question": "用 OpenRouter 或 MuiRouter 需要自己搭服务器吗？",
+        "answer": "不需要。OpenRouter 和 MuiRouter 都是托管服务——拿到一个 API Key 就能调用端点，不需要部署或维护代理服务。这是它们和 LiteLLM 自建模式最大的实际差异。"
+      },
+      {
+        "question": "应该选哪个？",
+        "answer": "如果你要完全的控制权、自定义路由逻辑、不想被每次请求收平台费，自建 LiteLLM 更合适。如果你要托管端点、模型目录最广，OpenRouter 合适。如果你要托管端点、原生访问 Claude/GPT、充值没有额外手续费，可以试试 MuiRouter。"
+      }
+    ],
+    "relatedTitle": "相关页面",
+    "related": [
+      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
+      { "href": "/llm-router", "label": "大模型路由" },
+      { "href": "/ai-router", "label": "AI API 路由" },
+      { "href": "/pricing", "label": "定价" }
+    ],
+    "ctaTitle": "自己核对一下数字",
+    "ctaDescription": "注册一个免费账号，选之前先看看每个模型的真实价格。",
+    "ctaButton": "免费开始"
+  },
+  "openrouterAlternatives": {
+    "metaTitle": "OpenRouter 替代品——4 个 LLM 网关对比",
+    "metaDescription": "在找 OpenRouter 替代品？看看 MuiRouter、LiteLLM、Portkey 和 Cloudflare AI Gateway 在部署方式、计价、模型覆盖和治理功能上的差异。",
+    "eyebrow": "OpenRouter 替代品",
+    "title": "OpenRouter 替代品——",
+    "titleHighlight": "4 个对比",
+    "intro": "如果 OpenRouter 不太适合你，这里有四个真实的替代品——从托管的 OpenAI 兼容网关到自建代理，再到企业治理平台——以及每个工具真正擅长的地方。",
+    "ctaPrimary": "免费开始",
+    "ctaSecondary": "查看定价",
+    "featuresTitle": "4 个 OpenRouter 替代品对比",
+    "tools": {
+      "muirouter": {
+        "name": "MuiRouter",
+        "tagline": "免费开始",
+        "description": "一个托管的、OpenAI 兼容网关，连接 OpenAI、Claude、Gemini、Grok、Workers AI、Moonshot 和 MiMo。原生 Anthropic 和 OpenAI 端点，按 token 计价、充值无额外手续费，内置 MCP 服务。",
+        "pros": [
+          "无需运维基础设施——注册后直接调用 API",
+          "原生 /v1/messages 和 /v1/responses 端点，不只是转译层",
+          "所有模型共用一个钱包、一份用量记录"
+        ],
+        "cons": ["模型目录比部分同类工具窄（精选，不是 100+）"],
+        "bestFor": "适合想要托管端点、原生访问 Claude/GPT、按 token 简单计费的开发者。"
+      },
+      "litellm": {
+        "name": "LiteLLM",
+        "tagline": "开源",
+        "description": "一个需要自己部署的开源代理和 Python SDK，把 100+ provider 翻译成统一的 OpenAI 格式接口。企业版加 SSO、审计日志和支持。",
+        "pros": ["100+ provider——这里覆盖最广", "对部署和路由逻辑有完全的控制权", "开源核心免费"],
+        "cons": ["基础设施需要你自己运行和维护", "企业版功能需要付费、价格另议"],
+        "bestFor": "适合想要完全掌控基础设施、能接受自建的团队。"
+      },
+      "portkey": {
+        "name": "Portkey",
+        "tagline": "企业级平台",
+        "description": "面向 AI 团队的生产级平台，把 AI 网关、observability、guardrails、治理和 prompt 管理打包在一起，可访问 1,600+ 大模型。",
+        "pros": ["模型覆盖最广——1,600+ 大模型", "深度的 observability、guardrails 和治理功能", "有免费版可以先试用"],
+        "cons": ["生产环境完整功能需要付费方案", "更像一个完整平台而不是轻量路由——配置更重"],
+        "bestFor": "适合需要治理、guardrails 和 observability、而不只是路由的大团队。"
+      },
+      "cloudflareAiGateway": {
+        "name": "Cloudflare AI Gateway",
+        "tagline": "内置在 Cloudflare",
+        "description": "一个面向 Workers AI、Anthropic、Gemini、OpenAI 等的 AI 调用可观测性和控制层，带缓存、限流和自动 fallback，任何 Cloudflare 账户都能用。",
+        "pros": [
+          "如果你已经在用 Cloudflare，不需要再开新账户",
+          "内置缓存、限流和 fallback",
+          "所有 Cloudflare 套餐都能用"
+        ],
+        "cons": ["更适合已经在 Cloudflare 上构建的团队", "跨 provider 的统一按 token 计费不是它的重点"],
+        "bestFor": "适合已经在 Cloudflare 上构建、想要缓存和 fallback 又不想引入新供应商的团队。"
+      }
+    },
+    "faqTitle": "OpenRouter 替代品常见问题",
+    "faq": [
+      {
+        "question": "小团队最适合哪个 OpenRouter 替代品？",
+        "answer": "如果你想要托管端点、不想运维基础设施、计价简单，MuiRouter 或 OpenRouter 本身都是最简单的起点。MuiRouter 多了原生 Claude/GPT 端点，充值也没有额外手续费。"
+      },
+      {
+        "question": "有免费的、自建的 OpenRouter 替代品吗？",
+        "answer": "LiteLLM 的开源核心免费且自己部署，给你完全的路由和部署控制权——代价是基础设施要自己运行。"
+      },
+      {
+        "question": "哪个替代品最适合企业治理？",
+        "answer": "Portkey 把 observability、guardrails 和治理打包在路由之上，面向需要审计追踪和支出控制、超出轻量网关范畴的大团队。"
+      }
+    ],
+    "relatedTitle": "相关页面",
+    "related": [
+      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
+      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
+      { "href": "/llm-router", "label": "大模型路由" },
+      { "href": "/best-llm-gateway", "label": "2026 最佳 LLM 网关" }
+    ],
+    "ctaTitle": "试试这个托管替代方案",
+    "ctaDescription": "注册一个免费的 MuiRouter 账号，几分钟内用一个 Key 调用 Claude、GPT、Gemini 和 Grok。",
+    "ctaButton": "免费开始"
+  },
+  "bestLlmGateway": {
+    "metaTitle": "2026 最佳 LLM 网关——5 个选项对比",
+    "metaDescription": "在找最适合的 LLM 网关？看看 MuiRouter、OpenRouter、LiteLLM、Portkey 和 Cloudflare AI Gateway 在部署方式、计价、模型覆盖和适用场景上的真实差异。",
+    "eyebrow": "2026 最佳 LLM 网关",
+    "title": "2026 年 LLM 网关",
+    "titleHighlight": "怎么选",
+    "intro": "榜单上每一个网关都是靠谱的选择——选哪个取决于你想要托管端点还是自己的基础设施，也取决于你是独立开发者还是重视治理的企业团队。以下是 MuiRouter、OpenRouter、LiteLLM、Portkey 和 Cloudflare AI Gateway 的真实差异。",
+    "ctaPrimary": "免费开始",
+    "ctaSecondary": "查看定价",
+    "featuresTitle": "5 个 LLM 网关，按适用场景分类",
+    "tools": {
+      "muirouter": {
+        "name": "MuiRouter",
+        "tagline": "免费开始",
+        "description": "一个托管的、OpenAI 兼容网关，连接 OpenAI、Claude、Gemini、Grok、Workers AI、Moonshot 和 MiMo。原生 Anthropic 和 OpenAI 端点，按 token 计价、充值无额外手续费，内置 MCP 服务。",
+        "pros": [
+          "无需运维基础设施——注册后直接调用 API",
+          "原生 /v1/messages 和 /v1/responses 端点，不只是转译层",
+          "所有模型共用一个钱包、一份用量记录"
+        ],
+        "cons": ["模型目录比部分同类工具窄（精选，不是 100+）"],
+        "bestFor": "适合想要托管端点、原生访问 Claude/GPT、按 token 简单计费的开发者。"
+      },
+      "openrouter": {
+        "name": "OpenRouter",
+        "tagline": "覆盖最广",
+        "description": "一个托管 API 网关，模型目录是这几个里最广的——覆盖数十家 provider 的数百个模型，按 provider 原价计费，不加价。",
+        "pros": ["数十家 provider 的数百个模型", "对 provider 原始 token 价格不加价", "有限速的免费模型可以先试用"],
+        "cons": ["信用卡充值收 5.5% 手续费（加密货币 5%）", "BYOK 超出每月免费额度后收 5% 费用"],
+        "bestFor": "适合想要覆盖最广的单一模型目录、能接受另外管理充值手续费的团队。"
+      },
+      "litellm": {
+        "name": "LiteLLM",
+        "tagline": "开源",
+        "description": "一个需要自己部署的开源代理和 Python SDK，把 100+ provider 翻译成统一的 OpenAI 格式接口。企业版加 SSO、审计日志和支持。",
+        "pros": ["100+ provider——这里覆盖最广", "对部署和路由逻辑有完全的控制权", "开源核心免费"],
+        "cons": ["基础设施需要你自己运行和维护", "企业版功能需要付费、价格另议"],
+        "bestFor": "适合想要完全掌控基础设施、能接受自建的团队。"
+      },
+      "portkey": {
+        "name": "Portkey",
+        "tagline": "企业级平台",
+        "description": "面向 AI 团队的生产级平台，把 AI 网关、observability、guardrails、治理和 prompt 管理打包在一起，可访问 1,600+ 大模型。",
+        "pros": ["模型覆盖最广——1,600+ 大模型", "深度的 observability、guardrails 和治理功能", "有免费版可以先试用"],
+        "cons": ["生产环境完整功能需要付费方案", "更像一个完整平台而不是轻量路由——配置更重"],
+        "bestFor": "适合需要治理、guardrails 和 observability、而不只是路由的大团队。"
+      },
+      "cloudflareAiGateway": {
+        "name": "Cloudflare AI Gateway",
+        "tagline": "内置在 Cloudflare",
+        "description": "一个面向 Workers AI、Anthropic、Gemini、OpenAI 等的 AI 调用可观测性和控制层，带缓存、限流和自动 fallback，任何 Cloudflare 账户都能用。",
+        "pros": [
+          "如果你已经在用 Cloudflare，不需要再开新账户",
+          "内置缓存、限流和 fallback",
+          "所有 Cloudflare 套餐都能用"
+        ],
+        "cons": ["更适合已经在 Cloudflare 上构建的团队", "跨 provider 的统一按 token 计费不是它的重点"],
+        "bestFor": "适合已经在 Cloudflare 上构建、想要缓存和 fallback 又不想引入新供应商的团队。"
+      }
+    },
+    "faqTitle": "最佳 LLM 网关常见问题",
+    "faq": [
+      {
+        "question": "该选托管网关还是自建？",
+        "answer": "如果不想运维基础设施，选托管的（MuiRouter、OpenRouter、Portkey、Cloudflare AI Gateway）。如果需要完全掌控路由逻辑、能接受自己运行代理，选自建的（LiteLLM 的开源核心）。"
+      },
+      {
+        "question": "哪个网关的模型选择最广？",
+        "answer": "OpenRouter 和 LiteLLM 覆盖都很广——OpenRouter 有数百个托管模型，LiteLLM 有 100+ provider 需要你自己接入。MuiRouter 更精选，覆盖大多数团队真正会用到的主流 provider。"
+      },
+      {
+        "question": "刚起步的独立开发者最适合哪个？",
+        "answer": "MuiRouter 或 OpenRouter 是最简单的起点——注册、拿 Key、调用 API，不需要运维基础设施。MuiRouter 多了原生 Claude/GPT 端点，充值也没有额外手续费。"
+      }
+    ],
+    "relatedTitle": "相关页面",
+    "related": [
+      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
+      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
+      { "href": "/openrouter-alternatives", "label": "OpenRouter 替代品" },
+      { "href": "/llm-router", "label": "大模型路由" }
+    ],
+    "ctaTitle": "试试托管方案",
+    "ctaDescription": "注册一个免费的 MuiRouter 账号，几分钟内用一个 Key 调用所有主流模型。",
     "ctaButton": "免费开始"
   },
   "homeFaq": {

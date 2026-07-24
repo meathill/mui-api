@@ -4,6 +4,18 @@ import { buildMetadata, getLanguageAlternates } from '@/lib/seo';
 import { buildSitemapEntries } from './sitemap';
 
 const ROUTER_PAGES = ['/ai-router', '/llm-router', '/openai-compatible-router', '/mcp-router'] as const;
+const PROVIDER_GATEWAY_PAGES = [
+  '/claude-api-gateway',
+  '/gpt-api-gateway',
+  '/gemini-api-gateway',
+  '/grok-api-gateway',
+] as const;
+const COMPARISON_LISTICLE_PAGES = [
+  '/muirouter-vs-openrouter',
+  '/litellm-vs-openrouter',
+  '/openrouter-alternatives',
+  '/best-llm-gateway',
+] as const;
 
 describe('sitemap', () => {
   const entries = buildSitemapEntries([
@@ -23,6 +35,24 @@ describe('sitemap', () => {
 
   it('每个新路由覆盖全部 8 语言', () => {
     for (const path of ROUTER_PAGES) {
+      for (const locale of locales) {
+        const expected = locale === 'en' ? `https://muirouter.com${path}` : `https://muirouter.com/${locale}${path}`;
+        expect(urls).toContain(expected);
+      }
+    }
+  });
+
+  it('收录 4 个 provider 落地页（issue #7），覆盖全部 8 语言', () => {
+    for (const path of PROVIDER_GATEWAY_PAGES) {
+      for (const locale of locales) {
+        const expected = locale === 'en' ? `https://muirouter.com${path}` : `https://muirouter.com/${locale}${path}`;
+        expect(urls).toContain(expected);
+      }
+    }
+  });
+
+  it('收录对比/榜单页（issue #7），覆盖全部 8 语言', () => {
+    for (const path of COMPARISON_LISTICLE_PAGES) {
       for (const locale of locales) {
         const expected = locale === 'en' ? `https://muirouter.com${path}` : `https://muirouter.com/${locale}${path}`;
         expect(urls).toContain(expected);

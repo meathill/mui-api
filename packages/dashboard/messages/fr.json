@@ -15,7 +15,9 @@
     "aiRouter": "Routeur IA",
     "llmRouter": "Routeur LLM",
     "openaiCompatibleRouter": "Compatible OpenAI",
-    "mcpRouter": "Routeur MCP"
+    "mcpRouter": "Routeur MCP",
+    "bestLlmGateway": "Meilleure passerelle LLM",
+    "openrouterAlternatives": "Alternatives à OpenRouter"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — un seul routeur",
@@ -666,7 +668,8 @@
       { "href": "/llm-router", "label": "Routeur LLM" },
       { "href": "/openai-compatible-router", "label": "Routeur compatible OpenAI" },
       { "href": "/mcp-router", "label": "Routeur et serveur MCP" },
-      { "href": "/pricing", "label": "Tarification au token" }
+      { "href": "/pricing", "label": "Tarification au token" },
+      { "href": "/best-llm-gateway", "label": "Meilleure passerelle LLM 2026" }
     ],
     "ctaTitle": "Routez votre premier modèle en quelques minutes",
     "ctaDescription": "Créez un compte gratuit, récupérez une API Key et pointez votre SDK OpenAI vers MuiRouter.",
@@ -719,7 +722,11 @@
     "related": [
       { "href": "/ai-router", "label": "Routeur d'API IA" },
       { "href": "/openai-compatible-router", "label": "Routeur compatible OpenAI" },
-      { "href": "/mcp-router", "label": "Routeur et serveur MCP" }
+      { "href": "/mcp-router", "label": "Routeur et serveur MCP" },
+      { "href": "/claude-api-gateway", "label": "Passerelle API Claude" },
+      { "href": "/gpt-api-gateway", "label": "Passerelle API GPT" },
+      { "href": "/gemini-api-gateway", "label": "Passerelle API Gemini" },
+      { "href": "/grok-api-gateway", "label": "Passerelle API Grok" }
     ],
     "ctaTitle": "Routez chaque LLM via une seule clé",
     "ctaDescription": "Inscrivez-vous gratuitement, commencez avec MiMo et ajoutez OpenAI, Claude et Gemini quand vous en avez besoin.",
@@ -772,7 +779,8 @@
     "related": [
       { "href": "/ai-router", "label": "Routeur d'API IA" },
       { "href": "/llm-router", "label": "Routeur LLM" },
-      { "href": "/pricing", "label": "Tarification au token" }
+      { "href": "/pricing", "label": "Tarification au token" },
+      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" }
     ],
     "ctaTitle": "Pointez votre Base URL vers MuiRouter",
     "ctaDescription": "Récupérez une API Key gratuite et routez votre première requête compatible OpenAI en quelques minutes.",
@@ -825,10 +833,598 @@
     "related": [
       { "href": "/mcp", "label": "Guide de configuration MCP" },
       { "href": "/ai-router", "label": "Routeur d'API IA" },
-      { "href": "/llm-router", "label": "Routeur LLM" }
+      { "href": "/llm-router", "label": "Routeur LLM" },
+      { "href": "/claude-api-gateway", "label": "Passerelle API Claude" }
     ],
     "ctaTitle": "Connectez votre client IA à MuiRouter",
     "ctaDescription": "Créez un compte gratuit, générez une clé et ajoutez le serveur MCP à Claude, Cursor ou Cline.",
+    "ctaButton": "Commencer gratuitement"
+  },
+  "claudeApiGateway": {
+    "metaTitle": "Passerelle API Claude — Utilisez Claude via une seule API, sans compte Anthropic",
+    "metaDescription": "Appelez Claude via l'endpoint natif /v1/messages de MuiRouter ou l'endpoint compatible OpenAI. Claude Code et le SDK Anthropic fonctionnent en changeant une seule Base URL — sans compte Anthropic séparé, paiement au token depuis un seul solde.",
+    "eyebrow": "Passerelle API Claude",
+    "title": "Utilisez Claude via ",
+    "titleHighlight": "une seule API",
+    "intro": "Pointez Claude Code, le SDK Anthropic ou tout client compatible OpenAI vers MuiRouter et appelez Claude avec une seule clé. Sans compte Anthropic séparé, les remises de prompt caching s'appliquent normalement, et la même clé donne aussi accès à GPT, Gemini et Grok.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "Tout ce qu'il faut pour appeler Claude",
+    "features": [
+      {
+        "title": "Endpoint Anthropic natif",
+        "description": "MuiRouter expose un endpoint natif /v1/messages : Claude Code, le SDK Anthropic et tout client Anthropic natif fonctionnent en changeant seulement la Base URL et la clé."
+      },
+      {
+        "title": "Aucun compte Anthropic requis",
+        "description": "Les appels tournent sur votre solde MuiRouter — inscrivez-vous, générez une clé, et passez sur la création d'un compte Anthropic séparé."
+      },
+      {
+        "title": "Les remises de prompt caching s'appliquent",
+        "description": "Les prompts système répétés et le long contexte qui touchent le cache sont facturés automatiquement au tarif réduit."
+      },
+      {
+        "title": "Aussi accessible en compatible OpenAI",
+        "description": "Vous préférez le format de requête OpenAI ? Appelez les mêmes modèles Claude via l'endpoint compatible OpenAI de MuiRouter."
+      }
+    ],
+    "faqTitle": "FAQ de la passerelle API Claude",
+    "faq": [
+      {
+        "question": "Puis-je utiliser Claude Code ou le SDK Anthropic avec MuiRouter ?",
+        "answer": "Oui. MuiRouter expose un endpoint Anthropic natif /v1/messages. Définissez ANTHROPIC_BASE_URL sur MuiRouter et utilisez votre clé sk-gw- : Claude Code, le SDK Anthropic et tout client Anthropic natif s'exécutent sur votre solde MuiRouter, sans compte Anthropic."
+      },
+      {
+        "question": "Ai-je besoin de ma propre clé API Anthropic ?",
+        "answer": "Non — votre clé MuiRouter suffit. Les requêtes sont facturées au token depuis votre solde MuiRouter, sans compte Anthropic séparé."
+      },
+      {
+        "question": "MuiRouter prend-il en charge le prompt caching de Claude ?",
+        "answer": "Oui. Les tokens d'entrée mis en cache sont automatiquement facturés au tarif réduit lorsqu'une requête réutilise un préfixe en cache."
+      }
+    ],
+    "relatedTitle": "Liens connexes",
+    "related": [
+      { "href": "/gpt-api-gateway", "label": "Passerelle API GPT" },
+      { "href": "/gemini-api-gateway", "label": "Passerelle API Gemini" },
+      { "href": "/grok-api-gateway", "label": "Passerelle API Grok" },
+      { "href": "/llm-router", "label": "Routeur LLM" }
+    ],
+    "ctaTitle": "Commencez à appeler Claude dès aujourd'hui",
+    "ctaDescription": "Créez un compte gratuit, récupérez une clé, et connectez Claude Code ou votre SDK à MuiRouter en quelques minutes.",
+    "ctaButton": "Commencer gratuitement"
+  },
+  "gptApiGateway": {
+    "metaTitle": "Passerelle API GPT — Utilisez le GPT d'OpenAI via une seule API",
+    "metaDescription": "Appelez GPT via les endpoints natifs OpenAI Chat Completions et Responses API de MuiRouter, avec prise en charge de Codex CLI. Une seule clé donne aussi accès à Claude, Gemini et Grok, facturés au token depuis un seul solde.",
+    "eyebrow": "Passerelle API GPT",
+    "title": "Utilisez GPT via ",
+    "titleHighlight": "une seule API",
+    "intro": "MuiRouter parle nativement l'API d'OpenAI : les requêtes GPT passent directement, sans couche de traduction. La même clé donne aussi accès à la Responses API native pour Codex CLI, ainsi qu'à Claude, Gemini et Grok.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "Tout ce qu'il faut pour appeler GPT",
+    "features": [
+      {
+        "title": "Aucune traduction requise",
+        "description": "Les requêtes GPT utilisent le format natif de MuiRouter — aucune couche de compatibilité ne s'intercale entre votre client et l'API OpenAI Chat Completions."
+      },
+      {
+        "title": "Responses API native pour Codex",
+        "description": "MuiRouter expose aussi l'endpoint natif /v1/responses d'OpenAI : Codex CLI et les autres clients Responses API fonctionnent en pointant leur base URL vers MuiRouter."
+      },
+      {
+        "title": "Génération d'images incluse",
+        "description": "Générez des images avec gpt-image-2 via le même endpoint et la même clé que le chat."
+      },
+      {
+        "title": "Un seul solde pour tous les modèles",
+        "description": "Combinez les appels GPT avec Claude, Gemini ou Grok sous la même clé, le même journal d'utilisation et le même solde."
+      }
+    ],
+    "faqTitle": "FAQ de la passerelle API GPT",
+    "faq": [
+      {
+        "question": "Dois-je modifier le code de mon client OpenAI pour utiliser MuiRouter ?",
+        "answer": "Seulement la Base URL et la clé API. Les formats de requête et de réponse correspondent exactement à l'API OpenAI, puisque c'est le format natif de MuiRouter."
+      },
+      {
+        "question": "MuiRouter prend-il en charge la Responses API pour Codex CLI ?",
+        "answer": "Oui. MuiRouter expose un endpoint natif /v1/responses — pointez la base URL de Codex vers MuiRouter et utilisez votre clé sk-gw-."
+      },
+      {
+        "question": "Puis-je générer des images via la même API ?",
+        "answer": "Oui. gpt-image-2 est disponible via le même endpoint et la même clé que les chat completions GPT."
+      }
+    ],
+    "relatedTitle": "Liens connexes",
+    "related": [
+      { "href": "/claude-api-gateway", "label": "Passerelle API Claude" },
+      { "href": "/gemini-api-gateway", "label": "Passerelle API Gemini" },
+      { "href": "/grok-api-gateway", "label": "Passerelle API Grok" },
+      { "href": "/llm-router", "label": "Routeur LLM" }
+    ],
+    "ctaTitle": "Commencez à appeler GPT dès aujourd'hui",
+    "ctaDescription": "Créez un compte gratuit, récupérez une clé, et connectez votre SDK OpenAI ou Codex CLI à MuiRouter en quelques minutes.",
+    "ctaButton": "Commencer gratuitement"
+  },
+  "geminiApiGateway": {
+    "metaTitle": "Passerelle API Gemini — Utilisez le Gemini de Google via une seule API",
+    "metaDescription": "Appelez Gemini via MuiRouter avec votre client compatible OpenAI existant ou en passthrough natif. La tarification longue contexte s'adapte automatiquement, et une seule clé donne aussi accès à Claude, GPT et Grok.",
+    "eyebrow": "Passerelle API Gemini",
+    "title": "Utilisez Gemini via ",
+    "titleHighlight": "une seule API",
+    "intro": "MuiRouter traduit les requêtes de chat au format OpenAI standard vers le format natif de Gemini, et inversement pour la réponse : vous appelez Gemini sans apprendre un nouveau SDK. Utilisez le passthrough natif pour les fonctionnalités que la couche de traduction ne couvre pas encore.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "Tout ce qu'il faut pour appeler Gemini",
+    "features": [
+      {
+        "title": "Requêtes au format OpenAI, Gemini en dessous",
+        "description": "Envoyez une requête chat completions standard, MuiRouter la traduit automatiquement au format natif de Gemini, puis retraduit la réponse."
+      },
+      {
+        "title": "Passthrough natif pour une couverture complète",
+        "description": "Les appels d'outils et le contenu multimodal ne sont pas encore sur la couche de compatibilité — atteignez-les via le passthrough natif avec la même clé."
+      },
+      {
+        "title": "Tarification longue contexte adaptative",
+        "description": "Les modèles Gemini éligibles basculent automatiquement vers un tarif longue contexte une fois le seuil de contexte du fournisseur dépassé, donc les prompts courts ne sont pas surfacturés."
+      },
+      {
+        "title": "Un seul solde pour tous les modèles",
+        "description": "Combinez les appels Gemini avec Claude, GPT ou Grok sous la même clé, le même journal d'utilisation et le même solde."
+      }
+    ],
+    "faqTitle": "FAQ de la passerelle API Gemini",
+    "faq": [
+      {
+        "question": "Puis-je appeler Gemini avec mon client OpenAI existant ?",
+        "answer": "Oui, pour les chat completions textuelles standard — MuiRouter traduit automatiquement les formats de requête et de réponse."
+      },
+      {
+        "question": "L'endpoint compatible OpenAI prend-il en charge les appels d'outils ou les images avec Gemini ?",
+        "answer": "Pas encore sur la couche de compatibilité. Utilisez le passthrough natif pour atteindre ces parties de l'API Gemini avec la même clé MuiRouter."
+      },
+      {
+        "question": "Comment fonctionne la tarification longue contexte pour Gemini ?",
+        "answer": "Les modèles éligibles facturent au tarif longue contexte une fois le seuil de tokens du fournisseur dépassé — voir la page tarifs pour les taux actuels."
+      }
+    ],
+    "relatedTitle": "Liens connexes",
+    "related": [
+      { "href": "/claude-api-gateway", "label": "Passerelle API Claude" },
+      { "href": "/gpt-api-gateway", "label": "Passerelle API GPT" },
+      { "href": "/grok-api-gateway", "label": "Passerelle API Grok" },
+      { "href": "/llm-router", "label": "Routeur LLM" }
+    ],
+    "ctaTitle": "Commencez à appeler Gemini dès aujourd'hui",
+    "ctaDescription": "Créez un compte gratuit, récupérez une clé, et routez votre première requête Gemini en quelques minutes.",
+    "ctaButton": "Commencer gratuitement"
+  },
+  "grokApiGateway": {
+    "metaTitle": "Passerelle API Grok — Utilisez le Grok de xAI via une seule API",
+    "metaDescription": "Appelez le chat, la génération d'images et de vidéos de Grok via une seule API compatible OpenAI. Aucun SDK xAI requis — une seule clé donne aussi accès à Claude, GPT et Gemini, facturés au token depuis un seul solde.",
+    "eyebrow": "Passerelle API Grok",
+    "title": "Utilisez Grok via ",
+    "titleHighlight": "une seule API",
+    "intro": "MuiRouter route le chat, la génération d'images et de vidéos vers Grok via le même endpoint compatible OpenAI que vous utilisez déjà pour les autres modèles — aucun SDK xAI requis.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "Tout ce qu'il faut pour appeler Grok",
+    "features": [
+      {
+        "title": "Chat, image et vidéo dans une seule famille",
+        "description": "Au-delà du texte, appelez les modèles de génération d'images et de vidéos de Grok via le même endpoint et la même clé que le chat."
+      },
+      {
+        "title": "Format de requête compatible OpenAI",
+        "description": "Grok utilise le même format Chat Completions que tous les autres modèles de MuiRouter — aucun SDK xAI requis."
+      },
+      {
+        "title": "Un seul solde, un seul journal d'utilisation",
+        "description": "Le chat, la génération d'images et de vidéos de Grok puisent tous dans le même solde MuiRouter et apparaissent dans un seul journal d'utilisation."
+      },
+      {
+        "title": "Changez de modèle avec une seule chaîne",
+        "description": "Passez de Grok à Claude, GPT ou Gemini en changeant simplement le nom du modèle dans votre requête."
+      }
+    ],
+    "faqTitle": "FAQ de la passerelle API Grok",
+    "faq": [
+      {
+        "question": "Puis-je générer des images et des vidéos avec Grok via MuiRouter ?",
+        "answer": "Oui. Les modèles de génération d'images et de vidéos de Grok sont disponibles via la même clé API et le même endpoint que le chat Grok."
+      },
+      {
+        "question": "Ai-je besoin du SDK xAI pour utiliser Grok ?",
+        "answer": "Non. MuiRouter expose Grok via le même format Chat Completions compatible OpenAI que tous les autres modèles."
+      },
+      {
+        "question": "L'utilisation de Grok est-elle facturée séparément de mes autres modèles ?",
+        "answer": "Non — le chat, la génération d'images et de vidéos de Grok puisent tous dans le même solde MuiRouter et apparaissent dans un seul journal d'utilisation."
+      }
+    ],
+    "relatedTitle": "Liens connexes",
+    "related": [
+      { "href": "/claude-api-gateway", "label": "Passerelle API Claude" },
+      { "href": "/gpt-api-gateway", "label": "Passerelle API GPT" },
+      { "href": "/gemini-api-gateway", "label": "Passerelle API Gemini" },
+      { "href": "/llm-router", "label": "Routeur LLM" }
+    ],
+    "ctaTitle": "Commencez à appeler Grok dès aujourd'hui",
+    "ctaDescription": "Créez un compte gratuit, récupérez une clé, et appelez le chat, la génération d'images ou de vidéos de Grok en quelques minutes.",
+    "ctaButton": "Commencer gratuitement"
+  },
+  "muirouterVsOpenrouter": {
+    "metaTitle": "MuiRouter vs OpenRouter — Comparatif tarifs, modèles et compatibilité API",
+    "metaDescription": "Comparez MuiRouter et OpenRouter sur le modèle de tarification, l'étendue du catalogue de modèles, la compatibilité OpenAI, les endpoints natifs des fournisseurs, les frais BYOK et les modèles gratuits — sources à l'appui.",
+    "eyebrow": "MuiRouter vs OpenRouter",
+    "title": "MuiRouter vs OpenRouter — ",
+    "titleHighlight": "face à face",
+    "intro": "Les deux sont des passerelles compatibles OpenAI qui permettent d'appeler plusieurs fournisseurs de LLM depuis une seule API. Voici en quoi MuiRouter et OpenRouter diffèrent réellement sur la tarification, l'étendue des modèles et l'accès natif aux fournisseurs, d'après la documentation officielle de chaque plateforme.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "MuiRouter vs OpenRouter en un coup d'œil",
+    "comparisonRows": [
+      {
+        "label": "Modèle de tarification",
+        "values": [
+          "Le prix par token inclut déjà le coût de la plateforme — aucun frais séparé sur les recharges",
+          "Tarification du fournisseur répercutée telle quelle, plus des frais de carte de 5,5 % (5 % en crypto) sur chaque recharge de crédits"
+        ]
+      },
+      {
+        "label": "Catalogue de modèles",
+        "values": [
+          "Sélection ciblée : OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot et MiMo",
+          "Vaste catalogue couvrant des centaines de modèles chez des dizaines de fournisseurs"
+        ]
+      },
+      {
+        "label": "Compatibilité OpenAI",
+        "values": [
+          "Oui — endpoint compatible Chat Completions",
+          "Oui — le format suit de très près l'API Chat d'OpenAI"
+        ]
+      },
+      {
+        "label": "Endpoints natifs des fournisseurs",
+        "values": [
+          "Endpoint natif Anthropic /v1/messages et OpenAI /v1/responses, même clé et même solde",
+          "Requêtes normalisées vers un seul format de type OpenAI"
+        ]
+      },
+      {
+        "label": "Bring-your-own-key (BYOK)",
+        "values": [
+          "Pas nécessaire — une seule clé MuiRouter couvre tous les fournisseurs",
+          "Pris en charge ; gratuit jusqu'à 1M de requêtes par mois, puis des frais de 5 %"
+        ]
+      },
+      {
+        "label": "Offre gratuite",
+        "values": [
+          "Aucune offre gratuite — facturation à l'usage dès le premier token",
+          "Modèles gratuits à débit limité (jusqu'à 1 000 requêtes/jour avec 10 $ de crédit ou plus)"
+        ]
+      }
+    ],
+    "faqTitle": "FAQ MuiRouter vs OpenRouter",
+    "faq": [
+      {
+        "question": "MuiRouter est-il moins cher qu'OpenRouter ?",
+        "answer": "Cela dépend de votre profil d'utilisation. Le prix par token de MuiRouter inclut déjà le coût de la plateforme, sans frais séparé lors des recharges. OpenRouter répercute la tarification du fournisseur sans majoration sur les tokens, mais facture 5,5 % sur les recharges par carte (5 % en crypto) et 5 % sur l'usage BYOK au-delà du quota gratuit mensuel. Comparez les tarifs exacts par modèle sur la page tarifs."
+      },
+      {
+        "question": "MuiRouter prend-il en charge autant de modèles qu'OpenRouter ?",
+        "answer": "Non — MuiRouter propose une sélection ciblée de modèles OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot et MiMo, tandis que le catalogue d'OpenRouter couvre des centaines de modèles chez des dizaines de fournisseurs. Si vous avez besoin de quelques fournisseurs majeurs avec un accès natif, MuiRouter est plus ciblé ; si vous avez besoin d'une grande variété de modèles de niche, OpenRouter offre plus d'étendue."
+      },
+      {
+        "question": "Puis-je passer d'OpenRouter à MuiRouter sans réécrire mon code ?",
+        "answer": "Oui. Les deux sont compatibles OpenAI, donc pour des chat completions standard vous ne changez que la Base URL et la clé API. Certaines options spécifiques à un fournisseur peuvent nécessiter de petits ajustements — voir la page routeur compatible OpenAI pour le détail."
+      }
+    ],
+    "relatedTitle": "Liens connexes",
+    "related": [
+      { "href": "/llm-router", "label": "Routeur LLM" },
+      { "href": "/ai-router", "label": "Routeur API IA" },
+      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
+      { "href": "/pricing", "label": "Tarifs" }
+    ],
+    "ctaTitle": "Vérifiez les chiffres par vous-même",
+    "ctaDescription": "Créez un compte gratuit et consultez les tarifs réels par modèle avant de basculer.",
+    "ctaButton": "Commencer gratuitement"
+  },
+  "litellmVsOpenrouter": {
+    "metaTitle": "LiteLLM vs OpenRouter — Auto-hébergé vs passerelle LLM managée",
+    "metaDescription": "Comparez LiteLLM et OpenRouter sur le mode de déploiement, la tarification, la couverture des fournisseurs et la charge opérationnelle — et où se situe MuiRouter comme alternative managée et compatible OpenAI.",
+    "eyebrow": "LiteLLM vs OpenRouter",
+    "title": "LiteLLM vs OpenRouter — ",
+    "titleHighlight": "comparés",
+    "intro": "LiteLLM est un proxy open source que vous hébergez vous-même ; OpenRouter est une passerelle API managée avec un vaste catalogue de modèles. Voici comment ils diffèrent sur le déploiement, la tarification et les opérations — et où MuiRouter se situe comme alternative managée et compatible OpenAI avec des endpoints natifs par fournisseur.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "LiteLLM vs OpenRouter vs MuiRouter en un coup d'œil",
+    "comparisonRows": [
+      {
+        "label": "Mode de déploiement",
+        "values": [
+          "Open source, auto-hébergé — vous exploitez et maintenez le proxy vous-même",
+          "SaaS managé — inscrivez-vous et appelez l'API, aucune infrastructure à exploiter",
+          "SaaS managé — inscrivez-vous et appelez l'API, aucune infrastructure à exploiter"
+        ]
+      },
+      {
+        "label": "Modèle de tarification",
+        "values": [
+          "Cœur open source gratuit ; l'Enterprise ajoute SSO/audit/support à un tarif sur devis",
+          "Tarification du fournisseur répercutée telle quelle, plus des frais de carte de 5,5 % (5 % en crypto) sur les recharges",
+          "Le prix par token inclut déjà le coût de la plateforme — aucun frais séparé sur les recharges"
+        ]
+      },
+      {
+        "label": "Catalogue de modèles",
+        "values": [
+          "100+ fournisseurs — le catalogue le plus large des trois",
+          "Vaste catalogue couvrant des centaines de modèles chez des dizaines de fournisseurs",
+          "Sélection ciblée : OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot et MiMo"
+        ]
+      },
+      {
+        "label": "Compatibilité OpenAI",
+        "values": [
+          "Oui — traduit chaque fournisseur vers une réponse au format OpenAI unifié",
+          "Oui — le format suit de très près l'API Chat d'OpenAI",
+          "Oui — endpoint compatible Chat Completions"
+        ]
+      },
+      {
+        "label": "Charge opérationnelle",
+        "values": [
+          "Vous gérez la disponibilité, la mise à l'échelle, les mises à jour et les clés",
+          "Aucune — entièrement managé, aucun serveur à exploiter",
+          "Aucune — entièrement managé, aucun serveur à exploiter"
+        ]
+      },
+      {
+        "label": "Endpoints natifs des fournisseurs",
+        "values": [
+          "Passthrough via un api_base et une api_key personnalisés par appel",
+          "Requêtes normalisées vers un seul format de type OpenAI",
+          "Endpoint natif Anthropic /v1/messages et OpenAI /v1/responses, même clé et même solde"
+        ]
+      }
+    ],
+    "faqTitle": "FAQ LiteLLM vs OpenRouter",
+    "faq": [
+      {
+        "question": "LiteLLM est-il gratuit ?",
+        "answer": "Le cœur open source (SDK Python et Proxy Server) est gratuit et auto-hébergé — vous exploitez l'infrastructure. LiteLLM Enterprise ajoute SSO/SCIM, journaux d'audit et support 24/7 pour les équipes en production, à un tarif sur devis."
+      },
+      {
+        "question": "Dois-je exploiter mon propre serveur avec OpenRouter ou MuiRouter ?",
+        "answer": "Non. OpenRouter et MuiRouter sont tous deux managés — vous obtenez une clé API et appelez l'endpoint, sans proxy à déployer ni à maintenir. C'est la principale différence pratique avec le modèle auto-hébergé de LiteLLM."
+      },
+      {
+        "question": "Lequel choisir ?",
+        "answer": "Si vous voulez un contrôle total, une logique de routage personnalisée et aucun frais de plateforme par requête, auto-héberger LiteLLM a du sens. Si vous voulez un endpoint managé avec le catalogue de modèles le plus large, OpenRouter convient. Si vous voulez un endpoint managé avec un accès natif à Claude/GPT et sans frais séparé sur les recharges, essayez MuiRouter."
+      }
+    ],
+    "relatedTitle": "Liens connexes",
+    "related": [
+      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
+      { "href": "/llm-router", "label": "Routeur LLM" },
+      { "href": "/ai-router", "label": "Routeur API IA" },
+      { "href": "/pricing", "label": "Tarifs" }
+    ],
+    "ctaTitle": "Vérifiez les chiffres par vous-même",
+    "ctaDescription": "Créez un compte gratuit et consultez les tarifs réels par modèle avant de choisir.",
+    "ctaButton": "Commencer gratuitement"
+  },
+  "openrouterAlternatives": {
+    "metaTitle": "Alternatives à OpenRouter — 4 passerelles LLM comparées",
+    "metaDescription": "Vous cherchez des alternatives à OpenRouter ? Découvrez en quoi MuiRouter, LiteLLM, Portkey et Cloudflare AI Gateway diffèrent sur le déploiement, la tarification, le catalogue de modèles et la gouvernance.",
+    "eyebrow": "Alternatives à OpenRouter",
+    "title": "Alternatives à OpenRouter — ",
+    "titleHighlight": "4 comparées",
+    "intro": "Si OpenRouter ne vous convient pas tout à fait, voici quatre vraies alternatives — d'une passerelle managée compatible OpenAI à un proxy auto-hébergé et une plateforme de gouvernance entreprise — avec ce en quoi chacune excelle vraiment.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "4 alternatives à OpenRouter, comparées",
+    "tools": {
+      "muirouter": {
+        "name": "MuiRouter",
+        "tagline": "Commencer gratuitement",
+        "description": "Une passerelle managée et compatible OpenAI vers OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot et MiMo. Endpoints natifs Anthropic et OpenAI, tarification au token sans frais séparé sur les recharges, et serveur MCP intégré.",
+        "pros": [
+          "Aucune infrastructure à exploiter — inscrivez-vous et appelez l'API",
+          "Endpoints natifs /v1/messages et /v1/responses, pas seulement une couche de traduction",
+          "Un seul solde, un seul journal d'utilisation pour tous les modèles"
+        ],
+        "cons": ["Catalogue de modèles plus restreint que certaines alternatives (sélection ciblée, pas 100+)"],
+        "bestFor": "Idéal pour les développeurs qui veulent un endpoint managé avec accès natif à Claude/GPT et une facturation simple au token."
+      },
+      "litellm": {
+        "name": "LiteLLM",
+        "tagline": "Open source",
+        "description": "Un proxy open source et un SDK Python que vous auto-hébergez, traduisant 100+ fournisseurs vers une interface unique au format OpenAI. L'Enterprise ajoute SSO, journaux d'audit et support.",
+        "pros": [
+          "100+ fournisseurs — le catalogue le plus large ici",
+          "Contrôle total sur le déploiement et la logique de routage",
+          "Cœur open source gratuit"
+        ],
+        "cons": [
+          "Vous exploitez et maintenez vous-même l'infrastructure",
+          "Les fonctionnalités Enterprise nécessitent un forfait payant à tarif sur devis"
+        ],
+        "bestFor": "Idéal pour les équipes qui veulent un contrôle total de l'infrastructure et sont à l'aise avec l'auto-hébergement."
+      },
+      "portkey": {
+        "name": "Portkey",
+        "tagline": "Plateforme entreprise",
+        "description": "Un socle de production pour les équipes IA regroupant passerelle IA, observabilité, guardrails, gouvernance et gestion des prompts, avec accès à plus de 1 600 LLM.",
+        "pros": [
+          "Accès aux modèles le plus large — 1 600+ LLM",
+          "Fonctionnalités poussées d'observabilité, guardrails et gouvernance",
+          "Offre gratuite pour démarrer"
+        ],
+        "cons": [
+          "Forfaits payants nécessaires pour les fonctionnalités complètes en production",
+          "Plus une plateforme complète qu'un routeur léger — mise en place plus lourde"
+        ],
+        "bestFor": "Idéal pour les équipes plus importantes ayant besoin de gouvernance, de guardrails et d'observabilité en plus du routage."
+      },
+      "cloudflareAiGateway": {
+        "name": "Cloudflare AI Gateway",
+        "tagline": "Intégré à Cloudflare",
+        "description": "Une couche d'observabilité et de contrôle pour les appels IA vers Workers AI, Anthropic, Gemini, OpenAI et plus, avec cache, limitation de débit et bascule automatique — disponible sur tout compte Cloudflare.",
+        "pros": [
+          "Aucun compte supplémentaire si vous êtes déjà sur Cloudflare",
+          "Cache, limitation de débit et bascule intégrés",
+          "Disponible sur tous les forfaits Cloudflare"
+        ],
+        "cons": [
+          "Plus adapté aux équipes déjà sur Cloudflare",
+          "Moins centré sur une facturation unifiée au token entre fournisseurs"
+        ],
+        "bestFor": "Idéal pour les équipes déjà sur Cloudflare qui veulent du cache et de la bascule sans nouveau fournisseur."
+      }
+    },
+    "faqTitle": "FAQ alternatives à OpenRouter",
+    "faq": [
+      {
+        "question": "Quelle est la meilleure alternative à OpenRouter pour une petite équipe ?",
+        "answer": "Si vous voulez un endpoint managé sans infrastructure à exploiter et une tarification simple au token, MuiRouter ou OpenRouter lui-même sont les points de départ les plus simples. MuiRouter ajoute des endpoints natifs Claude/GPT et aucun frais séparé sur les recharges."
+      },
+      {
+        "question": "Existe-t-il une alternative gratuite et auto-hébergée à OpenRouter ?",
+        "answer": "Le cœur open source de LiteLLM est gratuit et auto-hébergé, vous donnant un contrôle total sur le routage et le déploiement — vous prenez en charge l'exploitation de l'infrastructure."
+      },
+      {
+        "question": "Quelle alternative convient le mieux à la gouvernance d'entreprise ?",
+        "answer": "Portkey regroupe observabilité, guardrails et gouvernance en plus du routage, destiné aux grandes équipes ayant besoin de pistes d'audit et de contrôle des dépenses au-delà d'une passerelle légère."
+      }
+    ],
+    "relatedTitle": "Liens connexes",
+    "related": [
+      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
+      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
+      { "href": "/llm-router", "label": "Routeur LLM" },
+      { "href": "/best-llm-gateway", "label": "Meilleure passerelle LLM 2026" }
+    ],
+    "ctaTitle": "Essayez l'alternative managée",
+    "ctaDescription": "Créez un compte MuiRouter gratuit et appelez Claude, GPT, Gemini et Grok depuis une seule clé en quelques minutes.",
+    "ctaButton": "Commencer gratuitement"
+  },
+  "bestLlmGateway": {
+    "metaTitle": "Meilleure passerelle LLM en 2026 — 5 options comparées",
+    "metaDescription": "Vous cherchez la meilleure passerelle LLM ? Découvrez en quoi MuiRouter, OpenRouter, LiteLLM, Portkey et Cloudflare AI Gateway diffèrent réellement sur le déploiement, la tarification, le catalogue de modèles et le cas d'usage.",
+    "eyebrow": "Meilleure passerelle LLM 2026",
+    "title": "La meilleure passerelle LLM en ",
+    "titleHighlight": "2026",
+    "intro": "Chaque passerelle de cette liste est un choix légitime — la bonne dépend de si vous voulez un endpoint managé ou votre propre infrastructure, et si vous êtes un développeur solo ou une équipe d'entreprise soucieuse de gouvernance. Voici en quoi MuiRouter, OpenRouter, LiteLLM, Portkey et Cloudflare AI Gateway diffèrent réellement.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "5 passerelles LLM, classées par profil",
+    "tools": {
+      "muirouter": {
+        "name": "MuiRouter",
+        "tagline": "Commencer gratuitement",
+        "description": "Une passerelle managée et compatible OpenAI vers OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot et MiMo. Endpoints natifs Anthropic et OpenAI, tarification au token sans frais séparé sur les recharges, et serveur MCP intégré.",
+        "pros": [
+          "Aucune infrastructure à exploiter — inscrivez-vous et appelez l'API",
+          "Endpoints natifs /v1/messages et /v1/responses, pas seulement une couche de traduction",
+          "Un seul solde, un seul journal d'utilisation pour tous les modèles"
+        ],
+        "cons": ["Catalogue de modèles plus restreint que certaines alternatives (sélection ciblée, pas 100+)"],
+        "bestFor": "Idéal pour les développeurs qui veulent un endpoint managé avec accès natif à Claude/GPT et une facturation simple au token."
+      },
+      "openrouter": {
+        "name": "OpenRouter",
+        "tagline": "Catalogue le plus large",
+        "description": "Une passerelle API managée avec le catalogue de modèles le plus large du groupe — des centaines de modèles chez des dizaines de fournisseurs, facturés au tarif du fournisseur sans majoration.",
+        "pros": [
+          "Des centaines de modèles chez des dizaines de fournisseurs",
+          "Aucune majoration sur le prix des tokens du fournisseur",
+          "Modèles gratuits à débit limité pour expérimenter"
+        ],
+        "cons": [
+          "Frais de carte de 5,5 % sur les recharges (5 % en crypto)",
+          "Frais de 5 % sur l'usage BYOK au-delà du quota gratuit mensuel"
+        ],
+        "bestFor": "Idéal pour les équipes qui veulent le catalogue de modèles le plus large et ne sont pas gênées de gérer les frais de recharge séparément."
+      },
+      "litellm": {
+        "name": "LiteLLM",
+        "tagline": "Open source",
+        "description": "Un proxy open source et un SDK Python que vous auto-hébergez, traduisant 100+ fournisseurs vers une interface unique au format OpenAI. L'Enterprise ajoute SSO, journaux d'audit et support.",
+        "pros": [
+          "100+ fournisseurs — le catalogue le plus large ici",
+          "Contrôle total sur le déploiement et la logique de routage",
+          "Cœur open source gratuit"
+        ],
+        "cons": [
+          "Vous exploitez et maintenez vous-même l'infrastructure",
+          "Les fonctionnalités Enterprise nécessitent un forfait payant à tarif sur devis"
+        ],
+        "bestFor": "Idéal pour les équipes qui veulent un contrôle total de l'infrastructure et sont à l'aise avec l'auto-hébergement."
+      },
+      "portkey": {
+        "name": "Portkey",
+        "tagline": "Plateforme entreprise",
+        "description": "Un socle de production pour les équipes IA regroupant passerelle IA, observabilité, guardrails, gouvernance et gestion des prompts, avec accès à plus de 1 600 LLM.",
+        "pros": [
+          "Accès aux modèles le plus large — 1 600+ LLM",
+          "Fonctionnalités poussées d'observabilité, guardrails et gouvernance",
+          "Offre gratuite pour démarrer"
+        ],
+        "cons": [
+          "Forfaits payants nécessaires pour les fonctionnalités complètes en production",
+          "Plus une plateforme complète qu'un routeur léger — mise en place plus lourde"
+        ],
+        "bestFor": "Idéal pour les équipes plus importantes ayant besoin de gouvernance, de guardrails et d'observabilité en plus du routage."
+      },
+      "cloudflareAiGateway": {
+        "name": "Cloudflare AI Gateway",
+        "tagline": "Intégré à Cloudflare",
+        "description": "Une couche d'observabilité et de contrôle pour les appels IA vers Workers AI, Anthropic, Gemini, OpenAI et plus, avec cache, limitation de débit et bascule automatique — disponible sur tout compte Cloudflare.",
+        "pros": [
+          "Aucun compte supplémentaire si vous êtes déjà sur Cloudflare",
+          "Cache, limitation de débit et bascule intégrés",
+          "Disponible sur tous les forfaits Cloudflare"
+        ],
+        "cons": [
+          "Plus adapté aux équipes déjà sur Cloudflare",
+          "Moins centré sur une facturation unifiée au token entre fournisseurs"
+        ],
+        "bestFor": "Idéal pour les équipes déjà sur Cloudflare qui veulent du cache et de la bascule sans nouveau fournisseur."
+      }
+    },
+    "faqTitle": "FAQ meilleure passerelle LLM",
+    "faq": [
+      {
+        "question": "Dois-je choisir une passerelle managée ou en auto-héberger une ?",
+        "answer": "Choisissez managé (MuiRouter, OpenRouter, Portkey, Cloudflare AI Gateway) si vous ne voulez pas exploiter d'infrastructure. Choisissez auto-hébergé (le cœur open source de LiteLLM) si vous avez besoin d'un contrôle total sur la logique de routage et êtes à l'aise pour exploiter le proxy vous-même."
+      },
+      {
+        "question": "Quelle passerelle a la sélection de modèles la plus large ?",
+        "answer": "OpenRouter et LiteLLM couvrent tous deux des catalogues très larges — OpenRouter avec des centaines de modèles managés, LiteLLM avec 100+ fournisseurs que vous connectez vous-même. MuiRouter est plus ciblé, couvrant les fournisseurs principaux que la plupart des équipes utilisent réellement."
+      },
+      {
+        "question": "Laquelle convient le mieux à un développeur solo qui débute ?",
+        "answer": "MuiRouter ou OpenRouter sont les points de départ les plus simples — inscrivez-vous, récupérez une clé, appelez l'API, sans infrastructure à exploiter. MuiRouter ajoute des endpoints natifs Claude/GPT et aucun frais séparé sur les recharges."
+      }
+    ],
+    "relatedTitle": "Liens connexes",
+    "related": [
+      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
+      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
+      { "href": "/openrouter-alternatives", "label": "Alternatives à OpenRouter" },
+      { "href": "/llm-router", "label": "Routeur LLM" }
+    ],
+    "ctaTitle": "Essayez l'option managée",
+    "ctaDescription": "Créez un compte MuiRouter gratuit et appelez tous les modèles principaux depuis une seule clé en quelques minutes.",
     "ctaButton": "Commencer gratuitement"
   },
   "homeFaq": {

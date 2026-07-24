@@ -86,6 +86,12 @@ export default async function MarketingLayout({
             <Link href="/mcp" className="hover:text-foreground transition-colors">
               {t('mcp')}
             </Link>
+            <Link href="/best-llm-gateway" className="hover:text-foreground transition-colors">
+              {t('bestLlmGateway')}
+            </Link>
+            <Link href="/openrouter-alternatives" className="hover:text-foreground transition-colors">
+              {t('openrouterAlternatives')}
+            </Link>
             <Link href="/pricing" className="hover:text-foreground transition-colors">
               {t('pricing')}
             </Link>

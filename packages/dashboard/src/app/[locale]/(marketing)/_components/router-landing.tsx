@@ -1,12 +1,10 @@
-import { ArrowRight, ArrowUpRight, Gauge, Key, Plug, Path } from '@phosphor-icons/react/ssr';
+import { ArrowRight, ArrowUpRight } from '@phosphor-icons/react/ssr';
 import { useTranslations } from 'next-intl';
 import { Link } from '@/i18n/navigation';
-import { getLocalizedPath, SITE_URL } from '@/lib/seo';
-
-interface RouterFeature {
-  title: string;
-  description: string;
-}
+import { buildBreadcrumbEntity, buildFaqEntity, buildItemListEntity } from '@/lib/json-ld';
+import { ComparisonTableSection, type ComparisonRow } from './comparison-table-section';
+import { FeaturesSection, type RouterFeature } from './features-section';
+import { ToolListSection, type ToolCopy, type ToolEntry } from './tool-list-section';
 
 interface RouterFaq {
   question: string;
@@ -18,49 +16,55 @@ interface RouterRelatedLink {
   label: string;
 }
 
-const FEATURE_ICONS = [Path, Key, Gauge, Plug];
-
 interface RouterLandingProps {
   /** i18n namespace holding this landing page's copy (e.g. 'aiRouter') */
   namespace: string;
   /** locale-agnostic route path (e.g. '/ai-router'), used for breadcrumb JSON-LD */
   path: string;
   locale: string;
+  /** 中段主内容区形态，默认 'features'（4 图标网格）；对比页传 'comparisonTable'，榜单页传 'toolList' */
+  variant?: 'features' | 'comparisonTable' | 'toolList';
+  /** 仅 comparisonTable 用：列名是专有名词（如 'MuiRouter'/'OpenRouter'），不进 i18n */
+  comparisonColumns?: string[];
+  /** 仅 comparisonTable 用：高亮哪一列，默认第 0 列（通常是 MuiRouter 自己） */
+  highlightColumnIndex?: number;
+  /** 仅 toolList 用：榜单条目，id/href/isMuiRouter 是代码字面量，文案走 i18n tools.<id> */
+  toolEntries?: ToolEntry[];
 }
 
 /**
  * 复用型 SEO 落地页：支柱页 /ai-router 与各分簇页（/llm-router 等）共用同一结构，
  * 内容全部来自 i18n namespace，确保 8 语言一致；内联 FAQPage / BreadcrumbList 结构化数据。
  */
-export function RouterLanding({ namespace, path, locale }: RouterLandingProps) {
+export function RouterLanding({
+  namespace,
+  path,
+  locale,
+  variant = 'features',
+  comparisonColumns,
+  highlightColumnIndex = 0,
+  toolEntries,
+}: RouterLandingProps) {
   const t = useTranslations(namespace);
-  const features = t.raw('features') as RouterFeature[];
   const faq = t.raw('faq') as RouterFaq[];
   const related = t.raw('related') as RouterRelatedLink[];
+  const toolsCopy = variant === 'toolList' ? (t.raw('tools') as Record<string, ToolCopy>) : undefined;
 
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
-      {
-        '@type': 'FAQPage',
-        mainEntity: faq.map((item) => ({
-          '@type': 'Question',
-          name: item.question,
-          acceptedAnswer: { '@type': 'Answer', text: item.answer },
-        })),
-      },
-      {
-        '@type': 'BreadcrumbList',
-        itemListElement: [
-          { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}${getLocalizedPath('/', locale)}` },
-          {
-            '@type': 'ListItem',
-            position: 2,
-            name: t('eyebrow'),
-            item: `${SITE_URL}${getLocalizedPath(path, locale)}`,
-          },
-        ],
-      },
+      buildFaqEntity(faq),
+      buildBreadcrumbEntity(path, locale, t('eyebrow')),
+      ...(variant === 'toolList' && toolEntries && toolsCopy
+        ? [
+            buildItemListEntity(
+              toolEntries.map((entry) => ({
+                name: toolsCopy[entry.id].name,
+                url: entry.isMuiRouter ? undefined : entry.href,
+              })),
+            ),
+          ]
+        : []),
     ],
   };
 
@@ -94,27 +98,18 @@ export function RouterLanding({ namespace, path, locale }: RouterLandingProps) {
         </div>
       </section>
 
-      <section className="py-14 px-6">
-        <div className="mx-auto max-w-5xl">
-          <h2 className="text-3xl font-bold tracking-tight text-center mb-8">{t('featuresTitle')}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {features.map((item, index) => {
-              const Icon = FEATURE_ICONS[index % FEATURE_ICONS.length];
-              return (
-                <div key={item.title} className="flex gap-4 rounded-lg border border-border bg-card p-5">
-                  <div className="shrink-0 flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-fluff)] border border-[var(--brand-corgi)]">
-                    <Icon size={20} className="text-[var(--brand-yellow-deep)]" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-base mb-1.5">{item.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
+      {variant === 'comparisonTable' && comparisonColumns ? (
+        <ComparisonTableSection
+          title={t('featuresTitle')}
+          columns={comparisonColumns}
+          rows={t.raw('comparisonRows') as ComparisonRow[]}
+          highlightColumnIndex={highlightColumnIndex}
+        />
+      ) : variant === 'toolList' && toolEntries && toolsCopy ? (
+        <ToolListSection title={t('featuresTitle')} entries={toolEntries} copy={toolsCopy} />
+      ) : (
+        <FeaturesSection title={t('featuresTitle')} features={t.raw('features') as RouterFeature[]} />
+      )}
 
       <section className="py-14 px-6 bg-muted/40">
         <div className="mx-auto max-w-3xl">

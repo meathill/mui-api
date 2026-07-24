@@ -277,6 +277,27 @@ D1_ERROR: Network connection lost.
 
 **测试与执行环境约束**：`packages/dashboard/scripts/indexnow.ts` 是零 `@/` 别名依赖的纯函数模块（`SITE_URL` 直接硬编码，不 import `src/lib/seo.ts`，与 `robots.ts` 硬编码 sitemap URL 是同样的取舍），既能被 `submit-indexnow.ts` 用纯 node 执行，也能被 vitest 直接 import 测试；`vitest.config.ts` 的 `test.include` 因此扩展为同时覆盖 `src/**/*.test.ts` 和 `scripts/**/*.test.ts`。
 
+### SEO 对比/alternative 内容页（issue #7）
+
+**背景**：GSC 数据显示 "ai router"/"llm gateway" 等词群有搜索但排名太靠后，首页 SEO 基建已经不错，缺的是内容页承接词群，尤其是对比/alternative 类内容搜索量最集中。方案：给现有的 `RouterLanding` 模板（`_components/router-landing.tsx`）加 `variant` 分发（`features`/`comparisonTable`/后续 `toolList`），而不是新建整页模板——hero/FAQ/related/CTA 四段结构不变，只有中段主内容区形态不同。
+
+**URL 命名**：provider 落地页（`/claude-api-gateway` 等）特意用 `-gateway` 后缀而非站内既有的 `-router` 后缀——`-router` 讲的是"多 provider 间路由切换"，`-gateway` 讲的是"单一 provider 的一站式访问入口"，两种搜索意图 GSC 数据里本就区分。
+
+**对比表数据结构的下标对齐风险**：`comparisonRows: { label, values[] }[]` 里 `values` 按 `comparisonColumns`（页面里的字面量，如 `['MuiRouter', 'OpenRouter']`，专有名词不进 i18n）下标对齐，8 语言翻译时如果某行 `values` 顺序被打乱、或漏翻某一列，类型系统和 `messages-parity.test.ts` 都测不出语义错位（`messages-parity.test.ts` 只测数组长度/结构一致，测不出顺序）——只能人工核对。`comparisonColumns`/`toolEntries` 这类字面量数据不进 i18n 的原则同样适用于 `mcp/page.tsx` 的 `TOOL_NAMES`。
+
+**竞品事实核验**：写 `muirouter-vs-openrouter` 前用 WebFetch 直接查了 OpenRouter 官方文档（`openrouter.ai/docs/faq`、`/docs/api-reference/overview`），不采信搜到的一堆 "OpenRouter Pricing 2026" 第三方汇总博客（这类文章本身就是本任务想做的同类内容农场产物，可信度有限）。核实到的关键事实：OpenRouter 对 token 不加价、信用卡充值收 5.5%（加密货币 5%，$0.80 起）、BYOK 每月前 100 万次请求免费之后收 5%、有限速免费模型。对比页刻意保持双向诚实（如实写 OpenRouter 模型覆盖更广、有免费模型），而不是把 MuiRouter 写成全方位碾压——单边吹嘘的对比页在这个内容品类里可信度最低、也最容易被读者/搜索引擎判定为 misleading。
+
+**`.highlight` 高亮文字是 `white-space: nowrap`**（globals.css 用于实现底色高亮的 skew 效果），`titleHighlight` 太长时在移动端会被 hero 区块的 `overflow-hidden` 裁切掉，且不会产生页面级横向滚动条（因此不会被"有没有横向滚动"这类粗粒度视觉检查发现，需要专门在移动端截图检查 hero 标题）。已踩坑：`muirouter-vs-openrouter` 最初的 `titleHighlight`（"an honest comparison" 及各语言等价文案）在 375px 视口下被裁切，改成更短的 "head-to-head"/"正面对比"/"徹底比較" 等解决。**后续新增落地页的 `titleHighlight` 字段应参照既有页面的长度级别（如 "one API"/"every provider"，不超过约 14 个西文字符或等效宽度），不要假设长句能安全换行。**
+
+**listicle 页刻意做角度差异化，避免关键词自相蚕食**：`openrouter-alternatives` 和 `best-llm-gateway` 的工具榜单高度重叠（MuiRouter/LiteLLM/Portkey/Cloudflare AI Gateway 都在两页出现），如果角度雷同就是自己的两个页面互相抢同一批词的排名。处理方式：前者锚定 OpenRouter 的具体痛点逐条对比、**不收录 OpenRouter 自己**（"alternatives to X" 收录 X 本身会显得奇怪）；后者是不锚定单一竞品的全品类综述，按"托管 vs 自建""独立开发者 vs 企业团队"维度组织，**收录 OpenRouter** 作为普通条目之一，FAQ 也换了三个不同的问题。`best-llm-gateway` 的 URL 不带年份（避免每年 301 链），但 metaTitle **和**可见 H1/eyebrow 都带 2026，年份本身作为 `titleHighlight`（短，安全），每年年初需要人工把 8 语言的年份字符串批量改一遍。
+
+**messages.json 本轮膨胀到 ~1480 行、决定不拆分**：这批内容页（4 provider 页 + 4 对比/榜单页）让 8 个 locale 文件从 891-900 行涨到 ~1480 行。评估过按 namespace 拆成独立文件（如 `messages/{locale}/seo.json` 再在 `i18n/request.ts` 合并），但决定本轮不做：拆分要改全站唯一的消息加载入口 `i18n/request.ts`，爆炸半径覆盖所有页面（含 dashboard/admin 等无关部分），且目前 8 个文件从无分片先例，第一次引入分片逻辑应该单独验证、不该和内容改动混在一批交付。**如果以后再加一批内容页，届时再做一次性整体迁移**，不要每次加内容都重新纠结这个决策。
+
+**明确排除本轮、留作后续独立任务**（避免以后重新讨论）：
+- Provider 落地页加真实代码示例 slot（`codeSample` prop）——有说服力但会让文案工作量翻倍，可做 fast-follow
+- `ctaPrimary`/`ctaSecondary`/`ctaButton` 在 12 个 router/gateway/comparison namespace 里高度重复（"Start free"/"View pricing" 等），理论上可挪进 `common` namespace 去重，但要动全部已上线 namespace、回归面不小于收益，值得单独一个小任务处理
+- 根 layout 的 `NextIntlClientProvider` 未按需 `pick()` 消息子集，导致客户端 hydration payload 包含当前 locale 全部 messages（含无关的 dashboard/admin 内容）——这是本任务开始前就存在的架构特征，本次新增内容只是进一步放大它，不是本次引入的问题，真要收紧需要评估对 ThemeToggle/LanguageSwitcher 等客户端组件的影响，风险跟这批内容页改动不对等
+
 ### better-auth 统一用户体系
 
 **决策**：Dashboard 使用 better-auth 管理用户认证，`user` 表同时作为业务用户表。
