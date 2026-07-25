@@ -13,7 +13,7 @@ export function ModelsSection() {
     {
       name: 'Anthropic',
       color: 'bg-[#fadfd5] text-[#c44a32] border border-[var(--brand-tongue)]',
-      models: ['Claude Fable 5', 'Claude Sonnet 5', 'Claude Opus 4.8', 'Claude Haiku 4.5'],
+      models: ['Claude Opus 5', 'Claude Fable 5', 'Claude Sonnet 5', 'Claude Haiku 4.5'],
       description: t('anthropicDesc'),
     },
     {

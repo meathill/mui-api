@@ -40,6 +40,17 @@ const gpt55Loaders: Record<Locale, BlogContentLoader> = {
   ja: () => import('@/content/blog/gpt-5-5.ja.mdx'),
 };
 
+const claudeOpus5Loaders: Record<Locale, BlogContentLoader> = {
+  en: () => import('@/content/blog/claude-opus-5.mdx'),
+  zh: () => import('@/content/blog/claude-opus-5.zh.mdx'),
+  fr: () => import('@/content/blog/claude-opus-5.fr.mdx'),
+  es: () => import('@/content/blog/claude-opus-5.es.mdx'),
+  pt: () => import('@/content/blog/claude-opus-5.pt.mdx'),
+  de: () => import('@/content/blog/claude-opus-5.de.mdx'),
+  th: () => import('@/content/blog/claude-opus-5.th.mdx'),
+  ja: () => import('@/content/blog/claude-opus-5.ja.mdx'),
+};
+
 const claudeSonnet5Loaders: Record<Locale, BlogContentLoader> = {
   en: () => import('@/content/blog/claude-sonnet-5.mdx'),
   zh: () => import('@/content/blog/claude-sonnet-5.zh.mdx'),
@@ -86,6 +97,7 @@ const xaiGrokLoaders: Record<Locale, BlogContentLoader> = {
 
 const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
   'claude-fable-5': claudeFable5Loaders,
+  'claude-opus-5': claudeOpus5Loaders,
   'claude-sonnet-5': claudeSonnet5Loaders,
   'codex-context-drift': codexContextDriftLoaders,
   'gpt-5-5': gpt55Loaders,

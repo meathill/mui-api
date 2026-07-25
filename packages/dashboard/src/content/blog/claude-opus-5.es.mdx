@@ -1,0 +1,93 @@
+El 24 de julio de 2026, Anthropic publicó Claude Opus 5. El posicionamiento oficial: la capacidad bruta puede quedar un poco por debajo de Fable/Mythos, pero el precio es más asequible. Con el tiempo puede actuar como ejecutor diario bajo Fable. Anthropic lo describe como un modelo **más proactivo y que se autocontrola**, que se acerca a Claude Fable 5 en codificación y trabajo de conocimiento, **a la mitad del precio de Fable 5** — los mismos 5 $ / 25 $ por millón de tokens que Opus 4.8.
+
+Para quien desarrolla a diario, cada actualización de Anthropic merece atención. Estos meses Fable fue fuerte pero caro, escaso y a menudo castigado por clasificadores de seguridad; tras el lanzamiento de Fable, se intensificó el rumor de que Opus 4.8 «se había vuelto más tonto». Opus 5 por fin da algo de esperanza: **mismo precio, gran salto de capacidad**.
+
+MuiRouter ya soporta `claude-opus-5`. Misma clave API, mismos paths `/v1/chat/completions` y `/v1/messages`: cambia el nombre del modelo y pruébalo.
+
+## Resumen de la actualización de Anthropic
+
+Según el [anuncio de Claude Opus 5](https://www.anthropic.com/news/claude-opus-5) y la [system card](https://www.anthropic.com/claude-opus-5-system-card):
+
+- ID del modelo: `claude-opus-5`, disponible en la API, Claude Code y Claude Platform.
+- **Nuevo modelo por defecto en Claude Max**, y el más potente disponible ahora en Claude Pro.
+- Precio igual que Opus 4.8: 5 $ / 1M tokens de entrada, 25 $ / 1M de salida.
+- **Fast mode** opcional: ~2,5× la velocidad por defecto al doble del precio base.
+- Enfoque: agents de largo plazo, ingeniería de software, trabajo de conocimiento y verificar-e-iterar de forma proactiva. A diferencia de Mythos, no está centrado en ciberofensiva, así que no necesita un lanzamiento «solo partners».
+
+Anthropic es explícita: en tareas de explotación de ciberseguridad, Opus 5 se mantiene **a propósito** por detrás de Mythos 5.
+
+## Benchmarks y coste: bajar el coste por tarea terminada
+
+Anthropic no vende un precio de etiqueta más bajo por token. Vende un **coste más bajo para terminar el mismo tipo de trabajo**. Esa ha sido la carrera de mercado entre los grandes labs.
+
+| Área | Mensaje de Anthropic / partners | Por qué importa |
+| --- | --- | --- |
+| Frontier-Bench v0.1 | Supera a los modelos comparados; ~2× Opus 4.8 con menor coste por tarea | Si la ingeniería de horizonte largo es de verdad más fuerte *y* más barata |
+| CursorBench 3.2 (max effort) | A ~0,5 % del pico de Fable 5 a la mitad del coste por tarea | Coding en IDE / agent del día a día |
+| ARC-AGI 3 | ~3× el segundo mejor modelo | Problemas novedosos, razonamiento no convencional |
+| Zapier AutomationBench | ~1,5× la tasa de acierto del segundo al mismo coste; el effort más bajo a menudo sigue liderando | Automatización de negocio de punta a punta |
+| OSWorld 2.0 | Mejor a cualquier coste dado; supera el pico de Fable 5 a ~1/3 del coste | Agents de uso de ordenador / escritorio |
+| GDPval-AA y trabajo de conocimiento | Nuevo SOTA (compitiendo en la banda de Fable) | Informes, investigación, docs profesionales |
+
+En resumen: **precio de lista igual, curva oficial de «salida útil por unidad de coste» claramente al alza**. Ojalá se confirme en la práctica.
+
+## Primeras opiniones: la relación calidad-precio es el hilo conductor
+
+Un día después del lanzamiento, la discusión pública y los círculos de builders están **divididos**: unos lo ven al nivel de Fable; otros no. Según nuestra experiencia, eso suele depender del **stack de agent y su harness integrado**, no solo del modelo base.
+
+**El creador de OpenResty, 春哥 (Zhang Yichun)**, valora Opus 5 muy alto: en su propio marco de evaluación incluso puede superar a Fable. **El desarrollador independiente Baye** opina lo contrario: el pensamiento de Opus 5 no es lo bastante profundo ni exhaustivo, y aún hay que invertir más esfuerzo en gestionarlo.
+
+Temas recurrentes:
+
+- **«Mitad de precio frente a Fable.»** Fable 5 ~10 $ / 50 $; Opus 5 a 5 $ / 25 $. CursorBench max effort a ~0,5 % del pico Fable. Para presupuestos de equipo, es un re-pricing, no un renombre cosmético.
+- **Mejores bucles de auto-chequeo.** Casos tempranos: abrir layout desktop y móvil, pillar productos bajo el pliegue y botones de pago fuera de pantalla, y arreglar; o hallar la causa raíz que un parche de la comunidad no cubrió.
+- **Empuje sin terquedad ciega.** Algunos refactors: el modelo discute un mal diseño, sostiene hasta aclarar el desacuerdo y propone un compromiso. Para agents, el juicio gana a la obediencia ciega.
+- **Voces más frías.** Sigue midiendo en *tu* harness. Fast mode duplica el precio de lista a cambio de velocidad.
+
+Consenso comprimido: **Opus 5 es ahora el «Opus por defecto del día a día» que más merece evaluarse primero.**
+
+## Precios
+
+| Modelo | Input | Output |
+| --- | ---: | ---: |
+| `claude-fable-5` | 10 $ / 1M tokens | 50 $ / 1M tokens |
+| `claude-opus-5` | 5 $ / 1M tokens | 25 $ / 1M tokens |
+| `claude-opus-4-8` | 5 $ / 1M tokens | 25 $ / 1M tokens |
+| `claude-sonnet-5` (intro hasta 2026-08-31) | 2 $ / 1M tokens | 10 $ / 1M tokens |
+| `claude-sonnet-5` (estándar desde 2026-09-01) | 3 $ / 1M tokens | 15 $ / 1M tokens |
+
+Sigue aplicando el prompt caching estándar de Anthropic. Como con Sonnet 5: **decide con la factura por tarea terminada**, no solo con el precio de etiqueta.
+
+Fast mode: ~2,5× velocidad a 2× precio base, bien para coding interactivo; los lotes largos pueden quedarse en el nivel por defecto.
+
+## Seguridad y salvaguardas
+
+Anthropic sitúa Opus 5 entre sus modelos **más alineados**: menos comportamientos indeseables en auditorías automatizadas, más difícil de engañar hacia usos indebidos.
+
+En cyber: *encontrar* vulnerabilidades es mucho más fuerte y se acerca a Mythos 5; el **desarrollo completo de exploits sigue siendo mucho más débil**. Los clasificadores son más laxos que en Fable 5. Las peticiones marcadas pueden caer a Opus 4.8.
+
+Para la mayoría de equipos de producto: «ayuda en auditoría defensiva» sin convertirse en herramienta de ataque para todo el mundo. En la práctica debería **malinterpretar menos la intención del usuario que Fable 5**, y acercarse más a la ingeniería diaria.
+
+## Qué implica para desarrolladores
+
+- **Desde Opus 4.8:** precio de lista plano — compara tasa de acierto y tokens en *tu* harness. En general debería ir bien.
+- **Vs Fable 5:** Fable para horizonte largo extremo si presupuesto y guardrails lo permiten; para la mayoría de tareas, Opus 5 es mejor valor.
+- **Vs Sonnet 5:** volumen y tareas repetitivas en Sonnet; debug / arquitectura / multi-archivo en Opus 5.
+- **Effort y Fast mode:** empieza a effort medio. 春哥 recomienda no maxear effort sin pensar: pensar en exceso puede *bajar* la calidad. En cuanto a Fast mode: déjalo por ahora.
+- **Skills viejos / prompts demasiado rígidos:** el modelo es más «opinativo»; limpiar rails obsoletos puede mejorar el resultado.
+
+## Qué implica para usuarios de MuiRouter
+
+MuiRouter se basa en una idea simple: una clave API, un estilo de integración, el cambio de modelo como configuración.
+
+Hemos añadido `claude-opus-5` al catálogo al precio publicado 5 $ / 25 $ (caches incluidos), con el mismo markup que el resto de Claude. Apunta `model` a `claude-opus-5` (o elígelo en el Playground).
+
+Como siempre, no pases a producción hasta un chequeo de extremo a extremo. El papel de una pasarela unificada: **nuevo modelo, nuevo default, nueva curva de coste, código de app casi sin tocar.**
+
+## Conclusión
+
+Claude Opus 5 es una actualización sólida del día a día más un **salto generacional al mismo precio**: cifras oficiales y primeros retornos apuntan a un techo más alto en coding/conocimiento y menor coste por tarea. La valoración de 春哥 es otra razón para prestar atención al salto de capacidad.
+
+Si sigues en Opus 4.8, conviene subir pronto. Si el precio o las salvaguardas de Fable 5 te hicieron dudar, Opus 5 es probablemente la mejor herramienta por defecto.
+
+MuiRouter está listo: empieza ya.

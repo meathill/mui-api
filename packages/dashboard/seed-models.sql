@@ -15,6 +15,7 @@ INSERT OR REPLACE INTO models (id, provider, upstream_model_id, input_price, out
   ('gemini-2.5-flash-lite', 'google-ai-studio', 'gemini-2.5-flash-lite', 0.1, 0.4, 1.2, 0.025, NULL, NULL, NULL, NULL, NULL, NULL),
   ('gemini-3-flash', 'google-ai-studio', 'gemini-3-flash-preview', 0.5, 3, 1.2, 0.125, NULL, NULL, NULL, NULL, NULL, NULL),
   ('claude-sonnet-5', 'anthropic', 'claude-sonnet-5', 2, 10, 1.05, 0.2, 2.5, NULL, NULL, NULL, NULL, NULL),
+  ('claude-opus-5', 'anthropic', 'claude-opus-5', 5, 25, 1.05, 0.5, 6.25, NULL, NULL, NULL, NULL, NULL),
   ('claude-opus-4-8', 'anthropic', 'claude-opus-4-8', 5, 25, 1.05, 0.5, 6.25, NULL, NULL, NULL, NULL, NULL),
   ('claude-opus-4-7', 'anthropic', 'claude-opus-4-7', 5, 25, 1.05, 0.5, 6.25, NULL, NULL, NULL, NULL, NULL),
   ('claude-opus-4-6', 'anthropic', 'claude-opus-4-6', 5, 25, 1.05, 0.5, 6.25, NULL, NULL, NULL, NULL, NULL),

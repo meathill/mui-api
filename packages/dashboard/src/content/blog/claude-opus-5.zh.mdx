@@ -1,0 +1,93 @@
+2026 年 7 月 24 日，Anthropic 发布了 Claude Opus 5。官方定位：它的能力可能略逊于 Fable/Mythos，但是价格更亲民。未来可能会作为 Fable 的具体执行者。他们说：这是一个**更主动、更会自检**的模型，在编码与知识工作上逼近 Claude Fable 5 的前沿水准，**价格却只有 Fable 5 的一半**——与前代 Opus 4.8 相同：$5 / $25 每百万 token。
+
+对日常开发者来说，Anthropic 的每次更新都值得关注。过去几个月，Fable 虽强，但又贵又少，且时常被安全分类器误伤；Opus 4.8 则伴随着 Fable 发布，“降智”之说甚嚣尘上。如今，Opus 5 发布，终于有点盼头：**同价换代，能力大幅上移**。
+
+我们已经把 `claude-opus-5` 接入 MuiRouter。同一把 API Key、同一套 `/v1/chat/completions` 与 `/v1/messages`，改 model 名即可试用。
+
+## Anthropic 更新摘要
+
+根据 Anthropic 的 [Claude Opus 5 发布公告](https://www.anthropic.com/news/claude-opus-5)和 [System Card](https://www.anthropic.com/claude-opus-5-system-card)：
+
+- 模型 ID：`claude-opus-5`，API、Claude Code、Claude Platform 全平台可用。
+- **Claude Max 的新默认模型**，也是 Claude Pro 当前可调用的最强模型。
+- 定价与 Opus 4.8 一致：input $5 / 1M tokens，output $25 / 1M tokens。
+- 可选 **Fast mode**：约 2.5× 默认速度，调用价格为基价 2 倍。
+- 能力重心：长周期 agent、软件工程、知识工作、会主动验证与迭代。并非 Mythos 那样专注网络攻防，也就不需要「只敢开放给极少数伙伴」。
+
+官方已经明确：在网络安全利用类任务上，Opus 5 被有意设计为落后 Mythos 5。
+
+## 跑分与成本：关注如何让每任务的成本更低
+
+Anthropic 不强调「单 token 价格」，而是**完成同一类任务的成本更低**。这也是最近一段时间，各大厂商都在争夺的市场重点。
+
+| 方向 | Anthropic / 合作方口径 | 为什么重要 |
+| --- | --- | --- |
+| Frontier-Bench v0.1 | Opus 5 超过所有对比模型，性能约 2× Opus 4.8，且单任务成本更低 | 长周期工程任务是否真的「更强还更省」 |
+| CursorBench 3.2（max effort） | 峰值约仅低于 Fable 5 的 0.5%，单任务成本约一半 | 日常 IDE / agent 编码的主战场 |
+| ARC-AGI 3 | 得分约为次优模型的 3 倍 | 新问题、非常规推理 |
+| Zapier AutomationBench | 同等成本下通过率约 1.5× 次优；最低 effort 也常压过其他模型 | 业务自动化能否端到端跑通 |
+| OSWorld 2.0 | 任意成本点上超过其他模型；约 1/3 成本即可超过 Fable 5 峰值表现 | 电脑使用 / 桌面 agent |
+| GDPval-AA 等知识工作 | 新 SOTA（与 Fable 同档竞争） | 报表、研究、专业文档 |
+
+总结：**标价没变，但「单位有效产出」的官方曲线明显上移**。希望真的如此。
+
+## 社区早期评价：性价比是主旋律
+
+发布刚过一天，公开讨论和一线开发者圈的褒贬不一，有人觉得堪比 Fable；有人则持相反观点。按照我们的经验，这大多跟用的 Agent 和其内建的 Harness 有关。
+
+**OpenResty 作者春哥（张亦春）**对 Opus 5 评价偏高，在他独特的评价体系里，甚至能够超越 Fable。但是**独立开发者 Baye**的观点则相反，他认为 Opus 5 的思维不够深入，没有面面俱到，需要投入更多的精力去管理。
+
+社交媒体与早期试用者里，反复出现几类声音：
+
+- **「半价对标 Fable」**：API 上 Fable 5 约 $10 / $50，Opus 5 为 $5 / $25；CursorBench 上又宣称 max effort 仅差约 0.5%。对团队预算来说，这是重新算账的信号，而不是换个名字的小版本。
+- **「更会自己验、自己修」**：早期案例里常见「自己开浏览器看桌面/手机宽度、发现首屏下的商品和跑出屏幕的结账按钮再修」「修开源包管理器时找到社区补丁没盖住的根因」——大家在意的是少催几轮、少返工。
+- **「会顶嘴，但不瞎顶」**：有重构场景反馈模型会反驳有问题的设计，坚持到讲清单点分歧并给出折中方案。对 agent 工作流来说，「有判断」比「永远顺从」更省人。
+- **也有冷静派**：仍建议用自己的 harness 复测——榜单第一不等于你的合同解析 / 交易链路 / 多仓库重构一定更稳；Fast mode 速度换 2× 标价，也要按任务类型算账。
+
+综合下来，社区共识可以压成一句：**Opus 5 是目前最值得优先评估的「日常默认 Opus」**。
+
+## 价格对照
+
+| 模型 | Input | Output |
+| --- | ---: | ---: |
+| `claude-fable-5` | $10 / 1M tokens | $50 / 1M tokens |
+| `claude-opus-5` | $5 / 1M tokens | $25 / 1M tokens |
+| `claude-opus-4-8` | $5 / 1M tokens | $25 / 1M tokens |
+| `claude-sonnet-5`（限时价至 2026-08-31） | $2 / 1M tokens | $10 / 1M tokens |
+| `claude-sonnet-5`（标准价，2026-09-01 起） | $3 / 1M tokens | $15 / 1M tokens |
+
+Anthropic 标准 prompt caching 仍适用：cache 命中约 10% input，5 分钟 cache 写入约 1.25× input。和 Sonnet 5 发布时一样，**请用「完成任务的账单」而不是「贴纸单价」做决策**——官方自己也在用 effort 档位画成本–性能曲线。
+
+Fast mode：约 2.5× 速度，2× 基价，适合交互式编码；长跑批处理仍可从默认档起步。
+
+## 安全与护栏
+
+Anthropic 称 Opus 5 是迄今**对齐表现最好**的模型之一：自动化行为审计里不良行为率更低，更不易被骗去滥用，也更少做出难撤销的莽撞动作。
+
+网络安全侧：找漏洞的能力明显增强，接近 Mythos 5；**写出完整 exploit 的能力仍明显更弱**。分类器比 Fable 5 宽松——允许在源码里找漏洞，拦截更偏恶意利用的二进制扫描、渗透测试与 exploit 生成。被拦请求可回落到 Opus 4.8；企业侧仍有 Cyber Verification Program。
+
+对多数产品团队：这意味着「能帮你做防御性审计」，但「不会变成人人可用的攻击工具」。通常来说，它会比 Fable 5 更少误判用户的要求，也更贴近日常研发。
+
+## 这对开发者意味着什么
+
+- **从 Opus 4.8 迁移**：标价不变，优先用你真实的 agent / 编码 harness 对比通过率与 token 消耗，一般来说问题不大。
+- **和 Fable 5 怎么选**：需要极限长周期、且预算与护栏都能接受时，用 Fable；多数编码与知识工作，Opus 5 更划算。
+- **和 Sonnet 5 怎么选**：量大、步骤相对模式化的任务仍可走 Sonnet；精度与判断力关键的调试、架构、多文件重构，Opus 5 更合适。
+- **effort 与 Fast mode**：先中等 effort 摸清曲线；春哥建议不要无脑 max，因为过度思考反而会造成智力下降。至于 Fast mode，算了吧。
+- **旧 skills / 过度约束的系统提示**：部分早期反馈提到模型更「有主见」——删掉过时的 skills 或冗余护栏后，表现反而更干净。
+
+## 这对 MuiRouter 用户意味着什么
+
+MuiRouter 的目标一直是：一把 API Key、一种集成方式，把模型切换变成配置而不是重写。
+
+我们已经把 `claude-opus-5` 写入目录，定价与 Anthropic 公布的 $5 / $25 对齐（含 cache 价），markup 与其它 Claude 型号一致。你的应用只需把 model 改成 `claude-opus-5`（或在 Playground 里点选）；原生 Messages 与 OpenAI 兼容 Chat Completions 都可走同一网关。
+
+一如既往：请在自己的账号上端到端确认后再把生产流量切过去——上游可用性仍以 Anthropic / 网关侧为准。统一网关的作用就是：**新模型、新默认、新成本曲线，应用代码尽量不动。**
+
+## 结论
+
+Claude Opus 5 是不错的日常更新 + **同价换代**：官方数据与早期社区反馈都指向更高的编码 / 知识工作上限，以及更低的「单位任务成本」。春哥的评价更能说明其能力的提升值得我们关注。
+
+如果你还在使用 Opus 4.8，我们建议你早点升级；如果你曾因 Fable 5 的价格或护栏犹豫，Opus 5 很可能是更合适的默认工具。
+
+MuiRouter 已就绪，建议立即开始。
