@@ -17,7 +17,8 @@
     "openaiCompatibleRouter": "รองรับ OpenAI",
     "mcpRouter": "เราเตอร์ MCP",
     "bestLlmGateway": "LLM Gateway ที่ดีที่สุด",
-    "openrouterAlternatives": "ทางเลือกแทน OpenRouter"
+    "openrouterAlternatives": "ทางเลือกแทน OpenRouter",
+    "opencode": "opencode"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — เราเตอร์เดียว",
@@ -416,7 +417,15 @@
     "empty": "ยังไม่มีโมเดล",
     "pagination": "ทั้งหมด {count} รายการ หน้า {page}/{totalPages}",
     "prev": "ก่อนหน้า",
-    "next": "ถัดไป"
+    "next": "ถัดไป",
+    "metadataSection": "เมทาดาทาสาธารณะ (สำหรับการค้นพบโมเดล)",
+    "metadataHint": "ป้อนให้ GET /v1/models และ models.dev โดยปกติ scripts/fetch-model-metadata.ts จะเติมให้อัตโนมัติ ที่นี่ใช้แก้ไขสำรองเท่านั้น",
+    "displayName": "ชื่อที่แสดง",
+    "displayNamePlaceholder": "เช่น Claude Opus 5 หากเว้นว่างจะใช้ ID ของโมเดล",
+    "contextLength": "ความยาวบริบท (โทเคน)",
+    "maxOutputTokens": "เอาต์พุตสูงสุด (โทเคน)",
+    "metadataJson": "ความสามารถและโมดาลิตี (JSON)",
+    "metadataJsonPlaceholder": "{\"reasoning\": true, \"toolCall\": true, \"modalities\": {\"input\": [\"text\"], \"output\": [\"text\"]}}"
   },
   "adminUsers": {
     "title": "จัดการผู้ใช้",
@@ -665,11 +674,26 @@
     ],
     "relatedTitle": "สำรวจเราเตอร์",
     "related": [
-      { "href": "/llm-router", "label": "เราเตอร์ LLM" },
-      { "href": "/openai-compatible-router", "label": "เราเตอร์ที่รองรับ OpenAI" },
-      { "href": "/mcp-router", "label": "เราเตอร์และเซิร์ฟเวอร์ MCP" },
-      { "href": "/pricing", "label": "ราคาคิดตามโทเค็น" },
-      { "href": "/best-llm-gateway", "label": "LLM Gateway ที่ดีที่สุด 2026" }
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "เราเตอร์ที่รองรับ OpenAI"
+      },
+      {
+        "href": "/mcp-router",
+        "label": "เราเตอร์และเซิร์ฟเวอร์ MCP"
+      },
+      {
+        "href": "/pricing",
+        "label": "ราคาคิดตามโทเค็น"
+      },
+      {
+        "href": "/best-llm-gateway",
+        "label": "LLM Gateway ที่ดีที่สุด 2026"
+      }
     ],
     "ctaTitle": "Route โมเดลแรกของคุณได้ในไม่กี่นาที",
     "ctaDescription": "สร้างบัญชีฟรี รับคีย์ API แล้วชี้ OpenAI SDK ของคุณไปที่ MuiRouter",
@@ -720,13 +744,34 @@
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
-      { "href": "/ai-router", "label": "เราเตอร์ AI API" },
-      { "href": "/openai-compatible-router", "label": "เราเตอร์ที่รองรับ OpenAI" },
-      { "href": "/mcp-router", "label": "เราเตอร์และเซิร์ฟเวอร์ MCP" },
-      { "href": "/claude-api-gateway", "label": "Claude API Gateway" },
-      { "href": "/gpt-api-gateway", "label": "GPT API Gateway" },
-      { "href": "/gemini-api-gateway", "label": "Gemini API Gateway" },
-      { "href": "/grok-api-gateway", "label": "Grok API Gateway" }
+      {
+        "href": "/ai-router",
+        "label": "เราเตอร์ AI API"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "เราเตอร์ที่รองรับ OpenAI"
+      },
+      {
+        "href": "/mcp-router",
+        "label": "เราเตอร์และเซิร์ฟเวอร์ MCP"
+      },
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API Gateway"
+      },
+      {
+        "href": "/gpt-api-gateway",
+        "label": "GPT API Gateway"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gemini API Gateway"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Grok API Gateway"
+      }
     ],
     "ctaTitle": "Route ทุก LLM ผ่านคีย์เดียว",
     "ctaDescription": "สมัครฟรี เริ่มบน MiMo แล้วเพิ่ม OpenAI, Claude และ Gemini เมื่อคุณต้องการ",
@@ -777,10 +822,22 @@
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
-      { "href": "/ai-router", "label": "เราเตอร์ AI API" },
-      { "href": "/llm-router", "label": "เราเตอร์ LLM" },
-      { "href": "/pricing", "label": "ราคาคิดตามโทเค็น" },
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" }
+      {
+        "href": "/ai-router",
+        "label": "เราเตอร์ AI API"
+      },
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      },
+      {
+        "href": "/pricing",
+        "label": "ราคาคิดตามโทเค็น"
+      },
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      }
     ],
     "ctaTitle": "ชี้ Base URL ของคุณไปที่ MuiRouter",
     "ctaDescription": "รับคีย์ API ฟรี แล้ว route คำขอที่รองรับ OpenAI ครั้งแรกของคุณได้ในไม่กี่นาที",
@@ -831,10 +888,22 @@
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
-      { "href": "/mcp", "label": "คู่มือการตั้งค่า MCP" },
-      { "href": "/ai-router", "label": "เราเตอร์ AI API" },
-      { "href": "/llm-router", "label": "เราเตอร์ LLM" },
-      { "href": "/claude-api-gateway", "label": "Claude API Gateway" }
+      {
+        "href": "/mcp",
+        "label": "คู่มือการตั้งค่า MCP"
+      },
+      {
+        "href": "/ai-router",
+        "label": "เราเตอร์ AI API"
+      },
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      },
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API Gateway"
+      }
     ],
     "ctaTitle": "เชื่อมไคลเอนต์ AI ของคุณเข้ากับ MuiRouter",
     "ctaDescription": "สร้างบัญชีฟรี สร้างคีย์ แล้วเพิ่มเซิร์ฟเวอร์ MCP ลงใน Claude, Cursor หรือ Cline",
@@ -885,10 +954,22 @@
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
-      { "href": "/gpt-api-gateway", "label": "GPT API Gateway" },
-      { "href": "/gemini-api-gateway", "label": "Gemini API Gateway" },
-      { "href": "/grok-api-gateway", "label": "Grok API Gateway" },
-      { "href": "/llm-router", "label": "เราเตอร์ LLM" }
+      {
+        "href": "/gpt-api-gateway",
+        "label": "GPT API Gateway"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gemini API Gateway"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Grok API Gateway"
+      },
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      }
     ],
     "ctaTitle": "เริ่มเรียก Claude วันนี้",
     "ctaDescription": "สร้างบัญชีฟรี รับคีย์ แล้วชี้ Claude Code หรือ SDK ของคุณมาที่ MuiRouter ได้ในไม่กี่นาที",
@@ -939,10 +1020,22 @@
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
-      { "href": "/claude-api-gateway", "label": "Claude API Gateway" },
-      { "href": "/gemini-api-gateway", "label": "Gemini API Gateway" },
-      { "href": "/grok-api-gateway", "label": "Grok API Gateway" },
-      { "href": "/llm-router", "label": "เราเตอร์ LLM" }
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API Gateway"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gemini API Gateway"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Grok API Gateway"
+      },
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      }
     ],
     "ctaTitle": "เริ่มเรียก GPT วันนี้",
     "ctaDescription": "สร้างบัญชีฟรี รับคีย์ แล้วชี้ OpenAI SDK หรือ Codex CLI ของคุณมาที่ MuiRouter ได้ในไม่กี่นาที",
@@ -993,10 +1086,22 @@
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
-      { "href": "/claude-api-gateway", "label": "Claude API Gateway" },
-      { "href": "/gpt-api-gateway", "label": "GPT API Gateway" },
-      { "href": "/grok-api-gateway", "label": "Grok API Gateway" },
-      { "href": "/llm-router", "label": "เราเตอร์ LLM" }
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API Gateway"
+      },
+      {
+        "href": "/gpt-api-gateway",
+        "label": "GPT API Gateway"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Grok API Gateway"
+      },
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      }
     ],
     "ctaTitle": "เริ่มเรียก Gemini วันนี้",
     "ctaDescription": "สร้างบัญชีฟรี รับคีย์ แล้วส่งคำขอ Gemini แรกของคุณได้ในไม่กี่นาที",
@@ -1047,10 +1152,22 @@
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
-      { "href": "/claude-api-gateway", "label": "Claude API Gateway" },
-      { "href": "/gpt-api-gateway", "label": "GPT API Gateway" },
-      { "href": "/gemini-api-gateway", "label": "Gemini API Gateway" },
-      { "href": "/llm-router", "label": "เราเตอร์ LLM" }
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API Gateway"
+      },
+      {
+        "href": "/gpt-api-gateway",
+        "label": "GPT API Gateway"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gemini API Gateway"
+      },
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      }
     ],
     "ctaTitle": "เริ่มเรียก Grok วันนี้",
     "ctaDescription": "สร้างบัญชีฟรี รับคีย์ แล้วเรียกแชท สร้างภาพ หรือวิดีโอของ Grok ได้ในไม่กี่นาที",
@@ -1124,10 +1241,22 @@
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
-      { "href": "/llm-router", "label": "เราเตอร์ LLM" },
-      { "href": "/ai-router", "label": "เราเตอร์ AI API" },
-      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
-      { "href": "/pricing", "label": "ราคา" }
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      },
+      {
+        "href": "/ai-router",
+        "label": "เราเตอร์ AI API"
+      },
+      {
+        "href": "/litellm-vs-openrouter",
+        "label": "LiteLLM vs OpenRouter"
+      },
+      {
+        "href": "/pricing",
+        "label": "ราคา"
+      }
     ],
     "ctaTitle": "ตรวจสอบตัวเลขด้วยตัวเอง",
     "ctaDescription": "สร้างบัญชีฟรีแล้วดูราคาจริงของแต่ละโมเดลก่อนตัดสินใจย้าย",
@@ -1210,10 +1339,22 @@
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
-      { "href": "/llm-router", "label": "เราเตอร์ LLM" },
-      { "href": "/ai-router", "label": "เราเตอร์ AI API" },
-      { "href": "/pricing", "label": "ราคา" }
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      },
+      {
+        "href": "/ai-router",
+        "label": "เราเตอร์ AI API"
+      },
+      {
+        "href": "/pricing",
+        "label": "ราคา"
+      }
     ],
     "ctaTitle": "ตรวจสอบตัวเลขด้วยตัวเอง",
     "ctaDescription": "สร้างบัญชีฟรีแล้วดูราคาจริงของแต่ละโมเดลก่อนตัดสินใจเลือก",
@@ -1292,10 +1433,22 @@
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
-      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
-      { "href": "/llm-router", "label": "เราเตอร์ LLM" },
-      { "href": "/best-llm-gateway", "label": "LLM Gateway ที่ดีที่สุด 2026" }
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/litellm-vs-openrouter",
+        "label": "LiteLLM vs OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      },
+      {
+        "href": "/best-llm-gateway",
+        "label": "LLM Gateway ที่ดีที่สุด 2026"
+      }
     ],
     "ctaTitle": "ลองทางเลือกแบบ managed",
     "ctaDescription": "สร้างบัญชี MuiRouter ฟรีแล้วเรียก Claude, GPT, Gemini และ Grok จากคีย์เดียวได้ในไม่กี่นาที",
@@ -1386,10 +1539,22 @@
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
-      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
-      { "href": "/openrouter-alternatives", "label": "ทางเลือกแทน OpenRouter" },
-      { "href": "/llm-router", "label": "เราเตอร์ LLM" }
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/litellm-vs-openrouter",
+        "label": "LiteLLM vs OpenRouter"
+      },
+      {
+        "href": "/openrouter-alternatives",
+        "label": "ทางเลือกแทน OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      }
     ],
     "ctaTitle": "ลองตัวเลือกแบบ managed",
     "ctaDescription": "สร้างบัญชี MuiRouter ฟรีแล้วเรียกโมเดลหลักทั้งหมดจากคีย์เดียวได้ในไม่กี่นาที",
@@ -1458,6 +1623,42 @@
       {
         "href": "/pricing",
         "label": "ราคาตามโทเค็น"
+      }
+    ]
+  },
+  "opencode": {
+    "metadata": {
+      "title": "ใช้ MuiRouter กับ opencode",
+      "description": "เชื่อม MuiRouter เข้ากับ opencode: ใช้ API key เดียวเรียก Claude, GPT, Gemini, Grok, Kimi, MiMo และอื่น ๆ คิดเงินตามโทเคน ไม่มีค่าสมาชิก"
+    }
+  },
+  "opencodePage": {
+    "title": "ใช้ MuiRouter กับ opencode",
+    "intro": "opencode คือผู้ช่วยเขียนโค้ดด้วย AI บนเทอร์มินัล เมื่อต่อกับ MuiRouter คีย์เดียวก็ใช้ได้ทั้ง Claude, GPT, Gemini, Grok, Kimi และ MiMo จ่ายตามโทเคนที่ใช้จริง ไม่ต้องเปิดบัญชีแยกทีละเจ้า",
+    "keyTitle": "1. เตรียม API key",
+    "keyDesc": "สร้างคีย์ที่หน้า API Keys ในแดชบอร์ด แล้วตั้งเป็นตัวแปรสภาพแวดล้อม",
+    "configTitle": "2. เพิ่มการตั้งค่า provider",
+    "configDesc": "provider แบบกำหนดเองของ opencode ต้องระบุรายการโมเดลอย่างชัดเจน เพิ่มส่วนนี้ลงในไฟล์ตั้งค่า:",
+    "configNote": "ที่นี่แสดงเพียงโมเดลยอดนิยมบางตัว เพิ่มเติมได้ในรูปแบบเดียวกัน ดูรายการและราคาทั้งหมดได้ที่",
+    "pricingLink": "หน้าราคา",
+    "runTitle": "3. เปิดใช้งานและเลือกโมเดล",
+    "runDesc": "รีสตาร์ต opencode แล้วพิมพ์ /models เพื่อดูโมเดลของ MuiRouter",
+    "discoveryTitle": "ทำไมต้องพิมพ์รายการโมเดลเอง",
+    "discoveryDesc": "opencode ไม่เรียก endpoint /v1/models ของ provider",
+    "discoveryBody": "รายการโมเดลของ provider ที่มากับ opencode มาจาก models.dev ซึ่งเป็นฐานข้อมูลโมเดลแบบโอเพนซอร์ส ส่วน provider แบบกำหนดเองต้องประกาศเองในไฟล์ตั้งค่า ขณะนี้เรากำลังดำเนินการนำ MuiRouter เข้าสู่ models.dev เมื่อเสร็จแล้วเพียงตั้งค่า MUIROUTER_API_KEY โมเดลก็จะปรากฏเอง และส่วนตั้งค่านี้จะไม่จำเป็นอีกต่อไป",
+    "relatedTitle": "ที่เกี่ยวข้อง",
+    "related": [
+      {
+        "href": "/mcp",
+        "label": "เซิร์ฟเวอร์ MCP"
+      },
+      {
+        "href": "/pricing",
+        "label": "คิดเงินตามโทเคน"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "API ที่เข้ากันได้กับ OpenAI"
       }
     ]
   }

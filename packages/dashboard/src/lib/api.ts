@@ -169,6 +169,10 @@ export interface ModelInfo {
   id: string;
   provider: string;
   upstreamModelId: string | null;
+  displayName: string | null;
+  contextLength: number | null;
+  maxOutputTokens: number | null;
+  metadataJson: string | null;
   inputPrice: number | null;
   outputPrice: number | null;
   markupRate: number | null;
@@ -188,6 +192,10 @@ export interface ModelCreateInput {
   inputPrice: number;
   outputPrice: number;
   markupRate?: number;
+  displayName?: string | null;
+  contextLength?: number | null;
+  maxOutputTokens?: number | null;
+  metadataJson?: string | null;
   cachedInputPrice?: number | null;
   cacheWritePrice?: number | null;
   longContextThresholdTokens?: number | null;

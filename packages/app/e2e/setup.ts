@@ -15,7 +15,7 @@ await db.batch([
   ),
   db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS user_email_unique ON user (email)'),
   db.prepare(
-    'CREATE TABLE IF NOT EXISTS models (id TEXT PRIMARY KEY NOT NULL, provider TEXT NOT NULL, upstream_model_id TEXT, input_price REAL, output_price REAL, markup_rate REAL DEFAULT 1.2, cached_input_price REAL, cache_write_price REAL, long_context_threshold_tokens INTEGER, long_context_input_price REAL, long_context_cached_input_price REAL, long_context_cache_write_price REAL, long_context_output_price REAL)',
+    'CREATE TABLE IF NOT EXISTS models (id TEXT PRIMARY KEY NOT NULL, provider TEXT NOT NULL, upstream_model_id TEXT, display_name TEXT, context_length INTEGER, max_output_tokens INTEGER, metadata_json TEXT, input_price REAL, output_price REAL, markup_rate REAL DEFAULT 1.2, cached_input_price REAL, cache_write_price REAL, long_context_threshold_tokens INTEGER, long_context_input_price REAL, long_context_cached_input_price REAL, long_context_cache_write_price REAL, long_context_output_price REAL)',
   ),
   db.prepare(
     "CREATE TABLE IF NOT EXISTS usage_logs (id TEXT PRIMARY KEY NOT NULL, user_id TEXT, api_key_id TEXT, model_id TEXT, input_tokens INTEGER, output_tokens INTEGER, cached_input_tokens INTEGER DEFAULT 0, cache_write_tokens INTEGER DEFAULT 0, tier TEXT DEFAULT 'standard', cost REAL, created_at INTEGER DEFAULT (unixepoch()))",
@@ -61,8 +61,10 @@ await db.batch([
   ),
 
   // 种子数据：测试模型
+  // gpt-4o 带全套对外元数据，用于验证 GET /v1/models 的增强字段；其余行留空，
+  // 顺带覆盖「元数据未录入时只返回 OpenAI 官方四字段」这条路径。
   db.prepare(
-    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('gpt-4o', 'openai', 'gpt-4o', 0.0025, 0.01, 1.2)",
+    `INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, display_name, context_length, max_output_tokens, metadata_json) VALUES ('gpt-4o', 'openai', 'gpt-4o', 0.0025, 0.01, 1.2, 'GPT-4o', 128000, 16384, '{"attachment":true,"reasoning":false,"toolCall":true,"openWeights":false,"releaseDate":"2024-05-13","modalities":{"input":["text","image"],"output":["text"]}}')`,
   ),
   db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('gpt-image-2', 'openai', 'gpt-image-2', 8, 30, 1.2)",

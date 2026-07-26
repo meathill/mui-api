@@ -382,3 +382,32 @@ API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0）
 共享 D1 的 schema、migration 和迁移脚本统一由 `packages/shared-db` 维护。`packages/app` 和 `packages/dashboard` 只保留各自的运行时 binding，避免多个子项目各自产生一份 SQL 历史或各自维护迁移入口。
 
 本地开发时，`packages/shared-db db:migrate:local`、`packages/app dev` 与 `packages/dashboard dev` 都应指向仓库根目录下同一份 `.wrangler/state/v3`。同时显式关闭 remote bindings，避免本地代码误连远程 D1 / KV，导致“看起来在本地调试，实际上在修改远程数据”。
+
+## 客户端模型自动发现
+
+### 两条互不相通的发现路径
+
+客户端拿到模型列表的方式分两派，接入新客户端前先确认它属于哪一派：
+
+- **调 `GET /v1/models`**：Cherry Studio、LobeChat、Cline、Roo Code、Continue、Chatbox。响应由 `packages/app/src/lib/model-public-view.ts` 组装，字段命名跟随 OpenRouter 的事实标准（`context_length` / `pricing.prompt`），识别率最高。
+- **读 [models.dev](https://models.dev)**：opencode 等基于 Vercel AI SDK 的客户端。它们**不会**调 provider 的 `/v1/models`（[issue #6231](https://github.com/anomalyco/opencode/issues/6231) 至今未实现），内置 provider 的模型列表全部来自 models.dev 这个开源 TOML 数据库；自定义 provider 则必须由用户在配置里手写模型清单。
+
+所以「让客户端只填 endpoint + key」这件事，对第二派**只能靠进 models.dev**，改我们自己的接口没有任何用。
+
+### models.dev 收录与维护
+
+- 提交材料由 `packages/app/scripts/gen-models-dev-toml.ts` 生成，产物在 `packages/app/dist/models-dev/`，需人工提 PR 到 [sst/models.dev](https://github.com/sst/models.dev)。
+- provider 身份 `id=muirouter` / `env=MUIROUTER_API_KEY`，**合并后改不了**。
+- TOML 里的 `[cost]` 是乘过 `markupRate` 的用户实付价，与 `/v1/models` 的 `pricing` 同源。这意味着我们的价格公开可见——所有同类 router（requesty / fastrouter / orcarouter）都是如此，是这个生态的常态。
+- **每次加模型或调价后要重跑生成器并再提一次 PR**。models.dev 是静态 TOML + PR，没有让 provider 自助同步的机制，这是它的固有成本。
+- 本机没有 bun 跑不了上游的 `script/validate.ts`；替代校验是用 python `tomllib` 解析全部产物 + 比对已合并条目的字段集合。
+
+### 模型元数据从哪来
+
+`models` 表的 `display_name` / `context_length` / `max_output_tokens` / `metadata_json` 由 `packages/app/scripts/fetch-model-metadata.ts` 从 models.dev 的 `api.json` 回填——我们转售的模型在那边基本都有第一方条目，抄元数据、价格用自己的，比手写靠谱。
+
+几个容易踩的点：
+- 匹配索引要**同时按完整 key 和裸名建**：workers-ai 的 `upstreamModelId` 是 `@cf/qwen/qwen3-30b-a3b-fp8` 这种完整名，只按裸名会漏。
+- 必须**优先取第一方 provider 的条目**。同一模型名在几十个转售商下都有条目，但只有原厂的能力标记和上下文长度可信。
+- 回填脚本用 `basic` 投影读 D1（只取 `id/provider/upstream_model_id`）——它按定义要在元数据列还没建起来的库上跑，拿全投影会直接 SQLITE_ERROR。
+- **生成 migration 要用 `--remote`**。本地 D1 常年落后于生产（seed 改了但没重新灌），按本地生成会静默漏掉最新模型。

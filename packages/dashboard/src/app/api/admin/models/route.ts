@@ -1,3 +1,4 @@
+import { parseModelMetadata } from '@muirouter/shared-db/model-metadata';
 import { NextResponse } from 'next/server';
 import { models } from '@/db/app-schema';
 import { requireAdmin } from '@/lib/admin';
@@ -11,6 +12,10 @@ interface ModelWriteBody {
   inputPrice?: number;
   outputPrice?: number;
   markupRate?: number;
+  displayName?: string | null;
+  contextLength?: number | null;
+  maxOutputTokens?: number | null;
+  metadataJson?: string | null;
   cachedInputPrice?: number | null;
   cacheWritePrice?: number | null;
   longContextThresholdTokens?: number | null;
@@ -28,6 +33,8 @@ const OPTIONAL_PRICE_FIELDS = [
   'longContextCacheWritePrice',
   'longContextOutputPrice',
 ] as const;
+
+const POSITIVE_INT_FIELDS = ['contextLength', 'maxOutputTokens'] as const;
 
 export function validateModelBody(body: ModelWriteBody): NextResponse | null {
   if (body.inputPrice != null && body.inputPrice < 0) {
@@ -49,6 +56,17 @@ export function validateModelBody(body: ModelWriteBody): NextResponse | null {
     if (!Number.isInteger(body.longContextThresholdTokens) || body.longContextThresholdTokens <= 0) {
       return NextResponse.json({ error: '长上下文档位阈值必须为正整数' }, { status: 400 });
     }
+  }
+  for (const field of POSITIVE_INT_FIELDS) {
+    const v = body[field];
+    if (v != null && (!Number.isInteger(v) || v <= 0)) {
+      return NextResponse.json({ error: `${field} 必须为正整数` }, { status: 400 });
+    }
+  }
+  // 脏元数据会一路流到 /v1/models 和 models.dev 的 TOML 生成器，在入口就拦住。
+  const metadata = parseModelMetadata(body.metadataJson);
+  if (!metadata.ok) {
+    return NextResponse.json({ error: `模型元数据无效：${metadata.error}` }, { status: 400 });
   }
   return null;
 }

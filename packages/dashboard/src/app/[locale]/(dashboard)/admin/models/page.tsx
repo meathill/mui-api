@@ -17,7 +17,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAsyncResource } from '@/hooks/use-async-resource';
 import { api, type ModelCreateInput, type ModelInfo } from '@/lib/api';
-import { EMPTY_FORM, type ModelFormData, ModelFormDialog } from './model-form-dialog';
+import { ModelFormDialog } from './model-form-dialog';
+import { EMPTY_FORM, type ModelFormData } from './model-form-types';
 import { ModelTable, type SortDirection, type SortField } from './model-table';
 
 const PAGE_SIZE = 20;
@@ -59,6 +60,7 @@ export default function ModelsPage() {
 
   // 高级定价折叠区
   const [advancedOpen, setAdvancedOpen] = useState(false);
+  const [metadataOpen, setMetadataOpen] = useState(false);
 
   const fetchModels = useCallback(async () => (await api.getModels()).models, []);
   const { data: models, loading, error, reload: loadModels } = useAsyncResource<ModelInfo[]>(fetchModels, []);
@@ -120,6 +122,10 @@ export default function ModelsPage() {
       inputPrice: String(model.inputPrice ?? ''),
       outputPrice: String(model.outputPrice ?? ''),
       markupRate: String(model.markupRate ?? '1.2'),
+      displayName: model.displayName ?? '',
+      contextLength: model.contextLength == null ? '' : String(model.contextLength),
+      maxOutputTokens: model.maxOutputTokens == null ? '' : String(model.maxOutputTokens),
+      metadataJson: model.metadataJson ?? '',
       cachedInputPrice: model.cachedInputPrice == null ? '' : String(model.cachedInputPrice),
       cacheWritePrice: model.cacheWritePrice == null ? '' : String(model.cacheWritePrice),
       longContextThresholdTokens:
@@ -134,6 +140,7 @@ export default function ModelsPage() {
     setAdvancedOpen(
       model.cachedInputPrice != null || model.cacheWritePrice != null || model.longContextThresholdTokens != null,
     );
+    setMetadataOpen(model.metadataJson != null || model.contextLength != null);
     setDialogOpen(true);
     setFormMsg('');
   }
@@ -142,6 +149,7 @@ export default function ModelsPage() {
     setEditingId(null);
     setForm(EMPTY_FORM);
     setAdvancedOpen(false);
+    setMetadataOpen(false);
     setDialogOpen(true);
     setFormMsg('');
   }
@@ -156,6 +164,10 @@ export default function ModelsPage() {
       inputPrice: Number(form.inputPrice),
       outputPrice: Number(form.outputPrice),
       markupRate: Number(form.markupRate) || 1.2,
+      displayName: form.displayName.trim() || null,
+      contextLength: parseOptionalNumber(form.contextLength),
+      maxOutputTokens: parseOptionalNumber(form.maxOutputTokens),
+      metadataJson: form.metadataJson.trim() || null,
       cachedInputPrice: parseOptionalNumber(form.cachedInputPrice),
       cacheWritePrice: parseOptionalNumber(form.cacheWritePrice),
       longContextThresholdTokens: parseOptionalNumber(form.longContextThresholdTokens),
@@ -231,6 +243,8 @@ export default function ModelsPage() {
         onUpdateField={updateField}
         advancedOpen={advancedOpen}
         onToggleAdvanced={() => setAdvancedOpen((v) => !v)}
+        metadataOpen={metadataOpen}
+        onToggleMetadata={() => setMetadataOpen((v) => !v)}
         formMsg={formMsg}
         onSubmit={handleSubmit}
       />

@@ -2,6 +2,14 @@ import { GROK_IMAGE_MODEL_IDS } from '@muirouter/shared-db/grok-image';
 import { GROK_VIDEO_MODEL_IDS } from '@muirouter/shared-db/grok-video';
 import type { ModelInfo } from '@/lib/api';
 
+/** built-in 模型不参与 models.dev 收录，对外元数据一律留空。 */
+const NO_METADATA = {
+  displayName: null,
+  contextLength: null,
+  maxOutputTokens: null,
+  metadataJson: null,
+} as const;
+
 const NO_TIER_PRICING = {
   cachedInputPrice: null,
   cacheWritePrice: null,
@@ -20,6 +28,7 @@ export const BUILT_IN_IMAGE_MODELS: ModelInfo[] = [
     inputPrice: 8,
     outputPrice: 30,
     markupRate: 1.2,
+    ...NO_METADATA,
     ...NO_TIER_PRICING,
   },
   ...GROK_IMAGE_MODEL_IDS.map((id) => ({
@@ -29,6 +38,7 @@ export const BUILT_IN_IMAGE_MODELS: ModelInfo[] = [
     inputPrice: 0,
     outputPrice: 1,
     markupRate: 1.05,
+    ...NO_METADATA,
     ...NO_TIER_PRICING,
   })),
 ];
@@ -41,6 +51,7 @@ export const BUILT_IN_TTS_MODELS: ModelInfo[] = [
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    ...NO_METADATA,
     ...NO_TIER_PRICING,
   },
   {
@@ -50,6 +61,7 @@ export const BUILT_IN_TTS_MODELS: ModelInfo[] = [
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    ...NO_METADATA,
     ...NO_TIER_PRICING,
   },
   {
@@ -59,6 +71,7 @@ export const BUILT_IN_TTS_MODELS: ModelInfo[] = [
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    ...NO_METADATA,
     ...NO_TIER_PRICING,
   },
   {
@@ -68,6 +81,7 @@ export const BUILT_IN_TTS_MODELS: ModelInfo[] = [
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    ...NO_METADATA,
     ...NO_TIER_PRICING,
   },
 ];
@@ -79,6 +93,7 @@ export const BUILT_IN_VIDEO_MODELS: ModelInfo[] = GROK_VIDEO_MODEL_IDS.map((id) 
   inputPrice: 0,
   outputPrice: 1,
   markupRate: 1.05,
+  ...NO_METADATA,
   ...NO_TIER_PRICING,
 }));
 

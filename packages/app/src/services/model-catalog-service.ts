@@ -2,6 +2,14 @@ import type { Database } from '../db';
 import { type Model, models } from '../db/schema';
 import type { KVService } from './kv-service';
 
+/** built-in 模型不参与 models.dev 收录，元数据一律留空。 */
+const NO_METADATA = {
+  displayName: null,
+  contextLength: null,
+  maxOutputTokens: null,
+  metadataJson: null,
+} as const;
+
 const ZERO_TIER_PRICING = {
   cachedInputPrice: null,
   cacheWritePrice: null,
@@ -25,6 +33,7 @@ const BUILT_IN_MODELS: Model[] = [
     inputPrice: 8,
     outputPrice: 30,
     markupRate: 1.2,
+    ...NO_METADATA,
     ...ZERO_TIER_PRICING,
   },
   {
@@ -34,6 +43,7 @@ const BUILT_IN_MODELS: Model[] = [
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    ...NO_METADATA,
     ...ZERO_TIER_PRICING,
   },
   {
@@ -43,6 +53,7 @@ const BUILT_IN_MODELS: Model[] = [
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    ...NO_METADATA,
     ...ZERO_TIER_PRICING,
   },
   {
@@ -52,6 +63,7 @@ const BUILT_IN_MODELS: Model[] = [
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    ...NO_METADATA,
     ...ZERO_TIER_PRICING,
   },
   {
@@ -61,6 +73,7 @@ const BUILT_IN_MODELS: Model[] = [
     inputPrice: 0,
     outputPrice: 0,
     markupRate: 1.2,
+    ...NO_METADATA,
     ...ZERO_TIER_PRICING,
   },
 ];

@@ -15,41 +15,10 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import type { ModelFormData } from './model-form-types';
+import { ModelMetadataFields } from './model-metadata-fields';
 
 const PROVIDERS = ['openai', 'anthropic', 'google-ai-studio', 'moonshot', 'workers-ai', 'xiaomi-mimo', 'grok'];
-
-export interface ModelFormData {
-  id: string;
-  provider: string;
-  upstreamModelId: string;
-  inputPrice: string;
-  outputPrice: string;
-  markupRate: string;
-  // 空字符串表示未配置 / 缺省
-  cachedInputPrice: string;
-  cacheWritePrice: string;
-  longContextThresholdTokens: string;
-  longContextInputPrice: string;
-  longContextCachedInputPrice: string;
-  longContextCacheWritePrice: string;
-  longContextOutputPrice: string;
-}
-
-export const EMPTY_FORM: ModelFormData = {
-  id: '',
-  provider: 'openai',
-  upstreamModelId: '',
-  inputPrice: '',
-  outputPrice: '',
-  markupRate: '1.2',
-  cachedInputPrice: '',
-  cacheWritePrice: '',
-  longContextThresholdTokens: '',
-  longContextInputPrice: '',
-  longContextCachedInputPrice: '',
-  longContextCacheWritePrice: '',
-  longContextOutputPrice: '',
-};
 
 export function ModelFormDialog({
   open,
@@ -59,6 +28,8 @@ export function ModelFormDialog({
   onUpdateField,
   advancedOpen,
   onToggleAdvanced,
+  metadataOpen,
+  onToggleMetadata,
   formMsg,
   onSubmit,
 }: {
@@ -69,6 +40,8 @@ export function ModelFormDialog({
   onUpdateField: (field: keyof ModelFormData, value: string) => void;
   advancedOpen: boolean;
   onToggleAdvanced: () => void;
+  metadataOpen: boolean;
+  onToggleMetadata: () => void;
   formMsg: string;
   onSubmit: (e: FormEvent) => void;
 }) {
@@ -237,6 +210,13 @@ export function ModelFormDialog({
               </div>
             </>
           )}
+
+          <ModelMetadataFields
+            form={form}
+            onUpdateField={onUpdateField}
+            open={metadataOpen}
+            onToggle={onToggleMetadata}
+          />
         </form>
         <DialogFooter variant="bare">
           {formMsg && <span className="text-sm text-muted-foreground mr-auto">{formMsg}</span>}

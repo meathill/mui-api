@@ -17,7 +17,8 @@
     "openaiCompatibleRouter": "Compatível com OpenAI",
     "mcpRouter": "Router MCP",
     "bestLlmGateway": "Melhor gateway LLM",
-    "openrouterAlternatives": "Alternativas ao OpenRouter"
+    "openrouterAlternatives": "Alternativas ao OpenRouter",
+    "opencode": "opencode"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — um único router",
@@ -416,7 +417,15 @@
     "empty": "Nenhum modelo ainda",
     "pagination": "Total {count} registros, página {page}/{totalPages}",
     "prev": "Anterior",
-    "next": "Próximo"
+    "next": "Próximo",
+    "metadataSection": "Metadados públicos (descoberta de modelos)",
+    "metadataHint": "Alimenta GET /v1/models e models.dev. Normalmente preenchido por scripts/fetch-model-metadata.ts; edite aqui apenas como alternativa.",
+    "displayName": "Nome de exibição",
+    "displayNamePlaceholder": "ex.: Claude Opus 5; vazio usa o ID do modelo",
+    "contextLength": "Comprimento de contexto (tokens)",
+    "maxOutputTokens": "Saída máx. (tokens)",
+    "metadataJson": "Capacidades e modalidades (JSON)",
+    "metadataJsonPlaceholder": "{\"reasoning\": true, \"toolCall\": true, \"modalities\": {\"input\": [\"text\"], \"output\": [\"text\"]}}"
   },
   "adminUsers": {
     "title": "Gerenciamento de usuários",
@@ -665,11 +674,26 @@
     ],
     "relatedTitle": "Explore o router",
     "related": [
-      { "href": "/llm-router", "label": "Router LLM" },
-      { "href": "/openai-compatible-router", "label": "Router compatível com OpenAI" },
-      { "href": "/mcp-router", "label": "Router e servidor MCP" },
-      { "href": "/pricing", "label": "Preços por token" },
-      { "href": "/best-llm-gateway", "label": "Melhor gateway LLM 2026" }
+      {
+        "href": "/llm-router",
+        "label": "Router LLM"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "Router compatível com OpenAI"
+      },
+      {
+        "href": "/mcp-router",
+        "label": "Router e servidor MCP"
+      },
+      {
+        "href": "/pricing",
+        "label": "Preços por token"
+      },
+      {
+        "href": "/best-llm-gateway",
+        "label": "Melhor gateway LLM 2026"
+      }
     ],
     "ctaTitle": "Roteie seu primeiro modelo em minutos",
     "ctaDescription": "Crie uma conta gratuita, obtenha uma API Key e aponte seu SDK OpenAI para o MuiRouter.",
@@ -720,13 +744,34 @@
     ],
     "relatedTitle": "Relacionados",
     "related": [
-      { "href": "/ai-router", "label": "Router de API de IA" },
-      { "href": "/openai-compatible-router", "label": "Router compatível com OpenAI" },
-      { "href": "/mcp-router", "label": "Router e servidor MCP" },
-      { "href": "/claude-api-gateway", "label": "Gateway API do Claude" },
-      { "href": "/gpt-api-gateway", "label": "Gateway API do GPT" },
-      { "href": "/gemini-api-gateway", "label": "Gateway API do Gemini" },
-      { "href": "/grok-api-gateway", "label": "Gateway API do Grok" }
+      {
+        "href": "/ai-router",
+        "label": "Router de API de IA"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "Router compatível com OpenAI"
+      },
+      {
+        "href": "/mcp-router",
+        "label": "Router e servidor MCP"
+      },
+      {
+        "href": "/claude-api-gateway",
+        "label": "Gateway API do Claude"
+      },
+      {
+        "href": "/gpt-api-gateway",
+        "label": "Gateway API do GPT"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gateway API do Gemini"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Gateway API do Grok"
+      }
     ],
     "ctaTitle": "Roteie cada LLM por uma única chave",
     "ctaDescription": "Cadastre-se grátis, comece no MiMo e adicione OpenAI, Claude e Gemini sempre que precisar.",
@@ -777,10 +822,22 @@
     ],
     "relatedTitle": "Relacionados",
     "related": [
-      { "href": "/ai-router", "label": "Router de API de IA" },
-      { "href": "/llm-router", "label": "Router LLM" },
-      { "href": "/pricing", "label": "Preços por token" },
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" }
+      {
+        "href": "/ai-router",
+        "label": "Router de API de IA"
+      },
+      {
+        "href": "/llm-router",
+        "label": "Router LLM"
+      },
+      {
+        "href": "/pricing",
+        "label": "Preços por token"
+      },
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      }
     ],
     "ctaTitle": "Aponte seu Base URL para o MuiRouter",
     "ctaDescription": "Obtenha uma API Key gratuita e roteie sua primeira requisição compatível com OpenAI em minutos.",
@@ -831,10 +888,22 @@
     ],
     "relatedTitle": "Relacionados",
     "related": [
-      { "href": "/mcp", "label": "Guia de configuração do MCP" },
-      { "href": "/ai-router", "label": "Router de API de IA" },
-      { "href": "/llm-router", "label": "Router LLM" },
-      { "href": "/claude-api-gateway", "label": "Gateway API do Claude" }
+      {
+        "href": "/mcp",
+        "label": "Guia de configuração do MCP"
+      },
+      {
+        "href": "/ai-router",
+        "label": "Router de API de IA"
+      },
+      {
+        "href": "/llm-router",
+        "label": "Router LLM"
+      },
+      {
+        "href": "/claude-api-gateway",
+        "label": "Gateway API do Claude"
+      }
     ],
     "ctaTitle": "Conecte seu cliente de IA ao MuiRouter",
     "ctaDescription": "Crie uma conta gratuita, gere uma chave e adicione o servidor MCP ao Claude, Cursor ou Cline.",
@@ -885,10 +954,22 @@
     ],
     "relatedTitle": "Relacionados",
     "related": [
-      { "href": "/gpt-api-gateway", "label": "Gateway API do GPT" },
-      { "href": "/gemini-api-gateway", "label": "Gateway API do Gemini" },
-      { "href": "/grok-api-gateway", "label": "Gateway API do Grok" },
-      { "href": "/llm-router", "label": "Router LLM" }
+      {
+        "href": "/gpt-api-gateway",
+        "label": "Gateway API do GPT"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gateway API do Gemini"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Gateway API do Grok"
+      },
+      {
+        "href": "/llm-router",
+        "label": "Router LLM"
+      }
     ],
     "ctaTitle": "Comece a chamar o Claude hoje",
     "ctaDescription": "Crie uma conta grátis, gere uma chave, e conecte o Claude Code ou seu SDK ao MuiRouter em minutos.",
@@ -939,10 +1020,22 @@
     ],
     "relatedTitle": "Relacionados",
     "related": [
-      { "href": "/claude-api-gateway", "label": "Gateway API do Claude" },
-      { "href": "/gemini-api-gateway", "label": "Gateway API do Gemini" },
-      { "href": "/grok-api-gateway", "label": "Gateway API do Grok" },
-      { "href": "/llm-router", "label": "Router LLM" }
+      {
+        "href": "/claude-api-gateway",
+        "label": "Gateway API do Claude"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gateway API do Gemini"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Gateway API do Grok"
+      },
+      {
+        "href": "/llm-router",
+        "label": "Router LLM"
+      }
     ],
     "ctaTitle": "Comece a chamar o GPT hoje",
     "ctaDescription": "Crie uma conta grátis, gere uma chave, e conecte seu SDK da OpenAI ou o Codex CLI ao MuiRouter em minutos.",
@@ -993,10 +1086,22 @@
     ],
     "relatedTitle": "Relacionados",
     "related": [
-      { "href": "/claude-api-gateway", "label": "Gateway API do Claude" },
-      { "href": "/gpt-api-gateway", "label": "Gateway API do GPT" },
-      { "href": "/grok-api-gateway", "label": "Gateway API do Grok" },
-      { "href": "/llm-router", "label": "Router LLM" }
+      {
+        "href": "/claude-api-gateway",
+        "label": "Gateway API do Claude"
+      },
+      {
+        "href": "/gpt-api-gateway",
+        "label": "Gateway API do GPT"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Gateway API do Grok"
+      },
+      {
+        "href": "/llm-router",
+        "label": "Router LLM"
+      }
     ],
     "ctaTitle": "Comece a chamar o Gemini hoje",
     "ctaDescription": "Crie uma conta grátis, gere uma chave, e roteie sua primeira requisição ao Gemini em minutos.",
@@ -1047,10 +1152,22 @@
     ],
     "relatedTitle": "Relacionados",
     "related": [
-      { "href": "/claude-api-gateway", "label": "Gateway API do Claude" },
-      { "href": "/gpt-api-gateway", "label": "Gateway API do GPT" },
-      { "href": "/gemini-api-gateway", "label": "Gateway API do Gemini" },
-      { "href": "/llm-router", "label": "Router LLM" }
+      {
+        "href": "/claude-api-gateway",
+        "label": "Gateway API do Claude"
+      },
+      {
+        "href": "/gpt-api-gateway",
+        "label": "Gateway API do GPT"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gateway API do Gemini"
+      },
+      {
+        "href": "/llm-router",
+        "label": "Router LLM"
+      }
     ],
     "ctaTitle": "Comece a chamar o Grok hoje",
     "ctaDescription": "Crie uma conta grátis, gere uma chave, e chame o chat ou a geração de imagens ou vídeo do Grok em minutos.",
@@ -1127,10 +1244,22 @@
     ],
     "relatedTitle": "Relacionados",
     "related": [
-      { "href": "/llm-router", "label": "Router LLM" },
-      { "href": "/ai-router", "label": "Router de API de IA" },
-      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
-      { "href": "/pricing", "label": "Preços" }
+      {
+        "href": "/llm-router",
+        "label": "Router LLM"
+      },
+      {
+        "href": "/ai-router",
+        "label": "Router de API de IA"
+      },
+      {
+        "href": "/litellm-vs-openrouter",
+        "label": "LiteLLM vs OpenRouter"
+      },
+      {
+        "href": "/pricing",
+        "label": "Preços"
+      }
     ],
     "ctaTitle": "Confira os números você mesmo",
     "ctaDescription": "Crie uma conta grátis e veja os preços reais por modelo antes de migrar.",
@@ -1213,10 +1342,22 @@
     ],
     "relatedTitle": "Relacionados",
     "related": [
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
-      { "href": "/llm-router", "label": "Router LLM" },
-      { "href": "/ai-router", "label": "Router de API de IA" },
-      { "href": "/pricing", "label": "Preços" }
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "Router LLM"
+      },
+      {
+        "href": "/ai-router",
+        "label": "Router de API de IA"
+      },
+      {
+        "href": "/pricing",
+        "label": "Preços"
+      }
     ],
     "ctaTitle": "Confira os números você mesmo",
     "ctaDescription": "Crie uma conta grátis e veja os preços reais por modelo antes de escolher.",
@@ -1308,10 +1449,22 @@
     ],
     "relatedTitle": "Relacionados",
     "related": [
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
-      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
-      { "href": "/llm-router", "label": "Router LLM" },
-      { "href": "/best-llm-gateway", "label": "Melhor gateway LLM 2026" }
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/litellm-vs-openrouter",
+        "label": "LiteLLM vs OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "Router LLM"
+      },
+      {
+        "href": "/best-llm-gateway",
+        "label": "Melhor gateway LLM 2026"
+      }
     ],
     "ctaTitle": "Experimente a alternativa gerenciada",
     "ctaDescription": "Crie uma conta grátis do MuiRouter e chame Claude, GPT, Gemini e Grok a partir de uma única chave em minutos.",
@@ -1418,10 +1571,22 @@
     ],
     "relatedTitle": "Relacionados",
     "related": [
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
-      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
-      { "href": "/openrouter-alternatives", "label": "Alternativas ao OpenRouter" },
-      { "href": "/llm-router", "label": "Router LLM" }
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/litellm-vs-openrouter",
+        "label": "LiteLLM vs OpenRouter"
+      },
+      {
+        "href": "/openrouter-alternatives",
+        "label": "Alternativas ao OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "Router LLM"
+      }
     ],
     "ctaTitle": "Experimente a opção gerenciada",
     "ctaDescription": "Crie uma conta grátis do MuiRouter e chame todos os principais modelos a partir de uma única chave em minutos.",
@@ -1490,6 +1655,42 @@
       {
         "href": "/pricing",
         "label": "Preços por token"
+      }
+    ]
+  },
+  "opencode": {
+    "metadata": {
+      "title": "Usar o MuiRouter no opencode",
+      "description": "Conecte o MuiRouter ao opencode: uma única chave de API para Claude, GPT, Gemini, Grok, Kimi, MiMo e outros, cobrado por token e sem assinatura."
+    }
+  },
+  "opencodePage": {
+    "title": "Usar o MuiRouter no opencode",
+    "intro": "O opencode é um agente de programação com IA para o terminal. Ligado ao MuiRouter, uma única chave dá acesso a Claude, GPT, Gemini, Grok, Kimi e MiMo — pagamento por token, sem uma conta para cada fornecedor.",
+    "keyTitle": "1. Obtenha uma chave de API",
+    "keyDesc": "Crie uma chave na página «API Keys» do painel e coloque-a no seu ambiente.",
+    "configTitle": "2. Adicione a configuração do provider",
+    "configDesc": "Providers personalizados no opencode exigem uma lista de modelos explícita. Adicione isto ao seu arquivo de configuração:",
+    "configNote": "Aqui constam apenas alguns modelos comuns — acrescente outros no mesmo formato. O catálogo completo e os preços estão na",
+    "pricingLink": "página de preços",
+    "runTitle": "3. Inicie e escolha um modelo",
+    "runDesc": "Reinicie o opencode e execute /models para ver os modelos do MuiRouter.",
+    "discoveryTitle": "Por que listar os modelos à mão?",
+    "discoveryDesc": "O opencode não chama o endpoint /v1/models do provider.",
+    "discoveryBody": "As listas de modelos dos providers integrados ao opencode vêm do models.dev, um banco de dados de modelos open source; providers personalizados precisam declará-las na configuração. Estamos trabalhando para incluir o MuiRouter no models.dev — depois disso bastará definir MUIROUTER_API_KEY e os modelos aparecerão sozinhos, tornando este trecho desnecessário.",
+    "relatedTitle": "Relacionado",
+    "related": [
+      {
+        "href": "/mcp",
+        "label": "Servidor MCP"
+      },
+      {
+        "href": "/pricing",
+        "label": "Cobrança por token"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "API compatível com OpenAI"
       }
     ]
   }

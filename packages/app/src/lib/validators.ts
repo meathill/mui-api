@@ -1,3 +1,4 @@
+import { parseModelMetadata } from '@muirouter/shared-db/model-metadata';
 import { z } from 'zod';
 
 // ==================== 管理员接口 ====================
@@ -36,6 +37,19 @@ export const ModelCreateSchema = z.object({
   inputPrice: z.number().min(0, '价格不能为负'),
   outputPrice: z.number().min(0, '价格不能为负'),
   markupRate: z.number().min(1).default(1.2),
+  // 对外元数据：喂 GET /v1/models 与 models.dev 的 TOML 生成器。
+  // metadataJson 用与 dashboard 共用的校验器，脏数据在入口就拦住。
+  displayName: z.string().min(1).nullable().optional(),
+  contextLength: z.number().int().positive('上下文长度必须为正整数').nullable().optional(),
+  maxOutputTokens: z.number().int().positive('最大输出必须为正整数').nullable().optional(),
+  metadataJson: z
+    .string()
+    .nullable()
+    .optional()
+    .superRefine((raw, ctx) => {
+      const result = parseModelMetadata(raw);
+      if (!result.ok) ctx.addIssue({ code: 'custom', message: `模型元数据无效：${result.error}` });
+    }),
   // cache 单价：null / 缺省视为未启用，计费时回退基础 input 价
   cachedInputPrice: z.number().min(0, '价格不能为负').nullable().optional(),
   cacheWritePrice: z.number().min(0, '价格不能为负').nullable().optional(),

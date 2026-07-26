@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { normalizeChatBody } from '../lib/chat-body-normalize';
 import { badRequest, gatewayError, upstreamError } from '../lib/errors';
 import { parseGrokImageEditRequest, parseGrokImageGenerationRequest } from '../lib/grok-image';
+import { toPublicModelList } from '../lib/model-public-view';
 import { authMiddleware } from '../middleware/auth';
 import { findUnsupportedChatFeature } from '../services/gemini-compat';
 import {
@@ -287,15 +288,7 @@ openai.post('/images/edits', async (c) => {
 openai.get('/models', async (c) => {
   const services = createProxyServices(c.env, c.get('db'));
   const all = await services.modelCatalog.getAll();
-  return c.json({
-    object: 'list',
-    data: all.map((m) => ({
-      id: m.id,
-      object: 'model',
-      created: 0,
-      owned_by: m.provider,
-    })),
-  });
+  return c.json({ object: 'list', data: toPublicModelList(all) });
 });
 
 export default openai;

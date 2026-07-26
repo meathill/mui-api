@@ -6,6 +6,12 @@ export const models = sqliteTable('models', {
   id: text('id').primaryKey(),
   provider: text('provider').notNull(),
   upstreamModelId: text('upstream_model_id'),
+  // 对外展示与能力元数据：喂 GET /v1/models 与 models.dev 的 TOML 生成器（同一份数据两个出口）。
+  // metadata_json 的结构见 @muirouter/shared-db/model-metadata。
+  displayName: text('display_name'),
+  contextLength: integer('context_length'),
+  maxOutputTokens: integer('max_output_tokens'),
+  metadataJson: text('metadata_json'),
   inputPrice: real('input_price'),
   outputPrice: real('output_price'),
   markupRate: real('markup_rate').default(1.2),

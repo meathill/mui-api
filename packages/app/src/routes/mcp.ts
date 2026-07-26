@@ -81,12 +81,15 @@ const tools: ToolDef[] = [
     handler: async (_env, db) => {
       const rows = await db.select().from(models);
       return {
+        // context_length 让 agent 能自己判断某个模型塞不塞得下当前上下文。
         items: rows.map((m) => ({
           id: m.id,
           provider: m.provider,
           input_price: m.inputPrice,
           output_price: m.outputPrice,
           markup_rate: m.markupRate ?? 1.2,
+          display_name: m.displayName,
+          context_length: m.contextLength,
         })),
       };
     },

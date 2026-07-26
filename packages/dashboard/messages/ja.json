@@ -17,7 +17,8 @@
     "openaiCompatibleRouter": "OpenAI 互換",
     "mcpRouter": "MCP ルーター",
     "bestLlmGateway": "ベストな LLM ゲートウェイ",
-    "openrouterAlternatives": "OpenRouter の代替"
+    "openrouterAlternatives": "OpenRouter の代替",
+    "opencode": "opencode 連携"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — 1つのルーター",
@@ -416,7 +417,15 @@
     "empty": "モデルはまだありません",
     "pagination": "全{count}件、ページ {page}/{totalPages}",
     "prev": "前へ",
-    "next": "次へ"
+    "next": "次へ",
+    "metadataSection": "公開メタデータ（モデル検出用）",
+    "metadataHint": "GET /v1/models と models.dev に供給されます。通常は scripts/fetch-model-metadata.ts が自動補完し、ここは手動の補助です。",
+    "displayName": "表示名",
+    "displayNamePlaceholder": "例：Claude Opus 5、空欄ならモデル ID",
+    "contextLength": "コンテキスト長（トークン）",
+    "maxOutputTokens": "最大出力（トークン）",
+    "metadataJson": "機能とモダリティ（JSON）",
+    "metadataJsonPlaceholder": "{\"reasoning\": true, \"toolCall\": true, \"modalities\": {\"input\": [\"text\"], \"output\": [\"text\"]}}"
   },
   "adminUsers": {
     "title": "ユーザー管理",
@@ -665,11 +674,26 @@
     ],
     "relatedTitle": "ルーターをもっと知る",
     "related": [
-      { "href": "/llm-router", "label": "LLM ルーター" },
-      { "href": "/openai-compatible-router", "label": "OpenAI 互換ルーター" },
-      { "href": "/mcp-router", "label": "MCP ルーター兼サーバー" },
-      { "href": "/pricing", "label": "トークン単位の料金" },
-      { "href": "/best-llm-gateway", "label": "2026年ベストな LLM ゲートウェイ" }
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "OpenAI 互換ルーター"
+      },
+      {
+        "href": "/mcp-router",
+        "label": "MCP ルーター兼サーバー"
+      },
+      {
+        "href": "/pricing",
+        "label": "トークン単位の料金"
+      },
+      {
+        "href": "/best-llm-gateway",
+        "label": "2026年ベストな LLM ゲートウェイ"
+      }
     ],
     "ctaTitle": "数分で最初のモデルへ route",
     "ctaDescription": "無料アカウントを作成し、API キーを取得して、OpenAI SDK を MuiRouter に向けるだけ。",
@@ -720,13 +744,34 @@
     ],
     "relatedTitle": "関連ページ",
     "related": [
-      { "href": "/ai-router", "label": "AI API ルーター" },
-      { "href": "/openai-compatible-router", "label": "OpenAI 互換ルーター" },
-      { "href": "/mcp-router", "label": "MCP ルーター兼サーバー" },
-      { "href": "/claude-api-gateway", "label": "Claude API ゲートウェイ" },
-      { "href": "/gpt-api-gateway", "label": "GPT API ゲートウェイ" },
-      { "href": "/gemini-api-gateway", "label": "Gemini API ゲートウェイ" },
-      { "href": "/grok-api-gateway", "label": "Grok API ゲートウェイ" }
+      {
+        "href": "/ai-router",
+        "label": "AI API ルーター"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "OpenAI 互換ルーター"
+      },
+      {
+        "href": "/mcp-router",
+        "label": "MCP ルーター兼サーバー"
+      },
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API ゲートウェイ"
+      },
+      {
+        "href": "/gpt-api-gateway",
+        "label": "GPT API ゲートウェイ"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gemini API ゲートウェイ"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Grok API ゲートウェイ"
+      }
     ],
     "ctaTitle": "すべての LLM を1つのキーで route",
     "ctaDescription": "無料で登録し、MiMo で始めて、必要になったら OpenAI、Claude、Gemini を追加できます。",
@@ -777,10 +822,22 @@
     ],
     "relatedTitle": "関連ページ",
     "related": [
-      { "href": "/ai-router", "label": "AI API ルーター" },
-      { "href": "/llm-router", "label": "LLM ルーター" },
-      { "href": "/pricing", "label": "トークン単位の料金" },
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" }
+      {
+        "href": "/ai-router",
+        "label": "AI API ルーター"
+      },
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      },
+      {
+        "href": "/pricing",
+        "label": "トークン単位の料金"
+      },
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      }
     ],
     "ctaTitle": "Base URL を MuiRouter に向ける",
     "ctaDescription": "無料の API キーを取得して、数分で最初の OpenAI 互換リクエストを route しましょう。",
@@ -831,10 +888,22 @@
     ],
     "relatedTitle": "関連ページ",
     "related": [
-      { "href": "/mcp", "label": "MCP セットアップガイド" },
-      { "href": "/ai-router", "label": "AI API ルーター" },
-      { "href": "/llm-router", "label": "LLM ルーター" },
-      { "href": "/claude-api-gateway", "label": "Claude API ゲートウェイ" }
+      {
+        "href": "/mcp",
+        "label": "MCP セットアップガイド"
+      },
+      {
+        "href": "/ai-router",
+        "label": "AI API ルーター"
+      },
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      },
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API ゲートウェイ"
+      }
     ],
     "ctaTitle": "AI クライアントを MuiRouter に接続",
     "ctaDescription": "無料アカウントを作成し、キーを生成して、MCP サーバーを Claude、Cursor、Cline に追加しましょう。",
@@ -885,10 +954,22 @@
     ],
     "relatedTitle": "関連ページ",
     "related": [
-      { "href": "/gpt-api-gateway", "label": "GPT API ゲートウェイ" },
-      { "href": "/gemini-api-gateway", "label": "Gemini API ゲートウェイ" },
-      { "href": "/grok-api-gateway", "label": "Grok API ゲートウェイ" },
-      { "href": "/llm-router", "label": "LLM ルーター" }
+      {
+        "href": "/gpt-api-gateway",
+        "label": "GPT API ゲートウェイ"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gemini API ゲートウェイ"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Grok API ゲートウェイ"
+      },
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      }
     ],
     "ctaTitle": "今すぐ Claude を呼び出す",
     "ctaDescription": "無料アカウントを作成し、キーを発行して、数分で Claude Code や SDK を MuiRouter に接続しましょう。",
@@ -939,10 +1020,22 @@
     ],
     "relatedTitle": "関連ページ",
     "related": [
-      { "href": "/claude-api-gateway", "label": "Claude API ゲートウェイ" },
-      { "href": "/gemini-api-gateway", "label": "Gemini API ゲートウェイ" },
-      { "href": "/grok-api-gateway", "label": "Grok API ゲートウェイ" },
-      { "href": "/llm-router", "label": "LLM ルーター" }
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API ゲートウェイ"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gemini API ゲートウェイ"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Grok API ゲートウェイ"
+      },
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      }
     ],
     "ctaTitle": "今すぐ GPT を呼び出す",
     "ctaDescription": "無料アカウントを作成し、キーを発行して、数分で OpenAI SDK や Codex CLI を MuiRouter に接続しましょう。",
@@ -993,10 +1086,22 @@
     ],
     "relatedTitle": "関連ページ",
     "related": [
-      { "href": "/claude-api-gateway", "label": "Claude API ゲートウェイ" },
-      { "href": "/gpt-api-gateway", "label": "GPT API ゲートウェイ" },
-      { "href": "/grok-api-gateway", "label": "Grok API ゲートウェイ" },
-      { "href": "/llm-router", "label": "LLM ルーター" }
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API ゲートウェイ"
+      },
+      {
+        "href": "/gpt-api-gateway",
+        "label": "GPT API ゲートウェイ"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Grok API ゲートウェイ"
+      },
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      }
     ],
     "ctaTitle": "今すぐ Gemini を呼び出す",
     "ctaDescription": "無料アカウントを作成し、キーを発行して、数分で最初の Gemini リクエストを送りましょう。",
@@ -1047,10 +1152,22 @@
     ],
     "relatedTitle": "関連ページ",
     "related": [
-      { "href": "/claude-api-gateway", "label": "Claude API ゲートウェイ" },
-      { "href": "/gpt-api-gateway", "label": "GPT API ゲートウェイ" },
-      { "href": "/gemini-api-gateway", "label": "Gemini API ゲートウェイ" },
-      { "href": "/llm-router", "label": "LLM ルーター" }
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API ゲートウェイ"
+      },
+      {
+        "href": "/gpt-api-gateway",
+        "label": "GPT API ゲートウェイ"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gemini API ゲートウェイ"
+      },
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      }
     ],
     "ctaTitle": "今すぐ Grok を呼び出す",
     "ctaDescription": "無料アカウントを作成し、キーを発行して、数分で Grok のチャット・画像生成・動画生成を呼び出しましょう。",
@@ -1124,10 +1241,22 @@
     ],
     "relatedTitle": "関連ページ",
     "related": [
-      { "href": "/llm-router", "label": "LLM ルーター" },
-      { "href": "/ai-router", "label": "AI API ルーター" },
-      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
-      { "href": "/pricing", "label": "料金" }
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      },
+      {
+        "href": "/ai-router",
+        "label": "AI API ルーター"
+      },
+      {
+        "href": "/litellm-vs-openrouter",
+        "label": "LiteLLM vs OpenRouter"
+      },
+      {
+        "href": "/pricing",
+        "label": "料金"
+      }
     ],
     "ctaTitle": "自分の目で数字を確かめる",
     "ctaDescription": "無料アカウントを作成し、乗り換える前にモデルごとの実際の料金を確認しましょう。",
@@ -1210,10 +1339,22 @@
     ],
     "relatedTitle": "関連ページ",
     "related": [
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
-      { "href": "/llm-router", "label": "LLM ルーター" },
-      { "href": "/ai-router", "label": "AI API ルーター" },
-      { "href": "/pricing", "label": "料金" }
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      },
+      {
+        "href": "/ai-router",
+        "label": "AI API ルーター"
+      },
+      {
+        "href": "/pricing",
+        "label": "料金"
+      }
     ],
     "ctaTitle": "自分の目で数字を確かめる",
     "ctaDescription": "無料アカウントを作成し、選ぶ前にモデルごとの実際の料金を確認しましょう。",
@@ -1302,10 +1443,22 @@
     ],
     "relatedTitle": "関連ページ",
     "related": [
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
-      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
-      { "href": "/llm-router", "label": "LLM ルーター" },
-      { "href": "/best-llm-gateway", "label": "2026年ベストな LLM ゲートウェイ" }
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/litellm-vs-openrouter",
+        "label": "LiteLLM vs OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      },
+      {
+        "href": "/best-llm-gateway",
+        "label": "2026年ベストな LLM ゲートウェイ"
+      }
     ],
     "ctaTitle": "マネージドな代替を試す",
     "ctaDescription": "無料の MuiRouter アカウントを作成し、数分で1つのキーから Claude・GPT・Gemini・Grok を呼び出しましょう。",
@@ -1406,10 +1559,22 @@
     ],
     "relatedTitle": "関連ページ",
     "related": [
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
-      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
-      { "href": "/openrouter-alternatives", "label": "OpenRouter の代替" },
-      { "href": "/llm-router", "label": "LLM ルーター" }
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/litellm-vs-openrouter",
+        "label": "LiteLLM vs OpenRouter"
+      },
+      {
+        "href": "/openrouter-alternatives",
+        "label": "OpenRouter の代替"
+      },
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      }
     ],
     "ctaTitle": "マネージドの選択肢を試す",
     "ctaDescription": "無料の MuiRouter アカウントを作成し、数分で主要なモデルすべてを1つのキーから呼び出しましょう。",
@@ -1478,6 +1643,42 @@
       {
         "href": "/pricing",
         "label": "トークン単位の料金"
+      }
+    ]
+  },
+  "opencode": {
+    "metadata": {
+      "title": "opencode で MuiRouter を使う",
+      "description": "MuiRouter を opencode に接続：API キー 1 つで Claude、GPT、Gemini、Grok、Kimi、MiMo などを利用でき、サブスク不要のトークン従量課金です。"
+    }
+  },
+  "opencodePage": {
+    "title": "opencode で MuiRouter を使う",
+    "intro": "opencode はターミナル向けの AI コーディングエージェントです。MuiRouter につなげば、キー 1 つで Claude、GPT、Gemini、Grok、Kimi、MiMo が使えます。従量課金で、ベンダーごとにアカウントを作る必要はありません。",
+    "keyTitle": "1. API キーを用意する",
+    "keyDesc": "ダッシュボードの API Keys ページでキーを作成し、環境変数に設定します。",
+    "configTitle": "2. provider 設定を追加する",
+    "configDesc": "opencode のカスタム provider はモデル一覧の明示が必要です。設定ファイルに以下を追加してください：",
+    "configNote": "ここでは代表的なモデルのみ記載しています。同じ形式で追記できます。全モデルと価格は",
+    "pricingLink": "料金ページ",
+    "runTitle": "3. 起動してモデルを選ぶ",
+    "runDesc": "opencode を再起動し、/models で MuiRouter のモデルを確認します。",
+    "discoveryTitle": "なぜモデルを手書きするのか",
+    "discoveryDesc": "opencode は provider の /v1/models を呼び出しません。",
+    "discoveryBody": "opencode の組み込み provider のモデル一覧はオープンソースのモデルデータベース models.dev から取得されます。カスタム provider は設定での宣言が必要です。現在 MuiRouter を models.dev に登録する作業を進めており、登録後は MUIROUTER_API_KEY を設定するだけでモデルが自動的に表示され、このスニペットは不要になります。",
+    "relatedTitle": "関連",
+    "related": [
+      {
+        "href": "/mcp",
+        "label": "MCP サーバー"
+      },
+      {
+        "href": "/pricing",
+        "label": "トークン従量課金"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "OpenAI 互換 API"
       }
     ]
   }

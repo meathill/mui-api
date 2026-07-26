@@ -1,13 +1,32 @@
 # WIP
 
+## 客户端模型自动发现（2026-07-25）
+
+目标：别人在 opencode 等客户端里配置 MuiRouter 时，只填 endpoint + key 就能刷出模型。
+
+- [x] migration 0023：`models` 表加 `display_name` / `context_length` / `max_output_tokens` / `metadata_json`
+- [x] `scripts/fetch-model-metadata.ts` 从 models.dev 回填元数据 → migration 0024（生产 48 个模型命中 47）
+- [x] `GET /v1/models` 返回 context_length / pricing / capabilities（`owned_by` 改为 `muirouter`）
+- [x] admin 模型表单加对外元数据编辑区
+- [x] `scripts/gen-models-dev-toml.ts` 生成 models.dev 提交材料（30 个 chat 模型）
+- [x] `/opencode` 接入文档页 + 8 语种
+- [x] **部署**：生产跑 0023 + 0024（48 行中 47 行有完整元数据）、清 KV `models:catalog`、push 触发部署
+- [x] 用生产数据重新生成 TOML：38 个 chat 模型，python `tomllib` 全量 schema 校验通过
+- [ ] **提 PR**：`packages/app/dist/models-dev/providers/muirouter/` → [sst/models.dev](https://github.com/sst/models.dev)
+- [ ] PR 合并后把 `/opencode` 页改成「只设 MUIROUTER_API_KEY 即可」，手写片段降为附录
+- [ ] `mimo-v2.5-flash` 补元数据：models.dev 无条目，小米公开文档也查不到 context 长度与发布日期，拿到后填进 `fetch-model-metadata.ts` 的 `MANUAL_METADATA`
+- [ ] 可选：models.dev 的 `logo.svg`（品牌资产需人工决定，脚本不生成）
+
+**发新模型的 checklist 追加一条**：加模型 / 调价后重跑 `gen-models-dev-toml.ts --remote` 并向 models.dev 再提一次 PR，否则 opencode 用户看不到新模型。
+
 ## Claude Opus 5 接入（2026-07-25）
 
 - [x] `seed.ts` / `seed-models.sql` 增加 `claude-opus-5`（$5/$25，cache 0.5/6.25，markup 1.05）
 - [x] 博客 8 语种 + `blog-content.ts` 注册
 - [x] 不写 drizzle migration：生产直接跑 INSERT SQL
-- [ ] 生产 D1 插入 model + blog 元数据
-- [ ] 清 KV `models:catalog`
-- [ ] 部署确认 `claude-opus-5` 可用
+- [x] 生产 D1 插入 model + blog 元数据（wrangler d1 --remote）
+- [x] 清 KV `models:catalog`
+- [x] 线上确认 `/zh/blog/claude-opus-5` 200
 
 ## 充值遗留（上一轮）
 

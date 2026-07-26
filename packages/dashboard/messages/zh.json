@@ -17,7 +17,8 @@
     "openaiCompatibleRouter": "OpenAI 兼容",
     "mcpRouter": "MCP 路由",
     "bestLlmGateway": "最佳 LLM 网关",
-    "openrouterAlternatives": "OpenRouter 替代品"
+    "openrouterAlternatives": "OpenRouter 替代品",
+    "opencode": "opencode 接入"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo——一个路由全搞定",
@@ -416,7 +417,15 @@
     "empty": "暂无模型",
     "pagination": "共 {count} 条，第 {page}/{totalPages} 页",
     "prev": "上一页",
-    "next": "下一页"
+    "next": "下一页",
+    "metadataSection": "对外元数据（模型发现用）",
+    "metadataHint": "喂 GET /v1/models 与 models.dev；主要由 scripts/fetch-model-metadata.ts 自动回填，这里是人工兜底",
+    "displayName": "展示名",
+    "displayNamePlaceholder": "如 Claude Opus 5，留空则用模型 ID",
+    "contextLength": "上下文长度（token）",
+    "maxOutputTokens": "最大输出（token）",
+    "metadataJson": "能力与模态（JSON）",
+    "metadataJsonPlaceholder": "{\"reasoning\": true, \"toolCall\": true, \"modalities\": {\"input\": [\"text\"], \"output\": [\"text\"]}}"
   },
   "adminUsers": {
     "title": "用户管理",
@@ -665,11 +674,26 @@
     ],
     "relatedTitle": "探索路由",
     "related": [
-      { "href": "/llm-router", "label": "大模型路由" },
-      { "href": "/openai-compatible-router", "label": "OpenAI 兼容路由" },
-      { "href": "/mcp-router", "label": "MCP 路由与服务" },
-      { "href": "/pricing", "label": "按 token 计费的价格" },
-      { "href": "/best-llm-gateway", "label": "2026 最佳 LLM 网关" }
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "OpenAI 兼容路由"
+      },
+      {
+        "href": "/mcp-router",
+        "label": "MCP 路由与服务"
+      },
+      {
+        "href": "/pricing",
+        "label": "按 token 计费的价格"
+      },
+      {
+        "href": "/best-llm-gateway",
+        "label": "2026 最佳 LLM 网关"
+      }
     ],
     "ctaTitle": "几分钟内路由你的第一个模型",
     "ctaDescription": "创建免费账户，获取 API Key，把你的 OpenAI SDK 指向 MuiRouter。",
@@ -720,13 +744,34 @@
     ],
     "relatedTitle": "相关页面",
     "related": [
-      { "href": "/ai-router", "label": "AI API 路由" },
-      { "href": "/openai-compatible-router", "label": "OpenAI 兼容路由" },
-      { "href": "/mcp-router", "label": "MCP 路由与服务" },
-      { "href": "/claude-api-gateway", "label": "Claude API 网关" },
-      { "href": "/gpt-api-gateway", "label": "GPT API 网关" },
-      { "href": "/gemini-api-gateway", "label": "Gemini API 网关" },
-      { "href": "/grok-api-gateway", "label": "Grok API 网关" }
+      {
+        "href": "/ai-router",
+        "label": "AI API 路由"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "OpenAI 兼容路由"
+      },
+      {
+        "href": "/mcp-router",
+        "label": "MCP 路由与服务"
+      },
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API 网关"
+      },
+      {
+        "href": "/gpt-api-gateway",
+        "label": "GPT API 网关"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gemini API 网关"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Grok API 网关"
+      }
     ],
     "ctaTitle": "用一个 Key 路由每一个大模型",
     "ctaDescription": "免费注册，从 MiMo 起步，随时按需接入 OpenAI、Claude 和 Gemini。",
@@ -777,10 +822,22 @@
     ],
     "relatedTitle": "相关页面",
     "related": [
-      { "href": "/ai-router", "label": "AI API 路由" },
-      { "href": "/llm-router", "label": "大模型路由" },
-      { "href": "/pricing", "label": "按 token 计费的价格" },
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" }
+      {
+        "href": "/ai-router",
+        "label": "AI API 路由"
+      },
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      },
+      {
+        "href": "/pricing",
+        "label": "按 token 计费的价格"
+      },
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      }
     ],
     "ctaTitle": "把你的 Base URL 指向 MuiRouter",
     "ctaDescription": "获取免费 API Key，几分钟内路由你的第一个 OpenAI 兼容请求。",
@@ -831,10 +888,22 @@
     ],
     "relatedTitle": "相关页面",
     "related": [
-      { "href": "/mcp", "label": "MCP 配置指南" },
-      { "href": "/ai-router", "label": "AI API 路由" },
-      { "href": "/llm-router", "label": "大模型路由" },
-      { "href": "/claude-api-gateway", "label": "Claude API 网关" }
+      {
+        "href": "/mcp",
+        "label": "MCP 配置指南"
+      },
+      {
+        "href": "/ai-router",
+        "label": "AI API 路由"
+      },
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      },
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API 网关"
+      }
     ],
     "ctaTitle": "把你的 AI 客户端连接到 MuiRouter",
     "ctaDescription": "创建免费账户，生成 Key，把 MCP 服务器添加到 Claude、Cursor 或 Cline。",
@@ -885,10 +954,22 @@
     ],
     "relatedTitle": "相关页面",
     "related": [
-      { "href": "/gpt-api-gateway", "label": "GPT API 网关" },
-      { "href": "/gemini-api-gateway", "label": "Gemini API 网关" },
-      { "href": "/grok-api-gateway", "label": "Grok API 网关" },
-      { "href": "/llm-router", "label": "大模型路由" }
+      {
+        "href": "/gpt-api-gateway",
+        "label": "GPT API 网关"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gemini API 网关"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Grok API 网关"
+      },
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      }
     ],
     "ctaTitle": "现在就开始调用 Claude",
     "ctaDescription": "注册一个免费账号，拿到 Key，几分钟内就能把 Claude Code 或你的 SDK 接到 MuiRouter。",
@@ -939,10 +1020,22 @@
     ],
     "relatedTitle": "相关页面",
     "related": [
-      { "href": "/claude-api-gateway", "label": "Claude API 网关" },
-      { "href": "/gemini-api-gateway", "label": "Gemini API 网关" },
-      { "href": "/grok-api-gateway", "label": "Grok API 网关" },
-      { "href": "/llm-router", "label": "大模型路由" }
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API 网关"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gemini API 网关"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Grok API 网关"
+      },
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      }
     ],
     "ctaTitle": "现在就开始调用 GPT",
     "ctaDescription": "注册一个免费账号，拿到 Key，几分钟内就能把你的 OpenAI SDK 或 Codex CLI 接到 MuiRouter。",
@@ -993,10 +1086,22 @@
     ],
     "relatedTitle": "相关页面",
     "related": [
-      { "href": "/claude-api-gateway", "label": "Claude API 网关" },
-      { "href": "/gpt-api-gateway", "label": "GPT API 网关" },
-      { "href": "/grok-api-gateway", "label": "Grok API 网关" },
-      { "href": "/llm-router", "label": "大模型路由" }
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API 网关"
+      },
+      {
+        "href": "/gpt-api-gateway",
+        "label": "GPT API 网关"
+      },
+      {
+        "href": "/grok-api-gateway",
+        "label": "Grok API 网关"
+      },
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      }
     ],
     "ctaTitle": "现在就开始调用 Gemini",
     "ctaDescription": "注册一个免费账号，拿到 Key，几分钟内就能发出第一个 Gemini 请求。",
@@ -1047,10 +1152,22 @@
     ],
     "relatedTitle": "相关页面",
     "related": [
-      { "href": "/claude-api-gateway", "label": "Claude API 网关" },
-      { "href": "/gpt-api-gateway", "label": "GPT API 网关" },
-      { "href": "/gemini-api-gateway", "label": "Gemini API 网关" },
-      { "href": "/llm-router", "label": "大模型路由" }
+      {
+        "href": "/claude-api-gateway",
+        "label": "Claude API 网关"
+      },
+      {
+        "href": "/gpt-api-gateway",
+        "label": "GPT API 网关"
+      },
+      {
+        "href": "/gemini-api-gateway",
+        "label": "Gemini API 网关"
+      },
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      }
     ],
     "ctaTitle": "现在就开始调用 Grok",
     "ctaDescription": "注册一个免费账号，拿到 Key，几分钟内就能调用 Grok 的聊天、生图或生视频能力。",
@@ -1118,10 +1235,22 @@
     ],
     "relatedTitle": "相关页面",
     "related": [
-      { "href": "/llm-router", "label": "大模型路由" },
-      { "href": "/ai-router", "label": "AI API 路由" },
-      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
-      { "href": "/pricing", "label": "定价" }
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      },
+      {
+        "href": "/ai-router",
+        "label": "AI API 路由"
+      },
+      {
+        "href": "/litellm-vs-openrouter",
+        "label": "LiteLLM vs OpenRouter"
+      },
+      {
+        "href": "/pricing",
+        "label": "定价"
+      }
     ],
     "ctaTitle": "自己核对一下数字",
     "ctaDescription": "注册一个免费账号，换之前先看看每个模型的真实价格。",
@@ -1204,10 +1333,22 @@
     ],
     "relatedTitle": "相关页面",
     "related": [
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
-      { "href": "/llm-router", "label": "大模型路由" },
-      { "href": "/ai-router", "label": "AI API 路由" },
-      { "href": "/pricing", "label": "定价" }
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      },
+      {
+        "href": "/ai-router",
+        "label": "AI API 路由"
+      },
+      {
+        "href": "/pricing",
+        "label": "定价"
+      }
     ],
     "ctaTitle": "自己核对一下数字",
     "ctaDescription": "注册一个免费账号，选之前先看看每个模型的真实价格。",
@@ -1282,10 +1423,22 @@
     ],
     "relatedTitle": "相关页面",
     "related": [
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
-      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
-      { "href": "/llm-router", "label": "大模型路由" },
-      { "href": "/best-llm-gateway", "label": "2026 最佳 LLM 网关" }
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/litellm-vs-openrouter",
+        "label": "LiteLLM vs OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      },
+      {
+        "href": "/best-llm-gateway",
+        "label": "2026 最佳 LLM 网关"
+      }
     ],
     "ctaTitle": "试试这个托管替代方案",
     "ctaDescription": "注册一个免费的 MuiRouter 账号，几分钟内用一个 Key 调用 Claude、GPT、Gemini 和 Grok。",
@@ -1368,10 +1521,22 @@
     ],
     "relatedTitle": "相关页面",
     "related": [
-      { "href": "/muirouter-vs-openrouter", "label": "MuiRouter vs OpenRouter" },
-      { "href": "/litellm-vs-openrouter", "label": "LiteLLM vs OpenRouter" },
-      { "href": "/openrouter-alternatives", "label": "OpenRouter 替代品" },
-      { "href": "/llm-router", "label": "大模型路由" }
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/litellm-vs-openrouter",
+        "label": "LiteLLM vs OpenRouter"
+      },
+      {
+        "href": "/openrouter-alternatives",
+        "label": "OpenRouter 替代品"
+      },
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      }
     ],
     "ctaTitle": "试试托管方案",
     "ctaDescription": "注册一个免费的 MuiRouter 账号，几分钟内用一个 Key 调用所有主流模型。",
@@ -1429,9 +1594,54 @@
     "security3": "每个请求都绑定到其 sk-gw- Key 背后的账户，并发与计费规则与直接调用 REST API 完全一致。",
     "relatedTitle": "相关页面",
     "related": [
-      { "href": "/mcp-router", "label": "MCP Router 与服务器" },
-      { "href": "/ai-router", "label": "AI API 路由" },
-      { "href": "/pricing", "label": "按 token 计费" }
+      {
+        "href": "/mcp-router",
+        "label": "MCP Router 与服务器"
+      },
+      {
+        "href": "/ai-router",
+        "label": "AI API 路由"
+      },
+      {
+        "href": "/pricing",
+        "label": "按 token 计费"
+      }
+    ]
+  },
+  "opencode": {
+    "metadata": {
+      "title": "在 opencode 中使用 MuiRouter",
+      "description": "把 MuiRouter 接入 opencode：一个 API Key 即可调用 Claude、GPT、Gemini、Grok、Kimi、MiMo 等全部模型，按 token 计费，无订阅。"
+    }
+  },
+  "opencodePage": {
+    "title": "在 opencode 中使用 MuiRouter",
+    "intro": "opencode 是终端里的 AI 编码助手。接上 MuiRouter，一个 Key 就能用 Claude、GPT、Gemini、Grok、Kimi、MiMo 等全部模型，按 token 实付，不用为每家单独开账号。",
+    "keyTitle": "1. 准备 API Key",
+    "keyDesc": "在控制台的 API Keys 页面创建一个 Key，然后写进环境变量。",
+    "configTitle": "2. 添加 provider 配置",
+    "configDesc": "opencode 的自定义 provider 需要显式声明模型列表。把下面这段写进配置文件：",
+    "configNote": "这里只列了几个常用模型，按同样格式追加即可。完整模型与价格见",
+    "pricingLink": "定价页",
+    "runTitle": "3. 启动并选择模型",
+    "runDesc": "重启 opencode，用 /models 就能看到 MuiRouter 下的模型。",
+    "discoveryTitle": "为什么还要手写模型列表？",
+    "discoveryDesc": "opencode 不会调用 provider 的 /v1/models 接口。",
+    "discoveryBody": "opencode 内置 provider 的模型列表来自 models.dev（一个开源的模型数据库），自定义 provider 则必须在配置里声明。我们已经在推进把 MuiRouter 收录进 models.dev——收录之后，你只需要设置 MUIROUTER_API_KEY，模型会自动出现，这份配置片段就不再需要了。",
+    "relatedTitle": "相关文档",
+    "related": [
+      {
+        "href": "/mcp",
+        "label": "MCP 服务"
+      },
+      {
+        "href": "/pricing",
+        "label": "按 token 计费"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "OpenAI 兼容接口"
+      }
     ]
   }
 }

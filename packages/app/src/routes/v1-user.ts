@@ -57,6 +57,7 @@ v1User.get('/public-models', async (c) => {
   const db = c.get('db');
   const rows = await db.select().from(models);
   return c.json({
+    // 既有字段保持不变（第三方 dashboard 在用），元数据只做加法。
     items: rows.map((m) => ({
       id: m.id,
       provider: m.provider,
@@ -64,6 +65,9 @@ v1User.get('/public-models', async (c) => {
       input_price: m.inputPrice,
       output_price: m.outputPrice,
       markup_rate: m.markupRate ?? 1.2,
+      display_name: m.displayName,
+      context_length: m.contextLength,
+      max_output_tokens: m.maxOutputTokens,
     })),
   });
 });
