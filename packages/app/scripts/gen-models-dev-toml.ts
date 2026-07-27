@@ -6,11 +6,24 @@
  * 在 opencode 里就只需 `export MUIROUTER_API_KEY=...`，不用手写模型清单。
  *
  * 用法：
- *   node scripts/gen-models-dev-toml.ts            # 输出到 dist/models-dev/
- *   node scripts/gen-models-dev-toml.ts --remote   # 模型清单取自生产 D1（默认本地）
+ *   node scripts/gen-models-dev-toml.ts --remote --models-dev ~/path/to/models.dev
+ *     --remote      模型清单取自生产 D1（默认本地）
+ *     --models-dev  models.dev 仓库 checkout 路径；给了才能生成 base_model 形式
  *
- * 产物需要人工提 PR 到 https://github.com/sst/models.dev —— 往外部开源仓库推分支
- * 不是脚本该干的事。上游 CI 会跑 script/validate.ts 做 schema 校验。
+ * **优先生成 base_model 形式**。models.dev 对 MuiRouter 这种 wrapper/router provider
+ * 明确要求「引用已有模型元数据，而不是复制一份」（README「Reuse Model Metadata with
+ * base_model」一节），当前 requesty 等同类 provider 也已全部改用这个写法。所以只要
+ * 顶层 models/<vendor>/<id>.toml 存在，我们就只写 base_model + 自己的 [cost]，
+ * limit / modalities / 能力标记全部继承——上游更新我们自动跟上，也少一堆要维护的字段。
+ * 顶层没抽出来的模型（如 qwen3-30b）才退回完整写法；个别产品 ID 顶层没有同名文件但有
+ * 近似变体的（如 gpt-5.6 之于 gpt-5.6-sol），走 MANUAL_BASE_MODEL 手工映射——照抄上游
+ * 自己 provider 条目的先例（openai 对同一产品 ID 就是这么处理的）。
+ *
+ * logo.svg 是手工资产，不是本脚本生成的，源文件在 scripts/models-dev-assets/logo.svg，
+ * 每次运行原样拷进产物目录。
+ *
+ * 产物需要提 PR 到 https://github.com/anomalyco/models.dev（原 sst/models.dev），
+ * 默认分支 dev。上游 CI 会跑 schema 校验。
  *
  * 维护：每次加模型 / 调价后重跑本脚本，diff 出变化的 TOML 再提一次 PR。
  * 这是 models.dev 生态的固有成本，它没有让 provider 自助同步的机制。
@@ -19,10 +32,20 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { type ModelMetadata, parseModelMetadata } from '@muirouter/shared-db/model-metadata';
-import { type D1Model, loadModelsFromD1, repoRoot } from './lib/d1-models.ts';
+import { type D1Model, appRoot, loadModelsFromD1, repoRoot } from './lib/d1-models.ts';
 
 /** models.dev 上的 provider 身份。合并后改不了，别动。 */
 const PROVIDER_ID = 'muirouter';
+
+/**
+ * 手工映射：base_model 目标不需要与我们的模型 ID 同名，只要指向一个真实存在的
+ * `models/<vendor>/<id>.toml` 即可。索引匹配漏了这类情况——上游 openai 自己的
+ * provider 条目就是这么处理 gpt-5.6 的（`base_model = "openai/gpt-5.6-sol"` +
+ * `name` 覆盖），照抄这个先例。仅在自动索引匹配失败时查这张表。
+ */
+const MANUAL_BASE_MODEL: Record<string, string> = {
+  'gpt-5.6': 'openai/gpt-5.6-sol',
+};
 const PROVIDER_TOML = `name = "MuiRouter"
 env = ["MUIROUTER_API_KEY"]
 npm = "@ai-sdk/openai-compatible"
@@ -32,9 +55,126 @@ doc = "https://muirouter.com/pricing"
 
 const DEFAULT_MARKUP_RATE = 1.2;
 
-const useRemote = process.argv.includes('--remote');
+const argv = process.argv.slice(2);
+const useRemote = argv.includes('--remote');
+const modelsDevRepo = argv[argv.indexOf('--models-dev') + 1] ?? null;
 const outRoot = path.join(repoRoot, 'packages', 'app', 'dist', 'models-dev');
 const providerDir = path.join(outRoot, 'providers', PROVIDER_ID);
+
+/**
+ * 扫 models.dev 的顶层 models/<vendor>/<id>.toml，建「模型 ID → vendor/id」索引。
+ * 同名跨 vendor 的条目直接丢弃：宁可退回完整写法，也不要 base_model 指错源模型。
+ */
+function loadBaseModelIndex(repoPath: string): Map<string, string> {
+  const modelsRoot = path.join(repoPath, 'models');
+  if (!fs.existsSync(modelsRoot)) {
+    throw new Error(`${modelsRoot} 不存在——--models-dev 应指向 models.dev 仓库根目录`);
+  }
+
+  const seen = new Map<string, string[]>();
+  for (const vendor of fs.readdirSync(modelsRoot)) {
+    const vendorDir = path.join(modelsRoot, vendor);
+    if (!fs.statSync(vendorDir).isDirectory()) continue;
+    for (const file of fs.readdirSync(vendorDir)) {
+      if (!file.endsWith('.toml')) continue;
+      const id = file.slice(0, -'.toml'.length);
+      seen.set(id, [...(seen.get(id) ?? []), `${vendor}/${id}`]);
+    }
+  }
+
+  const index = new Map<string, string>();
+  for (const [id, refs] of seen) {
+    if (refs.length === 1) index.set(id, refs[0]);
+  }
+  return index;
+}
+
+/** 我们的对外模型名优先，其次上游模型名（个别模型对外做过改名），最后查手工映射表。 */
+function findBaseModel(index: Map<string, string> | null, model: D1Model): string | null {
+  if (MANUAL_BASE_MODEL[model.id]) return MANUAL_BASE_MODEL[model.id];
+  if (!index) return null;
+  for (const key of [model.id, model.upstreamModelId]) {
+    if (key && index.has(key)) return index.get(key) as string;
+  }
+  return null;
+}
+
+// ---- reasoning_options ----------------------------------------------------
+//
+// models.dev 的 schema 强制：reasoning = true 就必须给 reasoning_options，
+// reasoning = false 就不许给。它描述的是「本 provider 怎么暴露推理控制」，
+// 所以不能从 base_model 继承，得我们自己声明。
+//
+// 我们的规则：除 gemini 外，chat body 原样透传给上游（normalizeChatBody 只动
+// max_tokens 和 grok 的三个不支持参数），所以上游第一方声明什么，我们就是什么。
+// gemini 是唯一例外——gemini-compat.ts 的 translateChatRequest 只转发
+// systemInstruction / maxOutputTokens / temperature / topP / stopSequences，
+// 推理参数被丢弃，因此声明空数组（同 anyapi 对它的 Google 模型的处理）。
+
+type ReasoningOption = { type: string; values?: string[]; min?: number; max?: number };
+
+const FIRST_PARTY_FOR_REASONING = [
+  'anthropic',
+  'openai',
+  'google',
+  'xai',
+  'moonshotai',
+  'zhipuai',
+  'xiaomi',
+  'cloudflare-workers-ai',
+  'alibaba',
+];
+
+/** 我们的翻译层会吃掉推理参数的 provider。 */
+const REASONING_STRIPPED_PROVIDERS = new Set(['google-ai-studio']);
+
+interface ModelsDevApiModel {
+  reasoning?: boolean;
+  reasoning_options?: ReasoningOption[];
+}
+
+async function loadReasoningOptions(): Promise<Map<string, ReasoningOption[]>> {
+  const response = await fetch('https://models.dev/api.json');
+  if (!response.ok) throw new Error(`拉取 models.dev api.json 失败：HTTP ${response.status}`);
+  const api = (await response.json()) as Record<string, { models?: Record<string, ModelsDevApiModel> }>;
+
+  const result = new Map<string, ReasoningOption[]>();
+  for (const vendor of FIRST_PARTY_FOR_REASONING) {
+    for (const [key, entry] of Object.entries(api[vendor]?.models ?? {})) {
+      if (!entry.reasoning_options) continue;
+      const bare = key.includes('/') ? (key.split('/').pop() as string) : key;
+      // 先到先得：FIRST_PARTY_FOR_REASONING 已按可信度排序
+      if (!result.has(bare)) result.set(bare, entry.reasoning_options);
+      if (!result.has(key)) result.set(key, entry.reasoning_options);
+    }
+  }
+  return result;
+}
+
+function resolveReasoningOptions(
+  index: Map<string, ReasoningOption[]>,
+  model: D1Model,
+  metadata: ModelMetadata,
+): ReasoningOption[] | null {
+  if (!metadata.reasoning) return null; // reasoning=false 时给了反而报错
+  if (REASONING_STRIPPED_PROVIDERS.has(model.provider)) return [];
+  for (const key of [model.id, model.upstreamModelId]) {
+    if (key && index.has(key)) return index.get(key) as ReasoningOption[];
+  }
+  // 查不到上游声明就不瞎猜，按「不暴露控制」处理
+  return [];
+}
+
+function renderReasoningOptions(options: ReasoningOption[]): string {
+  const inline = options.map((option) => {
+    const parts = [`type = ${tomlString(option.type)}`];
+    if (option.values) parts.push(`values = ${tomlStringArray(option.values)}`);
+    if (option.min !== undefined) parts.push(`min = ${option.min}`);
+    if (option.max !== undefined) parts.push(`max = ${option.max}`);
+    return `{ ${parts.join(', ')} }`;
+  });
+  return `reasoning_options = [${inline.join(', ')}]`;
+}
 
 interface ReadyModel {
   model: D1Model;
@@ -105,26 +245,51 @@ function toReadyModel(model: D1Model): ReadyModel | { skip: string } {
   };
 }
 
-function renderModelToml(ready: ReadyModel): string {
-  const { metadata, model } = ready;
+/** [cost] 表：base_model 形式与完整形式共用。覆写嵌套表必须给全值，不能只补一半。 */
+function renderCostTable(ready: ReadyModel): string[] {
+  const { model } = ready;
   const markupRate = model.markupRate ?? DEFAULT_MARKUP_RATE;
+  const lines = [
+    '[cost]',
+    `input = ${retailPrice(ready.inputPrice, markupRate)}`,
+    `output = ${retailPrice(ready.outputPrice, markupRate)}`,
+  ];
+  if (model.cachedInputPrice != null) lines.push(`cache_read = ${retailPrice(model.cachedInputPrice, markupRate)}`);
+  if (model.cacheWritePrice != null) lines.push(`cache_write = ${retailPrice(model.cacheWritePrice, markupRate)}`);
+  return lines;
+}
+
+/**
+ * base_model 形式：只声明源模型和我们自己的价格。
+ * 不覆写 limit / modalities / 能力标记——那些本来就是从 models.dev 抄来的，继承等于
+ * 白拿上游后续修正；覆写反而会让我们的副本随时间漂移。
+ */
+/**
+ * `name` 总是显式覆盖，不依赖继承。base_model 目标文件的 name 字段不一定和我们
+ * 的 displayName 一致——最明显的例子是 gpt-5.6 指向 openai/gpt-5.6-sol，那份文件
+ * 的 name 是 "GPT-5.6 Sol"。生成器拿不到 base 文件内容做逐条比对，与其猜哪些一致
+ * 哪些不一致，不如统一显式声明，行为可预测。
+ */
+function renderBaseModelToml(ready: ReadyModel, baseRef: string, reasoning: ReasoningOption[] | null): string {
+  const head = [`base_model = ${tomlString(baseRef)}`, `name = ${tomlString(ready.displayName)}`];
+  if (reasoning) head.push('', renderReasoningOptions(reasoning));
+  return `${head.join('\n')}\n\n${renderCostTable(ready).join('\n')}\n`;
+}
+
+function renderModelToml(ready: ReadyModel, reasoning: ReasoningOption[] | null): string {
+  const { metadata } = ready;
   const lines: string[] = [`name = ${tomlString(ready.displayName)}`, `description = ${tomlString(ready.description)}`];
   if (metadata.family) lines.push(`family = ${tomlString(metadata.family)}`);
-  lines.push(
-    `attachment = ${metadata.attachment}`,
-    `reasoning = ${metadata.reasoning}`,
-    `tool_call = ${metadata.toolCall}`,
-  );
+  lines.push(`attachment = ${metadata.attachment}`, `reasoning = ${metadata.reasoning}`);
+  if (reasoning) lines.push(renderReasoningOptions(reasoning));
+  lines.push(`tool_call = ${metadata.toolCall}`);
   if (metadata.temperature !== undefined) lines.push(`temperature = ${metadata.temperature}`);
   if (metadata.structuredOutput !== undefined) lines.push(`structured_output = ${metadata.structuredOutput}`);
   lines.push(`open_weights = ${metadata.openWeights}`);
   if (metadata.knowledge) lines.push(`knowledge = ${tomlString(metadata.knowledge)}`);
   lines.push(`release_date = ${tomlString(ready.releaseDate)}`, `last_updated = ${tomlString(ready.lastUpdated)}`);
 
-  lines.push('', '[cost]', `input = ${retailPrice(ready.inputPrice, markupRate)}`);
-  lines.push(`output = ${retailPrice(ready.outputPrice, markupRate)}`);
-  if (model.cachedInputPrice != null) lines.push(`cache_read = ${retailPrice(model.cachedInputPrice, markupRate)}`);
-  if (model.cacheWritePrice != null) lines.push(`cache_write = ${retailPrice(model.cacheWritePrice, markupRate)}`);
+  lines.push('', ...renderCostTable(ready));
 
   lines.push('', '[limit]', `context = ${ready.contextLength}`, `output = ${ready.maxOutputTokens}`);
 
@@ -162,8 +327,10 @@ function renderOpencodeConfig(models: ReadyModel[]): string {
   )}\n`;
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const models = loadModelsFromD1(useRemote);
+  const baseIndex = modelsDevRepo ? loadBaseModelIndex(modelsDevRepo) : null;
+  const reasoningIndex = await loadReasoningOptions();
 
   const ready: ReadyModel[] = [];
   const skipped: Array<{ id: string; reason: string }> = [];
@@ -176,8 +343,17 @@ function main(): void {
   fs.rmSync(providerDir, { recursive: true, force: true });
   fs.mkdirSync(path.join(providerDir, 'models'), { recursive: true });
   fs.writeFileSync(path.join(providerDir, 'provider.toml'), PROVIDER_TOML, 'utf8');
+  fs.copyFileSync(path.join(appRoot, 'scripts', 'models-dev-assets', 'logo.svg'), path.join(providerDir, 'logo.svg'));
+
+  const standalone: string[] = [];
+  const noReasoningControl: string[] = [];
   for (const item of ready) {
-    fs.writeFileSync(path.join(providerDir, 'models', `${item.model.id}.toml`), renderModelToml(item), 'utf8');
+    const baseRef = findBaseModel(baseIndex, item.model);
+    if (!baseRef) standalone.push(item.model.id);
+    const reasoning = resolveReasoningOptions(reasoningIndex, item.model, item.metadata);
+    if (reasoning?.length === 0) noReasoningControl.push(item.model.id);
+    const body = baseRef ? renderBaseModelToml(item, baseRef, reasoning) : renderModelToml(item, reasoning);
+    fs.writeFileSync(path.join(providerDir, 'models', `${item.model.id}.toml`), body, 'utf8');
   }
   fs.writeFileSync(path.join(outRoot, 'opencode.json'), renderOpencodeConfig(ready), 'utf8');
 
@@ -186,10 +362,21 @@ function main(): void {
     console.log('\n跳过明细：');
     for (const item of skipped) console.log(`  ${item.id.padEnd(28)} ${item.reason}`);
   }
+  if (!baseIndex) {
+    console.log('\n⚠️  未给 --models-dev，全部生成完整写法。提 PR 前请带上该参数改用 base_model。');
+  } else {
+    console.log(`\nbase_model 形式 ${ready.length - standalone.length} 个，完整写法 ${standalone.length} 个`);
+    if (standalone.length > 0) {
+      console.log(`  顶层 models/ 未收录，只能写全量：${standalone.join(', ')}`);
+    }
+  }
+  if (noReasoningControl.length > 0) {
+    console.log(`\nreasoning_options = []（推理模型但我们不暴露控制）：${noReasoningControl.join(', ')}`);
+  }
   console.log(`\n产物：${path.relative(repoRoot, outRoot)}`);
-  console.log('  providers/muirouter/{provider.toml,models/*.toml}  → 提 PR 到 sst/models.dev');
+  console.log('  providers/muirouter/{provider.toml,models/*.toml}  → 提 PR 到 anomalyco/models.dev');
   console.log('  opencode.json                                     → PR 合并前给用户的兜底配置');
-  console.log('\n注意：models.dev 的 logo.svg 是可选项，本脚本不生成——品牌资产该由人来定。');
+  console.log('  providers/muirouter/logo.svg                     → 拷自 scripts/models-dev-assets/logo.svg');
 }
 
-main();
+await main();

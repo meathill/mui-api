@@ -411,3 +411,33 @@ API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0）
 - 必须**优先取第一方 provider 的条目**。同一模型名在几十个转售商下都有条目，但只有原厂的能力标记和上下文长度可信。
 - 回填脚本用 `basic` 投影读 D1（只取 `id/provider/upstream_model_id`）——它按定义要在元数据列还没建起来的库上跑，拿全投影会直接 SQLITE_ERROR。
 - **生成 migration 要用 `--remote`**。本地 D1 常年落后于生产（seed 改了但没重新灌），按本地生成会静默漏掉最新模型。
+
+### models.dev 提交的两个硬约束（首次 PR 踩过）
+
+**1. wrapper provider 必须用 `base_model`，不要复制元数据。** MuiRouter 这种路由/转售 provider，
+README 的「Reuse Model Metadata with `base_model`」一节明确要求引用顶层 `models/<vendor>/<id>.toml`，
+只覆写自己的 `[cost]`；requesty 等同类 provider 已全部改用这个写法。好处是上游修正 context 长度、
+能力标记时我们自动跟上。生成器需要一份 models.dev 的本地 checkout 来建索引：
+
+```bash
+node packages/app/scripts/gen-models-dev-toml.ts --remote --models-dev <models.dev 路径>
+```
+
+顶层 `models/` 没收录的模型（写这段时是 `gpt-5.6`、`qwen3-30b`）才退回完整写法。
+注意 `mergeDeep` 是深合并——覆写 `[cost]` 时必须给全所有档位，否则 base 的残留字段会漏进来
+（目前顶层 `models/` 条目不带 cost，所以暂时无此风险，但改动生成器时要留意）。
+
+**2. `reasoning = true` 就必须给 `reasoning_options`，`false` 则不许给。** 这是 schema 的跨字段
+refinement，只查必填项的校验发现不了——首次 PR 的 CI 就栽在这。该字段描述「本 provider 怎么暴露
+推理控制」，不从 base_model 继承。
+
+我们的取值规则：chat body 原样透传给上游（`normalizeChatBody` 只动 `max_tokens` 与 grok 的三个
+不支持参数），所以照抄上游第一方在 models.dev 上的声明。**唯一例外是 gemini**——
+`gemini-compat.ts` 的 `translateChatRequest` 只转发 systemInstruction / maxOutputTokens /
+temperature / topP / stopSequences，推理参数根本到不了模型，因此声明为空数组
+（`anyapi` 对它的 Google 模型也是这么写的）。若日后给 gemini 补上 thinkingConfig 透传，
+记得同步改这里。
+
+**本机跑不了上游的 `bun run validate`**（bun-only，且 extensionless import 让 node 解析不了）。
+替代方案是用 python `tomllib` 模拟 `generateModels` + `mergeBaseModel`，除必填项外**务必把上面
+两条 refinement 也一起校验**。
