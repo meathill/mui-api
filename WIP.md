@@ -15,13 +15,19 @@
 - [x] **提 PR**：[anomalyco/models.dev#3749](https://github.com/anomalyco/models.dev/pull/3749)（38 个 chat 模型，CI 全绿、mergeable）
   - 审阅机器人三轮意见，已修：logo.svg（新画极简爪印 mark，源文件 `scripts/models-dev-assets/logo.svg`）、`gpt-5.6` 改走 `base_model`
   - 已核实为误判、未改：`gemini-3-flash` 继承名 / `gpt-5.4` 缺 cache_read / `grok-4.5` cache 占比——均确认与我们 D1 真实数据一致
-  - **待你确认**：`gemini-3-flash-preview` 与 `gemini-3.1-pro-preview` 价格完全相同（input=2, output=12），机器人连续两轮点出，很可能是后台录入时复制粘贴出的错，需要去 `/admin/models` 或 D1 核对
+  - [x] `gemini-3-flash-preview` 重复价格问题：你直接在生产删掉了这个模型，只留 `gemini-3-flash`，问题解决
+  - [x] 你新增 `gemini-3.5-flash` / `gemini-3.5-flash-lite` / `gemini-3.6-flash` 三个模型（2026-07-27）
+    - migration 0025 回填元数据（49/50 命中，缺口仍是 `mimo-v2.5-flash`）
+    - migration 0026 修正 `gemini-3.5-flash-lite` 的 provider 录入错误（误填 `openai`，两个兄弟模型都是 `google-ai-studio`；错的这行会把请求打到 OpenAI API 上导致用户调不通）——已授权直接改
+    - 顺手修了 `fetch-model-metadata.ts` 的一个 bug：迁移文件名之前硬编码成 `0024`，重跑会原地覆盖已经在生产跑过的那份（wrangler 按文件名去重，覆盖后的改动不会被应用，静默丢失）。改成扫目录自动取下一个序号
+    - 两条迁移 + 清 KV 均已上生产
+  - [x] PR 分支同步更新：删掉 `gemini-3-flash-preview.toml`，加 3 个新模型，`gemini-3-flash`/`gemini-3.1-pro-preview` 顺带刷新了价格（读的是最新生产数据）；重新过了一遍 merge 模拟 + 新增的「同价格跨产品线」扫描，无异常
+  - [x] `gpt-5.4` 缺 `cache_read`：你在后台补上了 `cached_input_price=0.25`，重新生成 PR 材料（只改了这一个文件，×1.05=0.2625 与机器人预测值一致），清 KV，已推送并回复 PR
   - **待实测**：Claude 模型的 `reasoning_options` 是否准确——取决于 CF AI Gateway 把 OpenAI 风格 `reasoning_effort` 转成 Anthropic `thinking.budget_tokens` 的内部逻辑，代码库里查不到，需要真实调一次 API 验证
-  - 现在按你的决定：先不继续跟机器人对线，等 anomalyco/models.dev 的真人 maintainer review
+  - 现在按你的决定：先不继续跟机器人对线，等 anomalyco/models.dev 的真人 maintainer review（截至 2026-07-27 仍只有机器人评论，无真人 review）
 - [ ] PR 合并后确认 opencode 里只设 `MUIROUTER_API_KEY` 就能刷出模型
 - [ ] PR 合并后把 `/opencode` 页改成「只设 MUIROUTER_API_KEY 即可」，手写片段降为附录
 - [ ] `mimo-v2.5-flash` 补元数据：models.dev 无条目，小米公开文档也查不到 context 长度与发布日期，拿到后填进 `fetch-model-metadata.ts` 的 `MANUAL_METADATA`
-- [ ] 可选：models.dev 的 `logo.svg`（品牌资产需人工决定，脚本不生成）
 
 **发新模型的 checklist 追加一条**：加模型 / 调价后重跑 `gen-models-dev-toml.ts --remote` 并向 models.dev 再提一次 PR，否则 opencode 用户看不到新模型。
 

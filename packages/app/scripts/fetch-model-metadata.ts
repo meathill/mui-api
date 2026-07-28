@@ -24,7 +24,7 @@ import {
 import { type D1Model, loadModelsFromD1, repoRoot } from './lib/d1-models.ts';
 
 const MODELS_DEV_API = 'https://models.dev/api.json';
-const MIGRATION_NAME = '0024_backfill_model_metadata.sql';
+const MIGRATION_SLUG = 'backfill_model_metadata';
 
 /**
  * 第一方 provider 优先级：同一个模型名在几十个转售商下都有条目，但只有原厂
@@ -180,6 +180,27 @@ function buildMigration(resolved: Resolved[]): string {
   return `${header}${statements.join('\n\n')}\n`;
 }
 
+/**
+ * 找下一个可用的 migration 序号。之前这里是硬编码文件名——脚本设计上要能重跑
+ * （见头部注释「维护：每次加模型/调价后重跑」），硬编码名字意味着第二次跑会原地
+ * 覆盖第一次生成的文件；如果那个文件已经在生产跑过，覆盖了也不会被重新应用
+ * （wrangler 按文件名去重），改动就这么静默丢失。扫目录取最大序号 + 1，
+ * 每次重跑都是一份新 migration。
+ */
+function nextMigrationPath(): string {
+  const drizzleDir = path.join(repoRoot, 'packages', 'shared-db', 'drizzle');
+  const existing = fs
+    .readdirSync(drizzleDir)
+    .map((name) => name.match(/^(\d{4})_/))
+    .filter((match): match is RegExpMatchArray => match !== null)
+    .map((match) => Number(match[1]));
+  const next = (existing.length > 0 ? Math.max(...existing) : 0) + 1;
+  const fileName = `${String(next).padStart(4, '0')}_${MIGRATION_SLUG}.sql`;
+  const target = path.join(drizzleDir, fileName);
+  if (fs.existsSync(target)) throw new Error(`${target} 已存在，扫描逻辑有 bug，不能覆盖`);
+  return target;
+}
+
 async function main(): Promise<void> {
   // 用 basic 投影：本脚本要在元数据列还没建起来的库上跑，也只需要这三列。
   const ourModels = loadModelsFromD1(useRemote, 'basic');
@@ -232,7 +253,7 @@ async function main(): Promise<void> {
     return;
   }
 
-  const target = path.join(repoRoot, 'packages', 'shared-db', 'drizzle', MIGRATION_NAME);
+  const target = nextMigrationPath();
   fs.writeFileSync(target, buildMigration(resolved), 'utf8');
   console.log(`\n已写入 ${path.relative(repoRoot, target)}（${resolved.length} 条 UPDATE）`);
   console.log('请 review 后执行：pnpm --filter @muirouter/shared-db db:migrate:local');
