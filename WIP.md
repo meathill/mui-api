@@ -40,8 +40,15 @@
 - [x] 清 KV `models:catalog`
 - [x] 线上确认 `/zh/blog/claude-opus-5` 200
 
-## 充值遗留（上一轮）
+## GPT-5.6 降价博客（2026-07-31）
 
-- [ ] 确认 Cloudflare 自动部署完成(mui-api 与 dashboard)
-- [ ] dashboard 用户页 / Recharge Logs 核对余额与补录记录显示
-- [ ] 通知付费用户余额已到账
+- [x] 从 X (Twitter)、Reddit、Hacker News 等收集 10+ 个不同角度的开发者讨论与社区总结
+- [x] 精炼归纳 3 大核心社区观点，并融入 Gemini 3.6 Flash 质量倒退、1M 上下文、Agent 专属微调及应对中国开源竞争等独到视角
+- [x] 撰写并优化中文博客草稿 `packages/dashboard/src/content/blog/gpt-5-6-price-cut.zh.mdx`
+- [x] 完成 8 种语言的多语种翻译 (`en`, `ja`, `de`, `es`, `fr`, `pt`, `th`) 并完成 `blog-content.ts` 注册
+
+
+
+
+
+

@@ -1,0 +1,57 @@
+On July 30, 2026, OpenAI unexpectedly slashed the prices of its mid-to-entry-level models in the GPT-5.6 family: **GPT-5.6 Luna** and **GPT-5.6 Terra**. This comes just three weeks after the official release of GPT-5.6.
+
+GPT-5.6 was launched following Fable with prices matching previous standards and performance that didn't feel drastically different, leading to widespread community complaints about its value proposition. Some even gave it negative reviews for falling into overthinking traps. However, this unannounced massive price cut dropped like a bombshell in developer circles, triggering an overwhelmingly positive reaction.
+
+## Pricing Details Overview
+
+According to OpenAI's official announcement, the API pricing has been updated as follows:
+
+| Model | Original Price (per 1M tokens) | New Price (per 1M tokens) | Price Cut |
+| --- | --- | --- | ---: |
+| **GPT-5.6 Luna** | Input $1.00 / Output $6.00 | **Input $0.20 / Output $1.20** | **-80%** |
+| **GPT-5.6 Terra** | Input $2.50 / Output $15.00 | **Input $2.00 / Output $12.00** | **-20%** |
+| **GPT-5.6 Sol** | Input $5.00 / Output $30.00 | Input $5.00 / Output $30.00 (Unchanged) | 0% |
+
+Notes:
+
+- Sol's base price remains unchanged, but a **Fast Mode** has been introduced—offering up to 2.5× generation speed at 2× the base rate.
+- Cached Inputs continue to enjoy a 90% discount (10% of base rate).
+- The price cuts automatically apply to ChatGPT Work and Codex subscription quotas.
+
+## Key Community Perspectives
+
+Synthesizing discussions across X (Twitter), Reddit, and Hacker News, community feedback centers around three core dimensions:
+
+### 1. "Entry Model + High Reasoning" Comeback
+[Developer @rafaquint speculated based on DeepSWE benchmarks](https://x.com/rafaquint/status/2082942652811485549) that factoring in Reasoning Effort, the discounted Luna Max requires only 1/3 the cost while potentially outperforming Sol Medium.
+This surge of "low-tier base + max reasoning" made developers realize that high-tier models aren't always necessary—Luna Max is well worth trying and might handle most coding and Agent automation needs.
+
+### 2. Shift to Cost-per-Task & Multi-Tier Model Routing
+The era of unchecked token consumption is over. Enterprises and developers now focus on the "total cost to complete a task." The discounted Luna ($0.20/$1.20) and Terra ($2.00/$12.00) form an ideal gradient:
+- **Luna** handles massive preprocessing, log parsing, and low-cost retries.
+- **Terra** manages code implementation and review.
+- Tasks are escalated to **Sol** only for extreme challenges.
+
+### 3. Self-Hosted Open Source (vLLM / Ollama) Loses Cost Advantage
+Many indie hackers noted that renting GPUs to run open-source models via vLLM to save money lost its edge once hardware rent, maintenance, and concurrency limits were factored in against Luna's $0.20/1M pricing. Many individual developers and small teams will likely migrate back to commercial APIs.
+
+## Our Take: Countering Open Source & Reshaping Mid-to-Entry Tiers
+
+Why did the community react so strongly to Luna and Terra's price cuts? Behind the attractive pricing lies a fundamental shift in the AI model landscape.
+
+### 1. Competitor Collapse & Supply Crisis
+Among commercial closed models, the mid-to-entry market faces a severe quality crisis. Take Google: the recently released **Gemini 3.6 Flash is essentially garbage, with quality regressing by more than a year**; while the rumored **Gemini 3.6 Pro** remains unreleased, likely due to quality issues. Under such circumstances, developers rarely choose uncompetitive mid-to-low tiers of closed commercial models.
+
+### 2. 1M Context Window + Dedicated Agent Tuning
+Mistaking Luna for a simple "watered-down model" is a misconception:
+- **1M Context Window**: Both Luna and Terra natively support a 1M token context window—something standard self-hosted infrastructure (e.g., local vLLM/Ollama clusters) cannot easily achieve or maintain.
+- **Fine-Tuned for AI Agents**: Luna is specifically fine-tuned and distilled from OpenAI's flagship models, heavily optimized for tool calling, instruction following, and workflow orchestration. It's perfectly suited as the brain for daily AI Agent tasks—or, in other words, ideal food for "OpenClaw / Agent" setups.
+
+### 3. OpenAI's Strategic Counter against Chinese Open-Source Competition
+Over the past six months, Chinese open-source models (represented by DeepSeek and others) have rapidly gained market share with extreme cost-efficiency and strong reasoning capabilities.
+
+We believe OpenAI's 80% price cut on Luna to $0.20/$1.20 is a **crucial strategic move to counter the fierce challenge from Chinese open-source LLMs**. By combining aggressive pricing, native 1M context, and enterprise-grade cloud stability, OpenAI aims to seal off replacement opportunities for open-source models in small-to-mid-scale workloads.
+
+## MuiRouter Has Updated
+
+MuiRouter's pricing system has automatically synced with OpenAI's latest official rates. Using the same API key and request format, you can seamlessly leverage the updated model tiering today!

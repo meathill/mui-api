@@ -95,6 +95,17 @@ const xaiGrokLoaders: Record<Locale, BlogContentLoader> = {
   ja: () => import('@/content/blog/xai-grok.ja.mdx'),
 };
 
+const gpt56PriceCutLoaders: Record<Locale, BlogContentLoader> = {
+  en: () => import('@/content/blog/gpt-5-6-price-cut.mdx'),
+  zh: () => import('@/content/blog/gpt-5-6-price-cut.zh.mdx'),
+  fr: () => import('@/content/blog/gpt-5-6-price-cut.fr.mdx'),
+  es: () => import('@/content/blog/gpt-5-6-price-cut.es.mdx'),
+  pt: () => import('@/content/blog/gpt-5-6-price-cut.pt.mdx'),
+  de: () => import('@/content/blog/gpt-5-6-price-cut.de.mdx'),
+  th: () => import('@/content/blog/gpt-5-6-price-cut.th.mdx'),
+  ja: () => import('@/content/blog/gpt-5-6-price-cut.ja.mdx'),
+};
+
 const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
   'claude-fable-5': claudeFable5Loaders,
   'claude-opus-5': claudeOpus5Loaders,
@@ -102,6 +113,7 @@ const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
   'codex-context-drift': codexContextDriftLoaders,
   'gpt-5-5': gpt55Loaders,
   'gpt-5-6': gpt56Loaders,
+  'gpt-5-6-price-cut': gpt56PriceCutLoaders,
   'kimi-k3': kimiK3Loaders,
   'xai-grok': xaiGrokLoaders,
 };
