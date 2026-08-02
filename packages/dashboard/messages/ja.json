@@ -44,6 +44,7 @@
     "openaiDesc": "最も強力な汎用モデル — コード、推論、マルチモーダル",
     "anthropicDesc": "超長コンテキスト、優れたコーディングと分析能力",
     "googleDesc": "ネイティブマルチモーダル、超大型コンテキストウィンドウ",
+    "deepseekDesc": "DeepSeek V4 Flash は 284B MoE 構成、1M コンテキスト、超低コストなプロンプトキャッシュに対応",
     "moonshotDesc": "Kimi K3 は1Mトークンのコンテキスト、画像入力、常時推論、プロンプトキャッシュに対応",
     "grokDesc": "Opus級の推論とコーディング能力、1Mトークンの長コンテキストオプション",
     "workersDesc": "低コストで高スループットなCloudflareネイティブモデル",

@@ -468,6 +468,23 @@ export const SEED_MODELS: NewModel[] = [
     longContextOutputPrice: null,
   },
 
+  // DeepSeek —— 直连 OpenAI 兼容接口
+  {
+    id: 'deepseek-v4-flash',
+    provider: 'deepseek',
+    upstreamModelId: 'deepseek-v4-flash',
+    inputPrice: 0.14,
+    outputPrice: 0.28,
+    markupRate: 1.2,
+    cachedInputPrice: 0.0028,
+    cacheWritePrice: null,
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
+
   // Xiaomi MiMo —— 直连 OpenAI 兼容接口
   // 文本模型官方分 <=256K 与 >256K 两档；cache 命中按 OpenAI 兼容约 10%
   {

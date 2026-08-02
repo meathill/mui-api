@@ -44,6 +44,7 @@
     "openaiDesc": "El modelo general más potente — código, razonamiento, multimodal",
     "anthropicDesc": "Contexto ultra largo, excelente en programación y análisis",
     "googleDesc": "Multimodal nativo, ventana de contexto ultra grande",
+    "deepseekDesc": "DeepSeek V4 Flash con arquitectura MoE de 284B, contexto de 1M y caché de prompts de ultra bajo coste",
     "moonshotDesc": "Kimi K3 con contexto de 1M tokens, visión, razonamiento permanente y caché de prompts",
     "grokDesc": "Razonamiento y programación de nivel Opus, con opción de contexto de 1M tokens",
     "workersDesc": "Modelos nativos de Cloudflare para bajo costo y alto rendimiento",

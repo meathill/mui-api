@@ -83,6 +83,9 @@ await db.batch([
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('kimi-k3', 'moonshot', 'kimi-k3', 3, 15, 1.2, 0.3)",
   ),
   db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('deepseek-v4-flash', 'deepseek', 'deepseek-v4-flash', 0.14, 0.28, 1.2, 0.0028)",
+  ),
+  db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('mimo-v2.5-tts', 'xiaomi-mimo', 'mimo-v2.5-tts', 0, 0, 1.2)",
   ),
   db.prepare(

@@ -8,11 +8,13 @@ import { findUnsupportedChatFeature } from '../services/gemini-compat';
 import {
   callAiBinding,
   callAnthropicCompat,
+  callDeepSeek,
   callGemini,
   callGrokEndpoint,
   callMoonshot,
   callOpenAI,
   callOpenAIEndpoint,
+  callOpenCodeGo,
   callXiaomiMiMo,
 } from '../services/provider-dispatch';
 import { createProxyServices } from '../services/service-factory';
@@ -74,6 +76,10 @@ openai.post('/chat/completions', async (c) => {
       upstream = await callMoonshot(c.env, upstreamBody);
     } else if (provider === 'xiaomi-mimo') {
       upstream = await callXiaomiMiMo(c.env, upstreamBody);
+    } else if (provider === 'deepseek') {
+      upstream = await callDeepSeek(c.env, upstreamBody);
+    } else if (provider === 'opencode-go') {
+      upstream = await callOpenCodeGo(c.env, upstreamBody);
     } else if (provider === 'google-ai-studio') {
       const unsupported = findUnsupportedChatFeature(body);
       if (unsupported) {

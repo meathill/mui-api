@@ -44,6 +44,7 @@
     "openaiDesc": "Das leistungsstärkste Allzweckmodell — Code, Logik, multimodal",
     "anthropicDesc": "Ultra-langer Kontext, hervorragend beim Programmieren und Analysieren",
     "googleDesc": "Nativ multimodal, ultra-großes Kontextfenster",
+    "deepseekDesc": "DeepSeek V4 Flash mit 284B MoE-Architektur, 1M-Token-Kontext und extrem günstigem Prompt-Caching",
     "moonshotDesc": "Kimi K3 mit 1M-Token-Kontext, Bildverständnis, permanentem Denken und Prompt-Caching",
     "grokDesc": "Logik und Programmierung auf Opus-Niveau, mit optionalem 1M-Token-Kontext",
     "workersDesc": "Cloudflare-native Modelle für günstige Aufrufe mit hohem Durchsatz",

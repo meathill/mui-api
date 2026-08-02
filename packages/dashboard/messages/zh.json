@@ -44,6 +44,7 @@
     "openaiDesc": "最强通用模型，代码、推理、多模态",
     "anthropicDesc": "超长上下文，编程与分析能力出众",
     "googleDesc": "多模态原生，超大上下文窗口",
+    "deepseekDesc": "DeepSeek V4 Flash 支持 284B MoE 架构、1M token 上下文与极致 Prompt 缓存",
     "moonshotDesc": "Kimi K3 支持 1M token 上下文、视觉输入、始终推理与 Prompt 缓存",
     "grokDesc": "Opus 级推理与编程能力，另有 1M token 长上下文选项",
     "workersDesc": "Cloudflare 原生模型，低成本高吞吐",

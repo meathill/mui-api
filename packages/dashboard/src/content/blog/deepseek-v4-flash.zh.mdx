@@ -1,0 +1,48 @@
+2026 年 7 月 31 日，DeepSeek 正式发布了新一代轻量化旗舰模型 **DeepSeek V4 Flash**（版本 `DeepSeek-V4-Flash-0731`）。作为 DeepSeek V4 系列中主打高吞吐与极速响应的 MoE 架构模型，V4 Flash 凭其 **2840 亿总参数 / 130 亿激活参数** 的极致设计，在 Agent 编程、代码补全与长文本推理任务中展现出了超越同量级模型的强劲实力。
+
+距离上次发布 DeepSeek v4 刚刚过去一个多月的时间，没想到，他们竟然能够在模型不大改的前提下，进一步提升模型的智力尤其是处理复杂任务的能力，甚至会超越同宗的 DeepSeek V4 Pro。又以如此低的价格发布，真的是难以置信。感谢 A 股股民为 AI 发展做贡献。
+
+我们已在 MuiRouter 正式接入 `deepseek-v4-flash`。无论是在你的终端 AI Coding Agent 中，还是通过标准的 OpenAI 兼容 API (`/v1/chat/completions`)，现在只需一把 API Key 和改一下模型名称，就能以低至每百万输入 Token $0.14 的惊人性价比使用它。
+
+## DeepSeek V4 Flash 核心亮点
+
+根据 DeepSeek 官方发布规格与实测数据，DeepSeek V4 Flash 的核心特征如下：
+
+| 项目 | DeepSeek V4 Flash |
+| --- | --- |
+| **模型架构** | 284B 总参数 Mixture-of-Experts (MoE)，每次激活 13B 专家参数 |
+| **上下文窗口** | 1,048,576 tokens (1M) |
+| **长文本注意力机制** | 混合使用 Compressed Sparse Attention (CSA) 与 Heavily Compressed Attention (HCA) |
+| **功能支持** | 思考模式（Reasoning Content）、Tool Call 工具调用、JSON Mode & Structured Output |
+| **开源与权重** | 开放模型权重（支持 GGUF / Ollama 本地部署）与官方 API 双轨并行 |
+| **官方 API 定价** | 输入 $0.14 / 1M tokens (Cache 命中 $0.0028)；输出 $0.28 / 1M tokens |
+
+### 1. 1M 上下文与极致 Prompt Caching 成本
+
+DeepSeek V4 Flash 支持高达 1M (1,048,576) Token 的原生长上下文。在长会话写代码、仓库分析与文档检索场景中，配合 DeepSeek 官方的高效 Prompt Caching 机制，命中缓存的输入 Token 价格降至仅 **$0.0028 / 1M tokens**（仅为未命中价格的 2%）。
+
+这意味着在终端 Agent反复读取大型代码库上下文时，你的日常 Token 消耗成本将被压缩到极致。
+
+### 2. 为 Agent 与长周期编程优化
+
+DeepSeek-V4-Flash-0731 在最新的后训练（Re-post-training）中特别加强了 Agentic 工作流能力。其高吞吐、低延迟的输出速度，使得 Agent 在执行“分析需求 -> 规划步骤 -> 编写代码 -> 运行终端指令 -> 自动修复 Error”的闭环迭代时，体验极度流畅。
+
+---
+
+## 官方 API 价格与 MuiRouter 计费
+
+DeepSeek 官方 API 价格如下：
+
+| Token 类型 | 官方价格（每 1M tokens） |
+| --- | ---: |
+| **未命中输入 (Cache Miss)** | **$0.14** |
+| **命中输入 (Cache Hit)** | **$0.0028** |
+| **输出 (Output / Reasoning)** | **$0.28** |
+
+在 MuiRouter 中，我们继续保持透明计费，按真实用量结算，无需买月费套餐。
+
+## 总结
+
+DeepSeek V4 Flash 的发布再次刷新了高性能开源模型在响应速度与成本上的下限。搭配 MuiRouter，开发者能以极其亲民的价格获得前沿的 Agent 编程能力。
+
+现在，你可以在 MuiRouter Playground 或你的终端中随时体验 `deepseek-v4-flash`。

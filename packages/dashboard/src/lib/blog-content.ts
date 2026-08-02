@@ -106,11 +106,23 @@ const gpt56PriceCutLoaders: Record<Locale, BlogContentLoader> = {
   ja: () => import('@/content/blog/gpt-5-6-price-cut.ja.mdx'),
 };
 
+const deepseekV4FlashLoaders: Record<Locale, BlogContentLoader> = {
+  en: () => import('@/content/blog/deepseek-v4-flash.mdx'),
+  zh: () => import('@/content/blog/deepseek-v4-flash.zh.mdx'),
+  fr: () => import('@/content/blog/deepseek-v4-flash.fr.mdx'),
+  es: () => import('@/content/blog/deepseek-v4-flash.es.mdx'),
+  pt: () => import('@/content/blog/deepseek-v4-flash.pt.mdx'),
+  de: () => import('@/content/blog/deepseek-v4-flash.de.mdx'),
+  th: () => import('@/content/blog/deepseek-v4-flash.th.mdx'),
+  ja: () => import('@/content/blog/deepseek-v4-flash.ja.mdx'),
+};
+
 const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
   'claude-fable-5': claudeFable5Loaders,
   'claude-opus-5': claudeOpus5Loaders,
   'claude-sonnet-5': claudeSonnet5Loaders,
   'codex-context-drift': codexContextDriftLoaders,
+  'deepseek-v4-flash': deepseekV4FlashLoaders,
   'gpt-5-5': gpt55Loaders,
   'gpt-5-6': gpt56Loaders,
   'gpt-5-6-price-cut': gpt56PriceCutLoaders,

@@ -34,6 +34,8 @@ type ProviderKey =
   | 'workers-ai'
   | 'moonshot'
   | 'xiaomi-mimo'
+  | 'deepseek'
+  | 'opencode-go'
   | 'grok'
   | 'grok-image';
 
@@ -59,6 +61,8 @@ export function extractUsage(
     case 'openai':
     case 'moonshot':
     case 'xiaomi-mimo':
+    case 'deepseek':
+    case 'opencode-go':
       return extractOpenAIUsage(data);
     case 'anthropic':
       return extractAnthropicUsage(data);

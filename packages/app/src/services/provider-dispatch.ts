@@ -22,6 +22,8 @@ import {
 type AnyBody = Record<string, unknown>;
 const MOONSHOT_DEFAULT_BASE_URL = 'https://api.moonshot.ai/v1';
 const XIAOMI_MIMO_DEFAULT_BASE_URL = 'https://api.xiaomimimo.com/v1';
+const DEEPSEEK_DEFAULT_BASE_URL = 'https://api.deepseek.com';
+const OPENCODE_GO_DEFAULT_BASE_URL = 'https://opencode.ai/zen/go/v1';
 
 function aiGatewayBase(env: CloudflareBindings, provider: string): string {
   return `https://gateway.ai.cloudflare.com/v1/${env.CF_ACCOUNT_ID}/${env.CF_GATEWAY_ID}/${provider}`;
@@ -41,6 +43,14 @@ export function xiaomiMiMoBaseURL(env: CloudflareBindings): string {
 
 export function moonshotBaseURL(env: CloudflareBindings): string {
   return trimTrailingSlashes(env.MOONSHOT_BASE_URL ?? MOONSHOT_DEFAULT_BASE_URL);
+}
+
+export function deepseekBaseURL(env: CloudflareBindings): string {
+  return trimTrailingSlashes(env.DEEPSEEK_BASE_URL ?? DEEPSEEK_DEFAULT_BASE_URL);
+}
+
+export function openCodeGoBaseURL(env: CloudflareBindings): string {
+  return trimTrailingSlashes(env.OPENCODE_GO_BASE_URL ?? OPENCODE_GO_DEFAULT_BASE_URL);
 }
 
 /** OpenAI SDK 调用，通过 AI Gateway 转发，CF_AIG_TOKEN 鉴权 */
@@ -74,27 +84,53 @@ type OpenAICompatDirectConfig = {
   apiKeyEnvName: string;
   baseUrl: string;
   providerLabel: string;
+  allowOpenCodeGoFallback?: boolean;
 };
 
-/** 直连 OpenAI 兼容 Chat Completions 接口的公共骨架（不经过 Cloudflare AI Gateway）。 */
-async function callOpenAICompatDirect(config: OpenAICompatDirectConfig, body: AnyBody): Promise<Response> {
-  if (!config.apiKey) {
-    throw new Error(`缺少 ${config.apiKeyEnvName}，无法调用 ${config.providerLabel}`);
+/** OpenCode Go 订阅服务：直连 https://opencode.ai/zen/go/v1 端点 */
+export async function callOpenCodeGo(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  if (!env.OPENCODE_GO_API_KEY) {
+    throw new Error('缺少 OPENCODE_GO_API_KEY，无法调用 OpenCode Go');
   }
 
-  return fetch(`${config.baseUrl}/chat/completions`, {
+  return fetch(`${openCodeGoBaseURL(env)}/chat/completions`, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${config.apiKey}`,
+      Authorization: `Bearer ${env.OPENCODE_GO_API_KEY}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify(body),
   });
 }
 
+/** 直连 OpenAI 兼容 Chat Completions 接口的公共骨架（在配置了 OPENCODE_GO_API_KEY 时优先使用 OpenCode Go API 端点）。 */
+async function callOpenAICompatDirect(
+  env: CloudflareBindings,
+  config: OpenAICompatDirectConfig,
+  body: AnyBody,
+): Promise<Response> {
+  if (config.allowOpenCodeGoFallback !== false && env.OPENCODE_GO_API_KEY) {
+    return callOpenCodeGo(env, body);
+  }
+
+  if (config.apiKey) {
+    return fetch(`${config.baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${config.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    });
+  }
+
+  throw new Error(`缺少 ${config.apiKeyEnvName} 或 OPENCODE_GO_API_KEY，无法调用 ${config.providerLabel}`);
+}
+
 /** Xiaomi MiMo 直连 OpenAI 兼容 Chat Completions 接口，不经过 Cloudflare AI Gateway。 */
 export async function callXiaomiMiMo(env: CloudflareBindings, body: AnyBody): Promise<Response> {
   return callOpenAICompatDirect(
+    env,
     {
       apiKey: env.MIMO_API_KEY,
       apiKeyEnvName: 'MIMO_API_KEY',
@@ -108,11 +144,26 @@ export async function callXiaomiMiMo(env: CloudflareBindings, body: AnyBody): Pr
 /** Moonshot 直连 OpenAI 兼容 Chat Completions 接口，不经过 Cloudflare AI Gateway。 */
 export async function callMoonshot(env: CloudflareBindings, body: AnyBody): Promise<Response> {
   return callOpenAICompatDirect(
+    env,
     {
       apiKey: env.MOONSHOT_API_KEY,
       apiKeyEnvName: 'MOONSHOT_API_KEY',
       baseUrl: moonshotBaseURL(env),
       providerLabel: 'Moonshot AI',
+    },
+    body,
+  );
+}
+
+/** DeepSeek 直连 OpenAI 兼容 Chat Completions 接口，不经过 Cloudflare AI Gateway。 */
+export async function callDeepSeek(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  return callOpenAICompatDirect(
+    env,
+    {
+      apiKey: env.DEEPSEEK_API_KEY,
+      apiKeyEnvName: 'DEEPSEEK_API_KEY',
+      baseUrl: deepseekBaseURL(env),
+      providerLabel: 'DeepSeek',
     },
     body,
   );

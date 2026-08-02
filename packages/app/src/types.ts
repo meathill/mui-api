@@ -18,6 +18,10 @@ export interface CloudflareBindings {
   MOONSHOT_BASE_URL?: string;
   MIMO_API_KEY?: string;
   MIMO_BASE_URL?: string;
+  DEEPSEEK_API_KEY?: string;
+  DEEPSEEK_BASE_URL?: string;
+  OPENCODE_GO_API_KEY?: string;
+  OPENCODE_GO_BASE_URL?: string;
   // Anthropic / Claude 接入
   // unified：经 CF AI Gateway 代付，扣 CF credits，无需自有 Anthropic 账号
   // byok（生产现状，2026-07 起）：注入自有 ANTHROPIC_API_KEY 自付，不再经 CF Unified Billing

@@ -1,0 +1,48 @@
+Am 31. Juli 2026 hat DeepSeek offiziell das neue Leichtbau-Flaggschiffmodell **DeepSeek V4 Flash** (Version `DeepSeek-V4-Flash-0731`) veröffentlicht. Als MoE-Modell innerhalb der DeepSeek V4-Familie, das auf extrem hohen Durchsatz und minimale Latenz ausgelegt ist, nutzt V4 Flash **284 Mrd. Gesamtparameter und 13 Mrd. aktive Parameter**, um Spitzenleistungen bei Agent-Programmierung, Code-Vervollständigung und Long-Context-Reasoning zu erzielen.
+
+Nur etwas mehr als einen Monat nach der Veröffentlichung von DeepSeek V4 ist es erstaunlich, wie das Team die Modellintelligenz bei komplexen Aufgaben weiter steigern konnte—in einigen Benchmarks übertrifft V4 Flash sogar das größere DeepSeek V4 Pro. Dass ein solches Modell zu diesem extrem niedrigen Preis angeboten wird, ist schlicht beeindruckend.
+
+Wir haben `deepseek-v4-flash` offiziell in MuiRouter integriert. Egal ob in Ihrem Terminal-AI-Agenten oder über standardmäßige OpenAI-kompatible APIs (`/v1/chat/completions`)—Sie können DeepSeek V4 Flash jetzt mit einem einzigen API-Schlüssel ab nur **0,14 $ pro 1M Eingabe-Tokens** nutzen.
+
+## Die wichtigsten Highlights von DeepSeek V4 Flash
+
+Die wichtigsten Spezifikationen laut offiziellen Daten von DeepSeek:
+
+| Merkmal | DeepSeek V4 Flash |
+| --- | --- |
+| **Architektur** | 284B Gesamtparameter MoE, 13B aktiv pro Token |
+| **Kontextfenster** | 1.048.576 Tokens (1M) |
+| **Long-Context Attention** | Hybrid aus Compressed Sparse Attention (CSA) und Heavily Compressed Attention (HCA) |
+| **Funktionen** | Reasoning-Modus („Thinking“), Tool Calls, JSON-Modus & Strukturierte Ausgabe |
+| **Bereitstellung** | Offene Gewichte (GGUF / Ollama lokale Nutzung) & Offizielle API |
+| **Offizielle API-Preise** | Eingabe 0,14 $ / 1M Tokens (Cache-Treffer 0,0028 $); Ausgabe 0,28 $ / 1M Tokens |
+
+### 1. 1M Kontextfenster & extrem günstige Prompt-Caching-Kosten
+
+DeepSeek V4 Flash unterstützt nativ ein Kontextfenster von 1 Mio. Tokens. Bei langen Coding-Sitzungen und Repository-Analysen sinkt der Preis für gecachte Eingabe-Tokens dank des offiziellen Prompt Cachings auf nur **0,0028 $ pro 1M Tokens** (ein Rabatt von 98 % gegenüber Nicht-Treffern).
+
+Dadurch werden die täglichen Token-Kosten drastisch gesenkt, wenn Ihr Terminal-Agent große Codebasen wiederholt liest.
+
+### 2. Optimiert für Agenten und langwierige Programmieraufgaben
+
+Das Update `DeepSeek-V4-Flash-0731` bietet gezielte Post-Training-Optimierungen für agentische Workflows. Die hohe Ausgabegeschwindigkeit ermöglicht schnelle Iterationszyklen, wenn ein Agent eigenständig plant, Code schreibt, Terminalbefehle ausführt und Fehler behebt.
+
+---
+
+## Offizielle API-Preise & MuiRouter Abrechnung
+
+Offizielle API-Preise von DeepSeek:
+
+| Token-Typ | Preis (pro 1M Tokens) |
+| --- | ---: |
+| **Eingabe (Cache Miss)** | **0,14 $** |
+| **Eingabe (Cache Hit)** | **0,0028 $** |
+| **Ausgabe / Reasoning** | **0,28 $** |
+
+Bei MuiRouter bieten wir weiterhin eine transparente Pay-as-you-go-Abrechnung ohne monatliche Abonnements.
+
+## Fazit
+
+DeepSeek V4 Flash setzt neue Maßstäbe für Geschwindigkeit und Kosteneffizienz bei offenen Modellen. In Kombination mit MuiRouter erhalten Entwickler Zugang zu fortschrittlicher Agent-Programmierung zu einem äußerst attraktiven Preis.
+
+Testen Sie `deepseek-v4-flash` heute im MuiRouter Playground oder direkt in Ihrem Terminal-Agenten!

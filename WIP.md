@@ -45,7 +45,24 @@
 - [x] 从 X (Twitter)、Reddit、Hacker News 等收集 10+ 个不同角度的开发者讨论与社区总结
 - [x] 精炼归纳 3 大核心社区观点，并融入 Gemini 3.6 Flash 质量倒退、1M 上下文、Agent 专属微调及应对中国开源竞争等独到视角
 - [x] 撰写并优化中文博客草稿 `packages/dashboard/src/content/blog/gpt-5-6-price-cut.zh.mdx`
-- [x] 完成 8 种语言的多语种翻译 (`en`, `ja`, `de`, `es`, `fr`, `pt`, `th`) 并完成 `blog-content.ts` 注册
+## DeepSeek V4 Flash 接入与 OpenCode Go 对接（2026-08-02）
+
+- [x] `packages/app/src/types.ts` 补充 `DEEPSEEK_API_KEY` / `DEEPSEEK_BASE_URL`
+- [x] `provider-dispatch.ts` 添加 `callDeepSeek` 直连分发
+- [x] `usage-extractor.ts` 增加 `deepseek` 用量提取分支
+- [x] `routes/openai.ts` 添加 `deepseek` 路由分支
+- [x] `seed.ts` 增加 `deepseek-v4-flash` 模型配置（$0.14/$0.28，cache $0.0028）
+- [x] `fetch-model-metadata.ts` 录入 `deepseek-v4-flash` 元数据
+- [x] 编写并优化博客草稿 `packages/dashboard/src/content/blog/deepseek-v4-flash.zh.mdx`（及英文版）并注册 `blog-content.ts`
+- [x] 运行格式化、类型检查和单元测试（308 个测试全部通过）
+
+## OpenCode Go API 端点对接与 OPENCODE_GO_API_KEY 鉴权（2026-08-02）
+
+- [x] `packages/app/src/types.ts` 补充 `OPENCODE_GO_API_KEY` / `OPENCODE_GO_BASE_URL`
+- [x] `provider-dispatch.ts` 添加 `callOpenCodeGo` 分发逻辑，并在 `callDeepSeek` / `callMoonshot` / `callXiaomiMiMo` 中支持当原厂 Key 缺失时自动降级回退至 `OPENCODE_GO_API_KEY`
+- [x] 删除 drizzle schema 迁移文件，保持纯 Schema 迁移规则
+- [x] 编写 `scripts/insert-deepseek-v4-flash.sql`（包含 `models` + `blog_posts` + 8 语种 `blog_post_translations`）用于线上 D1 执行
+- [x] 同步更新并重新生成 `seed-models.sql` (基于 `packages/app/src/db/seed.ts`)
 
 
 

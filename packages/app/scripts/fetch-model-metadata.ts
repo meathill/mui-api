@@ -35,6 +35,7 @@ const FIRST_PARTY_PROVIDERS = [
   'openai',
   'google',
   'google-vertex',
+  'deepseek',
   'xai',
   'moonshotai',
   'zhipuai',
@@ -52,12 +53,31 @@ const FIRST_PARTY_PROVIDERS = [
  * 人工覆盖表：models.dev 上没有条目的模型写在这里。
  * 键是我们的对外模型 ID。重跑脚本不会丢——先查 models.dev，未命中才落到这里。
  * 只填有据可查的数据，宁可留空让生成器跳过，也不要编造 context 长度和发布日期。
- *
- * 已知缺口：mimo-v2.5-flash —— models.dev 无此条目，小米公开文档也查不到它的
- * context 长度与发布日期（能查到的是 MiMo-V2.5 的 1M 和 MiMo-V2-Flash 的 256K，
- * 不能据此推断）。等拿到官方数据再补；在此之前生成器会跳过它，不影响其它模型。
  */
-const MANUAL_METADATA: Record<string, Omit<Resolved, 'model' | 'source'>> = {};
+const MANUAL_METADATA: Record<string, Omit<Resolved, 'model' | 'source'>> = {
+  'deepseek-v4-flash': {
+    displayName: 'DeepSeek V4 Flash',
+    contextLength: 1000000,
+    maxOutputTokens: 8192,
+    metadata: {
+      description:
+        'DeepSeek-V4-Flash is a high-efficiency 284B MoE model (13B active) with 1M context, optimized for coding and reasoning.',
+      family: 'deepseek-v4',
+      attachment: false,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: true,
+      releaseDate: '2026-07-31',
+      lastUpdated: '2026-07-31',
+      modalities: {
+        input: ['text'],
+        output: ['text'],
+      },
+    },
+  },
+};
 
 interface ModelsDevEntry {
   name?: string;

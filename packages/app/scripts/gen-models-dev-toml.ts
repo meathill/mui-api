@@ -117,6 +117,7 @@ const FIRST_PARTY_FOR_REASONING = [
   'anthropic',
   'openai',
   'google',
+  'deepseek',
   'xai',
   'moonshotai',
   'zhipuai',

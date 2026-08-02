@@ -23,9 +23,15 @@ export function ModelsSection() {
       description: t('googleDesc'),
     },
     {
+      name: 'DeepSeek',
+      color: 'bg-blue-500/10 text-blue-800 border border-blue-500/30',
+      models: ['DeepSeek V4 Flash', 'DeepSeek V4 Pro', 'DeepSeek V3', 'DeepSeek R1'],
+      description: t('deepseekDesc'),
+    },
+    {
       name: 'Moonshot AI',
       color: 'bg-cyan-500/10 text-cyan-800 border border-cyan-500/30',
-      models: ['Kimi K3 · 1M Context', 'Vision', 'Always Thinking', 'Prompt Caching'],
+      models: ['Kimi K3', 'Kimi K2.6', 'Kimi K2', 'Kimi Vision'],
       description: t('moonshotDesc'),
     },
     {
