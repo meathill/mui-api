@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "awesome-comment": {
+      "type": "http",
+      "url": "https://awesomecomment.org/api/mcp",
+      "headers": {
+        "Authorization": "Bearer ${AWESOME_COMMENT_MCP_TOKEN}"
+      }
+    }
+  }
+}

@@ -2,13 +2,13 @@
 
 ## 概览
 
-本仓库没有统一的一键部署命令，`packages/app` 与 `packages/dashboard` 需要分别构建和部署。
+`packages/app` 与 `packages/dashboard` 都接了 Cloudflare Workers Builds：推送到 `master` 即自动触发构建与部署，不需要手动执行 `wrangler deploy`。
 
 - `packages/shared-db` 负责共享 D1 schema、migration 与迁移脚本
 - `packages/app` 负责 API Worker
 - `packages/dashboard` 负责用户侧与管理后台
 
-如果本次发布包含数据库结构变更，先执行 `packages/shared-db` 的生产迁移，再部署应用。
+如果本次发布包含数据库结构变更，先执行 `packages/shared-db` 的生产迁移，再推送到 `master`。数据库迁移不在自动部署范围内，必须手动跑。
 
 ## 发布前检查
 
@@ -72,10 +72,17 @@ pnpm --dir packages/app exec wrangler secret put MOONSHOT_API_KEY
 
 Moonshot 请求由 Worker 直接发往官方接口，不经过 CF AI Gateway，因此不会出现在 AI Gateway 日志中。
 
-### 构建与部署
+### 部署
+
+推送到 `master` 即自动部署，无需手动执行。本地只需在推送前跑一遍上面「发布前检查」的构建命令确认能过：
 
 ```bash
 pnpm --dir packages/app run build
+```
+
+Workers Builds 故障或需要绕过 CI 紧急止血时，`run deploy` 脚本仍在，可以手动跑：
+
+```bash
 pnpm --dir packages/app run deploy
 ```
 
@@ -89,10 +96,17 @@ pnpm --dir packages/app run deploy
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 
-### 构建与部署
+### 部署
+
+推送到 `master` 即自动部署，无需手动执行。本地只需在推送前跑一遍上面「发布前检查」的构建命令确认能过：
 
 ```bash
 pnpm --dir packages/dashboard run build
+```
+
+Workers Builds 故障或需要绕过 CI 紧急止血时，`run deploy` 脚本仍在，可以手动跑：
+
+```bash
 pnpm --dir packages/dashboard run deploy
 ```
 

@@ -16,8 +16,9 @@ import { useEffect, useRef, useState } from 'react';
 
 const SITE_ID = '2119d7b0-bc52-4fdc-94ac-770d63ecda63';
 const API_URL = 'https://awesomecomment.org';
-// 必须用全局 Google Client ID：awesomecomment.org 校验 ID token 的 audience 时读的是全局
-// NEXT_PUBLIC_GOOGLE_CLIENT_ID，配站点级 Client ID 会 aud 不匹配直接 400。
+// 用 awesomecomment.org 的全局 Google Client ID，不是 MuiRouter 自己那个（better-auth 用的）。
+// 服务端会按 ID token 的 aud 在「全局 + 各站点已启用的站点级」allowlist 里反查，两种都能用；
+// 选全局是因为 muirouter.com 已经加进这个 client 的 JS 来源了，换成站点级还得再配一次。
 const GOOGLE_CLIENT_ID = '553490336811-e0lmqt2vkb0nqfc4fbm83lc6mjo4ahbf.apps.googleusercontent.com';
 
 // widget 的 `zh` 是繁体（討論/登錄/發表評論），而本站 zh.json 是简体，直接透传会变成
