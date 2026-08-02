@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { AwesomeComment } from '@/components/marketing/awesome-comment';
 import { Link } from '@/i18n/navigation';
 import { getLocalizedBlogPost } from '@/lib/blog';
 import { getBlogContent } from '@/lib/blog-content';
@@ -142,6 +143,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
             {t('ctaButton')}
           </Link>
         </section>
+
+        <AwesomeComment />
       </div>
     </article>
   );

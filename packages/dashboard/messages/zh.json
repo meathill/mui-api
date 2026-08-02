@@ -157,7 +157,9 @@
     "sourcesTitle": "参考来源",
     "sourcePublished": "主要来源发布于 {date}。",
     "articleCtaTitle": "为下一次 AI 变化做好准备",
-    "articleCtaDescription": "从一个 API Key 开始，在工具和上游模型持续变化时，让模型接入保持稳定。"
+    "articleCtaDescription": "从一个 API Key 开始，在工具和上游模型持续变化时，让模型接入保持稳定。",
+    "commentsTitle": "评论",
+    "commentsError": "评论加载失败，请刷新页面重试。"
   },
   "login": {
     "title": "登录 MuiRouter",

@@ -157,7 +157,9 @@
     "sourcesTitle": "Referenzquellen",
     "sourcePublished": "Hauptquelle veröffentlicht am {date}.",
     "articleCtaTitle": "Bereiten Sie sich auf die nächste KI-Veränderung vor",
-    "articleCtaDescription": "Starten Sie mit einer API Key und einem klareren Weg, Modellzugang stabil zu halten, während sich Tools und Upstream-Verfügbarkeit ändern."
+    "articleCtaDescription": "Starten Sie mit einer API Key und einem klareren Weg, Modellzugang stabil zu halten, während sich Tools und Upstream-Verfügbarkeit ändern.",
+    "commentsTitle": "Kommentare",
+    "commentsError": "Kommentare konnten nicht geladen werden. Bitte lade die Seite neu."
   },
   "login": {
     "title": "Bei MuiRouter anmelden",

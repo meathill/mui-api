@@ -157,7 +157,9 @@
     "sourcesTitle": "แหล่งข้อมูลอ้างอิง",
     "sourcePublished": "แหล่งข้อมูลหลักเผยแพร่เมื่อ {date}",
     "articleCtaTitle": "เตรียมพร้อมสำหรับการเปลี่ยนแปลง AI ครั้งต่อไป",
-    "articleCtaDescription": "เริ่มจาก API Key เดียว และมีเส้นทางที่ชัดขึ้นเพื่อรักษาการเข้าถึงโมเดลให้เสถียรเมื่อเครื่องมือและ upstream availability เปลี่ยนไป"
+    "articleCtaDescription": "เริ่มจาก API Key เดียว และมีเส้นทางที่ชัดขึ้นเพื่อรักษาการเข้าถึงโมเดลให้เสถียรเมื่อเครื่องมือและ upstream availability เปลี่ยนไป",
+    "commentsTitle": "ความคิดเห็น",
+    "commentsError": "โหลดความคิดเห็นไม่สำเร็จ กรุณารีเฟรชหน้านี้"
   },
   "login": {
     "title": "เข้าสู่ระบบ MuiRouter",

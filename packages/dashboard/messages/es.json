@@ -157,7 +157,9 @@
     "sourcesTitle": "Fuentes de referencia",
     "sourcePublished": "Fuente principal publicada el {date}.",
     "articleCtaTitle": "Prepárate para el próximo cambio de la IA",
-    "articleCtaDescription": "Empieza con una API Key y una ruta más clara para mantener estable el acceso a modelos mientras cambian las herramientas y la disponibilidad upstream."
+    "articleCtaDescription": "Empieza con una API Key y una ruta más clara para mantener estable el acceso a modelos mientras cambian las herramientas y la disponibilidad upstream.",
+    "commentsTitle": "Comentarios",
+    "commentsError": "No se pudieron cargar los comentarios. Actualiza la página."
   },
   "login": {
     "title": "Iniciar sesión en MuiRouter",
