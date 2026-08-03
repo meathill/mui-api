@@ -213,6 +213,8 @@ D1_ERROR: Network connection lost.
 - `mimo-v2.5-pro` / `mimo-v2-pro` 在 256K-1M 输入区间存在更高档位，如果长上下文使用量明显增加，需要把模型计价扩展为上下文分段计费
 - `mimo-v2.5-tts`、`mimo-v2.5-tts-voiceclone`、`mimo-v2.5-tts-voicedesign`、`mimo-v2-tts` 的免费状态不是长期价格承诺，需要在官方结束免费后同步更新生产库模型价格
 
+**节点切换（2026-08-02）**：`MIMO_BASE_URL` 从 `token-plan-sgp.xiaomimimo.com` 切到 `token-plan-cn.xiaomimimo.com`，原因是国内续订的 standard 方案价格更低。`packages/app` 与 `packages/dashboard` 两处 `wrangler.jsonc` 需保持同步，对应 e2e 断言（`packages/app/e2e/chat-completions.test.ts`）已同步更新为 cn。
+
 ### Route Handler（route.tsx）不会自动继承祖先 layout 的 generateStaticParams
 
 **背景**：`og-image/route.tsx` 长期被 Next.js 当作全动态路由处理，即使 `[locale]/layout.tsx` 早已声明了 `generateStaticParams()`。根因是 Next.js 内部按文件类型走两条不同的静态参数收集路径：`page.tsx` 用 `collectAppPageSegments`，会遍历整条 loader 树，因此自动拿到祖先 layout 声明的 `generateStaticParams`；`route.tsx` 用 `collectAppRouteSegments`，只读取路由文件自身的导出，不继承任何祖先声明。结果是所有 `[locale]/.../route.tsx` 只要没有自己单独声明 `generateStaticParams`，就会一直是动态路由，每次请求都现算、不进静态缓存——这条路由曾因此导致 og:image 抓取超时（Twitter/Facebook 卡片完全不带图，2.9~6.5s 无缓存响应，修复后降到几毫秒）。

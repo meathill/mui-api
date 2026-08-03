@@ -30,7 +30,7 @@ test.describe('营销页面', () => {
     await expect(page.getByText('Grok 4.5', { exact: true })).toBeVisible();
     await expect(page.getByText('GLM-4.7 Flash', { exact: true })).toBeVisible();
     await expect(page.getByText('MiMo TTS', { exact: true })).toBeVisible();
-    await expect(page.getByText('Kimi K3 · 1M Context', { exact: true })).toBeVisible();
+    await expect(page.getByText('Kimi K3', { exact: true })).toBeVisible();
   });
 
   test('首页 Header 按指定顺序展示入口', async ({ page }) => {
@@ -114,7 +114,10 @@ test.describe('营销页面', () => {
     await page.goto('/blog');
     await expect(page.getByRole('heading', { level: 2, name: /Kimi K3 Is Here/ })).toBeVisible();
 
-    await page.getByRole('link', { name: defaultMessages.blog.readArticle, exact: true }).first().click();
+    const kimiCard = page.locator('article').filter({
+      has: page.getByRole('heading', { level: 2, name: /Kimi K3 Is Here/ }),
+    });
+    await kimiCard.getByRole('link', { name: defaultMessages.blog.readArticle, exact: true }).click();
     await expect(page).toHaveURL('/blog/kimi-k3');
     await expect(page.getByRole('heading', { level: 1, name: /Kimi K3 Is Here/ })).toBeVisible();
   });

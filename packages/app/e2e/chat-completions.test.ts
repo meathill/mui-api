@@ -191,7 +191,7 @@ describe('POST /v1/chat/completions', () => {
     await res.json();
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const [input, init] = fetchMock.mock.calls[0];
-    expect(input).toBe('https://token-plan-sgp.xiaomimimo.com/v1/chat/completions');
+    expect(input).toBe('https://token-plan-cn.xiaomimimo.com/v1/chat/completions');
     const headers = new Headers(init?.headers);
     expect(headers.get('authorization')).toBe('Bearer test-mimo-key');
     expect(JSON.parse(String(init?.body))).toMatchObject({
