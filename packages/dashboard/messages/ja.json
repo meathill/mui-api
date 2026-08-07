@@ -18,7 +18,8 @@
     "mcpRouter": "MCP ルーター",
     "bestLlmGateway": "ベストな LLM ゲートウェイ",
     "openrouterAlternatives": "OpenRouter の代替",
-    "opencode": "opencode 連携"
+    "opencode": "opencode 連携",
+    "mcpServer": "MCP サーバー"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — 1つのルーター",
@@ -139,7 +140,22 @@
     "notes": {
       "none": "-",
       "longContextDynamic": "{threshold} tokens を超えると長文コンテキスト料金が適用されます: 入力 {input} / キャッシュ入力 {cached} / 出力 {output}。"
-    }
+    },
+    "relatedTitle": "詳しく見る",
+    "related": [
+      {
+        "href": "/ai-router",
+        "label": "AI API ルーター"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "OpenAI 互換ルーター"
+      },
+      {
+        "href": "/mcp-server",
+        "label": "MCP サーバーとは？"
+      }
+    ]
   },
   "blog": {
     "metadata": {
@@ -628,13 +644,102 @@
       "description": "Claude Desktop、Claude Code、Cursor、Cline を streamable-HTTP 経由で MuiRouter の MCP サーバーに接続。ご自身の API キーで LLM 呼び出しを route し、残高・使用量・モデルを照会、画像も生成できます。"
     }
   },
+  "mcpServer": {
+    "metaTitle": "MCP サーバーとは？開発者向けガイド",
+    "metaDescription": "MCP サーバーとは何か、いつ使うべきか、MCP サーバー・MCP ルーター・AI/LLM ゲートウェイの関係を解説。MuiRouter は Claude、Cursor、Cline 向けに streamable-HTTP の MCP サーバーをホストしています。",
+    "eyebrow": "MCP サーバーガイド",
+    "title": "MCP サーバーとは？",
+    "intro": "Model Context Protocol（MCP）は、AI アプリケーションが外部のデータやツールに統一されたインターフェースで接続できるようにするオープンスタンダードです。MCP サーバーは、そのプロトコルを通じてツールを公開するコンポーネントです。本ガイドでは、MCP サーバーとは何か、いつ必要になるか、MCP サーバー・ルーター・AI ゲートウェイの関係を解説します。",
+    "whatIsTitle": "MCP サーバーを一文で",
+    "whatIsBody": "MCP サーバーとは、Model Context Protocol を話すプログラムです。Claude Desktop、Claude Code、Cursor、Cline などの MCP クライアントからリクエストを受け取り、AI アシスタントが呼び出せるツール・リソース・プロンプトを返します。AI アプリケーションと、そこから到達したいすべてのものの間をつなぐ標準インターフェースです。",
+    "whenToUseTitle": "いつ MCP サーバーが必要ですか？",
+    "whenToUseBody": "AI クライアントに組み込まれていないツールへ到達させたいときに、MCP サーバーが必要です。AI アプリケーションごとに独自の統合を書く代わりに、1つの MCP サーバーを公開すれば、MCP 対応クライアントはすべて同じ方法で接続できます。インフラを自分で運用・保守したくない場合は、ホスト型 MCP サーバーが適切な選択です。",
+    "terminologyTitle": "MCP サーバー vs MCP ルーター vs AI ゲートウェイ",
+    "terms": [
+      {
+        "term": "MCP server",
+        "definition": "MCP クライアントにツールを公開するプロトコルサーバー。ツールの一覧表示と呼び出し方法を定義しますが、呼び出しの背後にどの LLM プロバイダーがあるかは定義しません。"
+      },
+      {
+        "term": "MCP router",
+        "definition": "モデルリクエストのルーティングも行う MCP サーバー。プロバイダーを固定せず、1つのキーの背後で各呼び出しを OpenAI、Claude、Gemini、Grok などへ振り分けます。"
+      },
+      {
+        "term": "AI gateway / LLM gateway",
+        "definition": "より広いカテゴリ: AI API のルーティング、課金、利用追跡、アクセス制御を担う単一のエントリーポイント。MCP ルーターは、MCP プロトコル経由で公開される AI ゲートウェイの一種です。"
+      }
+    ],
+    "muirouterTitle": "MuiRouter の立ち位置",
+    "muirouterBody": "MuiRouter は api.muirouter.com/mcp で streamable-HTTP の MCP サーバーをホストしています。これは MCP ルーターです: アカウントツールを一覧表示する同じサーバーが、ご自身の sk-gw- キーで OpenAI、Claude、Gemini、Grok、MiMo へのモデル呼び出しをルーティングし、1つのウォレットからトークン単位で課金されます。",
+    "supportTitle": "MuiRouter の MCP サーバーがサポートする範囲",
+    "supportItems": [
+      "プロトコル: MCP 2025-06-18（streamable-HTTP）、旧プロトコルバージョンとのネゴシエーション対応。",
+      "クライアント: Claude Desktop、Claude Code、Cursor、Cline、および streamable-HTTP に対応するすべての MCP クライアント。",
+      "ツール: 残高・利用量・チャージ履歴の照会、モデルと価格の一覧、画像生成、チャージセッション。",
+      "認証: ご自身の sk-gw- API キーによる Bearer トークン。すべての呼び出しはあなたのアカウントに課金されます。"
+    ],
+    "limitationsTitle": "知っておくべき制限",
+    "limitationsItems": [
+      "MuiRouter の MCP サーバーがルーティングできるのは MuiRouter がサポートするモデルのみです。最新カタログは価格ページをご覧ください。",
+      "image_generation と create_topup_session はお金を使う、または資金を移動します。AI クライアントでこれら 2 つのツールに確認を求めるよう設定してください。",
+      "本ガイドはプロトコルや機能が変わったときに更新されます。最終確認日は下記のとおりです。"
+    ],
+    "lastUpdatedLabel": "最終更新",
+    "lastUpdated": "2026-08-08",
+    "faqTitle": "MCP サーバー FAQ",
+    "faq": [
+      {
+        "question": "MCP サーバーと MCP ルーターの違いは？",
+        "answer": "すべての MCP ルーターは MCP サーバーですが、すべての MCP サーバーがルーティングするわけではありません。通常の MCP サーバーはプロトコルを通じてツールを公開し、MCP ルーターはさらにモデルリクエストを複数の LLM プロバイダーへ送ります。MuiRouter の MCP サーバーは MCP ルーターです。"
+      },
+      {
+        "question": "自分で MCP サーバーをホストする必要はありますか？",
+        "answer": "ありません。MuiRouter がホストします: ご自身の API キーで Claude Desktop、Claude Code、Cursor、Cline を api.muirouter.com/mcp に接続すれば、インフラを運用せずにツールが使えます。"
+      },
+      {
+        "question": "MCP サーバーと AI ゲートウェイは同じものですか？",
+        "answer": "重なりますが同じではありません。AI ゲートウェイは AI API のルーティング・課金・アクセス制御をカバーするカテゴリです。MCP サーバーは AI クライアントにツールを公開するプロトコルサーバーです。MuiRouter はその両方: ホスト型 MCP サーバーであり、1つのキーで使える AI/LLM ゲートウェイです。"
+      },
+      {
+        "question": "MCP クライアントを MuiRouter に接続するには？",
+        "answer": "クライアントに streamable-HTTP エンドポイントと sk-gw- キーを追加します。設定ガイドで Claude Code、Cursor、Claude Desktop の手順を詳しく説明しています。"
+      }
+    ],
+    "relatedTitle": "クラスターを探索",
+    "related": [
+      {
+        "href": "/mcp-router",
+        "label": "MCP ルーター & サーバー"
+      },
+      {
+        "href": "/mcp",
+        "label": "MCP 接続ガイド"
+      },
+      {
+        "href": "/ai-router",
+        "label": "AI API ルーター"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "OpenAI 互換ルーター"
+      },
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      },
+      {
+        "href": "/pricing",
+        "label": "トークン単位の料金"
+      }
+    ]
+  },
   "aiRouter": {
     "metaTitle": "AI API ルーター — 1つのキーですべての LLM へ",
-    "metaDescription": "MuiRouter は OpenAI 互換の AI API ルーター。1つの API キーでリクエストを OpenAI、Claude、Gemini、Grok、MiMo などへ route し、トークン単位の課金と MCP サーバーを内蔵。VPN 不要、サブスクリプション不要。",
+    "metaDescription": "MuiRouter は OpenAI 互換の AI API ルーター。1つの API キーでリクエストを OpenAI、Claude、Gemini、Grok、MiMo などへ route し、トークン単位の課金、ネイティブ passthrough、MCP サーバーを内蔵。VPN 不要、サブスクリプション不要。",
     "eyebrow": "AI API ルーター",
     "title": "すべての LLM のための",
     "titleHighlight": "AI API ルーター",
-    "intro": "MuiRouter はあなたのアプリと主要な AI プロバイダーすべての間に立ちます。1つの OpenAI 互換リクエストを送れば、OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI、Xiaomi MiMo へ route — 1つのキー、1つの請求、VPN 不要。",
+    "intro": "MuiRouter はあなたのアプリと主要な AI プロバイダーすべての間に立ちます。1つの OpenAI 互換リクエストを送れば、OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI、Xiaomi MiMo へ route — 1つのキー、1つの請求、VPN 不要。プロバイダー固有の機能が必要な場合は、ネイティブ passthrough でキーを変えずに各プロバイダーの API へ直接アクセスできます。",
     "ctaPrimary": "無料で始める",
     "ctaSecondary": "料金を見る",
     "featuresTitle": "AI ルーターでできること",
@@ -673,10 +778,18 @@
       {
         "question": "VPN や海外アカウントは必要ですか？",
         "answer": "いいえ。MuiRouter は Cloudflare のグローバルエッジネットワーク経由でプロキシされるため、VPN や海外クレジットカードなしですべてのプロバイダーにアクセスできます。"
+      },
+      {
+        "question": "MuiRouter 経由でプロバイダー固有の機能を使えますか？",
+        "answer": "はい。OpenAI 互換エンドポイントに加えて、MuiRouter はネイティブ passthrough を提供します。リクエストは各プロバイダーの API に直接届くため、Claude の長いコンテキストや Gemini のマルチモーダル処理などの機能が変換レイヤーの背後で失われることはありません。"
       }
     ],
     "relatedTitle": "ルーターをもっと知る",
     "related": [
+      {
+        "href": "/mcp-server",
+        "label": "MCP サーバーとは？"
+      },
       {
         "href": "/llm-router",
         "label": "LLM ルーター"
@@ -834,6 +947,14 @@
         "label": "LLM ルーター"
       },
       {
+        "href": "/mcp-router",
+        "label": "MCP ルーター & サーバー"
+      },
+      {
+        "href": "/mcp-server",
+        "label": "MCP サーバーとは？"
+      },
+      {
         "href": "/pricing",
         "label": "トークン単位の料金"
       },
@@ -847,8 +968,8 @@
     "ctaButton": "無料で始める"
   },
   "mcpRouter": {
-    "metaTitle": "AI モデルのための MCP ルーター兼 MCP サーバー",
-    "metaDescription": "MuiRouter は streamable-HTTP の MCP サーバーを稼働させ、Claude Desktop、Cursor、Cline がご自身のキーで LLM 呼び出しを route し、残高や使用量を照会、画像を生成できます。あなたの AI スタックのための MCP ルーター。",
+    "metaTitle": "MCP ルーター — Claude、Cursor、Cline を 1つの API に接続",
+    "metaDescription": "MuiRouter は streamable-HTTP で MCP ルーターを提供：Claude Desktop、Claude Code、Cursor、Cline がご自身のキーで LLM 呼び出しを route し、残高・利用量の照会と画像生成ができます。",
     "eyebrow": "MCP ルーター",
     "title": "あなたの AI クライアントのための",
     "titleHighlight": "MCP ルーター兼サーバー",
@@ -891,6 +1012,10 @@
     ],
     "relatedTitle": "関連ページ",
     "related": [
+      {
+        "href": "/mcp-server",
+        "label": "MCP サーバーとは？"
+      },
       {
         "href": "/mcp",
         "label": "MCP セットアップガイド"
@@ -1635,6 +1760,10 @@
     "security3": "すべてのリクエストは sk-gw- キーの背後にあるアカウントに紐づき、REST API を直接呼び出す場合と同じ同時実行および課金ルールが適用されます。",
     "relatedTitle": "関連",
     "related": [
+      {
+        "href": "/mcp-server",
+        "label": "MCP サーバーとは？"
+      },
       {
         "href": "/mcp-router",
         "label": "MCP ルーター & サーバー"

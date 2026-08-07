@@ -8,6 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { type Model, models } from '@/db/app-schema';
 import { getDb } from '@/lib/db';
+import { Link } from '@/i18n/navigation';
 import { buildMetadata, getResolvedLocale } from '@/lib/seo';
 
 // Pricing 表数据来自 D1，build 阶段无绑定无法预渲染；运行时由 CF 边缘缓存兜底
@@ -202,6 +203,22 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
             <p>{t('scopeNotice')}</p>
             <p>{t('referenceNotice', { date: updatedAt })}</p>
             <p>{t('billingNotice')}</p>
+          </div>
+        </div>
+
+        <div className="mt-12">
+          <h2 className="text-xl font-semibold tracking-tight text-center mb-6">{t('relatedTitle')}</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {(t.raw('related') as Array<{ href: string; label: string }>).map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className="group inline-flex items-center justify-between gap-2 rounded-lg border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition-colors hover:border-[var(--brand-corgi)] hover:text-[var(--brand-yellow-deep)]"
+              >
+                {link.label}
+                <ArrowUpRight size={16} className="text-muted-foreground group-hover:text-[var(--brand-yellow-deep)]" />
+              </Link>
+            ))}
           </div>
         </div>
       </section>

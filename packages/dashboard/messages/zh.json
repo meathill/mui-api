@@ -18,7 +18,8 @@
     "mcpRouter": "MCP 路由",
     "bestLlmGateway": "最佳 LLM 网关",
     "openrouterAlternatives": "OpenRouter 替代品",
-    "opencode": "opencode 接入"
+    "opencode": "opencode 接入",
+    "mcpServer": "MCP 服务器"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo——一个路由全搞定",
@@ -139,7 +140,22 @@
     "notes": {
       "none": "-",
       "longContextDynamic": "超过 {threshold} tokens 后启用长上下文档位：输入 {input} / 缓存输入 {cached} / 输出 {output}。"
-    }
+    },
+    "relatedTitle": "了解更多",
+    "related": [
+      {
+        "href": "/ai-router",
+        "label": "AI API 路由"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "OpenAI 兼容路由"
+      },
+      {
+        "href": "/mcp-server",
+        "label": "什么是 MCP 服务器？"
+      }
+    ]
   },
   "blog": {
     "metadata": {
@@ -628,13 +644,102 @@
       "description": "通过 streamable-HTTP 把 Claude Desktop、Claude Code、Cursor 和 Cline 连接到 MuiRouter MCP 服务。用你自己的 API Key 路由 LLM 调用、查询余额、用量和模型，并生成图像。"
     }
   },
+  "mcpServer": {
+    "metaTitle": "什么是 MCP 服务器？开发者指南",
+    "metaDescription": "了解什么是 MCP 服务器、什么时候需要它，以及 MCP 服务器、MCP 路由器和 AI/LLM 网关的关系。MuiRouter 为 Claude、Cursor 和 Cline 托管 streamable-HTTP 的 MCP 服务器。",
+    "eyebrow": "MCP 服务器指南",
+    "title": "什么是 MCP 服务器？",
+    "intro": "模型上下文协议（MCP）是一个开放标准，让 AI 应用通过统一的接口连接外部数据和工具。MCP 服务器就是通过该协议暴露这些工具的组件——本文介绍它是什么、什么时候需要它，以及 MCP 服务器、路由器和 AI 网关之间的关系。",
+    "whatIsTitle": "一句话说清 MCP 服务器",
+    "whatIsBody": "MCP 服务器是一个会说模型上下文协议的程序：它接收 Claude Desktop、Claude Code、Cursor 或 Cline 等 MCP 客户端的请求，并以 AI 助手可以调用的工具、资源或提示词作答。它是你的 AI 应用与想要触达的一切之间的标准接口。",
+    "whenToUseTitle": "什么时候需要 MCP 服务器？",
+    "whenToUseBody": "当你希望 AI 客户端调用其内置之外的工具时，就需要 MCP 服务器。与其为每个 AI 应用单独写集成，不如暴露一个 MCP 服务器，所有支持 MCP 的客户端都用同一种方式接入。当你不想自己运行或维护基础设施时，托管式 MCP 服务器是更合适的选择。",
+    "terminologyTitle": "MCP 服务器、MCP 路由器和 AI 网关的区别",
+    "terms": [
+      {
+        "term": "MCP server",
+        "definition": "通过 MCP 协议向客户端暴露工具的协议服务器。它定义了工具如何被列出和调用，但不管调用背后是哪家 LLM 供应商。"
+      },
+      {
+        "term": "MCP router",
+        "definition": "同时承担模型请求路由的 MCP 服务器。它不写死单一供应商，而是把每次调用分发到 OpenAI、Claude、Gemini、Grok 等多个模型，一个 Key 统一管理。"
+      },
+      {
+        "term": "AI gateway / LLM gateway",
+        "definition": "更宽泛的类别：一个统一入口，负责 AI API 的路由、计费、用量跟踪和访问控制。MCP 路由器是通过 MCP 协议暴露的一种 AI 网关。"
+      }
+    ],
+    "muirouterTitle": "MuiRouter 的位置",
+    "muirouterBody": "MuiRouter 在 api.muirouter.com/mcp 托管了一个 streamable-HTTP 的 MCP 服务器。它是一个 MCP 路由器：同一个服务器既列出账户工具，也用你自己的 sk-gw- Key 把模型调用路由到 OpenAI、Claude、Gemini、Grok 和 MiMo，从同一个钱包按 token 计费。",
+    "supportTitle": "MuiRouter MCP 服务器支持的范围",
+    "supportItems": [
+      "协议：MCP 2025-06-18，streamable-HTTP 传输，兼容更早协议版本的协商。",
+      "客户端：Claude Desktop、Claude Code、Cursor 和 Cline，以及任何支持 streamable-HTTP 的 MCP 客户端。",
+      "工具：余额、用量与充值查询，模型与价格列表，图像生成和充值会话。",
+      "鉴权：Bearer token，使用你自己的 sk-gw- API Key；每次调用都计入你的账户。"
+    ],
+    "limitationsTitle": "需要了解的局限",
+    "limitationsItems": [
+      "MuiRouter 的 MCP 服务器只能路由 MuiRouter 支持的模型——最新目录请看价格页。",
+      "image_generation 和 create_topup_session 会花钱或转移资金。请在 AI 客户端里为这两个工具配置确认提示。",
+      "协议或功能集变化时本指南会更新；最后审核日期见下。"
+    ],
+    "lastUpdatedLabel": "最后更新",
+    "lastUpdated": "2026-08-08",
+    "faqTitle": "MCP 服务器常见问题",
+    "faq": [
+      {
+        "question": "MCP 服务器和 MCP 路由器有什么区别？",
+        "answer": "每个 MCP 路由器都是 MCP 服务器，但并非每个 MCP 服务器都做路由。普通 MCP 服务器通过协议暴露工具；MCP 路由器还会通过同一个接口把模型请求发送到多家 LLM 供应商。MuiRouter 的 MCP 服务器就是 MCP 路由器。"
+      },
+      {
+        "question": "我需要自己托管 MCP 服务器吗？",
+        "answer": "不需要。MuiRouter 为你托管：用你自己的 API Key 把 Claude Desktop、Claude Code、Cursor 或 Cline 连到 api.muirouter.com/mcp 即可，无需运行任何基础设施。"
+      },
+      {
+        "question": "MCP 服务器和 AI 网关是一回事吗？",
+        "answer": "有重叠但不一样。AI 网关是一个涵盖 AI API 路由、计费和访问控制的类别；MCP 服务器是向 AI 客户端暴露工具的协议服务器。MuiRouter 两者都是：托管式 MCP 服务器 + 一个 Key 的 AI/LLM 网关。"
+      },
+      {
+        "question": "怎么把 MCP 客户端连到 MuiRouter？",
+        "answer": "在客户端里添加 streamable-HTTP 端点并填入你的 sk-gw- Key。设置指南一步步介绍了 Claude Code、Cursor 和 Claude Desktop 的配置。"
+      }
+    ],
+    "relatedTitle": "探索内容集群",
+    "related": [
+      {
+        "href": "/mcp-router",
+        "label": "MCP Router 与服务器"
+      },
+      {
+        "href": "/mcp",
+        "label": "MCP 接入指南"
+      },
+      {
+        "href": "/ai-router",
+        "label": "AI API 路由"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "OpenAI 兼容路由"
+      },
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      },
+      {
+        "href": "/pricing",
+        "label": "按 token 计费的价格"
+      }
+    ]
+  },
   "aiRouter": {
     "metaTitle": "AI API 路由——一个 Key 连接每一个大模型",
-    "metaDescription": "MuiRouter 是 OpenAI 兼容的 AI API 路由：一个 API Key 即可把请求路由到 OpenAI、Claude、Gemini、Grok、MiMo 等模型，按 token 计费，内置 MCP 服务。无需翻墙，无需订阅。",
+    "metaDescription": "MuiRouter 是 OpenAI 兼容的 AI API 路由：一个 API Key 即可把请求路由到 OpenAI、Claude、Gemini、Grok、MiMo 等模型，按 token 计费，支持原生透传，内置 MCP 服务。无需翻墙，无需订阅。",
     "eyebrow": "AI API 路由",
     "title": "连接每一个大模型的 ",
     "titleHighlight": "AI API 路由",
-    "intro": "MuiRouter 位于你的应用和各大 AI 厂商之间。发送一个 OpenAI 兼容的请求，它就能路由到 OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI 或 Xiaomi MiMo——一个 Key、一份账单，无需翻墙。",
+    "intro": "MuiRouter 位于你的应用和各大 AI 厂商之间。发送一个 OpenAI 兼容的请求，它就能路由到 OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI 或 Xiaomi MiMo——一个 Key、一份账单，无需翻墙。需要供应商专属功能时，原生透传可以直接触达各家原生 API，无需更换 Key。",
     "ctaPrimary": "免费开始",
     "ctaSecondary": "查看定价",
     "featuresTitle": "AI 路由能为你带来什么",
@@ -673,10 +778,18 @@
       {
         "question": "我需要翻墙或海外账号吗？",
         "answer": "不需要。MuiRouter 通过 Cloudflare 全球边缘网络代理，无需翻墙或海外信用卡即可访问每一家厂商。"
+      },
+      {
+        "question": "MuiRouter 能用上各家供应商的原生功能吗？",
+        "answer": "可以。除了 OpenAI 兼容端点，MuiRouter 还提供原生透传：请求可以直接触达各供应商的原生 API，Claude 的长上下文、Gemini 的多模态处理等能力不会在翻译层丢失。"
       }
     ],
     "relatedTitle": "探索路由",
     "related": [
+      {
+        "href": "/mcp-server",
+        "label": "什么是 MCP 服务器？"
+      },
       {
         "href": "/llm-router",
         "label": "大模型路由"
@@ -834,6 +947,14 @@
         "label": "大模型路由"
       },
       {
+        "href": "/mcp-router",
+        "label": "MCP Router 与服务器"
+      },
+      {
+        "href": "/mcp-server",
+        "label": "什么是 MCP 服务器？"
+      },
+      {
         "href": "/pricing",
         "label": "按 token 计费的价格"
       },
@@ -847,8 +968,8 @@
     "ctaButton": "免费开始"
   },
   "mcpRouter": {
-    "metaTitle": "面向 AI 模型的 MCP 路由与 MCP 服务器",
-    "metaDescription": "MuiRouter 运行一个 streamable-HTTP 的 MCP 服务器，让 Claude Desktop、Cursor 和 Cline 用你自己的 Key 路由 LLM 调用、查询余额和用量，并生成图像。面向你 AI 技术栈的 MCP 路由。",
+    "metaTitle": "MCP 路由——用一个 API 连接 Claude、Cursor 与 Cline",
+    "metaDescription": "MuiRouter 通过 streamable-HTTP 提供 MCP 路由：Claude Desktop、Claude Code、Cursor 和 Cline 用自己的 Key 路由 LLM 调用、查询余额与用量、生成图像。",
     "eyebrow": "MCP 路由",
     "title": "面向你 AI 客户端的 ",
     "titleHighlight": "MCP 路由与服务器",
@@ -891,6 +1012,10 @@
     ],
     "relatedTitle": "相关页面",
     "related": [
+      {
+        "href": "/mcp-server",
+        "label": "什么是 MCP 服务器？"
+      },
       {
         "href": "/mcp",
         "label": "MCP 配置指南"
@@ -1597,6 +1722,10 @@
     "security3": "每个请求都绑定到其 sk-gw- Key 背后的账户，并发与计费规则与直接调用 REST API 完全一致。",
     "relatedTitle": "相关页面",
     "related": [
+      {
+        "href": "/mcp-server",
+        "label": "什么是 MCP 服务器？"
+      },
       {
         "href": "/mcp-router",
         "label": "MCP Router 与服务器"

@@ -4,6 +4,7 @@ import { buildMetadata, getLanguageAlternates } from '@/lib/seo';
 import { buildSitemapEntries } from './sitemap';
 
 const ROUTER_PAGES = ['/ai-router', '/llm-router', '/openai-compatible-router', '/mcp-router'] as const;
+const MCP_THEME_PAGE = '/mcp-server' as const;
 const PROVIDER_GATEWAY_PAGES = [
   '/claude-api-gateway',
   '/gpt-api-gateway',
@@ -57,6 +58,14 @@ describe('sitemap', () => {
         const expected = locale === 'en' ? `https://muirouter.com${path}` : `https://muirouter.com/${locale}${path}`;
         expect(urls).toContain(expected);
       }
+    }
+  });
+
+  it('收录 MCP server 主题页（issue #9），覆盖全部 8 语言', () => {
+    for (const locale of locales) {
+      const expected =
+        locale === 'en' ? `https://muirouter.com${MCP_THEME_PAGE}` : `https://muirouter.com/${locale}${MCP_THEME_PAGE}`;
+      expect(urls).toContain(expected);
     }
   });
 

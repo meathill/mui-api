@@ -17,6 +17,8 @@ const STATIC_PAGES_UPDATED_AT = new Date('2026-07-11');
 // issue #7：本轮新增的 SEO 内容页（provider 落地页 + 对比/榜单页）首次发布日期，
 // 独立于上面的旧静态页常量，避免把未改动的既有页面也标记为「今天更新过」。
 const NEW_SEO_PAGES_PUBLISHED_AT = new Date('2026-07-24');
+// issue #9：MCP server 教育型主题页首次发布日期，独立常量保持与 #7 同思路。
+const MCP_THEME_PAGE_PUBLISHED_AT = new Date('2026-08-08');
 
 function toAbsoluteAlternates(altPaths: Record<string, string>): Record<string, string> {
   return Object.fromEntries(Object.entries(altPaths).map(([key, path]) => [key, `${SITE_URL}${path}`]));
@@ -43,6 +45,12 @@ export function buildSitemapEntries(blogPosts: Awaited<ReturnType<typeof getPubl
       lastModified: STATIC_PAGES_UPDATED_AT,
     },
     { path: '/mcp-router', changeFrequency: 'monthly', priority: 0.7, lastModified: STATIC_PAGES_UPDATED_AT },
+    {
+      path: '/mcp-server',
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      lastModified: MCP_THEME_PAGE_PUBLISHED_AT,
+    },
     {
       path: '/claude-api-gateway',
       changeFrequency: 'monthly',

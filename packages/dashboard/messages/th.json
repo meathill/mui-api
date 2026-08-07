@@ -18,7 +18,8 @@
     "mcpRouter": "เราเตอร์ MCP",
     "bestLlmGateway": "LLM Gateway ที่ดีที่สุด",
     "openrouterAlternatives": "ทางเลือกแทน OpenRouter",
-    "opencode": "opencode"
+    "opencode": "opencode",
+    "mcpServer": "MCP Server"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — เราเตอร์เดียว",
@@ -139,7 +140,22 @@
     "notes": {
       "none": "-",
       "longContextDynamic": "ราคา long-context ใช้เมื่อเกิน {threshold} tokens: อินพุต {input} / อินพุตแคช {cached} / เอาต์พุต {output}"
-    }
+    },
+    "relatedTitle": "เรียนรู้เพิ่มเติม",
+    "related": [
+      {
+        "href": "/ai-router",
+        "label": "เราเตอร์ AI API"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "เราเตอร์ที่รองรับ OpenAI"
+      },
+      {
+        "href": "/mcp-server",
+        "label": "MCP server คืออะไร"
+      }
+    ]
   },
   "blog": {
     "metadata": {
@@ -628,9 +644,98 @@
       "description": "เชื่อม Claude Desktop, Claude Code, Cursor และ Cline เข้ากับเซิร์ฟเวอร์ MCP ของ MuiRouter ผ่าน streamable-HTTP route การเรียก LLM สอบถามยอดคงเหลือ การใช้งานและโมเดล พร้อมสร้างรูปภาพด้วย API key ของคุณเอง"
     }
   },
+  "mcpServer": {
+    "metaTitle": "MCP server คืออะไร? คู่มือนักพัฒนา",
+    "metaDescription": "เรียนรู้ว่า MCP server คืออะไร ควรใช้เมื่อใด และ MCP server, MCP router และ AI/LLM gateway เกี่ยวข้องกันอย่างไร MuiRouter โฮสต์ MCP server แบบ streamable-HTTP สำหรับ Claude, Cursor และ Cline",
+    "eyebrow": "คู่มือ MCP Server",
+    "title": "MCP server คืออะไร?",
+    "intro": "Model Context Protocol (MCP) เป็นมาตรฐานเปิดที่ให้แอป AI เชื่อมต่อกับข้อมูลและเครื่องมือภายนอกผ่านอินเทอร์เฟซเดียว MCP server คือส่วนประกอบที่เปิดเผยเครื่องมือเหล่านั้นผ่านโปรโตคอล — คู่มือนี้จะอธิบายว่ามันคืออะไร ควรใช้เมื่อใด และ MCP server, router และ AI gateway ทับซ้อนกันตรงไหน",
+    "whatIsTitle": "MCP server ในหนึ่งประโยค",
+    "whatIsBody": "MCP server คือโปรแกรมที่พูดภาษา Model Context Protocol: มันรับคำขอจาก MCP client เช่น Claude Desktop, Claude Code, Cursor หรือ Cline แล้วตอบกลับด้วยเครื่องมือ ทรัพยากร หรือ prompts ที่ผู้ช่วย AI เรียกใช้ได้ มันคืออินเทอร์เฟซมาตรฐานระหว่างแอป AI ของคุณกับทุกสิ่งที่คุณต้องการให้มันเข้าถึง",
+    "whenToUseTitle": "เมื่อไหร่ที่ต้องใช้ MCP server?",
+    "whenToUseBody": "คุณต้องใช้ MCP server เมื่อต้องการให้ AI client เข้าถึงเครื่องมือที่ไม่ได้ติดตั้งมาในตัว แทนที่จะเขียน integration แยกสำหรับแต่ละแอป AI คุณเปิดเผย MCP server ตัวเดียว แล้ว client ที่รองรับ MCP ทั้งหมดก็เชื่อมต่อแบบเดียวกัน MCP server แบบโฮสต์คือตัวเลือกที่ใช่เมื่อคุณไม่อยากรันหรือดูแลโครงสร้างพื้นฐานเอง",
+    "terminologyTitle": "MCP server vs. MCP router vs. AI gateway",
+    "terms": [
+      {
+        "term": "MCP server",
+        "definition": "เซิร์ฟเวอร์โปรโตคอลที่เปิดเผยเครื่องมือให้ MCP client กำหนดว่าเครื่องมือถูกแสดงและเรียกอย่างไร แต่ไม่กำหนดว่าผู้ให้บริการ LLM รายใดรองรับการเรียกเหล่านั้น"
+      },
+      {
+        "term": "MCP router",
+        "definition": "MCP server ที่ route คำขอโมเดลด้วย แทนที่จะกำหนดผู้ให้บริการรายเดียว มันส่งการเรียกแต่ละครั้งไปยัง OpenAI, Claude, Gemini, Grok และอื่นๆ ภายใต้คีย์เดียว"
+      },
+      {
+        "term": "AI gateway / LLM gateway",
+        "definition": "หมวดหมู่ที่กว้างกว่า: จุดเข้าออกเดียวที่จัดการ routing การคิดเงิน การติดตามการใช้งาน และการควบคุมการเข้าถึงสำหรับ API AI MCP router คือ AI gateway ประเภทหนึ่งที่เปิดเผยผ่านโปรโตคอล MCP"
+      }
+    ],
+    "muirouterTitle": "MuiRouter อยู่ตรงไหน",
+    "muirouterBody": "MuiRouter โฮสต์ MCP server แบบ streamable-HTTP ที่ api.muirouter.com/mcp มันคือ MCP router: เซิร์ฟเวอร์เดียวกันที่แสดงเครื่องมือบัญชีก็ route การเรียกโมเดลไปยัง OpenAI, Claude, Gemini, Grok และ MiMo ด้วยคีย์ sk-gw- ของคุณเอง คิดเงินตามโทเค็นจากวอลเล็ตเดียว",
+    "supportTitle": "MCP server ของ MuiRouter รองรับอะไรบ้าง",
+    "supportItems": [
+      "โปรโตคอล: MCP 2025-06-18 แบบ streamable-HTTP พร้อมการเจรจาเวอร์ชันเก่ากว่า",
+      "Client: Claude Desktop, Claude Code, Cursor และ Cline รวมถึง MCP client ใดก็ตามที่รองรับ streamable-HTTP",
+      "เครื่องมือ: ตรวจสอบยอดเงิน การใช้งาน และการเติมเงิน รายการโมเดลและราคา สร้างรูปภาพ และสร้างเซสชันเติมเงิน",
+      "การยืนยันตัวตน: Bearer token ด้วย API Key sk-gw- ของคุณเอง ทุกการเรียกคิดเงินเข้าระบบบัญชีของคุณ"
+    ],
+    "limitationsTitle": "ข้อจำกัดที่ควรรู้",
+    "limitationsItems": [
+      "MCP server ของ MuiRouter route ได้เฉพาะโมเดลที่ MuiRouter รองรับ — ดูแคตตาล็อกล่าสุดได้ที่หน้าค่าราคา",
+      "image_generation และ create_topup_session ใช้เงินหรือเคลื่อนย้ายเงินทุน กำหนดค่า AI client ของคุณให้ต้องยืนยันก่อนใช้เครื่องมือทั้งสองนี้",
+      "คู่มือนี้จะอัปเดตเมื่อโปรโตคอลหรือชุดฟีเจอร์เปลี่ยนไป วันที่ตรวจสอบล่าสุดอยู่ด้านล่าง"
+    ],
+    "lastUpdatedLabel": "อัปเดตล่าสุด",
+    "lastUpdated": "2026-08-08",
+    "faqTitle": "คำถามที่พบบ่อยเกี่ยวกับ MCP server",
+    "faq": [
+      {
+        "question": "MCP server กับ MCP router ต่างกันอย่างไร?",
+        "answer": "MCP router ทุกตัวเป็น MCP server แต่ไม่ใช่ทุก MCP server จะทำ routing MCP server ทั่วไปเปิดเผยเครื่องมือผ่านโปรโตคอล ส่วน MCP router ยังส่งคำขอโมเดลไปยังผู้ให้บริการ LLM หลายรายผ่านอินเทอร์เฟซเดียว MCP server ของ MuiRouter คือ MCP router"
+      },
+      {
+        "question": "ต้องโฮสต์ MCP server เองไหม?",
+        "answer": "ไม่ต้อง MuiRouter โฮสต์ให้คุณ: เชื่อมต่อ Claude Desktop, Claude Code, Cursor หรือ Cline เข้ากับ api.muirouter.com/mcp ด้วย API Key ของคุณเอง เครื่องมือก็ใช้งานได้โดยไม่ต้องรันโครงสร้างพื้นฐานใดๆ"
+      },
+      {
+        "question": "MCP server กับ AI gateway เหมือนกันไหม?",
+        "answer": "ทับซ้อนกันแต่ไม่เหมือนกัน AI gateway คือหมวดหมู่ที่ครอบคลุม routing การคิดเงิน และการควบคุมการเข้าถึงของ API AI ส่วน MCP server คือเซิร์ฟเวอร์โปรโตคอลที่เปิดเผยเครื่องมือให้ AI client MuiRouter เป็นทั้งสองอย่าง: MCP server แบบโฮสต์และ AI/LLM gateway ภายใต้คีย์เดียว"
+      },
+      {
+        "question": "จะเชื่อมต่อ MCP client กับ MuiRouter ได้อย่างไร?",
+        "answer": "เพิ่ม endpoint แบบ streamable-HTTP พร้อมคีย์ sk-gw- ของคุณลงใน client คู่มือการตั้งค่าจะแนะนำทีละขั้นตอนสำหรับ Claude Code, Cursor และ Claude Desktop"
+      }
+    ],
+    "relatedTitle": "สำรวจคลัสเตอร์",
+    "related": [
+      {
+        "href": "/mcp-router",
+        "label": "เราเตอร์และเซิร์ฟเวอร์ MCP"
+      },
+      {
+        "href": "/mcp",
+        "label": "คู่มือการเชื่อมต่อ MCP"
+      },
+      {
+        "href": "/ai-router",
+        "label": "เราเตอร์ AI API"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "เราเตอร์ที่รองรับ OpenAI"
+      },
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      },
+      {
+        "href": "/pricing",
+        "label": "ราคาคิดตามโทเค็น"
+      }
+    ]
+  },
   "aiRouter": {
     "metaTitle": "เราเตอร์ AI API — คีย์เดียวสำหรับทุก LLM",
-    "metaDescription": "MuiRouter คือเราเตอร์ AI API ที่รองรับ OpenAI คีย์ API เดียว route คำขอไปยัง OpenAI, Claude, Gemini, Grok, MiMo และอื่นๆ คิดเงินตามโทเค็น พร้อมเซิร์ฟเวอร์ MCP ในตัว ไม่ต้องใช้ VPN ไม่ต้องสมัครสมาชิก",
+    "metaDescription": "MuiRouter คือเราเตอร์ AI API ที่รองรับ OpenAI คีย์ API เดียว route คำขอไปยัง OpenAI, Claude, Gemini, Grok, MiMo และอื่นๆ คิดเงินตามโทเค็น รองรับ native passthrough พร้อมเซิร์ฟเวอร์ MCP ในตัว ไม่ต้องใช้ VPN เมื่อต้องการฟีเจอร์เฉพาะของผู้ให้บริการ native passthrough จะเข้าถึง API ดั้งเดิมของแต่ละรายได้โดยไม่ต้องเปลี่ยนคีย์ ไม่ต้องสมัครสมาชิก",
     "eyebrow": "เราเตอร์ AI API",
     "title": "เราเตอร์ AI API สำหรับ",
     "titleHighlight": "ทุก LLM",
@@ -673,10 +778,18 @@
       {
         "question": "ต้องใช้ VPN หรือบัญชีต่างประเทศไหม?",
         "answer": "ไม่ต้อง MuiRouter ส่งผ่านเครือข่าย Edge ทั่วโลกของ Cloudflare คุณจึงเข้าถึงผู้ให้บริการทุกรายได้โดยไม่ต้องใช้ VPN หรือบัตรเครดิตต่างประเทศ"
+      },
+      {
+        "question": "ใช้ฟีเจอร์ดั้งเดิมของผู้ให้บริการผ่าน MuiRouter ได้ไหม?",
+        "answer": "ได้ นอกจาก endpoint ที่รองรับ OpenAI แล้ว MuiRouter ยังมี native passthrough: คำขอเข้าถึง API ดั้งเดิมของผู้ให้บริการแต่ละราย ฟีเจอร์อย่าง long context ของ Claude หรือ multimodal ของ Gemini จึงไม่สูญหายไปหลังชั้นการแปลง"
       }
     ],
     "relatedTitle": "สำรวจเราเตอร์",
     "related": [
+      {
+        "href": "/mcp-server",
+        "label": "MCP server คืออะไร"
+      },
       {
         "href": "/llm-router",
         "label": "เราเตอร์ LLM"
@@ -834,6 +947,14 @@
         "label": "เราเตอร์ LLM"
       },
       {
+        "href": "/mcp-router",
+        "label": "เราเตอร์และเซิร์ฟเวอร์ MCP"
+      },
+      {
+        "href": "/mcp-server",
+        "label": "MCP server คืออะไร"
+      },
+      {
         "href": "/pricing",
         "label": "ราคาคิดตามโทเค็น"
       },
@@ -847,8 +968,8 @@
     "ctaButton": "เริ่มฟรี"
   },
   "mcpRouter": {
-    "metaTitle": "เราเตอร์และเซิร์ฟเวอร์ MCP สำหรับโมเดล AI",
-    "metaDescription": "MuiRouter รันเซิร์ฟเวอร์ MCP แบบ streamable-HTTP เพื่อให้ Claude Desktop, Cursor และ Cline สามารถ route การเรียก LLM สอบถามยอดคงเหลือและการใช้งาน และสร้างรูปภาพด้วยคีย์ของคุณเอง เราเตอร์ MCP สำหรับ AI stack ของคุณ",
+    "metaTitle": "เราเตอร์ MCP — เชื่อมต่อ Claude, Cursor และ Cline ด้วย API เดียว",
+    "metaDescription": "MuiRouter ให้บริการเราเตอร์ MCP แบบ streamable-HTTP: Claude Desktop, Claude Code, Cursor และ Cline route การเรียก LLM ตรวจสอบยอดเงินและการใช้งาน และสร้างรูปภาพด้วยคีย์ของคุณเอง",
     "eyebrow": "เราเตอร์ MCP",
     "title": "เราเตอร์และเซิร์ฟเวอร์ MCP สำหรับ",
     "titleHighlight": "ไคลเอนต์ AI ของคุณ",
@@ -891,6 +1012,10 @@
     ],
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
+      {
+        "href": "/mcp-server",
+        "label": "MCP server คืออะไร"
+      },
       {
         "href": "/mcp",
         "label": "คู่มือการตั้งค่า MCP"
@@ -1615,6 +1740,10 @@
     "security3": "ทุกคำขอผูกกับบัญชีที่อยู่เบื้องหลังคีย์ sk-gw- โดยมีกฎการทำงานพร้อมกันและการคิดเงินเดียวกับการเรียก REST API โดยตรง",
     "relatedTitle": "ที่เกี่ยวข้อง",
     "related": [
+      {
+        "href": "/mcp-server",
+        "label": "MCP server คืออะไร"
+      },
       {
         "href": "/mcp-router",
         "label": "เราเตอร์และเซิร์ฟเวอร์ MCP"

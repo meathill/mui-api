@@ -91,6 +91,8 @@ test.describe('SEO', () => {
       expect(text).toContain('<loc>https://muirouter.com/blog/kimi-k3</loc>');
       expect(text).toContain('<loc>https://muirouter.com/zh/blog/kimi-k3</loc>');
       expect(text).toContain('hreflang="x-default" href="https://muirouter.com/blog/kimi-k3"');
+      expect(text).toContain('<loc>https://muirouter.com/mcp-server</loc>');
+      expect(text).toContain('<loc>https://muirouter.com/zh/mcp-server</loc>');
     });
 
     test('IndexNow key 文件可访问', async ({ page }) => {

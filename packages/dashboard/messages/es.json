@@ -18,7 +18,8 @@
     "mcpRouter": "Router MCP",
     "bestLlmGateway": "Mejor gateway LLM",
     "openrouterAlternatives": "Alternativas a OpenRouter",
-    "opencode": "opencode"
+    "opencode": "opencode",
+    "mcpServer": "Servidor MCP"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — un solo router",
@@ -139,7 +140,22 @@
     "notes": {
       "none": "-",
       "longContextDynamic": "El nivel de contexto largo aplica por encima de {threshold} tokens: entrada {input} / entrada en caché {cached} / salida {output}."
-    }
+    },
+    "relatedTitle": "Más información",
+    "related": [
+      {
+        "href": "/ai-router",
+        "label": "Router de API de IA"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "Router compatible con OpenAI"
+      },
+      {
+        "href": "/mcp-server",
+        "label": "¿Qué es un servidor MCP?"
+      }
+    ]
   },
   "blog": {
     "metadata": {
@@ -628,13 +644,102 @@
       "description": "Conecta Claude Desktop, Claude Code, Cursor y Cline al servidor MCP de MuiRouter mediante streamable-HTTP. Enruta llamadas LLM, consulta saldo, uso y modelos, y genera imágenes con tu propia API key."
     }
   },
+  "mcpServer": {
+    "metaTitle": "¿Qué es un servidor MCP? Guía para desarrolladores",
+    "metaDescription": "Descubre qué es un servidor MCP, cuándo usarlo y cómo encajan los servidores MCP, routers MCP y gateways de IA/LLM. MuiRouter aloja un servidor MCP por streamable-HTTP para Claude, Cursor y Cline.",
+    "eyebrow": "Guía del servidor MCP",
+    "title": "¿Qué es un servidor MCP?",
+    "intro": "El Model Context Protocol (MCP) es un estándar abierto que permite a las aplicaciones de IA conectarse a datos y herramientas externas mediante una interfaz uniforme. Un servidor MCP es el componente que expone esas herramientas a través del protocolo — esta guía explica qué es, cuándo lo necesitas y dónde se solapan servidores MCP, routers y gateways de IA.",
+    "whatIsTitle": "Un servidor MCP en una frase",
+    "whatIsBody": "Un servidor MCP es un programa que habla el Model Context Protocol: recibe solicitudes de clientes MCP como Claude Desktop, Claude Code, Cursor o Cline, y responde con herramientas, recursos o prompts que el asistente de IA puede llamar. Es la interfaz estándar entre tu aplicación de IA y todo lo que quieras que alcance.",
+    "whenToUseTitle": "¿Cuándo necesitas un servidor MCP?",
+    "whenToUseBody": "Necesitas un servidor MCP siempre que quieras que tu cliente de IA alcance herramientas que no están integradas. En lugar de escribir una integración personalizada para cada aplicación de IA, expones un servidor MCP y todos los clientes compatibles se conectan igual. Un servidor MCP alojado es la opción correcta cuando no quieres ejecutar ni mantener infraestructura.",
+    "terminologyTitle": "Servidor MCP vs. router MCP vs. gateway de IA",
+    "terms": [
+      {
+        "term": "MCP server",
+        "definition": "El servidor de protocolo que expone herramientas a los clientes MCP. Define cómo se listan y llaman las herramientas, pero no qué proveedor de LLM respalda las llamadas."
+      },
+      {
+        "term": "MCP router",
+        "definition": "Un servidor MCP que también enruta solicitudes de modelos. En lugar de fijar un proveedor, reparte cada llamada entre OpenAI, Claude, Gemini, Grok y más, detrás de una sola clave."
+      },
+      {
+        "term": "AI gateway / LLM gateway",
+        "definition": "Una categoría más amplia: un punto de entrada único que gestiona enrutamiento, facturación, seguimiento de uso y control de acceso para APIs de IA. Un router MCP es un tipo de gateway de IA expuesto a través del protocolo MCP."
+      }
+    ],
+    "muirouterTitle": "Dónde encaja MuiRouter",
+    "muirouterBody": "MuiRouter aloja un servidor MCP por streamable-HTTP en api.muirouter.com/mcp. Es un router MCP: el mismo servidor que lista herramientas de cuenta también enruta llamadas de modelos a OpenAI, Claude, Gemini, Grok y MiMo con tu propia clave sk-gw-, facturado por token desde una sola cartera.",
+    "supportTitle": "Qué soporta el servidor MCP de MuiRouter",
+    "supportItems": [
+      "Protocolo: MCP 2025-06-18 por streamable-HTTP, con negociación para versiones anteriores.",
+      "Clientes: Claude Desktop, Claude Code, Cursor y Cline, y cualquier cliente MCP que hable streamable-HTTP.",
+      "Herramientas: consultas de saldo, uso y recargas, listado de modelos y precios, generación de imágenes y sesiones de recarga.",
+      "Autenticación: token Bearer con tu propia clave API sk-gw-; cada llamada se factura a tu cuenta."
+    ],
+    "limitationsTitle": "Limitaciones a tener en cuenta",
+    "limitationsItems": [
+      "El servidor MCP de MuiRouter solo enruta los modelos que MuiRouter soporta — consulta la página de precios para el catálogo actual.",
+      "image_generation y create_topup_session gastan o mueven dinero. Configura tu cliente de IA para exigir confirmación en estas herramientas.",
+      "Esta guía se actualiza cuando cambian el protocolo o las funciones; la fecha de última revisión está abajo."
+    ],
+    "lastUpdatedLabel": "Última actualización",
+    "lastUpdated": "2026-08-08",
+    "faqTitle": "Preguntas frecuentes del servidor MCP",
+    "faq": [
+      {
+        "question": "¿Cuál es la diferencia entre un servidor MCP y un router MCP?",
+        "answer": "Todo router MCP es un servidor MCP, pero no todo servidor MCP enruta. Un servidor MCP simple expone herramientas vía protocolo; un router MCP además envía solicitudes de modelos a varios proveedores LLM detrás de una interfaz. El servidor MCP de MuiRouter es un router MCP."
+      },
+      {
+        "question": "¿Necesito alojar mi propio servidor MCP?",
+        "answer": "No. MuiRouter lo aloja por ti: conecta Claude Desktop, Claude Code, Cursor o Cline a api.muirouter.com/mcp con tu propia clave API y las herramientas funcionan sin ejecutar infraestructura."
+      },
+      {
+        "question": "¿Un servidor MCP es lo mismo que un gateway de IA?",
+        "answer": "Se solapan pero no son lo mismo. Un gateway de IA es una categoría que cubre enrutamiento, facturación y control de acceso de APIs de IA. Un servidor MCP es un servidor de protocolo que expone herramientas a los clientes de IA. MuiRouter es ambas cosas: un servidor MCP alojado y un gateway de IA/LLM detrás de una clave."
+      },
+      {
+        "question": "¿Cómo conecto un cliente MCP a MuiRouter?",
+        "answer": "Añade el endpoint streamable-HTTP con tu clave sk-gw- a tu cliente. La guía de configuración detalla Claude Code, Cursor y Claude Desktop paso a paso."
+      }
+    ],
+    "relatedTitle": "Explora el cluster",
+    "related": [
+      {
+        "href": "/mcp-router",
+        "label": "Router y servidor MCP"
+      },
+      {
+        "href": "/mcp",
+        "label": "Guía de integración MCP"
+      },
+      {
+        "href": "/ai-router",
+        "label": "Router de API de IA"
+      },
+      {
+        "href": "/openai-compatible-router",
+        "label": "Router compatible con OpenAI"
+      },
+      {
+        "href": "/llm-router",
+        "label": "Router LLM"
+      },
+      {
+        "href": "/pricing",
+        "label": "Precios por token"
+      }
+    ]
+  },
   "aiRouter": {
     "metaTitle": "Router de API de IA — Una clave para cada LLM",
-    "metaDescription": "MuiRouter es un router de API de IA compatible con OpenAI: una sola API key enruta las solicitudes a OpenAI, Claude, Gemini, Grok, MiMo y más, con facturación por token y un servidor MCP integrado. Sin VPN, sin suscripción.",
+    "metaDescription": "MuiRouter es un router de API de IA compatible con OpenAI: una sola API key enruta las solicitudes a OpenAI, Claude, Gemini, Grok, MiMo y más, con facturación por token, paso directo nativo y un servidor MCP integrado. Sin VPN, sin suscripción.",
     "eyebrow": "Router de API de IA",
     "title": "El router de API de IA para ",
     "titleHighlight": "cada LLM",
-    "intro": "MuiRouter se sitúa entre tu aplicación y todos los grandes proveedores de IA. Envía una sola solicitud compatible con OpenAI y la enruta a OpenAI, Anthropic Claude, Google Gemini, xAI Grok, Cloudflare Workers AI o Xiaomi MiMo — una clave, una factura, sin VPN.",
+    "intro": "MuiRouter se sitúa entre tu aplicación y todos los grandes proveedores de IA. Envía una sola solicitud compatible con OpenAI y la enruta a OpenAI, Anthropic Claude, Google Gemini, xAI Grok, Cloudflare Workers AI o Xiaomi MiMo — una clave, una factura, sin VPN. Cuando necesites una función específica de un proveedor, el paso directo nativo llega a la API de cada proveedor sin cambiar de clave.",
     "ctaPrimary": "Empieza gratis",
     "ctaSecondary": "Ver precios",
     "featuresTitle": "Lo que te ofrece un router de IA",
@@ -673,10 +778,18 @@
       {
         "question": "¿Necesito una VPN o una cuenta en el extranjero?",
         "answer": "No. MuiRouter se enruta a través de la red global de Cloudflare, así que puedes llegar a todos los proveedores sin una VPN ni una tarjeta de crédito extranjera."
+      },
+      {
+        "question": "¿Puedo usar funciones nativas del proveedor a través de MuiRouter?",
+        "answer": "Sí. Además del endpoint compatible con OpenAI, MuiRouter ofrece paso directo nativo: las solicitudes llegan a la API de cada proveedor, por lo que funciones como el contexto largo de Claude o el multimodal de Gemini no se pierden tras una capa de traducción."
       }
     ],
     "relatedTitle": "Explora el router",
     "related": [
+      {
+        "href": "/mcp-server",
+        "label": "¿Qué es un servidor MCP?"
+      },
       {
         "href": "/llm-router",
         "label": "Router LLM"
@@ -834,6 +947,14 @@
         "label": "Router LLM"
       },
       {
+        "href": "/mcp-router",
+        "label": "Router y servidor MCP"
+      },
+      {
+        "href": "/mcp-server",
+        "label": "¿Qué es un servidor MCP?"
+      },
+      {
         "href": "/pricing",
         "label": "Precios por token"
       },
@@ -847,8 +968,8 @@
     "ctaButton": "Empieza gratis"
   },
   "mcpRouter": {
-    "metaTitle": "Router MCP y servidor MCP para modelos de IA",
-    "metaDescription": "MuiRouter ejecuta un servidor MCP por streamable-HTTP para que Claude Desktop, Cursor y Cline puedan enrutar llamadas LLM, consultar saldo y uso, y generar imágenes con tu propia clave. El router MCP para tu stack de IA.",
+    "metaTitle": "Router MCP — Conecta Claude, Cursor y Cline a una sola API",
+    "metaDescription": "MuiRouter expone un router MCP por streamable-HTTP: Claude Desktop, Claude Code, Cursor y Cline enrutan llamadas LLM, consultan saldo y uso y generan imágenes con tu propia clave.",
     "eyebrow": "Router MCP",
     "title": "Un router y servidor MCP para ",
     "titleHighlight": "tus clientes de IA",
@@ -891,6 +1012,10 @@
     ],
     "relatedTitle": "Relacionado",
     "related": [
+      {
+        "href": "/mcp-server",
+        "label": "¿Qué es un servidor MCP?"
+      },
       {
         "href": "/mcp",
         "label": "Guía de configuración de MCP"
@@ -1647,6 +1772,10 @@
     "security3": "Cada solicitud está vinculada a la cuenta detrás de su clave sk-gw-, con las mismas reglas de concurrencia y facturación que al llamar a la REST API directamente.",
     "relatedTitle": "Relacionado",
     "related": [
+      {
+        "href": "/mcp-server",
+        "label": "¿Qué es un servidor MCP?"
+      },
       {
         "href": "/mcp-router",
         "label": "Router y servidor MCP"
