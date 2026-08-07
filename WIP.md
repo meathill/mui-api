@@ -1,22 +1,7 @@
 # WIP
 
-## Issue #9：MCP Router/Gateway 关键词内容集群（2026-08-08）
+## 部署后验证（未部署，待推送后执行）
 
-- [ ] 新建教育型主题页 `/mcp-server`（page.tsx + 8 语言 `mcpServer` namespace）
-- [ ] 强化 `/ai-router`：FAQ/intro 补 passthrough
-- [ ] `/mcp-router` metaTitle/metaDescription 去竞争（去掉 "MCP Server" token）× 8
-- [ ] related 互链：aiRouter / mcpRouter / mcpPage / openaiCompatibleRouter × 8
-- [ ] pricing 页加相关链接区块（namespace × 8 + page.tsx）
-- [ ] footer 加 MCP Server 链接
-- [ ] sitemap.ts + sitemap.test.ts + e2e 断言更新
-- [ ] format / typecheck / vitest / e2e 全部通过
-- [ ] DEV_NOTE 记录、清理 WIP、提交
-
-## MCP server 双 era 升级（2026-07-28 规范）
-
-- [ ] `routes/mcp.ts` 重构：modern（stateless）+ legacy（initialize）双路径
-- [ ] modern 路径：头校验 / server/discover / tools/list（ttlMs）/ resultType / 错误分支
-- [ ] legacy 路径：initialize 版本协商
-- [ ] GET → 405，删非标准 discovery
-- [ ] e2e 扩展 + `/mcp` 页 protocolNote 更新（8 语言）
-- [ ] DEV_NOTE 记录、提交
+- [ ] 推送部署后跑 `pnpm --dir packages/dashboard run submit:indexnow -- --dry-run` 确认新 URL 再正式提交（issue #9）
+- [ ] 线上验证 MCP 双 era：curl modern `server/discover`（MCP-Protocol-Version: 2026-07-28 头 + `_meta`）、legacy `initialize`、`GET /mcp` 应 405
+- [ ] 用 Claude Code / Cursor 实测 MCP 接入仍可用（legacy 路径回归）

@@ -673,7 +673,7 @@
     "muirouterBody": "MuiRouter héberge un serveur MCP en streamable-HTTP sur api.muirouter.com/mcp. C'est un routeur MCP : le même serveur qui liste les outils de compte route aussi les appels de modèles vers OpenAI, Claude, Gemini, Grok et MiMo avec votre propre clé sk-gw-, facturés au token depuis un seul portefeuille.",
     "supportTitle": "Ce que le serveur MCP de MuiRouter prend en charge",
     "supportItems": [
-      "Protocole : MCP 2025-06-18 en streamable-HTTP, avec négociation pour les versions antérieures.",
+      "Protocole : MCP 2026-07-28 en streamable-HTTP, avec négociation pour les clients 2025-11-25 / 2025-06-18.",
       "Clients : Claude Desktop, Claude Code, Cursor et Cline, ainsi que tout client MCP parlant streamable-HTTP.",
       "Outils : solde, utilisation et recharges, liste des modèles et tarifs, génération d'images et sessions de recharge.",
       "Authentification : jeton Bearer avec votre propre clé API sk-gw- ; chaque appel est facturé à votre compte."
@@ -1746,7 +1746,7 @@
     "intro": "MuiRouter exécute un serveur MCP en streamable-http afin que des clients IA comme Claude Desktop, Claude Code, Cursor et Cline puissent l'appeler directement — votre assistant IA peut consulter votre solde, voir votre consommation, lister les modèles, générer des images et même lancer une recharge. Tout est authentifié avec votre propre clé d'API sk-gw-, si bien que ni les tiers ni les clients IA n'ont besoin d'un nouveau compte.",
     "endpointTitle": "1. Endpoint du serveur",
     "endpointDesc": "Tous les clients MCP se connectent à la même URL avec une authentification Bearer.",
-    "protocolNote": "Version du protocole : MCP 2025-06-18, transport : streamable-http, JSON-RPC 2.0 sans état.",
+    "protocolNote": "Protocole : MCP 2026-07-28 (streamable-http, JSON-RPC 2.0 sans état), avec négociation pour les clients 2025-11-25 / 2025-06-18.",
     "claudeCodeTitle": "2. Connexion dans Claude Code",
     "claudeCodeDesc": "Modifiez ~/.claude/mcp.json et ajoutez le serveur muirouter.",
     "claudeCodeNote": "Après avoir redémarré Claude Code, tapez /mcp pour voir la liste des outils muirouter.",

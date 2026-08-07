@@ -300,6 +300,25 @@ D1_ERROR: Network connection lost.
 - `ctaPrimary`/`ctaSecondary`/`ctaButton` 在 12 个 router/gateway/comparison namespace 里高度重复（"Start free"/"View pricing" 等），理论上可挪进 `common` namespace 去重，但要动全部已上线 namespace、回归面不小于收益，值得单独一个小任务处理
 - 根 layout 的 `NextIntlClientProvider` 未按需 `pick()` 消息子集，导致客户端 hydration payload 包含当前 locale 全部 messages（含无关的 dashboard/admin 内容）——这是本任务开始前就存在的架构特征，本次新增内容只是进一步放大它，不是本次引入的问题，真要收紧需要评估对 ThemeToggle/LanguageSwitcher 等客户端组件的影响，风险跟这批内容页改动不对等
 
+### MCP server 双 era 升级（2026-07-28 规范）
+
+**背景**：自研 MCP server（`packages/app/src/routes/mcp.ts`）原实现 2025-06-18 协议。2026-07-28 规范是破坏性重写：移除 initialize 握手、完全无状态（版本/capability 走每请求 `_meta` + 头）、新增 `server/discover`、必填头校验、结果带 `resultType`。规范刚发布 10 天，主流第三方客户端（Cursor/Cline 等）大概率还未跟进，纯 2026-07-28 会让现有用户全部断开。
+
+**决策**：双 era 服务器（规范 Versioning and Compatibility 明确支持的形态）：
+- **modern（2026-07-28）**：请求带 `MCP-Protocol-Version` / `Mcp-Method` / `Mcp-Name` 头 + body `_meta`。实现 `server/discover`、`tools/list`（+`ttlMs`/`cacheScope`）、`tools/call`（+`resultType: "complete"`、`_meta.serverInfo`）；未知方法 → HTTP 404 + `-32601`；不支持版本 → 400 + `-32022`（带 supported 列表）；头不匹配 → 400 + `-32020`；notification → 202；GET/DELETE → 405。
+- **legacy（2025-11-25 / 2025-06-18）**：`initialize` 握手路径，版本协商回客户端请求版本（在支持列表内），否则回最高 legacy 版本 2025-11-25；响应形状保持旧式（不加 resultType/ttlMs，避免旧客户端困惑）。
+- era 检测：有版本头或 body `_meta` 带 protocolVersion → modern；`initialize` 及无头请求 → legacy。
+- 顺手补了规范 MUST 的 Origin 校验（DNS rebinding 防护）：非法 Origin → 403。
+
+**实现分层**：纯协议逻辑（常量、era 检测、头校验、base64 sentinel 解码、结果构造）抽到 `services/mcp-protocol.ts`（零 Hono 依赖、可单测），`routes/mcp.ts` 只留 Hono 传输层 + 工具定义（双 era 共用同一 `tools` 数组与 handler）。`callToolLegacy`/`callToolModern` 的差异只有结果包装。
+
+**维护注意**：
+- 新增协议版本时：`SUPPORTED_VERSIONS` / `LEGACY_VERSIONS` 加版本字符串，`/mcp` 与 `/mcp-server` 页的 protocolNote/supportItems 文案要同步改（8 语言）。
+- `Mcp-Name` 支持 Base64 sentinel（`=?base64?...?=`）编码，校验时先解码再与 body 比对。
+- modern 下 `ping`、`logging/setLevel`、`notifications/initialized` 已从规范移除，一律按未知方法 404 处理；`notifications/cancelled` 仅在 stdio 用，streamable-HTTP 下取消靠断开 SSE 响应流。
+- 部署后验证清单：curl modern `server/discover`（带头 + `_meta`）、legacy `initialize`、GET /mcp 应 405。
+
+
 ### better-auth 统一用户体系
 
 **决策**：Dashboard 使用 better-auth 管理用户认证，`user` 表同时作为业务用户表。

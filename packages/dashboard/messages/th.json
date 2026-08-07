@@ -673,7 +673,7 @@
     "muirouterBody": "MuiRouter โฮสต์ MCP server แบบ streamable-HTTP ที่ api.muirouter.com/mcp มันคือ MCP router: เซิร์ฟเวอร์เดียวกันที่แสดงเครื่องมือบัญชีก็ route การเรียกโมเดลไปยัง OpenAI, Claude, Gemini, Grok และ MiMo ด้วยคีย์ sk-gw- ของคุณเอง คิดเงินตามโทเค็นจากวอลเล็ตเดียว",
     "supportTitle": "MCP server ของ MuiRouter รองรับอะไรบ้าง",
     "supportItems": [
-      "โปรโตคอล: MCP 2025-06-18 แบบ streamable-HTTP พร้อมการเจรจาเวอร์ชันเก่ากว่า",
+      "โปรโตคอล: MCP 2026-07-28 แบบ streamable-HTTP พร้อมการเจรจาสำหรับ client เวอร์ชัน 2025-11-25 / 2025-06-18",
       "Client: Claude Desktop, Claude Code, Cursor และ Cline รวมถึง MCP client ใดก็ตามที่รองรับ streamable-HTTP",
       "เครื่องมือ: ตรวจสอบยอดเงิน การใช้งาน และการเติมเงิน รายการโมเดลและราคา สร้างรูปภาพ และสร้างเซสชันเติมเงิน",
       "การยืนยันตัวตน: Bearer token ด้วย API Key sk-gw- ของคุณเอง ทุกการเรียกคิดเงินเข้าระบบบัญชีของคุณ"
@@ -735,11 +735,11 @@
   },
   "aiRouter": {
     "metaTitle": "เราเตอร์ AI API — คีย์เดียวสำหรับทุก LLM",
-    "metaDescription": "MuiRouter คือเราเตอร์ AI API ที่รองรับ OpenAI คีย์ API เดียว route คำขอไปยัง OpenAI, Claude, Gemini, Grok, MiMo และอื่นๆ คิดเงินตามโทเค็น รองรับ native passthrough พร้อมเซิร์ฟเวอร์ MCP ในตัว ไม่ต้องใช้ VPN เมื่อต้องการฟีเจอร์เฉพาะของผู้ให้บริการ native passthrough จะเข้าถึง API ดั้งเดิมของแต่ละรายได้โดยไม่ต้องเปลี่ยนคีย์ ไม่ต้องสมัครสมาชิก",
+    "metaDescription": "MuiRouter คือเราเตอร์ AI API ที่รองรับ OpenAI คีย์ API เดียว route คำขอไปยัง OpenAI, Claude, Gemini, Grok, MiMo และอื่นๆ คิดเงินตามโทเค็น รองรับ native passthrough พร้อมเซิร์ฟเวอร์ MCP ในตัว ไม่ต้องใช้ VPN ไม่ต้องสมัครสมาชิก",
     "eyebrow": "เราเตอร์ AI API",
     "title": "เราเตอร์ AI API สำหรับ",
     "titleHighlight": "ทุก LLM",
-    "intro": "MuiRouter อยู่ระหว่างแอปของคุณกับผู้ให้บริการ AI หลักทุกราย ส่งคำขอที่รองรับ OpenAI เพียงครั้งเดียว แล้วมันจะ route ไปยัง OpenAI, Anthropic Claude, Google Gemini, xAI Grok, Cloudflare Workers AI หรือ Xiaomi MiMo — คีย์เดียว บิลเดียว ไม่ต้องใช้ VPN",
+    "intro": "MuiRouter อยู่ระหว่างแอปของคุณกับผู้ให้บริการ AI หลักทุกราย ส่งคำขอที่รองรับ OpenAI เพียงครั้งเดียว แล้วมันจะ route ไปยัง OpenAI, Anthropic Claude, Google Gemini, xAI Grok, Cloudflare Workers AI หรือ Xiaomi MiMo — คีย์เดียว บิลเดียว ไม่ต้องใช้ VPN เมื่อต้องการฟีเจอร์เฉพาะของผู้ให้บริการ native passthrough จะเข้าถึง API ดั้งเดิมของแต่ละรายได้โดยไม่ต้องเปลี่ยนคีย์",
     "ctaPrimary": "เริ่มฟรี",
     "ctaSecondary": "ดูราคา",
     "featuresTitle": "เราเตอร์ AI ให้อะไรกับคุณบ้าง",
@@ -1714,7 +1714,7 @@
     "intro": "MuiRouter รันเซิร์ฟเวอร์ MCP แบบ streamable-HTTP เพื่อให้ไคลเอนต์ AI อย่าง Claude Desktop, Claude Code, Cursor และ Cline เรียกใช้งานได้โดยตรง ผู้ช่วย AI ของคุณจึงสามารถตรวจสอบยอดคงเหลือ ดูการใช้งาน แสดงรายการโมเดล สร้างรูปภาพ และแม้แต่เริ่มการเติมเงินได้ ทุกอย่างยืนยันตัวตนด้วยคีย์ API sk-gw- ของคุณเอง ทั้งบุคคลที่สามและไคลเอนต์ AI จึงไม่ต้องสมัครบัญชีใหม่",
     "endpointTitle": "1. Endpoint ของเซิร์ฟเวอร์",
     "endpointDesc": "ไคลเอนต์ MCP ทุกตัวเชื่อมต่อไปยัง URL เดียวกันโดยใช้การยืนยันตัวตนแบบ Bearer",
-    "protocolNote": "เวอร์ชันโปรโตคอล: MCP 2025-06-18, ทรานสปอร์ต: streamable-http, JSON-RPC 2.0 แบบ stateless",
+    "protocolNote": "โปรโตคอล: MCP 2026-07-28 (streamable-http, JSON-RPC 2.0 แบบ stateless) พร้อมการเจรจาสำหรับ client เวอร์ชัน 2025-11-25 / 2025-06-18",
     "claudeCodeTitle": "2. เชื่อมต่อใน Claude Code",
     "claudeCodeDesc": "แก้ไข ~/.claude/mcp.json แล้วเพิ่มเซิร์ฟเวอร์ muirouter",
     "claudeCodeNote": "หลังจากรีสตาร์ท Claude Code ให้พิมพ์ /mcp เพื่อดูรายการเครื่องมือของ muirouter",

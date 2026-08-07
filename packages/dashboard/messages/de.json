@@ -673,7 +673,7 @@
     "muirouterBody": "MuiRouter betreibt einen gehosteten MCP-Server über streamable-HTTP auf api.muirouter.com/mcp. Es ist ein MCP-Router: Derselbe Server, der Kontotools auflistet, routet auch Modellaufrufe an OpenAI, Claude, Gemini, Grok und MiMo mit Ihrem eigenen sk-gw- Schlüssel, abgerechnet pro Token aus einer Wallet.",
     "supportTitle": "Was der MCP-Server von MuiRouter unterstützt",
     "supportItems": [
-      "Protokoll: MCP 2025-06-18 über streamable-HTTP, mit Aushandlung für frühere Protokollversionen.",
+      "Protokoll: MCP 2026-07-28 über streamable-HTTP, mit Aushandlung für 2025-11-25 / 2025-06-18 Clients.",
       "Clients: Claude Desktop, Claude Code, Cursor und Cline sowie jeder MCP-Client, der streamable-HTTP spricht.",
       "Tools: Guthaben-, Nutzungs- und Aufladeabfragen, Modell- und Preisliste, Bildgenerierung und Aufladesitzungen.",
       "Authentifizierung: Bearer-Token mit Ihrem eigenen sk-gw- API-Schlüssel; jeder Aufruf wird Ihrem Konto berechnet."
@@ -1743,7 +1743,7 @@
     "intro": "MuiRouter betreibt einen streamable-HTTP-MCP-Server, sodass KI-Clients wie Claude Desktop, Claude Code, Cursor und Cline ihn direkt aufrufen können — dein KI-Assistent kann dein Guthaben prüfen, die Nutzung einsehen, Modelle auflisten, Bilder generieren und sogar eine Aufladung starten. Alles wird mit deinem eigenen sk-gw--API-Key authentifiziert, sodass weder Dritte noch KI-Clients ein neues Konto brauchen.",
     "endpointTitle": "1. Server-Endpunkt",
     "endpointDesc": "Alle MCP-Clients verbinden sich über Bearer-Authentifizierung mit derselben URL.",
-    "protocolNote": "Protokollversion: MCP 2025-06-18, Transport: streamable-http, zustandsloses JSON-RPC 2.0.",
+    "protocolNote": "Protokoll: MCP 2026-07-28 (streamable-http, zustandsloses JSON-RPC 2.0), mit Aushandlung für 2025-11-25 / 2025-06-18 Clients.",
     "claudeCodeTitle": "2. In Claude Code verbinden",
     "claudeCodeDesc": "Bearbeite ~/.claude/mcp.json und füge den muirouter-Server hinzu.",
     "claudeCodeNote": "Tippe nach dem Neustart von Claude Code /mcp ein, um die muirouter-Tool-Liste zu sehen.",

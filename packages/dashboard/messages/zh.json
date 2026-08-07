@@ -673,7 +673,7 @@
     "muirouterBody": "MuiRouter 在 api.muirouter.com/mcp 托管了一个 streamable-HTTP 的 MCP 服务器。它是一个 MCP 路由器：同一个服务器既列出账户工具，也用你自己的 sk-gw- Key 把模型调用路由到 OpenAI、Claude、Gemini、Grok 和 MiMo，从同一个钱包按 token 计费。",
     "supportTitle": "MuiRouter MCP 服务器支持的范围",
     "supportItems": [
-      "协议：MCP 2025-06-18，streamable-HTTP 传输，兼容更早协议版本的协商。",
+      "协议：MCP 2026-07-28，streamable-HTTP 传输，支持 2025-11-25 / 2025-06-18 旧客户端的协商接入。",
       "客户端：Claude Desktop、Claude Code、Cursor 和 Cline，以及任何支持 streamable-HTTP 的 MCP 客户端。",
       "工具：余额、用量与充值查询，模型与价格列表，图像生成和充值会话。",
       "鉴权：Bearer token，使用你自己的 sk-gw- API Key；每次调用都计入你的账户。"
@@ -1696,7 +1696,7 @@
     "intro": "MuiRouter 运行一个 streamable-http 的 MCP 服务器，Claude Desktop、Claude Code、Cursor、Cline 等 AI 客户端可以直接调用——你的 AI 助手能查询余额、查看用量、列出模型、生成图片，甚至发起充值。所有调用都用你自己的 sk-gw- API Key 鉴权，第三方和 AI 客户端都无需新建账户。",
     "endpointTitle": "1. 服务器端点",
     "endpointDesc": "所有 MCP 客户端都连接同一个 URL，使用 Bearer 鉴权。",
-    "protocolNote": "协议版本：MCP 2025-06-18，传输方式：streamable-http，无状态 JSON-RPC 2.0。",
+    "protocolNote": "协议：MCP 2026-07-28（streamable-http、无状态 JSON-RPC 2.0），并支持 2025-11-25 / 2025-06-18 旧客户端的协商接入。",
     "claudeCodeTitle": "2. 在 Claude Code 中接入",
     "claudeCodeDesc": "编辑 ~/.claude/mcp.json，添加 muirouter 服务器。",
     "claudeCodeNote": "重启 Claude Code 后，输入 /mcp 即可看到 muirouter 的工具列表。",

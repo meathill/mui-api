@@ -673,7 +673,7 @@
     "muirouterBody": "MuiRouter aloja un servidor MCP por streamable-HTTP en api.muirouter.com/mcp. Es un router MCP: el mismo servidor que lista herramientas de cuenta también enruta llamadas de modelos a OpenAI, Claude, Gemini, Grok y MiMo con tu propia clave sk-gw-, facturado por token desde una sola cartera.",
     "supportTitle": "Qué soporta el servidor MCP de MuiRouter",
     "supportItems": [
-      "Protocolo: MCP 2025-06-18 por streamable-HTTP, con negociación para versiones anteriores.",
+      "Protocolo: MCP 2026-07-28 por streamable-HTTP, con negociación para clientes 2025-11-25 / 2025-06-18.",
       "Clientes: Claude Desktop, Claude Code, Cursor y Cline, y cualquier cliente MCP que hable streamable-HTTP.",
       "Herramientas: consultas de saldo, uso y recargas, listado de modelos y precios, generación de imágenes y sesiones de recarga.",
       "Autenticación: token Bearer con tu propia clave API sk-gw-; cada llamada se factura a tu cuenta."
@@ -1746,7 +1746,7 @@
     "intro": "MuiRouter ejecuta un servidor MCP streamable-http para que clientes de IA como Claude Desktop, Claude Code, Cursor y Cline puedan llamarlo directamente: tu asistente de IA puede consultar tu saldo, ver el uso, listar modelos, generar imágenes e incluso iniciar una recarga. Todo se autentica con tu propia clave de API sk-gw-, así que ni terceros ni clientes de IA necesitan una cuenta nueva.",
     "endpointTitle": "1. Endpoint del servidor",
     "endpointDesc": "Todos los clientes MCP se conectan a la misma URL usando autenticación Bearer.",
-    "protocolNote": "Versión del protocolo: MCP 2025-06-18, transporte: streamable-http, JSON-RPC 2.0 sin estado.",
+    "protocolNote": "Protocolo: MCP 2026-07-28 (streamable-http, JSON-RPC 2.0 sin estado), con negociación para clientes 2025-11-25 / 2025-06-18.",
     "claudeCodeTitle": "2. Conectar en Claude Code",
     "claudeCodeDesc": "Edita ~/.claude/mcp.json y añade el servidor muirouter.",
     "claudeCodeNote": "Tras reiniciar Claude Code, escribe /mcp para ver la lista de herramientas de muirouter.",

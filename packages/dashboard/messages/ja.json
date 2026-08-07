@@ -673,7 +673,7 @@
     "muirouterBody": "MuiRouter は api.muirouter.com/mcp で streamable-HTTP の MCP サーバーをホストしています。これは MCP ルーターです: アカウントツールを一覧表示する同じサーバーが、ご自身の sk-gw- キーで OpenAI、Claude、Gemini、Grok、MiMo へのモデル呼び出しをルーティングし、1つのウォレットからトークン単位で課金されます。",
     "supportTitle": "MuiRouter の MCP サーバーがサポートする範囲",
     "supportItems": [
-      "プロトコル: MCP 2025-06-18（streamable-HTTP）、旧プロトコルバージョンとのネゴシエーション対応。",
+      "プロトコル: MCP 2026-07-28（streamable-HTTP）、2025-11-25 / 2025-06-18 の旧クライアント向けネゴシエーション対応。",
       "クライアント: Claude Desktop、Claude Code、Cursor、Cline、および streamable-HTTP に対応するすべての MCP クライアント。",
       "ツール: 残高・利用量・チャージ履歴の照会、モデルと価格の一覧、画像生成、チャージセッション。",
       "認証: ご自身の sk-gw- API キーによる Bearer トークン。すべての呼び出しはあなたのアカウントに課金されます。"
@@ -1734,7 +1734,7 @@
     "intro": "MuiRouter は streamable-http の MCP サーバーを提供しており、Claude Desktop、Claude Code、Cursor、Cline などの AI クライアントから直接呼び出せます。AI アシスタントが残高の確認、使用量の閲覧、モデル一覧の取得、画像生成、さらにはチャージの開始まで実行できます。すべての認証はお手元の sk-gw- API キーで行われるため、第三者も AI クライアントも新しいアカウントを用意する必要はありません。",
     "endpointTitle": "1. サーバーエンドポイント",
     "endpointDesc": "すべての MCP クライアントは同じ URL に Bearer 認証で接続します。",
-    "protocolNote": "プロトコルバージョン: MCP 2025-06-18、トランスポート: streamable-http、ステートレスな JSON-RPC 2.0。",
+    "protocolNote": "プロトコル: MCP 2026-07-28（streamable-http、ステートレスな JSON-RPC 2.0）。2025-11-25 / 2025-06-18 の旧クライアント向けネゴシエーションにも対応。",
     "claudeCodeTitle": "2. Claude Code で接続する",
     "claudeCodeDesc": "~/.claude/mcp.json を編集して muirouter サーバーを追加します。",
     "claudeCodeNote": "Claude Code を再起動した後、/mcp と入力すると muirouter のツール一覧が表示されます。",

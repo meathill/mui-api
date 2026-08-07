@@ -673,7 +673,7 @@
     "muirouterBody": "O MuiRouter hospeda um servidor MCP via streamable-HTTP em api.muirouter.com/mcp. É um router MCP: o mesmo servidor que lista ferramentas da conta também roteia chamadas de modelos para OpenAI, Claude, Gemini, Grok e MiMo com sua própria chave sk-gw-, cobrado por token de uma única carteira.",
     "supportTitle": "O que o servidor MCP do MuiRouter suporta",
     "supportItems": [
-      "Protocolo: MCP 2025-06-18 via streamable-HTTP, com negociação para versões anteriores.",
+      "Protocolo: MCP 2026-07-28 via streamable-HTTP, com negociação para clientes 2025-11-25 / 2025-06-18.",
       "Clientes: Claude Desktop, Claude Code, Cursor e Cline, e qualquer cliente MCP que fale streamable-HTTP.",
       "Ferramentas: consultas de saldo, uso e recargas, listagem de modelos e preços, geração de imagens e sessões de recarga.",
       "Autenticação: token Bearer com sua própria chave API sk-gw-; cada chamada é cobrada na sua conta."
@@ -1746,7 +1746,7 @@
     "intro": "O MuiRouter executa um servidor MCP streamable-HTTP para que clientes de IA como Claude Desktop, Claude Code, Cursor e Cline possam chamá-lo diretamente — seu assistente de IA pode consultar seu saldo, ver o uso, listar modelos, gerar imagens e até iniciar uma recarga. Tudo é autenticado com sua própria chave de API sk-gw-, então nem terceiros nem clientes de IA precisam de uma nova conta.",
     "endpointTitle": "1. Endpoint do servidor",
     "endpointDesc": "Todos os clientes MCP se conectam à mesma URL usando autenticação Bearer.",
-    "protocolNote": "Versão do protocolo: MCP 2025-06-18, transporte: streamable-http, JSON-RPC 2.0 sem estado.",
+    "protocolNote": "Protocolo: MCP 2026-07-28 (streamable-http, JSON-RPC 2.0 sem estado), com negociação para clientes 2025-11-25 / 2025-06-18.",
     "claudeCodeTitle": "2. Conectar no Claude Code",
     "claudeCodeDesc": "Edite ~/.claude/mcp.json e adicione o servidor muirouter.",
     "claudeCodeNote": "Após reiniciar o Claude Code, digite /mcp para ver a lista de ferramentas do muirouter.",

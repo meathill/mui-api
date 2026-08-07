@@ -673,7 +673,7 @@
     "muirouterBody": "MuiRouter runs a hosted MCP server over streamable-HTTP at api.muirouter.com/mcp. It is an MCP router: the same server that lists account tools also routes model calls to OpenAI, Claude, Gemini, Grok and MiMo behind your own sk-gw- key, billed per token from one wallet.",
     "supportTitle": "What MuiRouter's MCP server supports",
     "supportItems": [
-      "Protocol: MCP 2025-06-18 over streamable-HTTP, with negotiation for earlier protocol versions.",
+      "Protocol: MCP 2026-07-28 over streamable-HTTP, with legacy negotiation for 2025-11-25 / 2025-06-18 clients.",
       "Clients: Claude Desktop, Claude Code, Cursor and Cline, plus any MCP client that speaks streamable-HTTP.",
       "Tools: balance, usage and recharge queries, model and pricing listing, image generation and top-up sessions.",
       "Authentication: Bearer token with your own sk-gw- API key; every call is billed to your account."
@@ -1740,7 +1740,7 @@
     "intro": "MuiRouter runs a streamable-HTTP MCP server so AI clients like Claude Desktop, Claude Code, Cursor and Cline can call it directly — your AI assistant can check your balance, view usage, list models, generate images and even start a top-up. Everything is authenticated with your own sk-gw- API key, so neither third parties nor AI clients need a new account.",
     "endpointTitle": "1. Server endpoint",
     "endpointDesc": "All MCP clients connect to the same URL using Bearer auth.",
-    "protocolNote": "Protocol version: MCP 2025-06-18, transport: streamable-http, stateless JSON-RPC 2.0.",
+    "protocolNote": "Protocol: MCP 2026-07-28 (streamable-http, stateless JSON-RPC 2.0), with legacy negotiation for 2025-11-25 / 2025-06-18 clients.",
     "claudeCodeTitle": "2. Connect in Claude Code",
     "claudeCodeDesc": "Edit ~/.claude/mcp.json and add the muirouter server.",
     "claudeCodeNote": "After restarting Claude Code, type /mcp to see the muirouter tool list.",
