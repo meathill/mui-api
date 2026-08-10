@@ -22,13 +22,13 @@
     "./d1-retry": "./src/d1-retry.ts"
   },
   "dependencies": {
-    "drizzle-orm": "^0.45.1"
+    "drizzle-orm": "^0.45.2"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20260317.1",
+    "@cloudflare/workers-types": "^5.20260809.1",
     "@types/node": "^24.7.2",
     "drizzle-kit": "^0.31.10",
     "typescript": "^5.9.3",
-    "wrangler": "^4.77.0"
+    "wrangler": "^4.120.0"
   }
 }

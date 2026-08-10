@@ -1,5 +1,5 @@
 import { parseModelMetadata } from '@muirouter/shared-db/model-metadata';
-import { NextResponse } from 'next/server';
+import { connection, NextResponse } from 'next/server';
 import { models } from '@/db/app-schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
@@ -75,6 +75,8 @@ export function validateModelBody(body: ModelWriteBody): NextResponse | null {
  * GET /api/admin/models — 列出所有模型
  */
 export async function GET() {
+  await connection();
+
   try {
     const result = await requireAdmin();
     if ('error' in result) return result.error;

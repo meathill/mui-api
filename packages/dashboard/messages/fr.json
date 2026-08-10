@@ -236,7 +236,7 @@
     "topUp": {
       "title": "Recharger le solde",
       "description": "Payez via Stripe Checkout hébergé et créditez automatiquement votre portefeuille.",
-      "hint": "Montants fixes uniquement : $10 / $20 / $50. Vous recevez exactement ce que vous payez.",
+      "hint": "Recharge minimale : $10. Choisissez $10 / $20 / $50 et recevez le montant intégral.",
       "button": "Recharger ${amount} $",
       "redirecting": "Redirection vers Stripe...",
       "processingTitle": "Recharge en cours",

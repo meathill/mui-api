@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { AppSidebar } from '@/components/app-sidebar';
 import { getSession } from '@/lib/session';
 
-// 依赖 cookie/header 的会话读取，禁用静态优化
+// 登录后内容必须 request-time，不能进任何共享缓存。
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {

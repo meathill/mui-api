@@ -20,3 +20,13 @@ declare namespace Cloudflare {
     GOOGLE_CLIENT_SECRET: string;
   }
 }
+
+interface CloudflareEnv {
+  BETTER_AUTH_SECRET: string;
+  RESEND_API_KEY: string;
+  FROM_EMAIL: string;
+  STRIPE_SECRET_KEY: string;
+  STRIPE_WEBHOOK_SECRET: string;
+  GITHUB_CLIENT_SECRET: string;
+  GOOGLE_CLIENT_SECRET: string;
+}

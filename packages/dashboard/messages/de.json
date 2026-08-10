@@ -236,7 +236,7 @@
     "topUp": {
       "title": "Guthaben aufladen",
       "description": "Mit Stripe Checkout bezahlen und Ihr Wallet automatisch gutschreiben.",
-      "hint": "Nur feste Beträge: $10 / $20 / $50. Sie erhalten genau den bezahlten Betrag.",
+      "hint": "Mindestaufladung: $10. Wählen Sie $10 / $20 / $50 und erhalten Sie den vollen Betrag.",
       "button": "${amount} $ aufladen",
       "redirecting": "Weiter zu Stripe...",
       "processingTitle": "Aufladung wird verarbeitet",

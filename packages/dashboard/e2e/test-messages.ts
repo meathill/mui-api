@@ -10,7 +10,7 @@ import { defaultLocale, type Locale } from '../src/i18n/config';
 
 type Messages = typeof enMessages;
 
-const messagesByLocale = {
+export const messagesByLocale = {
   en: enMessages,
   zh: zhMessages,
   fr: frMessages,

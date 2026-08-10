@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { connection, NextResponse } from 'next/server';
 import { getFreeQuotaStatus, getGlobalConfig, getKV, getUserData } from '@/lib/kv';
 import { getSession } from '@/lib/session';
 
@@ -6,6 +6,8 @@ import { getSession } from '@/lib/session';
  * GET /api/user — 获取当前登录用户的信息（余额、并发等）
  */
 export async function GET() {
+  await connection();
+
   try {
     const { user } = await getSession();
     if (!user) {

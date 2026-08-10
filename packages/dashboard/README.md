@@ -46,7 +46,7 @@ pnpm run deploy            # 构建 + 部署到 Cloudflare
 
 ## Stripe 充值配置
 
-- 用户侧固定支持 `$10 / $20 / $50` 三档充值，使用 Stripe Checkout 一次性支付
+- 最低充值金额为 `$10`；用户侧固定支持 `$10 / $20 / $50` 三档，使用 Stripe Checkout 一次性支付
 - 支付成功后通过 `POST /api/stripe/webhook` 入账，前端回跳页只负责展示结果和轮询状态
 - Stripe webhook 至少订阅以下事件：
   - `checkout.session.completed`

@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { connection, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { getGlobalConfig, getKV, getSpendingStats } from '@/lib/kv';
 
@@ -6,6 +6,8 @@ import { getGlobalConfig, getKV, getSpendingStats } from '@/lib/kv';
  * GET /api/admin/spending-stats — 消费统计
  */
 export async function GET() {
+  await connection();
+
   try {
     const result = await requireAdmin();
     if ('error' in result) return result.error;

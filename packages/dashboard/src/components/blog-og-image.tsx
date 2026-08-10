@@ -8,7 +8,7 @@ function getTitleFontSize(title: string): number {
   return 38;
 }
 
-export function BlogOgImage({ title }: { title: string }) {
+export function createBlogOgImage(title: string) {
   return (
     <div
       style={{

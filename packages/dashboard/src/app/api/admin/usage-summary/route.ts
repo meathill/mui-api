@@ -1,5 +1,5 @@
 import { gte, sql } from 'drizzle-orm';
-import { NextResponse } from 'next/server';
+import { connection, NextResponse } from 'next/server';
 import { usageLogs } from '@/db/app-schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
@@ -8,6 +8,8 @@ import { getDb } from '@/lib/db';
  * GET /api/admin/usage-summary — 今日用量汇总
  */
 export async function GET() {
+  await connection();
+
   try {
     const result = await requireAdmin();
     if ('error' in result) return result.error;

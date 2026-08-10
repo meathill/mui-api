@@ -1,5 +1,5 @@
 import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
-import { type NextRequest, NextResponse } from 'next/server';
+import { connection, type NextRequest, NextResponse } from 'next/server';
 import { usageLogs } from '@/db/app-schema';
 import { getDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
@@ -8,6 +8,8 @@ import { getSession } from '@/lib/session';
  * GET /api/user/usage — 获取当前用户的用量记录
  */
 export async function GET(request: NextRequest) {
+  await connection();
+
   try {
     const { user } = await getSession();
     if (!user) {

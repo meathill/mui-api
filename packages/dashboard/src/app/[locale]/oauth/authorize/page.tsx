@@ -6,6 +6,9 @@ import { oauthClients } from '@/db/app-schema';
 import { getDb } from '@/lib/db';
 import { getSession } from '@/lib/session';
 
+// 授权页依赖 session 与 query，必须 request-time。
+export const dynamic = 'force-dynamic';
+
 /**
  * OAuth 2.0 授权页。
  *
@@ -19,8 +22,6 @@ import { getSession } from '@/lib/session';
  * 严格按 muirouter-spec.md「§ OAuth 2.0」约定。redirect_uri 必须命中客户端白名单，
  * 否则直接 400 拒绝（防 redirect_uri 劫持）。
  */
-
-export const dynamic = 'force-dynamic';
 
 const SUPPORTED_SCOPES = ['balance', 'llm'];
 
@@ -58,8 +59,8 @@ export default async function AuthorizePage({ searchParams }: { searchParams: Pr
 
   let allowedRedirects: string[] = [];
   try {
-    const parsed = JSON.parse(clientRow.allowedRedirectUris);
-    if (Array.isArray(parsed)) allowedRedirects = parsed.filter((s): s is string => typeof s === 'string');
+    const parsed: unknown = JSON.parse(clientRow.allowedRedirectUris);
+    if (Array.isArray(parsed)) allowedRedirects = parsed.filter((value): value is string => typeof value === 'string');
   } catch {}
   if (!allowedRedirects.includes(redirectUri)) {
     return (

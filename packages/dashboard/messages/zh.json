@@ -236,7 +236,7 @@
     "topUp": {
       "title": "在线充值",
       "description": "使用 Stripe Checkout 托管支付，支付成功后自动到账。",
-      "hint": "支持固定面额 $10 / $20 / $50，充多少得多少。",
+      "hint": "最低充值 $10，可选 $10 / $20 / $50，充多少得多少。",
       "button": "充值 ${amount}",
       "redirecting": "跳转到 Stripe...",
       "processingTitle": "充值处理中",

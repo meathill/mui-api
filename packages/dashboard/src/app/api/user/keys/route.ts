@@ -1,5 +1,5 @@
 import { generateApiKey, getKeyPrefix, hashApiKey } from '@muirouter/shared-db/crypto';
-import { NextResponse } from 'next/server';
+import { connection, NextResponse } from 'next/server';
 import { deleteApiKey, getApiKeyMetadata, getKV, getUserData, listUserApiKeys, storeApiKey } from '@/lib/kv';
 import { getSession } from '@/lib/session';
 import { createWalletUser, getWallet } from '@/lib/wallet-do';
@@ -8,6 +8,8 @@ import { createWalletUser, getWallet } from '@/lib/wallet-do';
  * GET /api/user/keys — 列出当前用户的所有 API Key
  */
 export async function GET() {
+  await connection();
+
   try {
     const { user } = await getSession();
     if (!user) {

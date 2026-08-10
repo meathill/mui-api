@@ -1,6 +1,7 @@
 import { ImageResponse } from 'next/og';
-import { MarketingOgImage } from '@/components/marketing-og-image';
+import { createMarketingOgImage } from '@/components/marketing-og-image';
 import { routing } from '@/i18n/routing';
+import { createOgEtag, materializeOgResponse, OG_CACHE_CONTROL } from '@/lib/og-cache';
 import { MARKETING_OG_IMAGE_SIZE } from '@/lib/seo';
 
 // 注意：不要设置 runtime = 'edge'。@opennextjs/cloudflare 不支持 Edge Runtime，
@@ -13,8 +14,14 @@ export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
 
-export const dynamic = 'force-static';
-
 export function GET() {
-  return new ImageResponse(<MarketingOgImage />, { ...MARKETING_OG_IMAGE_SIZE });
+  return materializeOgResponse(
+    new ImageResponse(createMarketingOgImage(), {
+      ...MARKETING_OG_IMAGE_SIZE,
+      headers: {
+        'Cache-Control': OG_CACHE_CONTROL,
+        ETag: createOgEtag(['marketing', 'v1']),
+      },
+    }),
+  );
 }

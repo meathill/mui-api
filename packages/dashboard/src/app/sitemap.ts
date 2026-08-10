@@ -1,9 +1,8 @@
 import type { MetadataRoute } from 'next';
+import { connection } from 'next/server';
 import { locales } from '@/i18n/config';
 import { getPublishedBlogSitemapPosts } from '@/lib/blog';
 import { getLanguageAlternates, getLocalizedPath, SITE_URL } from '@/lib/seo';
-
-export const dynamic = 'force-dynamic';
 
 type SitemapPage = {
   path: string;
@@ -121,6 +120,7 @@ export function buildSitemapEntries(blogPosts: Awaited<ReturnType<typeof getPubl
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
+  await connection();
   const blogPosts = await getPublishedBlogSitemapPosts();
   return buildSitemapEntries(blogPosts);
 }

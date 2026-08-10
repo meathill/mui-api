@@ -1,13 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import { deriveTopUpStatus, parseTopUpAmount, toStripeUnitAmount } from './top-up';
+import {
+  deriveTopUpStatus,
+  parseTopUpAmount,
+  TOP_UP_AMOUNTS,
+  TOP_UP_MINIMUM_AMOUNT,
+  toStripeUnitAmount,
+} from './top-up';
 
 describe('top-up helpers', () => {
   it('should only accept fixed top-up amounts', () => {
+    expect(TOP_UP_MINIMUM_AMOUNT).toBe(10);
+    expect(TOP_UP_AMOUNTS).toEqual([10, 20, 50]);
     expect(parseTopUpAmount(10)).toBe(10);
     expect(parseTopUpAmount(20)).toBe(20);
     expect(parseTopUpAmount(50)).toBe(50);
-    expect(parseTopUpAmount(5)).toBeNull();
+    expect(parseTopUpAmount(0)).toBeNull();
+    expect(parseTopUpAmount(-10)).toBeNull();
+    expect(parseTopUpAmount(9)).toBeNull();
+    expect(parseTopUpAmount(10.01)).toBeNull();
+    expect(parseTopUpAmount(30)).toBeNull();
     expect(parseTopUpAmount('10')).toBeNull();
+    expect(parseTopUpAmount(Number.NaN)).toBeNull();
   });
 
   it('should convert dollars to Stripe cents', () => {

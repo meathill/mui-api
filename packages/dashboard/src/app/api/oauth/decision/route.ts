@@ -18,8 +18,6 @@ import { getSession } from '@/lib/session';
  * 仅当 redirect_uri 本身校验失败时才直接报错（避免变成 open redirect）。
  */
 
-export const dynamic = 'force-dynamic';
-
 const CODE_TTL_SEC = 5 * 60;
 
 export async function POST(request: Request): Promise<Response> {
@@ -42,8 +40,8 @@ export async function POST(request: Request): Promise<Response> {
 
   let allowedRedirects: string[] = [];
   try {
-    const parsed = JSON.parse(clientRow.allowedRedirectUris);
-    if (Array.isArray(parsed)) allowedRedirects = parsed.filter((s): s is string => typeof s === 'string');
+    const parsed: unknown = JSON.parse(clientRow.allowedRedirectUris);
+    if (Array.isArray(parsed)) allowedRedirects = parsed.filter((value): value is string => typeof value === 'string');
   } catch {}
   if (!allowedRedirects.includes(redirectUri)) {
     return Response.json({ error: 'invalid_redirect_uri' }, { status: 400 });

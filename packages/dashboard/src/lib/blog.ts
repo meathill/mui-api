@@ -1,7 +1,9 @@
 import { and, desc, eq, inArray } from 'drizzle-orm';
+import { unstable_cache } from 'next/cache';
 import { type BlogPost, type BlogPostTranslation, blogPosts, blogPostTranslations } from '@/db/app-schema';
 import { defaultLocale, type Locale } from '@/i18n/config';
 import { getDb } from '@/lib/db';
+import { BLOG_CONTENT_TAG, PUBLIC_CONTENT_REVALIDATE_SECONDS } from '@/lib/public-cache';
 
 // 旧导入入口：路径/hreflang 的真实实现已迁到 lib/seo.ts，这里只做转发。
 export { getLanguageAlternates, getLocalizedPath, getResolvedLocale } from '@/lib/seo';
@@ -127,7 +129,12 @@ async function getTranslationsForSlugs(slugs: readonly string[]): Promise<BlogPo
     .where(inArray(blogPostTranslations.slug, [...slugs]));
 }
 
-export async function getLocalizedBlogPosts(locale: Locale): Promise<LocalizedBlogPost[]> {
+const PUBLIC_CONTENT_CACHE_OPTIONS = {
+  revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS,
+  tags: [BLOG_CONTENT_TAG],
+};
+
+async function loadLocalizedBlogPosts(locale: Locale): Promise<LocalizedBlogPost[]> {
   const db = await getDb();
   const posts = await db
     .select()
@@ -138,7 +145,11 @@ export async function getLocalizedBlogPosts(locale: Locale): Promise<LocalizedBl
   return toPublishedLocalizedBlogPosts(posts, translations, locale);
 }
 
-export async function getLocalizedBlogPost(slug: string, locale: Locale): Promise<LocalizedBlogPost | null> {
+export function getLocalizedBlogPosts(locale: Locale): Promise<LocalizedBlogPost[]> {
+  return unstable_cache(loadLocalizedBlogPosts, ['blog-posts', locale], PUBLIC_CONTENT_CACHE_OPTIONS)(locale);
+}
+
+async function loadLocalizedBlogPost(slug: string, locale: Locale): Promise<LocalizedBlogPost | null> {
   const db = await getDb();
   const [post] = await db
     .select()
@@ -154,7 +165,11 @@ export async function getLocalizedBlogPost(slug: string, locale: Locale): Promis
   return toLocalizedBlogPost(post, translations, locale);
 }
 
-export async function getPublishedBlogSitemapPosts(): Promise<BlogSitemapPost[]> {
+export function getLocalizedBlogPost(slug: string, locale: Locale): Promise<LocalizedBlogPost | null> {
+  return unstable_cache(loadLocalizedBlogPost, ['blog-post', slug, locale], PUBLIC_CONTENT_CACHE_OPTIONS)(slug, locale);
+}
+
+async function loadPublishedBlogSitemapPosts(): Promise<BlogSitemapPost[]> {
   const db = await getDb();
   const posts = await db
     .select({
@@ -170,4 +185,8 @@ export async function getPublishedBlogSitemapPosts(): Promise<BlogSitemapPost[]>
     href: `/blog/${post.slug}`,
     publishedAt: post.publishedAt,
   }));
+}
+
+export function getPublishedBlogSitemapPosts(): Promise<BlogSitemapPost[]> {
+  return unstable_cache(loadPublishedBlogSitemapPosts, ['blog-sitemap'], PUBLIC_CONTENT_CACHE_OPTIONS)();
 }

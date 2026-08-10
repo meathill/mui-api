@@ -236,7 +236,7 @@
     "topUp": {
       "title": "Recarregar saldo",
       "description": "Pague com o Stripe Checkout hospedado e credite sua carteira automaticamente.",
-      "hint": "Apenas valores fixos: $10 / $20 / $50. Você recebe exatamente o que pagar.",
+      "hint": "Recarga mínima: $10. Escolha $10 / $20 / $50 e receba o valor integral.",
       "button": "Recarregar US$ ${amount}",
       "redirecting": "Redirecionando para o Stripe...",
       "processingTitle": "Recarga em andamento",

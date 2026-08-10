@@ -1,5 +1,5 @@
 import { desc, sql } from 'drizzle-orm';
-import { type NextRequest, NextResponse } from 'next/server';
+import { connection, type NextRequest, NextResponse } from 'next/server';
 import { user as userTable } from '@/db/schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
@@ -10,6 +10,8 @@ import { getKV, getUserData } from '@/lib/kv';
  * 以 D1 user 表为主，KV 补充余额等运行时数据
  */
 export async function GET(request: NextRequest) {
+  await connection();
+
   try {
     const result = await requireAdmin();
     if ('error' in result) return result.error;

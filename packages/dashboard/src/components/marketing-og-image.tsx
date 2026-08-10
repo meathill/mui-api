@@ -1,4 +1,4 @@
-export function MarketingOgImage() {
+export function createMarketingOgImage() {
   return (
     <div
       style={{

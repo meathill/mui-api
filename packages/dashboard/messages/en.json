@@ -236,7 +236,7 @@
     "topUp": {
       "title": "Top Up Balance",
       "description": "Pay with hosted Stripe Checkout and credit your wallet automatically.",
-      "hint": "Fixed amounts only: $10 / $20 / $50. Top up what you pay.",
+      "hint": "Minimum top-up: $10. Choose $10 / $20 / $50 and receive the full amount.",
       "button": "Top Up ${amount}",
       "redirecting": "Redirecting...",
       "processingTitle": "Top-up in progress",

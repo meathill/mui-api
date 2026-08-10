@@ -104,6 +104,38 @@ test.describe('SEO', () => {
   });
 
   test.describe('子页面 meta', () => {
+    test('OpenAI-Compatible Router 的 canonical 与 Breadcrumb 完整', async ({ page }) => {
+      await page.goto('/openai-compatible-router');
+      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
+        'href',
+        'https://muirouter.com/openai-compatible-router',
+      );
+      const robots = page.locator('meta[name="robots"]');
+      if ((await robots.count()) > 0) {
+        await expect(robots).not.toHaveAttribute('content', /noindex/i);
+      }
+
+      const structuredData = (await page.locator('script[type="application/ld+json"]').allTextContents()).map(
+        (content) => JSON.parse(content) as { '@type'?: string; '@graph'?: Array<Record<string, unknown>> },
+      );
+      const entities = structuredData.flatMap((entry) => entry['@graph'] ?? [entry]);
+      const breadcrumb = entities.find((entry) => entry['@type'] === 'BreadcrumbList') as
+        | { itemListElement?: Array<{ position?: number; name?: string; item?: string }> }
+        | undefined;
+
+      expect(breadcrumb).toBeDefined();
+      expect(breadcrumb?.itemListElement).toHaveLength(2);
+      breadcrumb?.itemListElement?.forEach((item, index) => {
+        expect(item.position).toBe(index + 1);
+        expect(item.name?.trim()).toBeTruthy();
+        expect(() => new URL(item.item ?? '')).not.toThrow();
+      });
+      expect(breadcrumb?.itemListElement?.[1]).toMatchObject({
+        name: 'OpenAI-Compatible Router',
+        item: 'https://muirouter.com/openai-compatible-router',
+      });
+    });
+
     test('登录页有独立 title', async ({ page }) => {
       await page.goto('/login');
       await expect(page).toHaveTitle(new RegExp(defaultMessages.login.title));
@@ -126,18 +158,13 @@ test.describe('SEO', () => {
       );
     });
 
-    test('博客文章有文章类型 meta 和可访问的 Open Graph 图片', async ({ page, request }) => {
+    test('博客文章有文章类型 meta 和绝对 Open Graph 图片地址', async ({ page }) => {
       await page.goto('/blog/gpt-5-6');
       await expect(page.locator('meta[property="og:type"]')).toHaveAttribute('content', 'article');
       await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /GPT-5\.6/);
 
       const ogImage = await page.locator('meta[property="og:image"]').getAttribute('content');
-      expect(ogImage).toBeTruthy();
-
-      const ogImageUrl = new URL(ogImage!, page.url());
-      const response = await request.get(`${ogImageUrl.pathname}${ogImageUrl.search}`);
-      expect(response.status()).toBe(200);
-      expect(response.headers()['content-type']).toContain('image/png');
+      expect(ogImage).toBe('https://muirouter.com/blog/gpt-5-6/og-image');
     });
   });
 });

@@ -2,7 +2,7 @@
 
 import { CaretLeft, CaretRight, CaretUpDown } from '@phosphor-icons/react';
 import type * as React from 'react';
-import { DayPicker } from 'react-day-picker';
+import { DayPicker } from '@daypicker/react';
 import { cn } from '@/lib/utils';
 
 const buttonClassNames =

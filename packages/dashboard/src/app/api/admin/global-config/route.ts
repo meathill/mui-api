@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server';
+import { connection, NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin';
 import { type GlobalConfig, getGlobalConfig, getKV, normalizeFreeQuotaConfig, setGlobalConfig } from '@/lib/kv';
 
@@ -17,6 +17,8 @@ function withDefaults(config: Partial<GlobalConfig> | null | undefined): GlobalC
  * GET /api/admin/global-config — 获取全局配置
  */
 export async function GET() {
+  await connection();
+
   try {
     const result = await requireAdmin();
     if ('error' in result) return result.error;

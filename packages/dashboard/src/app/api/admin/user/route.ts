@@ -1,5 +1,5 @@
 import { eq } from 'drizzle-orm';
-import { type NextRequest, NextResponse } from 'next/server';
+import { connection, type NextRequest, NextResponse } from 'next/server';
 import { user as userTable } from '@/db/schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
@@ -14,6 +14,8 @@ import { getKV, getUserData } from '@/lib/kv';
  * 此时返回默认值而不是 404，避免"列表可见、详情不存在"的矛盾。
  */
 export async function GET(request: NextRequest) {
+  await connection();
+
   try {
     const result = await requireAdmin();
     if ('error' in result) return result.error;

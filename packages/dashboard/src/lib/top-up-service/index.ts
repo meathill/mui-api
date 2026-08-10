@@ -8,6 +8,7 @@ import {
   deriveTopUpStatus,
   parseTopUpAmount,
   STRIPE_TOP_UP_SOURCE,
+  TOP_UP_AMOUNT_ERROR_MESSAGE,
   TOP_UP_CURRENCY,
   type TopUpStatus,
   toStripeUnitAmount,
@@ -40,7 +41,7 @@ export async function createTopUpCheckoutSession(params: {
 }): Promise<CreateTopUpCheckoutResult> {
   const amount = parseTopUpAmount(params.amount);
   if (!amount) {
-    throw new Error('仅支持充值 $10、$20、$50');
+    throw new Error(TOP_UP_AMOUNT_ERROR_MESSAGE);
   }
 
   const locale = resolveLocale(params.locale);

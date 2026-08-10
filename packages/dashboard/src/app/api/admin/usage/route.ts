@@ -1,5 +1,5 @@
 import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
-import { type NextRequest, NextResponse } from 'next/server';
+import { connection, type NextRequest, NextResponse } from 'next/server';
 import { usageLogs } from '@/db/app-schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
@@ -8,6 +8,8 @@ import { getDb } from '@/lib/db';
  * GET /api/admin/usage — 查询用量日志
  */
 export async function GET(request: NextRequest) {
+  await connection();
+
   try {
     const result = await requireAdmin();
     if ('error' in result) return result.error;

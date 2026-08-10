@@ -1,8 +1,10 @@
-import { type NextRequest, NextResponse } from 'next/server';
+import { connection, type NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
 import { getTopUpSessionStatus } from '@/lib/top-up-service';
 
 export async function GET(request: NextRequest) {
+  await connection();
+
   try {
     const { user } = await getSession();
     if (!user) {

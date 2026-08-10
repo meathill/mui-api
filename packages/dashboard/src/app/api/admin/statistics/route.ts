@@ -1,5 +1,5 @@
 import { and, desc, eq, gte, isNull, lte, sql } from 'drizzle-orm';
-import { type NextRequest, NextResponse } from 'next/server';
+import { connection, type NextRequest, NextResponse } from 'next/server';
 import { usageLogs, usageStats } from '@/db/app-schema';
 import { user } from '@/db/schema';
 import { requireAdmin } from '@/lib/admin';
@@ -23,6 +23,8 @@ function autoGranularity(startDate: Date, endDate: Date): Granularity {
  * GET /api/admin/statistics — 统计分析数据
  */
 export async function GET(request: NextRequest) {
+  await connection();
+
   try {
     const result = await requireAdmin();
     if ('error' in result) return result.error;

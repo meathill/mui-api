@@ -9,6 +9,8 @@ const chromiumChannel = useSystemChrome ? 'chrome' : process.env.PLAYWRIGHT_CHRO
 export default defineConfig({
   testDir: './e2e',
   timeout: 30_000,
+  // Next 16.3 dev 会并发写 prerender manifest；首次编译期并发导航可能损坏该 JSON。
+  workers: 1,
   retries: process.env.CI ? 2 : 0,
   reporter: process.env.CI ? 'github' : 'list',
   use: {

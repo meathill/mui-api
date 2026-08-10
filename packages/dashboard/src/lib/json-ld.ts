@@ -24,11 +24,16 @@ export function buildFaqEntity(faq: FaqEntry[]) {
 
 /** BreadcrumbList：Home → 当前页，name 通常传该页 eyebrow 文案 */
 export function buildBreadcrumbEntity(path: string, locale: string, name: string) {
+  const normalizedName = name.trim();
+  if (!normalizedName) {
+    throw new Error('Breadcrumb name 不能为空');
+  }
+
   return {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}${getLocalizedPath('/', locale)}` },
-      { '@type': 'ListItem', position: 2, name, item: `${SITE_URL}${getLocalizedPath(path, locale)}` },
+      { '@type': 'ListItem', position: 2, name: normalizedName, item: `${SITE_URL}${getLocalizedPath(path, locale)}` },
     ],
   };
 }

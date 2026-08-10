@@ -1,4 +1,6 @@
-export const TOP_UP_AMOUNTS = [10, 20, 50] as const;
+export const TOP_UP_MINIMUM_AMOUNT = 10;
+export const TOP_UP_AMOUNTS = [TOP_UP_MINIMUM_AMOUNT, 20, 50] as const;
+export const TOP_UP_AMOUNT_ERROR_MESSAGE = '最低充值 $10，仅支持充值 $10、$20、$50';
 export const TOP_UP_CURRENCY = 'USD';
 export const STRIPE_TOP_UP_SOURCE = 'stripe_checkout';
 // processing 超过该秒数视为 worker 硬终止残留（Workers 单请求生命周期远短于此），

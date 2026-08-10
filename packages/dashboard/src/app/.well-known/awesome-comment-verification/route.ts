@@ -1,3 +1,4 @@
+import { connection } from 'next/server';
 import { getKV } from '@/lib/kv';
 
 /**
@@ -16,9 +17,8 @@ import { getKV } from '@/lib/kv';
 
 const TOKEN_KEY = 'awesome-comment:domain-verify-token';
 
-export const dynamic = 'force-dynamic';
-
 export async function GET(): Promise<Response> {
+  await connection();
   const kv = await getKV();
   const token = await kv.get(TOKEN_KEY);
 

@@ -18,6 +18,7 @@ export default async function MarketingLayout({
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations('header');
+  const copyrightYear = new Date().getFullYear();
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -106,7 +107,7 @@ export default async function MarketingLayout({
             </Link>
           </div>
           <div className="text-center">
-            &copy; {new Date().getFullYear()} Meathill LLC. All rights reserved.
+            &copy; {copyrightYear} Meathill LLC. All rights reserved.
             <span className="mx-2 text-muted-foreground/50">·</span>
             <span className="inline-flex items-center gap-1.5 font-mono text-xs uppercase tracking-[0.18em] text-[var(--brand-yellow-deep)] align-middle">
               supervised by Mui

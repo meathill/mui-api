@@ -9,7 +9,7 @@ export function getStripeClient(secretKey: string): Stripe {
   }
 
   stripeClient = new Stripe(secretKey, {
-    apiVersion: '2026-03-25.dahlia',
+    apiVersion: '2026-07-29.dahlia',
     appInfo: {
       name: 'mui-dashboard',
     },

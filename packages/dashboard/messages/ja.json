@@ -236,7 +236,7 @@
     "topUp": {
       "title": "残高をチャージ",
       "description": "Stripe Checkout で支払い、ウォレット残高へ自動反映します。",
-      "hint": "固定金額のみ: $10 / $20 / $50。支払った分だけそのまま反映されます。",
+      "hint": "最低チャージ額は $10。$10 / $20 / $50 から選び、全額が残高に反映されます。",
       "button": "${amount} ドルをチャージ",
       "redirecting": "Stripe に移動中...",
       "processingTitle": "チャージ処理中",

@@ -2,6 +2,7 @@ import { isGrokImageModelId } from '@muirouter/shared-db/grok-image';
 import { asc } from 'drizzle-orm';
 import { ArrowUpRight } from '@phosphor-icons/react/ssr';
 import type { Metadata } from 'next';
+import { unstable_cache } from 'next/cache';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,10 +10,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { type Model, models } from '@/db/app-schema';
 import { getDb } from '@/lib/db';
 import { Link } from '@/i18n/navigation';
+import { PRICING_MODELS_TAG, PUBLIC_CONTENT_REVALIDATE_SECONDS } from '@/lib/public-cache';
 import { buildMetadata, getResolvedLocale } from '@/lib/seo';
+import { SummaryPanel } from './pricing-shell';
 
-// Pricing 表数据来自 D1，build 阶段无绑定无法预渲染；运行时由 CF 边缘缓存兜底
-// （Worker 层 + 浏览器层都可加 cache-control 头）。
+// Pricing 表数据来自 D1，build 阶段无绑定无法预渲染；模型快照由 unstable_cache 做天级缓存。
 export const dynamic = 'force-dynamic';
 
 /**
@@ -97,7 +99,12 @@ interface ProviderSection {
   models: Model[];
 }
 
-async function loadPricingSections(): Promise<ProviderSection[]> {
+interface PricingSnapshot {
+  sections: ProviderSection[];
+  generatedAt: string;
+}
+
+async function queryPricingSnapshot(): Promise<PricingSnapshot> {
   const db = await getDb();
   const rows = await db.select().from(models).orderBy(asc(models.id));
 
@@ -113,18 +120,26 @@ async function loadPricingSections(): Promise<ProviderSection[]> {
     grouped.set(row.provider, list);
   }
 
-  return PROVIDER_ORDER.filter((p) => grouped.has(p)).map((provider) => ({
-    provider,
-    models: grouped.get(provider) ?? [],
-  }));
+  return {
+    sections: PROVIDER_ORDER.filter((provider) => grouped.has(provider)).map((provider) => ({
+      provider,
+      models: grouped.get(provider) ?? [],
+    })),
+    generatedAt: new Date().toISOString().slice(0, 10),
+  };
 }
 
+const loadPricingSnapshot = unstable_cache(queryPricingSnapshot, ['pricing-snapshot'], {
+  revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS,
+  tags: [PRICING_MODELS_TAG],
+});
+
+// 不加 Suspense 外壳：一旦外壳先 flush，D1 出错时响应就是 200 + 骨架屏，
+// 爬虫会把这种薄内容当正常页面收录。宁可整页 500，也不要 soft 200。
 export default async function PricingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'pricing' });
-  const sections = await loadPricingSections();
-  const updatedAt = new Date().toISOString().slice(0, 10);
 
   return (
     <div className="relative overflow-hidden">
@@ -158,53 +173,12 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
             </div>
           </div>
 
-          <div className="space-y-4">
-            <div className="rounded-3xl border border-border/80 bg-card/90 p-5 shadow-sm backdrop-blur">
-              <p className="text-sm font-medium text-foreground">{t('updatedAtLabel')}</p>
-              <p className="mt-2 text-3xl font-semibold tracking-tight text-foreground">{updatedAt}</p>
-              <p className="mt-3 text-sm leading-6 text-muted-foreground">{t('actualBillingNotice')}</p>
-            </div>
-
-            <div className="rounded-3xl border border-border/70 bg-background/85 p-5">
-              <p className="text-sm font-medium text-foreground">{t('sourceLabel')}</p>
-              <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
-                {sections.map((section) => {
-                  const display = PROVIDER_DISPLAY[section.provider];
-                  return (
-                    <li key={section.provider}>
-                      <a
-                        href={display.sourceUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
-                      >
-                        {display.label}
-                        <ArrowUpRight size={14} />
-                      </a>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          </div>
+          <PricingSidebar locale={locale} />
         </div>
       </section>
 
       <section className="mx-auto max-w-6xl px-6 py-12 sm:py-16">
-        <div className="space-y-8">
-          {sections.map((section) => (
-            <ProviderPricingCard key={section.provider} section={section} locale={locale} />
-          ))}
-        </div>
-
-        <div className="mt-10 rounded-3xl border border-border/80 bg-muted/30 p-6 sm:p-8">
-          <h2 className="text-xl font-semibold tracking-tight text-foreground">{t('notesTitle')}</h2>
-          <div className="mt-4 grid gap-4 text-sm leading-6 text-muted-foreground sm:grid-cols-3">
-            <p>{t('scopeNotice')}</p>
-            <p>{t('referenceNotice', { date: updatedAt })}</p>
-            <p>{t('billingNotice')}</p>
-          </div>
-        </div>
+        <PricingCards locale={locale} />
 
         <div className="mt-12">
           <h2 className="text-xl font-semibold tracking-tight text-center mb-6">{t('relatedTitle')}</h2>
@@ -226,12 +200,64 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
   );
 }
 
-function SummaryPanel({ title, description }: { title: string; description: string }) {
+async function PricingSidebar({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: 'pricing' });
+  const { sections, generatedAt } = await loadPricingSnapshot();
+
   return (
-    <div className="rounded-2xl border border-border/70 bg-background/80 p-4">
-      <p className="text-sm font-medium text-foreground">{title}</p>
-      <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>
+    <div className="space-y-4">
+      <div className="rounded-3xl border border-border/80 bg-card/90 p-5 shadow-sm backdrop-blur">
+        <p className="text-sm font-medium text-foreground">{t('updatedAtLabel')}</p>
+        <p className="mt-2 text-3xl font-semibold tracking-tight text-foreground">{generatedAt}</p>
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">{t('actualBillingNotice')}</p>
+      </div>
+
+      <div className="rounded-3xl border border-border/70 bg-background/85 p-5">
+        <p className="text-sm font-medium text-foreground">{t('sourceLabel')}</p>
+        <ul className="mt-3 space-y-2 text-sm text-muted-foreground">
+          {sections.map((section) => {
+            const display = PROVIDER_DISPLAY[section.provider];
+            return (
+              <li key={section.provider}>
+                <a
+                  href={display.sourceUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-1.5 transition-colors hover:text-foreground"
+                >
+                  {display.label}
+                  <ArrowUpRight size={14} />
+                </a>
+              </li>
+            );
+          })}
+        </ul>
+      </div>
     </div>
+  );
+}
+
+async function PricingCards({ locale }: { locale: string }) {
+  const t = await getTranslations({ locale, namespace: 'pricing' });
+  const { sections, generatedAt } = await loadPricingSnapshot();
+
+  return (
+    <>
+      <div className="space-y-8">
+        {sections.map((section) => (
+          <ProviderPricingCard key={section.provider} section={section} locale={locale} />
+        ))}
+      </div>
+
+      <div className="mt-10 rounded-3xl border border-border/80 bg-muted/30 p-6 sm:p-8">
+        <h2 className="text-xl font-semibold tracking-tight text-foreground">{t('notesTitle')}</h2>
+        <div className="mt-4 grid gap-4 text-sm leading-6 text-muted-foreground sm:grid-cols-3">
+          <p>{t('scopeNotice')}</p>
+          <p>{t('referenceNotice', { date: generatedAt })}</p>
+          <p>{t('billingNotice')}</p>
+        </div>
+      </div>
+    </>
   );
 }
 

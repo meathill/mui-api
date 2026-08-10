@@ -25,6 +25,10 @@ describe('buildBreadcrumbEntity', () => {
     const entity = buildBreadcrumbEntity('/ai-router', 'en', 'AI Router');
     expect(entity.itemListElement[1].item).toBe('https://muirouter.com/ai-router');
   });
+
+  it('拒绝空白名称，防止搜索引擎显示未命名面包屑', () => {
+    expect(() => buildBreadcrumbEntity('/openai-compatible-router', 'en', '   ')).toThrow('Breadcrumb name 不能为空');
+  });
 });
 
 describe('buildItemListEntity', () => {

@@ -65,6 +65,7 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter mui-api-dashboard run build
       - run: pnpm --filter mui-api-dashboard exec playwright install chromium --with-deps
       - run: pnpm --filter mui-api-dashboard run test:e2e:prepare
       - run: pnpm --filter mui-api-dashboard run test:e2e
