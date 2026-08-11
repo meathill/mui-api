@@ -34,14 +34,25 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
     '@graph': [
       {
         '@type': 'Organization',
+        '@id': 'https://muirouter.com/#organization',
         name: 'MuiRouter',
         url: 'https://muirouter.com',
         logo: 'https://muirouter.com/favicon.svg',
       },
       {
+        '@type': 'WebSite',
+        '@id': 'https://muirouter.com/#website',
+        name: 'MuiRouter',
+        url: 'https://muirouter.com',
+        description: t('description'),
+        publisher: { '@id': 'https://muirouter.com/#organization' },
+      },
+      {
         '@type': 'WebApplication',
         name: 'MuiRouter',
         url: 'https://muirouter.com',
+        isPartOf: { '@id': 'https://muirouter.com/#website' },
+        provider: { '@id': 'https://muirouter.com/#organization' },
         applicationCategory: 'DeveloperApplication',
         operatingSystem: 'All',
         description: t('description'),

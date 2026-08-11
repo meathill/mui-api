@@ -52,6 +52,7 @@ test.describe('SEO', () => {
       expect(data?.['@context']).toBe('https://schema.org');
       expect(data?.['@graph']).toBeInstanceOf(Array);
       expect(data?.['@graph']?.some((item) => item['@type'] === 'Organization')).toBe(true);
+      expect(data?.['@graph']?.some((item) => item['@type'] === 'WebSite')).toBe(true);
       expect(data?.['@graph']?.some((item) => item['@type'] === 'WebApplication')).toBe(true);
     });
   });

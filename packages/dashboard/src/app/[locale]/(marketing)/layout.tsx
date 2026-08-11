@@ -102,6 +102,9 @@ export default async function MarketingLayout({
             <Link href="/pricing" className="hover:text-foreground transition-colors">
               {t('pricing')}
             </Link>
+            <a href="https://firstlook.tools" className="hover:text-foreground transition-colors">
+              First Look
+            </a>
             <Link href="/blog" className="hover:text-foreground transition-colors">
               {t('blog')}
             </Link>
