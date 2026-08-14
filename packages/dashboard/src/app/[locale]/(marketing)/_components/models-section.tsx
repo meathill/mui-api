@@ -37,7 +37,7 @@ export function ModelsSection() {
     {
       name: 'xAI',
       color: 'bg-[var(--brand-ink)] text-[var(--brand-cream)] border border-[var(--brand-ink-soft)]',
-      models: ['Grok 4.5', 'Grok 4.3', 'Grok Imagine Image'],
+      models: ['Grok 4.6', 'Grok 4.5', 'Grok 4.3', 'Grok Imagine Image'],
       description: t('grokDesc'),
     },
     {

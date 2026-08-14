@@ -26,6 +26,8 @@ describe('GET /v1/models', () => {
     expect(modelIds).toContain('mimo-v2.5-tts');
     expect(modelIds).toContain('mimo-v2.5-tts-voiceclone');
     expect(modelIds).toContain('mimo-v2.5-tts-voicedesign');
+    expect(modelIds).toContain('grok-4.6');
+    expect(modelIds).toContain('deepseek-v4-pro');
   });
 
   // 这批增强字段是「客户端只填 endpoint + key 就能刷出模型」的关键：

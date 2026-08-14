@@ -1,0 +1,29 @@
+2026 年 8 月 12 日，xAI 发布了 **Grok 4.6**——专注长期 Agent 任务，以及更宏大的交互与视觉工作的新一代前沿模型。
+
+`grok-4.6` 现在已在 MuiRouter 上线。无论你在终端 AI Agent 里，还是通过标准的 OpenAI 兼容接口（`/v1/chat/completions`），只需一把 API Key、把模型名改成 `grok-4.6` 就能直接使用。
+
+## 为长期 Agent 任务而生
+
+Grok 4.6 在 Grok 4.5 的基础上重点强化了「长时间、多步骤」的工作能力：研究一个话题、分析信息、跨代码库工作，或者把一个想法打磨成完整的应用。几个关键点：
+
+- **前沿 Agent 智能**：Artificial Analysis 智能指数拿到 61 分，追平 GPT-5.6 Sol，把 Grok 4.5 High（56）甩开一个身位。
+- **更强的长程行为**：在更长的任务轨迹上，模型开始越来越多地先自我测试和验证，再继续下一步。
+- **视觉与交互项目一次成型**：面对具体产品想法，它能一遍建立应用的结构与视觉语言，特别适合「先做出像样的第一版，再进循环迭代」的玩法。
+
+| 基准测试 | Grok 4.6 | Grok 4.5 |
+| --- | --- | --- |
+| AA 智能指数 | 61 | 56 |
+| GDPVal-AA v2 | 1753 | 1526 |
+| CursorBench v3.2 | 69.9% | 66.7% |
+| DeepSWE v1.1 | 65.9% | 54% |
+| FrontierCode v1.1 (Extended) | 61.3% | 56.6% |
+
+## 定价
+
+Grok 4.6 定价与 4.5 完全一致：**输入 $2 / 100 万 tokens，输出 $6 / 100 万 tokens**（另有 2 倍价的 fast 变体）。API、Cursor、Grok Build 以及 OpenRouter、Vercel、Cloudflare 等伙伴渠道同步可用。
+
+在 MuiRouter 上，`grok-4.6` 按官方价 × 1.05 结算：**输入 $2.10、输出 $6.30 / 100 万 tokens**。
+
+## 总结
+
+Grok 4.6 是 Grok 家族里的 Agent 工作马：长时间多步骤任务、跨代码库作业、视觉与交互项目都是它的主场。现在就可以在 MuiRouter Playground、你的终端 Agent，或 OpenAI 兼容 API 中体验——透明计费，按量结算，无月费套餐。

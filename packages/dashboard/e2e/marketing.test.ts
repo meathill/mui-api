@@ -27,7 +27,9 @@ test.describe('营销页面', () => {
     await expect(page.getByText('Xiaomi MiMo', { exact: true })).toBeVisible();
     await expect(page.getByText('Moonshot AI', { exact: true })).toBeVisible();
     await expect(page.getByText('GPT-5.6 Sol', { exact: true })).toBeVisible();
+    await expect(page.getByText('Grok 4.6', { exact: true })).toBeVisible();
     await expect(page.getByText('Grok 4.5', { exact: true })).toBeVisible();
+    await expect(page.getByText('DeepSeek V4 Pro', { exact: true })).toBeVisible();
     await expect(page.getByText('GLM-4.7 Flash', { exact: true })).toBeVisible();
     await expect(page.getByText('MiMo TTS', { exact: true })).toBeVisible();
     await expect(page.getByText('Kimi K3', { exact: true })).toBeVisible();

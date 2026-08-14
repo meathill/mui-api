@@ -1,0 +1,29 @@
+DeepSeek hat die stabile Version seines Flaggschiffs veröffentlicht — **DeepSeek-V4-Pro-0813** (`deepseek-v4-pro`) — und damit die mit der Vorschau vom April begonnene V4-Familie vervollständigt. Die offizielle Produktionsversion behält die **MoE-Architektur mit 1,6 Billionen Parametern insgesamt / 49 Milliarden aktiven** und das charakteristische 1M-Kontextfenster der Familie, mit einer maximalen Ausgabe von 384K Tokens.
+
+`deepseek-v4-pro` ist jetzt auf MuiRouter verfügbar. Mit einem einzigen API Key und einer einfachen Änderung des Modellnamens kannst du es über den standardmäßigen OpenAI-kompatiblen Endpunkt (`/v1/chat/completions`) aufrufen.
+
+## Die wichtigsten Punkte
+
+| Merkmal | DeepSeek V4 Pro |
+| --- | --- |
+| **Architektur** | MoE 1,6T Parameter insgesamt, 49B aktiv pro Token |
+| **Kontextfenster** | 1 048 576 Tokens (1M) |
+| **Maximale Ausgabe** | bis zu 384K Tokens |
+| **Denkmodus** | ohne Denken / Denken (Standard) |
+| **Funktionen** | JSON Output, Tool-Aufrufe, Responses API, Anthropic API, Chat-Präfix, FIM (nur ohne Denken) |
+
+## Offizielle Preise und MuiRouter-Abrechnung
+
+Offizielle Preise der DeepSeek-API:
+
+| Token-Typ | Preis (pro 1M Tokens) |
+| --- | ---: |
+| **Eingabe (Cache Miss)** | **0,435 $** |
+| **Eingabe (Cache Hit)** | **0,003625 $** |
+| **Ausgabe** | **0,87 $** |
+
+Auf MuiRouter wird `deepseek-v4-pro` mit unserem Standardaufschlag von 1,2 abgerechnet: **0,522 $ / 0,00435 $ / 1,044 $ pro Million Tokens** (Eingabe, gecachte Eingabe, Ausgabe). Beachte: DeepSeek hat offiziell eine allgemeine Preiserhöhung in naher Zukunft angekündigt – ein guter Grund, die aktuellen Tarife zu sichern.
+
+## Fazit
+
+Das Flaggschiff mit offenen Gewichten der DeepSeek-V4-Familie ist jetzt in der stabilen Version verfügbar: 1M-Kontext, Denk- und Nicht-Denk-Modi und sehr aggressive Prompt-Caching-Kosten zu einem Bruchteil des Preises vergleichbarer geschlossener Modelle. Teste es noch heute im MuiRouter-Playground, in deinem Terminal-Agenten oder über die OpenAI-kompatible API – transparente Bezahlung nach Verbrauch, ohne monatliches Abo.

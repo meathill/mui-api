@@ -117,15 +117,39 @@ const deepseekV4FlashLoaders: Record<Locale, BlogContentLoader> = {
   ja: () => import('@/content/blog/deepseek-v4-flash.ja.mdx'),
 };
 
+const grok46Loaders: Record<Locale, BlogContentLoader> = {
+  en: () => import('@/content/blog/grok-4-6.mdx'),
+  zh: () => import('@/content/blog/grok-4-6.zh.mdx'),
+  fr: () => import('@/content/blog/grok-4-6.fr.mdx'),
+  es: () => import('@/content/blog/grok-4-6.es.mdx'),
+  pt: () => import('@/content/blog/grok-4-6.pt.mdx'),
+  de: () => import('@/content/blog/grok-4-6.de.mdx'),
+  th: () => import('@/content/blog/grok-4-6.th.mdx'),
+  ja: () => import('@/content/blog/grok-4-6.ja.mdx'),
+};
+
+const deepseekV4ProLoaders: Record<Locale, BlogContentLoader> = {
+  en: () => import('@/content/blog/deepseek-v4-pro.mdx'),
+  zh: () => import('@/content/blog/deepseek-v4-pro.zh.mdx'),
+  fr: () => import('@/content/blog/deepseek-v4-pro.fr.mdx'),
+  es: () => import('@/content/blog/deepseek-v4-pro.es.mdx'),
+  pt: () => import('@/content/blog/deepseek-v4-pro.pt.mdx'),
+  de: () => import('@/content/blog/deepseek-v4-pro.de.mdx'),
+  th: () => import('@/content/blog/deepseek-v4-pro.th.mdx'),
+  ja: () => import('@/content/blog/deepseek-v4-pro.ja.mdx'),
+};
+
 const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
   'claude-fable-5': claudeFable5Loaders,
   'claude-opus-5': claudeOpus5Loaders,
   'claude-sonnet-5': claudeSonnet5Loaders,
   'codex-context-drift': codexContextDriftLoaders,
   'deepseek-v4-flash': deepseekV4FlashLoaders,
+  'deepseek-v4-pro': deepseekV4ProLoaders,
   'gpt-5-5': gpt55Loaders,
   'gpt-5-6': gpt56Loaders,
   'gpt-5-6-price-cut': gpt56PriceCutLoaders,
+  'grok-4-6': grok46Loaders,
   'kimi-k3': kimiK3Loaders,
   'xai-grok': xaiGrokLoaders,
 };

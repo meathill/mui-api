@@ -1,0 +1,29 @@
+DeepSeek 正式发布了旗舰模型的稳定版——**DeepSeek-V4-Pro-0813**（`deepseek-v4-pro`），补全了自 4 月预览以来就一直在预告的 V4 全家桶。正式版延续 **1.6T 总参数 / 49B 激活参数** 的 MoE 架构和 V4 全系标配的 1M context，最大输出提升到 **384K tokens**。
+
+`deepseek-v4-pro` 现在已在 MuiRouter 上线。无论你在终端 AI Agent 里，还是通过标准的 OpenAI 兼容接口（`/v1/chat/completions`），只需一把 API Key、把模型名改成 `deepseek-v4-pro` 就能直接使用。
+
+## 核心亮点
+
+| 项目 | DeepSeek V4 Pro |
+| --- | --- |
+| **模型架构** | 1.6T 总参数 MoE，每次激活 49B 专家参数 |
+| **上下文窗口** | 1,048,576 tokens (1M) |
+| **最大输出** | 最高 384K tokens |
+| **思考模式** | 非思考 / 思考（默认）双模式 |
+| **功能支持** | JSON Output、Tool Calls、Responses API、Anthropic API、对话前缀续写、FIM（仅非思考模式） |
+
+## 官方价格与 MuiRouter 计费
+
+DeepSeek 官方 API 价格如下：
+
+| Token 类型 | 官方价格（每 1M tokens） |
+| --- | ---: |
+| **未命中输入 (Cache Miss)** | **$0.435** |
+| **命中输入 (Cache Hit)** | **$0.003625** |
+| **输出 (Output)** | **$0.87** |
+
+在 MuiRouter 上，`deepseek-v4-pro` 按标准 1.2 markup 结算：**输入 $0.522、命中 $0.00435、输出 $1.044 / 100 万 tokens**。另外注意，DeepSeek 官方已经预告近期将整体上调 API 价格——现在是锁定低价的好时机。
+
+## 总结
+
+DeepSeek V4 家族的开源旗舰正式版已经就位：1M context、思考/非思考双模式，配合极致的 Prompt Caching 成本，价格只有同级闭源模型的零头。现在就可以在 MuiRouter Playground、你的终端 Agent，或 OpenAI 兼容 API 中体验——透明计费，按量结算，无月费套餐。

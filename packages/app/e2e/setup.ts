@@ -86,10 +86,16 @@ await db.batch([
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('deepseek-v4-flash', 'deepseek', 'deepseek-v4-flash', 0.14, 0.28, 1.2, 0.0028)",
   ),
   db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('deepseek-v4-pro', 'deepseek', 'deepseek-v4-pro', 0.435, 0.87, 1.2, 0.003625)",
+  ),
+  db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('mimo-v2.5-tts', 'xiaomi-mimo', 'mimo-v2.5-tts', 0, 0, 1.2)",
   ),
   db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-4.3', 'grok', 'grok-4.3', 1.25, 2.5, 1.2)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('grok-4.6', 'grok', 'grok-4.6', 2, 6, 1.05)",
   ),
   db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('gemini-2.5-flash', 'google-ai-studio', 'gemini-2.5-flash', 0.3, 2.5, 1.2)",
