@@ -53,29 +53,28 @@ Plantear la rebaja como una ventana temporal responde a dos objetivos claros:
 
 Con Sol mucho más accesible, la familia GPT-5.6 conforma una arquitectura de enrutamiento sumamente eficiente:
 
-```
-                    ┌─────────────────────────┐
-                    │    Petición entrante    │
-                    └────────────┬────────────┘
-                                 │
-                 ┌───────────────┴───────────────┐
-                 ▼                               ▼
-      【Alto volumen / Filtro】           【Lógica de negocio principal】
-        GPT-5.6 Luna                     GPT-5.6 Terra
-      ($0.20 / $1.20)                  ($2.00 / $12.00)
-    • Detección de intenciones         • Escritura de lógica de negocio
-    • Filtrado y parseo RAG            • Tests unitarios y revisión de PR
-    • Exploración de ramas de agentes  • Generación de APIs estructuradas
-                 │                               │
-                 └───────────────┬───────────────┘
-                                 │ (Arquitectura compleja / Errores críticos)
-                                 ▼
-                     【Razonamiento de vanguardia】
-                           GPT-5.6 Sol
-                         ($4.00 / $20.00)
-                       • Refactorización de sistemas multifichero
-                       • Lógica matemática avanzada
-                       • Decisiones de agentes de alta autonomía
+```mermaid
+flowchart TD
+    Req["👤 Petición de usuario / sistema"] --> Dispatch{"🎯 Enrutamiento por complejidad e intención"}
+
+    subgraph Tier1 ["⚡ Preprocesamiento y alto volumen"]
+        Luna["<b>GPT-5.6 Luna</b> ($0.20 / $1.20)<br/>• Detección de intenciones y logs<br/>• Filtrado y extracción RAG<br/>• Exploración y pruebas de agentes"]
+    end
+
+    subgraph Tier2 ["🛠️ Lógica de negocio principal"]
+        Terra["<b>GPT-5.6 Terra</b> ($2.00 / $12.00)<br/>• Escritura de lógica y APIs<br/>• Tests unitarios y revisión de PR<br/>• Flujos interactivos estándar"]
+    end
+
+    subgraph Tier3 ["🧠 Razonamiento de vanguardia"]
+        Sol["<b>GPT-5.6 Sol</b> ($4.00 / $20.00)<br/>• Refactorización multifichero<br/>• Matemáticas y lógica avanzada<br/>• Decisiones de agentes de alta autonomía"]
+    end
+
+    Dispatch -->|"Alto volumen / Filtro"| Luna
+    Dispatch -->|"Desarrollo estándar"| Terra
+    Dispatch -->|"Arquitectura compleja / Críticos"| Sol
+
+    Luna -.->|"Filtrado ➔ Implementación"| Terra
+    Terra -.->|"En caso de bloqueo ➔ Escalar"| Sol
 ```
 
 Combinando este enrutamiento con la **ventana de contexto nativa de 1M** y el **Prompt Caching**, los equipos pueden minimizar el coste por tarea (Cost-per-Task) a niveles inéditos.

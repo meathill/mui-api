@@ -53,29 +53,28 @@ Framing this reduction as a "3-month promotional window" reflects a calculated s
 
 With Sol becoming significantly more accessible, the three tiers now form an exceptionally cohesive routing topology:
 
-```
-                    ┌─────────────────────────┐
-                    │     Incoming Request    │
-                    └────────────┬────────────┘
-                                 │
-                 ┌───────────────┴───────────────┐
-                 ▼                               ▼
-      【High-Volume / Filter】            【Core Business Logic】
-        GPT-5.6 Luna                     GPT-5.6 Terra
-      ($0.20 / $1.20)                  ($2.00 / $12.00)
-    • Intent classification            • Standard feature coding
-    • RAG filtering & parsing          • Unit testing & PR reviews
-    • Agent trial-and-error            • Structured API generation
-                 │                               │
-                 └───────────────┬───────────────┘
-                                 │ (Complex architecture / Hard bugs)
-                                 ▼
-                      【Frontier Reasoning / Mastermind】
-                           GPT-5.6 Sol
-                         ($4.00 / $20.00)
-                       • Cross-file system refactoring
-                       • Complex math & multi-hop logic
-                       • High-autonomy agent decisions
+```mermaid
+flowchart TD
+    Req["👤 User / System Request"] --> Dispatch{"🎯 Task Complexity & Intent Routing"}
+
+    subgraph Tier1 ["⚡ High-Volume Preprocessing Tier"]
+        Luna["<b>GPT-5.6 Luna</b> ($0.20 / $1.20)<br/>• Intent classification & log parsing<br/>• RAG filtering & extraction<br/>• Agent exploratory trial-and-error"]
+    end
+
+    subgraph Tier2 ["🛠️ Core Business Implementation Tier"]
+        Terra["<b>GPT-5.6 Terra</b> ($2.00 / $12.00)<br/>• Feature coding & structured APIs<br/>• Unit tests & PR reviews<br/>• Standard interactive workflows"]
+    end
+
+    subgraph Tier3 ["🧠 Frontier Reasoning & Mastermind Tier"]
+        Sol["<b>GPT-5.6 Sol</b> ($4.00 / $20.00)<br/>• Cross-file system architecture & refactoring<br/>• Advanced math & multi-hop reasoning<br/>• High-autonomy agent core decisions"]
+    end
+
+    Dispatch -->|"High-volume / Preprocessing"| Luna
+    Dispatch -->|"Standard feature coding"| Terra
+    Dispatch -->|"Complex architecture / Hard bugs"| Sol
+
+    Luna -.->|"Filtered ➔ Implementation"| Terra
+    Terra -.->|"Escalated on bottleneck"| Sol
 ```
 
 By pairing this routing architecture with **native 1M context** and **Prompt Caching**, teams can drive overall Cost-per-Task down to unprecedented levels.

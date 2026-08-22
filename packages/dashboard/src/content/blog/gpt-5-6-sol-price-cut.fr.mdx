@@ -53,29 +53,28 @@ Présenter cette baisse comme temporaire répond à une double logique :
 
 Avec un Sol beaucoup plus accessible, la gamme GPT-5.6 offre une architecture de routage idéale :
 
-```
-                    ┌─────────────────────────┐
-                    │     Requête entrante    │
-                    └────────────┬────────────┘
-                                 │
-                 ┌───────────────┴───────────────┐
-                 ▼                               ▼
-       【Volume élevé / Filtre】          【Logique métier centrale】
-         GPT-5.6 Luna                     GPT-5.6 Terra
-       (0,20 $ / 1,20 $)                (2,00 $ / 12,00 $)
-    • Classification d'intention       • Écriture de code métier
-    • Extraction et filtrage RAG       • Tests unitaires et revue PR
-    • Explorations d'agents            • Génération API structurée
-                 │                               │
-                 └───────────────┬───────────────┘
-                                 │ (Architecture complexe / Bugs ardus)
-                                 ▼
-                     【Raisonnement de pointe / Fleuron】
-                           GPT-5.6 Sol
-                         (4,00 $ / 20,00 $)
-                       • Refactorisation système multi-fichiers
-                       • Logique mathématique avancée
-                       • Décisions d'agents à haute autonomie
+```mermaid
+flowchart TD
+    Req["👤 Requête utilisateur / système"] --> Dispatch{"🎯 Routage par complexité & intention"}
+
+    subgraph Tier1 ["⚡ Prétraitement & haut volume"]
+        Luna["<b>GPT-5.6 Luna</b> (0,20 $ / 1,20 $)<br/>• Classification d'intention & logs<br/>• Filtrage et extraction RAG<br/>• Explorations et essais d'agents"]
+    end
+
+    subgraph Tier2 ["🛠️ Implémentation métier centrale"]
+        Terra["<b>GPT-5.6 Terra</b> (2,00 $ / 12,00 $)<br/>• Écriture de code métier & APIs<br/>• Tests unitaires & revues de PR<br/>• Flux interactifs standards"]
+    end
+
+    subgraph Tier3 ["🧠 Raisonnement de pointe & fleuron"]
+        Sol["<b>GPT-5.6 Sol</b> (4,00 $ / 20,00 $)<br/>• Refactorisation système multi-fichiers<br/>• Mathématiques & logique poussée<br/>• Décisions d'agents à haute autonomie"]
+    end
+
+    Dispatch -->|"Haut volume / Prétraitement"| Luna
+    Dispatch -->|"Implémentation standard"| Terra
+    Dispatch -->|"Architecture complexe / Goulots"| Sol
+
+    Luna -.->|"Filtré ➔ Implémentation"| Terra
+    Terra -.->|"En cas de blocage ➔ Escalade"| Sol
 ```
 
 En combinant ce routage avec la **fenêtre de contexte native de 1M** et le **Prompt Caching**, le coût par tâche (Cost-per-Task) peut être réduit de façon drastique.

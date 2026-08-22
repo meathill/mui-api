@@ -1,6 +1,9 @@
 import type { MDXComponents } from 'mdx/types';
+import { isValidElement } from 'react';
+import { Mermaid } from '@/components/marketing/mermaid';
 
 const components: MDXComponents = {
+  Mermaid,
   h2: ({ className, ...props }) => (
     <h2
       className={['mt-14 text-3xl font-semibold tracking-tight text-foreground', className].filter(Boolean).join(' ')}
@@ -78,17 +81,27 @@ const components: MDXComponents = {
       {...props}
     />
   ),
-  pre: ({ className, ...props }) => (
-    <pre
-      className={[
-        'mt-6 overflow-x-auto rounded-lg border border-border bg-foreground p-5 text-sm leading-7 text-background',
-        className,
-      ]
-        .filter(Boolean)
-        .join(' ')}
-      {...props}
-    />
-  ),
+  pre: ({ className, children, ...props }) => {
+    if (isValidElement(children) && typeof children.props === 'object' && children.props !== null) {
+      const childProps = children.props as { className?: string; children?: unknown };
+      if (childProps.className?.includes('language-mermaid') && typeof childProps.children === 'string') {
+        return <Mermaid chart={childProps.children} />;
+      }
+    }
+    return (
+      <pre
+        className={[
+          'mt-6 overflow-x-auto rounded-lg border border-border bg-foreground p-5 text-sm leading-7 text-background',
+          className,
+        ]
+          .filter(Boolean)
+          .join(' ')}
+        {...props}
+      >
+        {children}
+      </pre>
+    );
+  },
   hr: ({ className, ...props }) => (
     <hr className={['my-12 border-border', className].filter(Boolean).join(' ')} {...props} />
   ),

@@ -53,29 +53,28 @@ Die zeitliche Befristung verfolgt zwei Ziele:
 
 Mit einem deutlich erschwinglicheren Sol-Modell bildet die Familie GPT-5.6 eine herausragende Routing-Architektur:
 
-```
-                    ┌─────────────────────────┐
-                    │    Eingehender Request  │
-                    └────────────┬────────────┘
-                                 │
-                 ┌───────────────┴───────────────┐
-                 ▼                               ▼
-       【Hohes Volumen / Filter】         【Zentrale Geschäftslogik】
-         GPT-5.6 Luna                     GPT-5.6 Terra
-       (0,20 $ / 1,20 $)                (2,00 $ / 12,00 $)
-    • Intent-Klassifikation            • Reguläre Feature-Entwicklung
-    • RAG-Vorfilterung & Extraktion    • Unit-Tests & PR-Reviews
-    • Explorative Agent-Pfade          • Strukturierte API-Generierung
-                 │                               │
-                 └───────────────┬───────────────┘
-                                 │ (Komplexe Architektur / Harte Fehler)
-                                 ▼
-                     【Spitzen-Reasoning / Flaggschiff】
-                            GPT-5.6 Sol
-                          (4,00 $ / 20,00 $)
-                       • Dateiübergreifendes Refactoring
-                       • Anspruchsvolle mathematische Logik
-                       • Vollautonome Agent-Entscheidungen
+```mermaid
+flowchart TD
+    Req["👤 Eingehende Anfrage"] --> Dispatch{"🎯 Routing nach Komplexität & Absicht"}
+
+    subgraph Tier1 ["⚡ Hohes Volumen & Vorverarbeitung"]
+        Luna["<b>GPT-5.6 Luna</b> (0,20 $ / 1,20 $)<br/>• Intent-Klassifikation & Logs<br/>• RAG-Vorfilterung & Extraktion<br/>• Explorative Agent-Pfade"]
+    end
+
+    subgraph Tier2 ["🛠️ Zentrale Geschäftslogik"]
+        Terra["<b>GPT-5.6 Terra</b> (2,00 $ / 12,00 $)<br/>• Feature-Entwicklung & APIs<br/>• Unit-Tests & PR-Reviews<br/>• Standardisierte Workflows"]
+    end
+
+    subgraph Tier3 ["🧠 Spitzen-Reasoning & Flaggschiff"]
+        Sol["<b>GPT-5.6 Sol</b> (4,00 $ / 20,00 $)<br/>• Dateiübergreifendes Refactoring<br/>• Komplexe mathematische Logik<br/>• Vollautonome Agent-Entscheidungen"]
+    end
+
+    Dispatch -->|"Hohes Volumen / Filter"| Luna
+    Dispatch -->|"Standard-Implementierung"| Terra
+    Dispatch -->|"Komplexe Architektur / Bottlenecks"| Sol
+
+    Luna -.->|"Vorgefiltert ➔ Implementierung"| Terra
+    Terra -.->|"Bei Blockaden ➔ Eskalation"| Sol
 ```
 
 In Kombination mit dem **nativen 1M-Kontextfenster** und **Prompt Caching** lassen sich die Gesamtkosten pro Aufgabe (Cost-per-Task) auf ein neues Rekordtief senken.
