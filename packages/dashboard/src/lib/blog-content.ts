@@ -139,6 +139,17 @@ const deepseekV4ProLoaders: Record<Locale, BlogContentLoader> = {
   ja: () => import('@/content/blog/deepseek-v4-pro.ja.mdx'),
 };
 
+const gpt56SolPriceCutLoaders: Record<Locale, BlogContentLoader> = {
+  en: () => import('@/content/blog/gpt-5-6-sol-price-cut.mdx'),
+  zh: () => import('@/content/blog/gpt-5-6-sol-price-cut.zh.mdx'),
+  fr: () => import('@/content/blog/gpt-5-6-sol-price-cut.fr.mdx'),
+  es: () => import('@/content/blog/gpt-5-6-sol-price-cut.es.mdx'),
+  pt: () => import('@/content/blog/gpt-5-6-sol-price-cut.pt.mdx'),
+  de: () => import('@/content/blog/gpt-5-6-sol-price-cut.de.mdx'),
+  th: () => import('@/content/blog/gpt-5-6-sol-price-cut.th.mdx'),
+  ja: () => import('@/content/blog/gpt-5-6-sol-price-cut.ja.mdx'),
+};
+
 const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
   'claude-fable-5': claudeFable5Loaders,
   'claude-opus-5': claudeOpus5Loaders,
@@ -149,6 +160,7 @@ const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
   'gpt-5-5': gpt55Loaders,
   'gpt-5-6': gpt56Loaders,
   'gpt-5-6-price-cut': gpt56PriceCutLoaders,
+  'gpt-5-6-sol-price-cut': gpt56SolPriceCutLoaders,
   'grok-4-6': grok46Loaders,
   'kimi-k3': kimiK3Loaders,
   'xai-grok': xaiGrokLoaders,

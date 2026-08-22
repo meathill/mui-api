@@ -74,3 +74,11 @@ describe('blog metadata helpers', () => {
     expect(post?.sources).toEqual([]);
   });
 });
+
+describe('blog content loaders', () => {
+  it('registers gpt-5-6-sol-price-cut content loader', async () => {
+    const { hasBlogContent } = await import('./blog-content');
+    expect(hasBlogContent('gpt-5-6-sol-price-cut')).toBe(true);
+    expect(hasBlogContent('gpt-5-6-price-cut')).toBe(true);
+  });
+});
