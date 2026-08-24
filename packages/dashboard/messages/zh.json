@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "面向 OpenAI、Claude、Gemini 和 Grok 的 AI API 路由",
-    "description": "MuiRouter 是 OpenAI 兼容的 AI API 路由和 LLM 网关。一个 Key 即可把请求路由到 OpenAI、Anthropic、Google、xAI 等模型——按 token 计费，无需翻墙，无需订阅。内置 MCP 服务。",
-    "ogTitle": "OpenAI 兼容的 AI API 路由和 LLM 网关"
+    "title": "高性能 AI 网关与 MCP (Model Context Protocol) 路由 | OpenRouter 替代方案",
+    "description": "高性能 AI API 网关与 MCP 路由器。零延迟开销无缝路由、负载均衡与缓存主流 LLM 及 MCP 服务器，统一按 token 计费。",
+    "ogTitle": "高性能 AI 网关与 MCP (Model Context Protocol) 路由 | OpenRouter 替代方案"
   },
   "header": {
     "login": "登录",
@@ -19,7 +19,8 @@
     "bestLlmGateway": "最佳 LLM 网关",
     "openrouterAlternatives": "OpenRouter 替代品",
     "opencode": "opencode 接入",
-    "mcpServer": "MCP 服务器"
+    "mcpServer": "MCP 服务器",
+    "compareOpenrouter": "MuiRouter vs OpenRouter"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo——一个路由全搞定",
@@ -640,8 +641,8 @@
   },
   "mcp": {
     "metadata": {
-      "title": "面向 Claude、Cursor 和 Cline 的 MCP 服务",
-      "description": "通过 streamable-HTTP 把 Claude Desktop、Claude Code、Cursor 和 Cline 连接到 MuiRouter MCP 服务。用你自己的 API Key 路由 LLM 调用、查询余额、用量和模型，并生成图像。"
+      "title": "MCP 路由器与服务器：多 Server 聚合路由与接入指南",
+      "description": "通过 streamable-HTTP 把 Claude Desktop、Claude Code、Cursor 和 Cline 连接到 MuiRouter MCP 路由器。双 Era 协议规范（2026-07-28 与 legacy 兼容）、多 Server 聚合与工具路由。"
     }
   },
   "mcpServer": {
@@ -1302,12 +1303,12 @@
     "ctaButton": "免费开始"
   },
   "muirouterVsOpenrouter": {
-    "metaTitle": "MuiRouter vs OpenRouter——定价、模型与 API 兼容性对比",
-    "metaDescription": "对比 MuiRouter 和 OpenRouter 的计价方式、模型覆盖广度、OpenAI 兼容性、原生 provider 端点、BYOK 费率和免费模型——数据均标注来源。",
+    "metaTitle": "MuiRouter vs OpenRouter——定价、模型、边缘部署与 MCP 对比",
+    "metaDescription": "对比 MuiRouter 和 OpenRouter 的计价方式、边缘网关部署、多提供商切换、原生 provider 端点、BYOK 费率及原生 MCP 协议支持——数据均标注来源。",
     "eyebrow": "MuiRouter vs OpenRouter",
     "title": "MuiRouter vs OpenRouter——",
     "titleHighlight": "正面对比",
-    "intro": "两者都是 OpenAI 兼容网关，让你用一个 API 调用多家 LLM provider。以下是 MuiRouter 和 OpenRouter 在计价、模型覆盖广度和原生 provider 访问上的真实差异，数据来自双方官方文档。",
+    "intro": "两者都是 OpenAI 兼容网关。与追求商业规模的平台不同，MuiRouter 的初衷是为我们和身边的开发者朋友提供一个极其稳定、免去复杂充值门槛的 AI API 接入端点，并为未来的一系列 AI 产品打造便捷、可靠的基础设施。以下是 MuiRouter 和 OpenRouter 在定价机制、边缘部署、原生端点与 MCP 支持上的真实对比。",
     "ctaPrimary": "免费开始",
     "ctaSecondary": "查看定价",
     "featuresTitle": "MuiRouter vs OpenRouter 一览",
@@ -1338,6 +1339,20 @@
         ]
       },
       {
+        "label": "部署与边缘网关",
+        "values": [
+          "基于 Cloudflare 300+ 全球边缘节点就近直连，免 VPN，支持私有网关与自托管接入",
+          "托管云端 SaaS 代理，集中式路由"
+        ]
+      },
+      {
+        "label": "原生 MCP 路由支持",
+        "values": [
+          "原生支持 Model Context Protocol (MCP) streamable-HTTP 双 era 规范与工具路由",
+          "仅支持传统 REST API 转发，无原生 MCP 协议支持"
+        ]
+      },
+      {
         "label": "自带密钥（BYOK）",
         "values": ["不需要——一个 MuiRouter Key 覆盖所有 provider", "支持；每月前 100 万次请求免费，之后收 5% 费用"]
       },
@@ -1349,12 +1364,20 @@
     "faqTitle": "MuiRouter vs OpenRouter 常见问题",
     "faq": [
       {
+        "question": "MuiRouter 的设计初衷是什么？与商业化平台有何不同？",
+        "answer": "MuiRouter 的本意不是为了追求商业暴利，而是我们为了解决自己和朋友日常开发时海外 API 访问不稳定、多平台账单分散的痛点，并为未来的一系列 AI 产品提供统一、便捷的基础设施。因此我们坚持透明的按量计费、充值零手续费、原生 MCP 协议与全球边缘低延迟直连，始终以纯粹的开发者体验为先。"
+      },
+      {
         "question": "MuiRouter 比 OpenRouter 便宜吗？",
         "answer": "这取决于你的用量模式。MuiRouter 的每 token 价格已经包含平台成本，充值没有额外手续费。OpenRouter 按 provider 原价透传、不加价，但信用卡充值收 5.5% 手续费（加密货币 5%），BYOK 超出每月免费额度后收 5% 费用。具体每个模型的价格可以在定价页对比。"
       },
       {
         "question": "MuiRouter 支持的模型和 OpenRouter 一样多吗？",
         "answer": "不一样——MuiRouter 是精选的 OpenAI、Claude、Gemini、Grok、Workers AI、Moonshot 和 MiMo 模型集合，OpenRouter 的目录覆盖数十家 provider 的数百个模型。如果你只需要几家主流 provider 并要原生端点访问，MuiRouter 更聚焦；如果你需要长尾模型的丰富选择，OpenRouter 覆盖更广。"
+      },
+      {
+        "question": "MuiRouter 如何支持多提供商切换与私有化接入？",
+        "answer": "MuiRouter 部署在 Cloudflare 全球 300+ 边缘节点上，提供零延迟开销的统一网关。只需切换 model 参数即可平滑在多家厂商间切换，并支持私有化网关及自托管接入。"
       },
       {
         "question": "从 OpenRouter 换到 MuiRouter 需要重写代码吗？",
@@ -1370,6 +1393,10 @@
       {
         "href": "/ai-router",
         "label": "AI API 路由"
+      },
+      {
+        "href": "/mcp-router",
+        "label": "MCP 路由与网关"
       },
       {
         "href": "/litellm-vs-openrouter",
@@ -1679,7 +1706,7 @@
       },
       {
         "question": "MuiRouter 是什么？",
-        "answer": "MuiRouter 是一个 AI API 路由：一个 Key 即可把你的请求路由到 OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI 和 Xiaomi MiMo，按 token 计费，无需订阅。"
+        "answer": "MuiRouter 是一个 AI API 路由：用一个 Key 就能把请求路由到 OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI 和小米 MiMo，按 token 计费、没有订阅门槛。它最初由开发者为自己和朋友打造，旨在提供极其稳定、低延迟的接入端点，并为未来的诸多 AI 应用提供便捷的基础设施。"
       },
       {
         "question": "它是 OpenAI 兼容的吗？",
@@ -1692,20 +1719,24 @@
     ]
   },
   "mcpPage": {
-    "title": "MCP 接入指南",
-    "intro": "MuiRouter 运行一个 streamable-http 的 MCP 服务器，Claude Desktop、Claude Code、Cursor、Cline 等 AI 客户端可以直接调用——你的 AI 助手能查询余额、查看用量、列出模型、生成图片，甚至发起充值。所有调用都用你自己的 sk-gw- API Key 鉴权，第三方和 AI 客户端都无需新建账户。",
-    "endpointTitle": "1. 服务器端点",
-    "endpointDesc": "所有 MCP 客户端都连接同一个 URL，使用 Bearer 鉴权。",
-    "protocolNote": "协议：MCP 2026-07-28（streamable-http、无状态 JSON-RPC 2.0），并支持 2025-11-25 / 2025-06-18 旧客户端的协商接入。",
-    "claudeCodeTitle": "2. 在 Claude Code 中接入",
-    "claudeCodeDesc": "编辑 ~/.claude/mcp.json，添加 muirouter 服务器。",
-    "claudeCodeNote": "重启 Claude Code 后，输入 /mcp 即可看到 muirouter 的工具列表。",
-    "clientsTitle": "3. 在 Cursor / Claude Desktop 中接入",
-    "clientsDesc": "填入相同的 URL 和 Authorization 请求头。",
-    "cursorDesc": "Cursor：Settings → MCP → Add new server，选择 streamable-http 类型，将 URL 设为 {url}，并添加自定义请求头 {header}。",
-    "claudeDesktopDesc": "Claude Desktop：编辑配置文件（macOS：{path}），使用与上面 Claude Code 相同的配置。",
-    "toolsTitle": "4. 可用工具",
-    "toolsDesc": "六个工具，涵盖账户查询、定价、图片生成和充值。",
+    "badge": "Model Context Protocol (MCP) 路由与网关",
+    "title": "MCP 路由与多 Server 聚合接入指南",
+    "intro": "MuiRouter 运行高性能 streamable-HTTP MCP 服务器与路由器。Claude Desktop、Claude Code、Cursor、Cline 等 AI 客户端可直接接入，统一路由大模型、聚合本地与远程多个 MCP Server，并使用同一个 API Key 调度账户工具与生图能力。",
+    "protocolTitle": "1. 双 Era 协议规范支持",
+    "protocolDesc": "全面支持最新的 2026-07-28 无状态 streamable-HTTP 规范，同时向下兼容 2025-11-25 / 2025-06-18 传统客户端握手。",
+    "modernEra": "Modern 规范 (2026-07-28)：无状态 streamable-HTTP、显式 _meta 与 Headers（MCP-Protocol-Version）校验、server/discover 动态发现及 DNS rebinding 防护。",
+    "legacyEra": "Legacy 兼容 (2025-11-25 / 2025-06-18)：支持 initialize 握手协议，保障旧版客户端平滑无缝接入。",
+    "endpointTitle": "2. 服务器端点与鉴权",
+    "endpointDesc": "所有 MCP 客户端均连接同一个 streamable-HTTP URL，使用 Bearer Token 进行统一鉴权。",
+    "aggregationTitle": "3. 多 Server 聚合接入（Claude Code 示例）",
+    "aggregationDesc": "在 ~/.claude/mcp.json 中将 MuiRouter 与本地文件系统等其他 MCP servers 共同配置，实现集中分发。",
+    "aggregationNote": "重启 Claude Code 后输入 /mcp 即可查看所有已连接 server 聚合后的完整工具列表。",
+    "clientsTitle": "4. 在 Cursor / Claude Desktop / Cline 中接入",
+    "clientsDesc": "使用相同的 streamable-HTTP 端点与 Authorization 请求头完成配置。",
+    "cursorDesc": "Cursor：Settings → MCP → Add new server，选择 streamable-http 类型，将 URL 设为 {url}，添加自定义请求头 {header}。",
+    "claudeDesktopDesc": "Claude Desktop：编辑配置文件（macOS：{path}），填入相同的 JSON 配置。",
+    "toolsTitle": "5. 内置账户与 AI 工具箱",
+    "toolsDesc": "内置六大核心工具，涵盖模型路由、余额查询、用量统计、图片生成与一键充值。",
     "tools": {
       "get_balance": "查询当前 API Key 所属用户的钱包余额、累计充值和累计消费。",
       "get_usage": "分页查询当前用户的 API 用量，可按模型和时间范围筛选。",
@@ -1714,21 +1745,25 @@
       "create_topup_session": "创建 Stripe 充值会话，返回支付链接，AI 客户端可引导用户完成支付。",
       "image_generation": "通过 MuiRouter 调用 OpenAI 兼容的图片生成接口（消耗钱包余额）。"
     },
-    "jsonRpcTitle": "5. 直接调用 JSON-RPC",
-    "jsonRpcDesc": "你也可以用 curl 直接调用，无需 MCP 客户端。",
-    "securityTitle": "6. 安全须知",
-    "security1": "API Key 等同于密码——切勿在公开仓库或聊天记录中泄露。一旦怀疑泄露，请立即在 Keys 页面吊销。",
-    "security2": "image_generation 和 create_topup_session 会花费或转移资金。建议在 AI 客户端中将这两个工具设为需要确认。",
-    "security3": "每个请求都绑定到其 sk-gw- Key 背后的账户，并发与计费规则与直接调用 REST API 完全一致。",
-    "relatedTitle": "相关页面",
+    "jsonRpcTitle": "6. 直接调用 JSON-RPC 与 curl 调试",
+    "jsonRpcDesc": "无需客户端，也可以直接使用 curl 测试服务发现、工具列表与工具执行。",
+    "securityTitle": "7. 安全须知与最佳实践",
+    "security1": "API Key 等同于访问凭证——切勿在公开仓库或聊天记录中泄露，发现异常请立即在 Keys 页面吊销。",
+    "security2": "图片生成与创建充值会涉及资金变动，建议在 AI 客户端中为此类敏感工具开启交互确认。",
+    "security3": "严格进行 Origin 安全校验防范 DNS rebinding；并发与计费规则与 REST API 保持一致。",
+    "relatedTitle": "相关指南与对比",
     "related": [
+      {
+        "href": "/mcp-router",
+        "label": "MCP 路由与网关"
+      },
       {
         "href": "/mcp-server",
         "label": "什么是 MCP 服务器？"
       },
       {
-        "href": "/mcp-router",
-        "label": "MCP Router 与服务器"
+        "href": "/compare/openrouter",
+        "label": "MuiRouter vs OpenRouter"
       },
       {
         "href": "/ai-router",

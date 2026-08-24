@@ -1,5 +1,14 @@
 # WIP
 
+## Issue #10: 抢占 MCP Router 与 OpenRouter 替代词 SEO
+
+### Actionable TODOs
+- [x] Title & Meta 升级：首页 Title、Description、OG 及 Keywords 强化 MCP Router 与 OpenRouter 替代词，同步 8 语种本地化
+- [x] /mcp 专题页升级：完善 MCP 协议支持说明（双 era）、多 Server 聚合路由及各客户端（Claude Code / Cursor / Claude Desktop / Cline）配置教程
+- [x] 上线 /compare/openrouter 对比页：展示自托管、多提供商切换与私有化部署优势，更新 sitemap 与导航
+- [x] 测试与质量保障：通过 `messages-parity`、`sitemap.test.ts`、`vitest`、`typecheck` 和 `format`
+
+
 ## GPT-5.6 Sol 限时降价跟进与博客发布（2026-08-22）
 
 ### 模型与定价

@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "OpenAI・Claude・Gemini・Grok 対応の AI API ルーター",
-    "description": "MuiRouter は OpenAI 互換の AI API ルーター兼 LLM ゲートウェイ。1つのキーでリクエストを OpenAI、Anthropic、Google、xAI などへ route。トークン単位の従量課金、VPN 不要、サブスクリプション不要。MCP サーバー内蔵。",
-    "ogTitle": "OpenAI 互換の AI API ルーター兼 LLM ゲートウェイ"
+    "title": "高速 AI ゲートウェイ & MCP (Model Context Protocol) ルーター | OpenRouter 代替",
+    "description": "高性能 AI API ゲートウェイおよび MCP ルーター。ゼロ遅延で主要 LLM や MCP サーバーをシームレスにルーティング、負荷分散、キャッシュ。",
+    "ogTitle": "高速 AI ゲートウェイ & MCP (Model Context Protocol) ルーター | OpenRouter 代替"
   },
   "header": {
     "login": "ログイン",
@@ -19,7 +19,8 @@
     "bestLlmGateway": "ベストな LLM ゲートウェイ",
     "openrouterAlternatives": "OpenRouter の代替",
     "opencode": "opencode 連携",
-    "mcpServer": "MCP サーバー"
+    "mcpServer": "MCP サーバー",
+    "compareOpenrouter": "MuiRouter vs OpenRouter"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — 1つのルーター",
@@ -640,8 +641,8 @@
   },
   "mcp": {
     "metadata": {
-      "title": "Claude・Cursor・Cline 対応の MCP サーバー",
-      "description": "Claude Desktop、Claude Code、Cursor、Cline を streamable-HTTP 経由で MuiRouter の MCP サーバーに接続。ご自身の API キーで LLM 呼び出しを route し、残高・使用量・モデルを照会、画像も生成できます。"
+      "title": "MCP ルーター & サーバー：複数サーバー統合ルーティングと設定ガイド",
+      "description": "Claude Desktop、Claude Code、Cursor、Cline を streamable-HTTP 経由で MuiRouter MCP ルーターに接続。デュアル Era プロトコル（2026-07-28 & legacy）対応、複数サーバー集約、ツールルーティング。"
     }
   },
   "mcpServer": {
@@ -1302,12 +1303,12 @@
     "ctaButton": "無料で始める"
   },
   "muirouterVsOpenrouter": {
-    "metaTitle": "MuiRouter vs OpenRouter — 料金・モデル・API 互換性を比較",
-    "metaDescription": "MuiRouter と OpenRouter を、料金モデル、モデルカタログの広さ、OpenAI 互換性、プロバイダーのネイティブエンドポイント、BYOK 手数料、無料モデルの観点で比較——出典付き。",
+    "metaTitle": "MuiRouter vs OpenRouter — 料金・モデル・エッジデプロイ・MCP 比較",
+    "metaDescription": "MuiRouter と OpenRouter を、料金モデル、エッジゲートウェイ構成、複数プロバイダー統合ルーティング、ネイティブエンドポイント、BYOK 手数料、ネイティブ MCP プロトコル対応の観点で比較。",
     "eyebrow": "MuiRouter vs OpenRouter",
     "title": "MuiRouter vs OpenRouter — ",
     "titleHighlight": "徹底比較",
-    "intro": "どちらも OpenAI 互換のゲートウェイで、1つの API から複数の LLM プロバイダーを呼び出せます。料金、モデルの幅、プロバイダーへのネイティブアクセスという点で MuiRouter と OpenRouter が実際どう違うのか、両プラットフォームの公式ドキュメントをもとに解説します。",
+    "intro": "どちらも OpenAI 互換ゲートウェイです。商業的な規模拡大を目指すアグリゲーターとは異なり、MuiRouter は開発者自身と仲間たちが安定的かつ手軽に AI API を利用できるエンドポイントを確保し、今後の多様な AI プロダクトの基盤インフラとするために作られました。料金、エッジデプロイ、MCP サポートにおける OpenRouter との違いを解説します。",
     "ctaPrimary": "無料で始める",
     "ctaSecondary": "料金を見る",
     "featuresTitle": "MuiRouter vs OpenRouter 早見表",
@@ -1338,6 +1339,20 @@
         ]
       },
       {
+        "label": "デプロイとエッジゲートウェイ",
+        "values": [
+          "世界 300 拠点以上の Cloudflare エッジネットワークで VPN 不要、プライベート/セルフホスト導入対応",
+          "中央集権型ルーティングのマネージドクラウド SaaS プロキシ"
+        ]
+      },
+      {
+        "label": "ネイティブ MCP プロトコル対応",
+        "values": [
+          "ネイティブ streamable-HTTP Model Context Protocol (MCP) サーバー & ルーター（Dual-Era 2026-07-28 & legacy）",
+          "REST API 転送のみ、ネイティブ MCP プロトコルルーターなし"
+        ]
+      },
+      {
         "label": "自前のキーを持ち込む（BYOK）",
         "values": [
           "不要——MuiRouter のキー1つですべてのプロバイダーをカバー",
@@ -1355,12 +1370,20 @@
     "faqTitle": "MuiRouter vs OpenRouter FAQ",
     "faq": [
       {
+        "question": "OpenRouter と比較した MuiRouter の設計思想は何ですか？",
+        "answer": "MuiRouter の目的は利益の最大化ではなく、自分自身や友人の開発者が直面していた海外 API の接続不安や請求の分散を解消し、今後の AI アプリケーションのための使いやすい共通インフラを構築することです。そのため、透明なトークン従量課金、チャージ手数料ゼロ、ネイティブ MCP プロトコル対応、グローバルエッジ直連を重視しています。"
+      },
+      {
         "question": "MuiRouter は OpenRouter より安いですか？",
         "answer": "利用パターンによります。MuiRouter のトークン単価にはすでにプラットフォームコストが含まれており、チャージ時に別途手数料はかかりません。OpenRouter はトークンに上乗せなしでプロバイダー価格をそのまま転嫁しますが、カードでのチャージには5.5%（暗号資産は5%）、月間無料枠を超えた BYOK 利用には5%の手数料がかかります。モデルごとの正確な料金は料金ページで比較してください。"
       },
       {
         "question": "MuiRouter は OpenRouter と同じくらい多くのモデルに対応していますか？",
         "answer": "いいえ——MuiRouter は OpenAI、Claude、Gemini、Grok、Workers AI、Moonshot、MiMo を厳選して提供していますが、OpenRouter のカタログは数十のプロバイダーにまたがる数百のモデルを網羅しています。ネイティブアクセス付きで主要な数プロバイダーだけあれば十分な場合は MuiRouter の方が的が絞られており、ニッチなモデルの豊富さが必要なら OpenRouter の方が幅広いです。"
+      },
+      {
+        "question": "MuiRouter は複数プロバイダーの切り替えやプライベート導入をどうサポートしますか？",
+        "answer": "MuiRouter は世界 300 拠点以上の Cloudflare エッジノードで稼働し、遅延オーバーヘッドゼロで統一ゲートウェイを提供します。model パラメータの変更だけでシームレスに切り替えられ、プライベートインスタンスの導入にも対応します。"
       },
       {
         "question": "OpenRouter から MuiRouter へコードを書き換えずに移行できますか？",
@@ -1376,6 +1399,10 @@
       {
         "href": "/ai-router",
         "label": "AI API ルーター"
+      },
+      {
+        "href": "/mcp-router",
+        "label": "MCP ルーター & ゲートウェイ"
       },
       {
         "href": "/litellm-vs-openrouter",
@@ -1717,7 +1744,7 @@
       },
       {
         "question": "MuiRouter とは何ですか？",
-        "answer": "MuiRouter は AI API ルーターです。1つのキーでリクエストを OpenAI、Anthropic Claude、Google Gemini、xAI Grok、Cloudflare Workers AI、Xiaomi MiMo へ route し、トークン単位で課金、サブスクリプション不要です。"
+        "answer": "MuiRouter は AI API ルーターです：1つのキーで OpenAI、Claude、Gemini、Grok、Workers AI、MiMo にリクエストをルーティングできます。開発者が自身と友人のために構築したもので、安定した接続ポイントと今後の AI プロダクトに向けた便利なインフラを提供します。"
       },
       {
         "question": "OpenAI 互換ですか？",
@@ -1730,43 +1757,51 @@
     ]
   },
   "mcpPage": {
-    "title": "MCP 連携ガイド",
-    "intro": "MuiRouter は streamable-http の MCP サーバーを提供しており、Claude Desktop、Claude Code、Cursor、Cline などの AI クライアントから直接呼び出せます。AI アシスタントが残高の確認、使用量の閲覧、モデル一覧の取得、画像生成、さらにはチャージの開始まで実行できます。すべての認証はお手元の sk-gw- API キーで行われるため、第三者も AI クライアントも新しいアカウントを用意する必要はありません。",
-    "endpointTitle": "1. サーバーエンドポイント",
-    "endpointDesc": "すべての MCP クライアントは同じ URL に Bearer 認証で接続します。",
-    "protocolNote": "プロトコル: MCP 2026-07-28（streamable-http、ステートレスな JSON-RPC 2.0）。2025-11-25 / 2025-06-18 の旧クライアント向けネゴシエーションにも対応。",
-    "claudeCodeTitle": "2. Claude Code で接続する",
-    "claudeCodeDesc": "~/.claude/mcp.json を編集して muirouter サーバーを追加します。",
-    "claudeCodeNote": "Claude Code を再起動した後、/mcp と入力すると muirouter のツール一覧が表示されます。",
-    "clientsTitle": "3. Cursor / Claude Desktop で接続する",
-    "clientsDesc": "同じ URL と Authorization ヘッダーを入力します。",
-    "cursorDesc": "Cursor: 設定 → MCP → Add new server で streamable-http タイプを選択し、URL を {url} に設定して、カスタムヘッダー {header} を追加します。",
-    "claudeDesktopDesc": "Claude Desktop: 設定ファイル（macOS: {path}）を、上記の Claude Code と同じ設定で編集します。",
-    "toolsTitle": "4. 利用可能なツール",
-    "toolsDesc": "アカウント照会、料金、画像生成、チャージをカバーする6つのツール。",
+    "badge": "Model Context Protocol (MCP) ルーター & ゲートウェイ",
+    "title": "MCP ルーター & 複数サーバー統合設定ガイド",
+    "intro": "MuiRouter は高性能な streamable-HTTP MCP サーバーおよびルーターを提供します。Claude Desktop、Claude Code、Cursor、Cline などの AI クライアントから接続し、LLM のルーティング、複数ローカル/リモート MCP サーバーの統合集約、内蔵アカウントツールの操作をすべて 1 つの API キーで実行できます。",
+    "protocolTitle": "1. デュアル Era プロトコル仕様対応",
+    "protocolDesc": "最新の 2026-07-28 ステートレス streamable-HTTP 仕様に完全対応し、2025-11-25 / 2025-06-18 の旧クライアントともシームレスに互換性を維持します。",
+    "modernEra": "Modern 仕様 (2026-07-28): ステートレス streamable-HTTP、明示的な _meta とヘッダー（MCP-Protocol-Version）検証、server/discover 動的検出、DNS rebinding 保護。",
+    "legacyEra": "Legacy 互換 (2025-11-25 / 2025-06-18): initialize ハンドシェイクに対応し、既存クライアントの安全な接続を保証。",
+    "endpointTitle": "2. サーバーエンドポイントと認証",
+    "endpointDesc": "すべての MCP クライアントは同じ streamable-HTTP URL に接続し、Bearer 認証で統一管理されます。",
+    "aggregationTitle": "3. 複数サーバー統合集約（Claude Code 設定例）",
+    "aggregationDesc": "~/.claude/mcp.json に MuiRouter とローカル MCP サーバーを併記し、中央集権ルーティングを実現します。",
+    "aggregationNote": "Claude Code 再起動後に /mcp と入力すると、接続された全サーバーの集約済みツール一覧を確認できます。",
+    "clientsTitle": "4. Cursor / Claude Desktop / Cline での接続",
+    "clientsDesc": "同じ streamable-HTTP エンドポイントと Authorization ヘッダーで設定します。",
+    "cursorDesc": "Cursor: Settings → MCP → Add new server、streamable-http を選択し、URL に {url}、ヘッダーに {header} を追加。",
+    "claudeDesktopDesc": "Claude Desktop: 設定ファイル（{path}）を上記と同じ JSON 設定で編集します。",
+    "toolsTitle": "5. 内蔵アカウント & AI ツール一覧",
+    "toolsDesc": "モデルルーティング、残高確認、使用量統計、画像生成、決済を網羅する 6 つの内蔵ツール。",
     "tools": {
       "get_balance": "現在の API キーを所有するユーザーのウォレット残高、累計チャージ額、累計支出額を照会します。",
       "get_usage": "現在のユーザーの API 使用量をページ送りで取得します。モデルと期間で絞り込めます。",
       "list_recharges": "現在のユーザーのチャージ履歴をページ送りで取得します。",
       "list_models": "MuiRouter が現在サポートしているすべてのモデルとその料金（input/output、markup_rate）を一覧表示します。",
       "create_topup_session": "Stripe のチャージセッションを作成し、AI クライアントがユーザーを案内できる決済リンクを返します。",
-      "image_generation": "MuiRouter 経由で OpenAI 互換の画像生成エンドポイントを呼び出します（ウォレット残高を消費します）。"
+      "image_generation": "MuiRouter 経由で OpenAI 互换の画像生成エンドポイントを呼び出します（ウォレット残高を消費します）。"
     },
-    "jsonRpcTitle": "5. JSON-RPC を直接呼び出す",
-    "jsonRpcDesc": "MCP クライアントを使わず、curl で直接呼び出すこともできます。",
-    "securityTitle": "6. セキュリティに関する注意",
-    "security1": "API キーはパスワードと同じです。公開リポジトリやチャットログに絶対に露出させないでください。漏洩が疑われる場合は、Keys ページですぐに無効化してください。",
-    "security2": "image_generation と create_topup_session は金銭を消費または移動します。AI クライアントでこの2つのツールに確認を必須とする設定を検討してください。",
-    "security3": "すべてのリクエストは sk-gw- キーの背後にあるアカウントに紐づき、REST API を直接呼び出す場合と同じ同時実行および課金ルールが適用されます。",
-    "relatedTitle": "関連",
+    "jsonRpcTitle": "6. JSON-RPC 直接実行 & curl デバッグ",
+    "jsonRpcDesc": "クライアントなしでも curl を使用して機能検出、ツール一覧、ツール呼び出しを直接テストできます。",
+    "securityTitle": "7. セキュリティとベストプラクティス",
+    "security1": "API キーは認証情報です。公開リポジトリ等に絶対に露出させず、漏洩の疑いがある場合は直ちに Keys ページで無効化してください。",
+    "security2": "画像生成やチャージ作成は残高に影響します。AI クライアントでこれらのツールに確認ステップを設けることを推奨します。",
+    "security3": "Origin 検証により DNS rebinding 攻撃を遮断。REST API と同等の並行性および課金ルールが適用されます。",
+    "relatedTitle": "関連ガイド & 比較",
     "related": [
+      {
+        "href": "/mcp-router",
+        "label": "MCP ルーター & ゲートウェイ"
+      },
       {
         "href": "/mcp-server",
         "label": "MCP サーバーとは？"
       },
       {
-        "href": "/mcp-router",
-        "label": "MCP ルーター & サーバー"
+        "href": "/compare/openrouter",
+        "label": "MuiRouter vs OpenRouter"
       },
       {
         "href": "/ai-router",

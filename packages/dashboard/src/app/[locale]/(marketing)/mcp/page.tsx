@@ -1,4 +1,13 @@
-import { ArrowUpRight } from '@phosphor-icons/react/ssr';
+import {
+  ArrowUpRight,
+  ArrowsClockwise,
+  CheckCircle,
+  Cpu,
+  Globe,
+  Lightning,
+  ShieldCheck,
+  TerminalWindow,
+} from '@phosphor-icons/react/ssr';
 import type { Metadata } from 'next';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,15 +63,47 @@ export default async function McpPage({ params }: { params: Promise<{ locale: st
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-      <header className="mb-10">
-        <p className="text-sm font-medium text-primary mb-3">Model Context Protocol</p>
+      <header className="mb-10 text-center sm:text-left">
+        <p className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-primary mb-3">
+          <Lightning size={14} weight="bold" />
+          {t('badge')}
+        </p>
         <h1 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">{t('title')}</h1>
         <p className="text-base text-muted-foreground leading-relaxed">{t('intro')}</p>
       </header>
 
+      {/* 1. 双 Era 协议架构 */}
+      <Card className="mb-8 border-primary/20 bg-primary/5">
+        <CardHeader>
+          <div className="flex items-center gap-2">
+            <Cpu size={20} className="text-primary" />
+            <CardTitle>{t('protocolTitle')}</CardTitle>
+          </div>
+          <CardDescription>{t('protocolDesc')}</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <div className="flex items-start gap-2.5 rounded-lg border border-border/80 bg-background/80 p-3">
+            <CheckCircle size={18} className="mt-0.5 shrink-0 text-green-600 dark:text-green-400" weight="fill" />
+            <div>
+              <p className="font-medium text-foreground">{t('modernEra')}</p>
+            </div>
+          </div>
+          <div className="flex items-start gap-2.5 rounded-lg border border-border/80 bg-background/80 p-3">
+            <ArrowsClockwise size={18} className="mt-0.5 shrink-0 text-blue-600 dark:text-blue-400" />
+            <div>
+              <p className="font-medium text-foreground">{t('legacyEra')}</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 2. 端点与鉴权 */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>{t('endpointTitle')}</CardTitle>
+          <div className="flex items-center gap-2">
+            <Globe size={20} className="text-primary" />
+            <CardTitle>{t('endpointTitle')}</CardTitle>
+          </div>
           <CardDescription>{t('endpointDesc')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -78,14 +119,17 @@ export default async function McpPage({ params }: { params: Promise<{ locale: st
               <code>Authorization: Bearer sk-gw-xxxxxxxx</code>
             </pre>
           </div>
-          <p className="text-sm text-muted-foreground">{t('protocolNote')}</p>
         </CardContent>
       </Card>
 
+      {/* 3. 多 Server 聚合接入（Claude Code 示例） */}
       <Card className="mb-8">
         <CardHeader>
-          <CardTitle>{t('claudeCodeTitle')}</CardTitle>
-          <CardDescription>{t('claudeCodeDesc')}</CardDescription>
+          <div className="flex items-center gap-2">
+            <TerminalWindow size={20} className="text-primary" />
+            <CardTitle>{t('aggregationTitle')}</CardTitle>
+          </div>
+          <CardDescription>{t('aggregationDesc')}</CardDescription>
         </CardHeader>
         <CardContent>
           <pre className="rounded-lg bg-muted p-4 text-sm font-mono overflow-x-auto">
@@ -96,14 +140,19 @@ export default async function McpPage({ params }: { params: Promise<{ locale: st
       "headers": {
         "Authorization": "Bearer sk-gw-xxxxxxxx"
       }
+    },
+    "local-tools": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-everything"]
     }
   }
 }`}</code>
           </pre>
-          <p className="text-sm text-muted-foreground mt-3">{t('claudeCodeNote')}</p>
+          <p className="text-sm text-muted-foreground mt-3">{t('aggregationNote')}</p>
         </CardContent>
       </Card>
 
+      {/* 4. 其他客户端接入 */}
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>{t('clientsTitle')}</CardTitle>
@@ -115,6 +164,7 @@ export default async function McpPage({ params }: { params: Promise<{ locale: st
         </CardContent>
       </Card>
 
+      {/* 5. 可用工具箱 */}
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>{t('toolsTitle')}</CardTitle>
@@ -135,6 +185,7 @@ export default async function McpPage({ params }: { params: Promise<{ locale: st
         </CardContent>
       </Card>
 
+      {/* 6. JSON-RPC 与 curl 调试 */}
       <Card className="mb-8">
         <CardHeader>
           <CardTitle>{t('jsonRpcTitle')}</CardTitle>
@@ -142,11 +193,19 @@ export default async function McpPage({ params }: { params: Promise<{ locale: st
         </CardHeader>
         <CardContent>
           <pre className="rounded-lg bg-muted p-4 text-sm font-mono overflow-x-auto">
-            <code>{`# List tools
+            <code>{`# Discover server capabilities (Modern 2026-07-28)
+curl -X POST ${MCP_URL} \\
+  -H "Authorization: Bearer sk-gw-xxxxxxxx" \\
+  -H "MCP-Protocol-Version: 2026-07-28" \\
+  -H "Mcp-Method: server/discover" \\
+  -H "Content-Type: application/json" \\
+  -d '{"jsonrpc":"2.0","id":1,"method":"server/discover","params":{"_meta":{"protocolVersion":"2026-07-28"}}}'
+
+# List tools
 curl -X POST ${MCP_URL} \\
   -H "Authorization: Bearer sk-gw-xxxxxxxx" \\
   -H "Content-Type: application/json" \\
-  -d '{"jsonrpc":"2.0","id":1,"method":"tools/list"}'
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
 
 # Call get_balance
 curl -X POST ${MCP_URL} \\
@@ -154,7 +213,7 @@ curl -X POST ${MCP_URL} \\
   -H "Content-Type: application/json" \\
   -d '{
     "jsonrpc":"2.0",
-    "id":2,
+    "id":3,
     "method":"tools/call",
     "params": {"name":"get_balance","arguments":{}}
   }'`}</code>
@@ -162,9 +221,13 @@ curl -X POST ${MCP_URL} \\
         </CardContent>
       </Card>
 
+      {/* 7. 安全须知 */}
       <Card>
         <CardHeader>
-          <CardTitle>{t('securityTitle')}</CardTitle>
+          <div className="flex items-center gap-2">
+            <ShieldCheck size={20} className="text-primary" />
+            <CardTitle>{t('securityTitle')}</CardTitle>
+          </div>
         </CardHeader>
         <CardContent className="space-y-2 text-sm text-muted-foreground">
           <p>• {t('security1')}</p>
@@ -173,6 +236,7 @@ curl -X POST ${MCP_URL} \\
         </CardContent>
       </Card>
 
+      {/* 相关页面 */}
       <section className="mt-10">
         <h2 className="text-xl font-semibold tracking-tight text-center mb-4">{t('relatedTitle')}</h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">

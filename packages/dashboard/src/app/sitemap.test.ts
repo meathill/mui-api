@@ -12,6 +12,7 @@ const PROVIDER_GATEWAY_PAGES = [
   '/grok-api-gateway',
 ] as const;
 const COMPARISON_LISTICLE_PAGES = [
+  '/compare/openrouter',
   '/muirouter-vs-openrouter',
   '/litellm-vs-openrouter',
   '/openrouter-alternatives',

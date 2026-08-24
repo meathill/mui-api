@@ -47,6 +47,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     },
     description: t('description'),
     keywords: [
+      'MCP router',
+      'mcp-router',
+      'Model Context Protocol router',
+      'OpenRouter alternative',
+      'OpenRouter alternatives',
+      'LiteLLM alternative',
+      'AI gateway',
       'AI router',
       'LLM router',
       'AI API router',

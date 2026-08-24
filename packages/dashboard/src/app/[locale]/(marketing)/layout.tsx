@@ -99,6 +99,9 @@ export default async function MarketingLayout({
             <Link href="/openrouter-alternatives" className="hover:text-foreground transition-colors">
               {t('openrouterAlternatives')}
             </Link>
+            <Link href="/compare/openrouter" className="hover:text-foreground transition-colors">
+              {t('compareOpenrouter')}
+            </Link>
             <Link href="/pricing" className="hover:text-foreground transition-colors">
               {t('pricing')}
             </Link>

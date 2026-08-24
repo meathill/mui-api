@@ -75,6 +75,12 @@ export function buildSitemapEntries(blogPosts: Awaited<ReturnType<typeof getPubl
       lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
     },
     {
+      path: '/compare/openrouter',
+      changeFrequency: 'monthly',
+      priority: 0.7,
+      lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
+    },
+    {
       path: '/muirouter-vs-openrouter',
       changeFrequency: 'monthly',
       priority: 0.7,

@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "AI API Router for OpenAI, Claude, Gemini & Grok",
-    "description": "MuiRouter is an OpenAI-compatible AI API router and LLM gateway. One key routes requests to OpenAI, Anthropic, Google, xAI and more — pay per token, no VPN, no subscription. Built-in MCP server.",
-    "ogTitle": "OpenAI-Compatible AI API Router & LLM Gateway"
+    "title": "Fast AI Gateway & Model Context Protocol (MCP) Router | OpenRouter Alternative",
+    "description": "High-performance AI API gateway and MCP router. Seamlessly route, load-balance, and cache LLMs and MCP servers with zero latency overhead.",
+    "ogTitle": "Fast AI Gateway & Model Context Protocol (MCP) Router | OpenRouter Alternative"
   },
   "header": {
     "login": "Login",
@@ -19,7 +19,8 @@
     "bestLlmGateway": "Best LLM Gateway",
     "openrouterAlternatives": "OpenRouter Alternatives",
     "opencode": "opencode",
-    "mcpServer": "MCP Server"
+    "mcpServer": "MCP Server",
+    "compareOpenrouter": "MuiRouter vs OpenRouter"
   },
   "hero": {
     "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — one router",
@@ -640,8 +641,8 @@
   },
   "mcp": {
     "metadata": {
-      "title": "MCP Server for Claude, Cursor & Cline",
-      "description": "Connect Claude Desktop, Claude Code, Cursor and Cline to the MuiRouter MCP server over streamable-HTTP. Route LLM calls, query balance, usage and models, and generate images with your own API key."
+      "title": "MCP Router & Server: Multi-Server Routing & Integration Guide",
+      "description": "Connect Claude Desktop, Claude Code, Cursor, and Cline to the MuiRouter MCP Router over streamable-HTTP. Dual-era MCP protocol support (2026-07-28 & legacy), multi-server aggregation, and balance/tools routing."
     }
   },
   "mcpServer": {
@@ -1302,12 +1303,12 @@
     "ctaButton": "Start free"
   },
   "muirouterVsOpenrouter": {
-    "metaTitle": "MuiRouter vs OpenRouter — Pricing, Models and API Compatibility Compared",
-    "metaDescription": "Compare MuiRouter and OpenRouter on pricing model, model catalog breadth, OpenAI compatibility, native provider endpoints, BYOK fees and free-tier models — with sources linked.",
+    "metaTitle": "MuiRouter vs OpenRouter — Pricing, Models, Deployment & MCP Comparison",
+    "metaDescription": "Compare MuiRouter and OpenRouter across pricing models, edge deployment, multi-provider routing, native endpoints, BYOK fees, and native MCP protocol support.",
     "eyebrow": "MuiRouter vs OpenRouter",
     "title": "MuiRouter vs OpenRouter — ",
     "titleHighlight": "head-to-head",
-    "intro": "Both are OpenAI-compatible gateways that let you call multiple LLM providers from one API. Here's how MuiRouter and OpenRouter actually differ on pricing, model breadth and provider-native access, sourced from each platform's own docs.",
+    "intro": "Both are OpenAI-compatible gateways. Unlike massive commercial aggregators, MuiRouter was built to give ourselves and fellow developer friends a rock-solid, hassle-free AI API endpoint, serving as a reliable foundation for our upcoming AI products. Here is how MuiRouter and OpenRouter compare across pricing, edge deployment, native endpoints, and MCP routing.",
     "ctaPrimary": "Start free",
     "ctaSecondary": "View pricing",
     "featuresTitle": "MuiRouter vs OpenRouter at a glance",
@@ -1315,14 +1316,14 @@
       {
         "label": "Pricing model",
         "values": [
-          "Per-token price already includes the platform cost — no separate top-up fee",
-          "Pass-through provider pricing, plus a 5.5% card fee (5% crypto) on every credit top-up"
+          "Per-token price includes platform cost — zero deposit fees or card surcharges",
+          "Passes through provider base prices, plus a 5.5% card fee (5% crypto) per deposit"
         ]
       },
       {
         "label": "Model catalog",
         "values": [
-          "Curated: OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot and MiMo",
+          "Curated: OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot, and MiMo",
           "Broad catalog spanning hundreds of models from dozens of providers"
         ]
       },
@@ -1333,8 +1334,22 @@
       {
         "label": "Native provider endpoints",
         "values": [
-          "Native Anthropic /v1/messages and OpenAI /v1/responses, same key and balance",
+          "Native Anthropic /v1/messages and OpenAI /v1/responses with one shared wallet",
           "Requests normalized to one OpenAI-shaped schema"
+        ]
+      },
+      {
+        "label": "Deployment & Edge Gateway",
+        "values": [
+          "Global Cloudflare edge network across 300+ locations, zero VPN needed, private/self-hosted deployment ready",
+          "Hosted cloud SaaS proxy with centralized routing"
+        ]
+      },
+      {
+        "label": "Native MCP Protocol Support",
+        "values": [
+          "Native streamable-HTTP Model Context Protocol (MCP) server & router with dual-era spec (2026-07-28 & legacy)",
+          "REST API forwarding only, no native MCP protocol router"
         ]
       },
       {
@@ -1355,12 +1370,20 @@
     "faqTitle": "MuiRouter vs OpenRouter FAQ",
     "faq": [
       {
+        "question": "What is the philosophy behind MuiRouter compared to OpenRouter?",
+        "answer": "MuiRouter was never built for profit maximization. It was born out of our own need for a dependable, low-latency AI API gateway for ourselves and friends, while serving as a streamlined infrastructure backbone for our upcoming AI products. That is why we prioritize transparent per-token billing, zero top-up markups, native MCP protocol support, and global edge routing."
+      },
+      {
         "question": "Is MuiRouter cheaper than OpenRouter?",
         "answer": "It depends on your usage pattern. MuiRouter's per-token price already includes the platform's cost, with no separate fee on adding funds. OpenRouter passes through provider pricing with no token markup, but charges 5.5% on credit-card top-ups (5% on crypto) and 5% on BYOK usage past the free monthly allowance. Compare exact per-model rates on the pricing page."
       },
       {
         "question": "Does MuiRouter support as many models as OpenRouter?",
-        "answer": "No — MuiRouter is a curated set of OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot and MiMo models, while OpenRouter's catalog spans hundreds of models across dozens of providers. If you need a handful of mainstream providers with native endpoint access, MuiRouter is narrower but deeper; if you need long-tail model variety, OpenRouter has more breadth."
+        "answer": "No — MuiRouter focuses on a curated, high-reliability catalog of OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot, and MiMo with native endpoints. OpenRouter covers hundreds of long-tail models across dozens of providers."
+      },
+      {
+        "question": "How does MuiRouter handle multi-provider switching and deployment?",
+        "answer": "MuiRouter operates across Cloudflare's 300+ edge locations with zero latency overhead. You can switch between upstream models by changing the model parameter, and deploy private or custom routing instances effortlessly."
       },
       {
         "question": "Can I switch from OpenRouter to MuiRouter without rewriting my code?",
@@ -1376,6 +1399,10 @@
       {
         "href": "/ai-router",
         "label": "AI API Router"
+      },
+      {
+        "href": "/mcp-router",
+        "label": "MCP Router & Gateway"
       },
       {
         "href": "/litellm-vs-openrouter",
@@ -1723,7 +1750,7 @@
       },
       {
         "question": "What is MuiRouter?",
-        "answer": "MuiRouter is an AI API router: one key routes your requests to OpenAI, Anthropic Claude, Google Gemini, xAI Grok, Cloudflare Workers AI and Xiaomi MiMo, billed per token with no subscription."
+        "answer": "MuiRouter is an AI API router: one key routes your requests to OpenAI, Anthropic Claude, Google Gemini, xAI Grok, Cloudflare Workers AI and Xiaomi MiMo, billed per token with no subscription. Built by developers for ourselves and friends, it provides a dependable endpoint and convenient infrastructure for future AI applications."
       },
       {
         "question": "Is it OpenAI-compatible?",
@@ -1736,43 +1763,51 @@
     ]
   },
   "mcpPage": {
-    "title": "MCP integration guide",
-    "intro": "MuiRouter runs a streamable-HTTP MCP server so AI clients like Claude Desktop, Claude Code, Cursor and Cline can call it directly — your AI assistant can check your balance, view usage, list models, generate images and even start a top-up. Everything is authenticated with your own sk-gw- API key, so neither third parties nor AI clients need a new account.",
-    "endpointTitle": "1. Server endpoint",
-    "endpointDesc": "All MCP clients connect to the same URL using Bearer auth.",
-    "protocolNote": "Protocol: MCP 2026-07-28 (streamable-http, stateless JSON-RPC 2.0), with legacy negotiation for 2025-11-25 / 2025-06-18 clients.",
-    "claudeCodeTitle": "2. Connect in Claude Code",
-    "claudeCodeDesc": "Edit ~/.claude/mcp.json and add the muirouter server.",
-    "claudeCodeNote": "After restarting Claude Code, type /mcp to see the muirouter tool list.",
-    "clientsTitle": "3. Connect in Cursor / Claude Desktop",
-    "clientsDesc": "Fill in the same URL and Authorization header.",
-    "cursorDesc": "Cursor: Settings → MCP → Add new server, choose the streamable-http type, set the URL to {url}, and add a custom header {header}.",
-    "claudeDesktopDesc": "Claude Desktop: edit the config file (macOS: {path}) with the same configuration as Claude Code above.",
-    "toolsTitle": "4. Available tools",
-    "toolsDesc": "Six tools covering account queries, pricing, image generation and top-ups.",
+    "badge": "Model Context Protocol (MCP) Router & Gateway",
+    "title": "MCP Router & Integration Guide",
+    "intro": "MuiRouter provides a high-performance streamable-HTTP MCP server and router. Connect AI clients like Claude Desktop, Claude Code, Cursor, and Cline to route LLMs, aggregate multiple local and remote MCP servers, and access built-in account tools with your own API key.",
+    "protocolTitle": "1. Dual-Era Protocol Support",
+    "protocolDesc": "Built to support the latest 2026-07-28 stateless streamable-HTTP spec while seamlessly negotiating with legacy 2025-11-25 / 2025-06-18 clients.",
+    "modernEra": "Modern Spec (2026-07-28): Stateless streamable-HTTP, explicit _meta & headers (MCP-Protocol-Version), server/discover discovery, and DNS rebinding protection.",
+    "legacyEra": "Legacy Compatibility (2025-11-25 / 2025-06-18): Automatic handshake negotiation for initialize-based clients.",
+    "endpointTitle": "2. Server Endpoint & Authentication",
+    "endpointDesc": "All MCP clients connect to the same streamable-HTTP URL using Bearer auth.",
+    "aggregationTitle": "3. Multi-Server Aggregation (Claude Code)",
+    "aggregationDesc": "Add MuiRouter alongside your local MCP servers in ~/.claude/mcp.json for centralized routing.",
+    "aggregationNote": "Restart Claude Code and type /mcp to view the aggregated tool list across all connected servers.",
+    "clientsTitle": "4. Connect in Cursor / Claude Desktop / Cline",
+    "clientsDesc": "Configure streamable-HTTP with the same endpoint and Authorization header.",
+    "cursorDesc": "Cursor: Settings → MCP → Add new server, choose streamable-http, set URL to {url}, and add header {header}.",
+    "claudeDesktopDesc": "Claude Desktop: Edit configuration file ({path}) with the same JSON configuration.",
+    "toolsTitle": "5. Built-in Account & AI Tools",
+    "toolsDesc": "Six built-in tools covering model routing, account queries, image generation, and instant top-ups.",
     "tools": {
-      "get_balance": "Query the wallet balance, total top-ups and total spending for the user that owns the current API key.",
+      "get_balance": "Query the wallet balance, total top-ups, and total spending for the user that owns the current API key.",
       "get_usage": "Paginate through the current user's API usage, filterable by model and time range.",
       "list_recharges": "Paginate through the current user's top-up records.",
       "list_models": "List every model MuiRouter currently supports and its pricing (input/output, markup_rate).",
       "create_topup_session": "Create a Stripe top-up session and return a payment link the AI client can guide the user through.",
       "image_generation": "Call the OpenAI-compatible image generation endpoint through MuiRouter (consumes wallet balance)."
     },
-    "jsonRpcTitle": "5. Direct JSON-RPC calls",
-    "jsonRpcDesc": "You can also call it directly with curl, without an MCP client.",
-    "securityTitle": "6. Security notes",
-    "security1": "Your API key is like a password — never expose it in a public repository or chat log. If you suspect it leaked, revoke it immediately on the Keys page.",
-    "security2": "image_generation and create_topup_session spend or move money. Consider setting these two tools to require confirmation in your AI client.",
-    "security3": "Every request is tied to the account behind its sk-gw- key, with the same concurrency and billing rules as calling the REST API directly.",
-    "relatedTitle": "Related",
+    "jsonRpcTitle": "6. Direct JSON-RPC & curl Debugging",
+    "jsonRpcDesc": "Test server discovery, tool listing, and tool calls directly using curl without an MCP client.",
+    "securityTitle": "7. Security & Best Practices",
+    "security1": "Your sk-gw- API key acts as a credential — never expose it in public repositories. Revoke immediately on the Keys page if compromised.",
+    "security2": "Financial actions like image_generation and create_topup_session move funds; configure your AI client to require interactive confirmation.",
+    "security3": "Origin verification protects against DNS rebinding attacks; all calls respect standard account concurrency and rate limits.",
+    "relatedTitle": "Related Guides & Comparisons",
     "related": [
+      {
+        "href": "/mcp-router",
+        "label": "MCP Router & Gateway"
+      },
       {
         "href": "/mcp-server",
         "label": "What Is an MCP Server?"
       },
       {
-        "href": "/mcp-router",
-        "label": "MCP Router & Server"
+        "href": "/compare/openrouter",
+        "label": "MuiRouter vs OpenRouter"
       },
       {
         "href": "/ai-router",
