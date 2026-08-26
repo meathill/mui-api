@@ -11,6 +11,16 @@ type ChatBody = Record<string, unknown>;
 
 const GROK_UNSUPPORTED_PARAMS = ['stop', 'presence_penalty', 'frequency_penalty'] as const;
 
+// opencode 默认给 gpt-5.6-sol 配置的 reasoningEffort 变体会被原样透传到上游，
+// Claude 经 compat 转发时不认识这些字段会直接 400，故在 anthropic 分支剥离
+const ANTHROPIC_UNSUPPORTED_PARAMS = [
+  'reasoningEffort',
+  'reasoning_effort',
+  'reasoning',
+  'thinking',
+  'thought',
+] as const;
+
 export function normalizeChatBody(body: ChatBody, provider: string): ChatBody {
   if (provider === 'openai') {
     if (body.max_tokens === undefined) return body;
@@ -23,6 +33,15 @@ export function normalizeChatBody(body: ChatBody, provider: string): ChatBody {
     if (!GROK_UNSUPPORTED_PARAMS.some((key) => key in body)) return body;
     const rest = { ...body };
     for (const key of GROK_UNSUPPORTED_PARAMS) {
+      delete rest[key];
+    }
+    return rest;
+  }
+
+  if (provider === 'anthropic') {
+    if (!ANTHROPIC_UNSUPPORTED_PARAMS.some((key) => key in body)) return body;
+    const rest = { ...body };
+    for (const key of ANTHROPIC_UNSUPPORTED_PARAMS) {
       delete rest[key];
     }
     return rest;

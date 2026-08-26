@@ -111,7 +111,35 @@ export class ModelCatalogService {
 
   async getById(id: string): Promise<Model | null> {
     const all = await this.getAll();
-    return all.find((model) => model.id === id) ?? null;
+    // 精确匹配 id
+    let model = all.find((m) => m.id === id);
+    if (model) return model;
+    // 精确匹配 upstreamModelId（兼容用户直接传上游 ID，如 claude-haiku-4.5）
+    model = all.find((m) => m.upstreamModelId === id);
+    if (model) return model;
+    // 兼容 dot/hyphen 写法：claude-haiku-4.5 <-> claude-haiku-4-5
+    const hyphen = id.replace(/\./g, '-');
+    if (hyphen !== id) {
+      model = all.find((m) => m.id === hyphen || m.upstreamModelId === hyphen);
+      if (model) return model;
+    }
+    const dot = id.replace(/-/g, '.');
+    if (dot !== id) {
+      model = all.find((m) => m.id === dot || m.upstreamModelId === dot);
+      if (model) return model;
+    }
+    // 最后一段版本号 dot/hyphen 互换（更保守，避免全量替换误伤）
+    const lastHyphen = id.replace(/\.(\d+)$/, '-$1');
+    if (lastHyphen !== id) {
+      model = all.find((m) => m.id === lastHyphen || m.upstreamModelId === lastHyphen);
+      if (model) return model;
+    }
+    const lastDot = id.replace(/-(\d+)$/, '.$1');
+    if (lastDot !== id) {
+      model = all.find((m) => m.id === lastDot || m.upstreamModelId === lastDot);
+      if (model) return model;
+    }
+    return null;
   }
 
   /**

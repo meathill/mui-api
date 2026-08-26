@@ -271,7 +271,9 @@ export async function callAnthropic(env: CloudflareBindings, body: AnyBody): Pro
     apiKey: env.CF_AIG_TOKEN,
     baseURL: anthropicGatewayBase(env),
   });
-  return client.messages.create(body as never).asResponse();
+  // 归一化：用户可能传 claude-haiku-4.5(dot)，上游 Anthropic 需 hyphen
+  const normalizedBody = body.model ? { ...body, model: String(body.model).replace(/\./g, '-') } : body;
+  return client.messages.create(normalizedBody as never).asResponse();
 }
 
 /**
@@ -288,7 +290,8 @@ export async function callAnthropicCompat(
     apiKey: env.CF_AIG_TOKEN,
     baseURL: compatGatewayBase(env),
   });
-  return client.chat.completions.create({ ...body, model: `anthropic/${upstreamModel}` } as never).asResponse();
+  const normalizedUpstream = upstreamModel.replace(/\./g, '-');
+  return client.chat.completions.create({ ...body, model: `anthropic/${normalizedUpstream}` } as never).asResponse();
 }
 
 /**
