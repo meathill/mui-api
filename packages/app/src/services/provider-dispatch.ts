@@ -1,14 +1,15 @@
 /**
  * Provider 分发：按 provider 选 SDK 调上游，返回原始 Response 透传给客户端
- * - openai          → openai SDK + AI Gateway (CF_AIG_TOKEN 鉴权)
+ * - openai          → openai SDK 直连（OPENAI_API_KEY），跳过 AI Gateway；缺 key 时回退 Gateway
  * - google-ai-studio → @google/genai SDK + AI Gateway (CF_AIG_TOKEN 鉴权)
  * - moonshot        → fetch + Moonshot OpenAI 兼容接口（直连，不走 AI Gateway）
  * - xiaomi-mimo     → fetch + Xiaomi MiMo OpenAI 兼容接口（直连，不走 AI Gateway）
- * - anthropic       → fetch + AI Gateway compat 端点（Unified Billing 代付，返回 OpenAI 形）
+ * - anthropic       → @anthropic-ai/sdk + AI Gateway 原生端点（CF_AIG_TOKEN + Stored Keys，官方 SDK）
  * - grok            → fetch + AI Gateway 原生 grok 端点（xAI key 以 CF Gateway Stored Keys 形式配置，本服务不持有）
  * - workers-ai      → env.AI.run + gateway option
  */
 
+import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenAI } from '@google/genai';
 import OpenAI from 'openai';
 import type { CloudflareBindings } from '../types';
@@ -33,6 +34,18 @@ export function openAIGatewayBase(env: CloudflareBindings): string {
   return aiGatewayBase(env, 'openai');
 }
 
+export function openAIDirectBaseURL(env: CloudflareBindings): string {
+  return trimTrailingSlashes(env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1');
+}
+
+export function anthropicGatewayBase(env: CloudflareBindings): string {
+  return aiGatewayBase(env, 'anthropic');
+}
+
+export function compatGatewayBase(env: CloudflareBindings): string {
+  return aiGatewayBase(env, 'compat');
+}
+
 function trimTrailingSlashes(value: string): string {
   return value.replace(/\/+$/, '');
 }
@@ -53,8 +66,15 @@ export function openCodeGoBaseURL(env: CloudflareBindings): string {
   return trimTrailingSlashes(env.OPENCODE_GO_BASE_URL ?? OPENCODE_GO_DEFAULT_BASE_URL);
 }
 
-/** OpenAI SDK 调用，通过 AI Gateway 转发，CF_AIG_TOKEN 鉴权 */
+/** OpenAI SDK 调用，优先直连（OPENAI_API_KEY），缺 key 时回退 AI Gateway */
 export async function callOpenAI(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  if (env.OPENAI_API_KEY) {
+    const client = new OpenAI({
+      apiKey: env.OPENAI_API_KEY,
+      baseURL: openAIDirectBaseURL(env),
+    });
+    return client.chat.completions.create(body as never).asResponse();
+  }
   const client = new OpenAI({
     apiKey: env.CF_AIG_TOKEN,
     baseURL: openAIGatewayBase(env),
@@ -62,13 +82,23 @@ export async function callOpenAI(env: CloudflareBindings, body: AnyBody): Promis
   return client.chat.completions.create(body as never).asResponse();
 }
 
-/** OpenAI 非 Chat 端点原样转发，用于 Images / Responses 等 SDK 不方便统一抽象的 API。 */
+/** OpenAI 非 Chat 端点原样转发，优先直连，缺 key 回退 Gateway */
 export async function callOpenAIEndpoint(
   env: CloudflareBindings,
   path: string,
   body: BodyInit,
   headers: Record<string, string> = {},
 ): Promise<Response> {
+  if (env.OPENAI_API_KEY) {
+    return fetch(`${openAIDirectBaseURL(env)}${path}`, {
+      method: 'POST',
+      headers: {
+        ...headers,
+        Authorization: `Bearer ${env.OPENAI_API_KEY}`,
+      },
+      body,
+    });
+  }
   return fetch(`${openAIGatewayBase(env)}${path}`, {
     method: 'POST',
     headers: {
@@ -232,31 +262,33 @@ export async function callGemini(env: CloudflareBindings, upstreamModel: string,
 }
 
 /**
- * Anthropic via CF AI Gateway compat 端点（OpenAI 兼容）—— Unified Billing 代付。
- * 返回 OpenAI chat.completion 形（usage 用 prompt_tokens/completion_tokens）。
- * 鉴权：unified 仅 cf-aig-authorization；带 Authorization 会被 compat 当作 Anthropic key（→401）。
- * BYOK：按 OpenAI 兼容惯例用 Authorization: Bearer <ANTHROPIC_API_KEY>（当前组织被禁用，未实测）。
+ * Anthropic 原生 Messages API，经 CF AI Gateway + 官方 SDK（Anthropic JS SDK）。
+ * 鉴权：apiKey = CF_AIG_TOKEN，baseURL = .../anthropic，Stored Keys 在网关侧注入真实 Anthropic Key。
+ * 不再区分 unified / byok，Worker 不持有 Anthropic 凭证。
+ */
+export async function callAnthropic(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  const client = new Anthropic({
+    apiKey: env.CF_AIG_TOKEN,
+    baseURL: anthropicGatewayBase(env),
+  });
+  return client.messages.create(body as never).asResponse();
+}
+
+/**
+ * Anthropic 经 CF AI Gateway compat 端点（OpenAI 兼容），供 POST /v1/chat/completions 的
+ * provider=anthropic 保持兼容。使用 OpenAI SDK 经 gateway 的 compat 能力，返回 OpenAI 形。
+ * 同样只靠 CF_AIG_TOKEN，不再注入 ANTHROPIC_API_KEY。
  */
 export async function callAnthropicCompat(
   env: CloudflareBindings,
   upstreamModel: string,
   body: AnyBody,
 ): Promise<Response> {
-  const headers: Record<string, string> = {
-    'content-type': 'application/json',
-    'cf-aig-authorization': `Bearer ${env.CF_AIG_TOKEN}`,
-  };
-  if (env.ANTHROPIC_CREDENTIAL_MODE === 'byok') {
-    if (!env.ANTHROPIC_API_KEY) {
-      throw new Error('ANTHROPIC_CREDENTIAL_MODE=byok 但缺少 ANTHROPIC_API_KEY');
-    }
-    headers.authorization = `Bearer ${env.ANTHROPIC_API_KEY}`;
-  }
-  return fetch(`${aiGatewayBase(env, 'compat')}/chat/completions`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify({ ...body, model: `anthropic/${upstreamModel}` }),
+  const client = new OpenAI({
+    apiKey: env.CF_AIG_TOKEN,
+    baseURL: compatGatewayBase(env),
   });
+  return client.chat.completions.create({ ...body, model: `anthropic/${upstreamModel}` } as never).asResponse();
 }
 
 /**

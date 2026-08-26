@@ -22,11 +22,11 @@ export interface CloudflareBindings {
   DEEPSEEK_BASE_URL?: string;
   OPENCODE_GO_API_KEY?: string;
   OPENCODE_GO_BASE_URL?: string;
-  // Anthropic / Claude 接入
-  // unified：经 CF AI Gateway 代付，扣 CF credits，无需自有 Anthropic 账号
-  // byok（生产现状，2026-07 起）：注入自有 ANTHROPIC_API_KEY 自付，不再经 CF Unified Billing
+  // 已废弃：Anthropic 统一经 CF AI Gateway Stored Keys + 官方 SDK，不再经 Worker 侧 BYOK/unified 分流
   ANTHROPIC_CREDENTIAL_MODE?: 'unified' | 'byok';
   ANTHROPIC_API_KEY?: string;
+  OPENAI_API_KEY?: string;
+  OPENAI_BASE_URL?: string;
   DEFAULT_MAX_CONCURRENCY?: string; // 默认 "3"
   // Stripe 充值
 }

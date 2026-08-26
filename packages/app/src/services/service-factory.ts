@@ -32,14 +32,7 @@ export function createProxyServices(env: CloudflareBindings, db: Database): Prox
     fromEmail: env.FROM_EMAIL,
   });
   const alertService = new AlertService(kvService, db, emailService, env.ADMIN_EMAIL, walletService);
-  const gatewayService = new GatewayService(
-    env.CF_ACCOUNT_ID,
-    env.CF_GATEWAY_ID,
-    env.CF_AIG_TOKEN,
-    env.CF_TOKEN,
-    env.ANTHROPIC_CREDENTIAL_MODE ?? 'unified',
-    env.ANTHROPIC_API_KEY,
-  );
+  const gatewayService = new GatewayService(env.CF_ACCOUNT_ID, env.CF_GATEWAY_ID, env.CF_AIG_TOKEN);
   const modelCatalog = new ModelCatalogService(kvService, db);
 
   return { db, kvService, walletService, billingService, alertService, gatewayService, modelCatalog };

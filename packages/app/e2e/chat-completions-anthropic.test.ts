@@ -2,12 +2,12 @@ import { env, SELF } from 'cloudflare:test';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { seedApiKey } from './helpers';
 
-describe('POST /v1/chat/completions —— Claude 经 compat 端点（BYOK）', () => {
+describe('POST /v1/chat/completions —— Claude 经 compat 端点（Gateway + OpenAI SDK）', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it('claude 走 compat 端点：byok 注入 Authorization、model 带 anthropic/ 前缀，按 OpenAI usage 扣费', async () => {
+  it('claude 走 compat 端点：经 Gateway + OpenAI SDK，model 带 anthropic/ 前缀，按 OpenAI usage 扣费', async () => {
     const userId = `test-claude-compat-${Date.now()}`;
     const billKey = await seedApiKey(userId, 10);
 
@@ -37,9 +37,8 @@ describe('POST /v1/chat/completions —— Claude 经 compat 端点（BYOK）', 
     const [url, init] = fetchMock.mock.calls[0];
     expect(String(url)).toContain('/compat/chat/completions');
     const h = new Headers(init?.headers);
-    expect(h.get('cf-aig-authorization')).toBe('Bearer test-token');
-    // byok：compat 端点按 OpenAI 兼容惯例注入 Authorization: Bearer ANTHROPIC_API_KEY
-    expect(h.get('authorization')).toBe('Bearer test-anthropic-key');
+    // 经 OpenAI SDK + Gateway，鉴权为 Authorization: Bearer CF_AIG_TOKEN（不再带 ANTHROPIC_API_KEY）
+    expect(h.get('authorization')).toBe('Bearer test-token');
     const sentBody = JSON.parse(String(init?.body)) as { model: string };
     expect(sentBody.model).toBe('anthropic/claude-sonnet-4-20250514');
 

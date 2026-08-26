@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { badRequest, gatewayError, upstreamError } from '../lib/errors';
 import { authMiddleware } from '../middleware/auth';
 import { createProxyServices } from '../services/service-factory';
+import { callAnthropic } from '../services/provider-dispatch';
 import type { CloudflareBindings } from '../types';
 import {
   assertBillableAccess,
@@ -17,7 +18,7 @@ const anthropic = new Hono<{ Bindings: CloudflareBindings }>();
 /**
  * POST /v1/messages —— Anthropic 原生 Messages API
  * 让客户端把 Anthropic SDK / Claude Code 的 base_url 直接指向本网关。
- * 仅服务 anthropic provider（Claude），经 CF AI Gateway 原生透传，默认 Unified Billing 代付。
+ * 仅服务 anthropic provider（Claude），经 CF AI Gateway + 官方 Anthropic SDK，Stored Keys 托管凭证。
  * 用 handler 级中间件（不用 use('/*')），避免与同前缀的 openai 路由互相拦截。
  */
 anthropic.post('/messages', authMiddleware, async (c) => {
@@ -46,15 +47,10 @@ anthropic.post('/messages', authMiddleware, async (c) => {
   if (accessError) return accessError;
 
   const isStream = body.stream === true;
-  // 改写 model 为上游真实 ID；proxyNative 会注入网关认证与代付凭证（unified→CF_TOKEN / byok→x-api-key）
-  const upstreamReq = new Request('https://gateway.internal/v1/messages', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ ...body, model: upstreamModel }),
-  });
 
   try {
-    const upstream = await services.gatewayService.proxyNative('anthropic', 'v1/messages', upstreamReq);
+    // 经官方 SDK + AI Gateway，apiKey=CF_AIG_TOKEN，baseURL=.../anthropic
+    const upstream = await callAnthropic(c.env, { ...body, model: upstreamModel });
 
     if (!upstream.ok) {
       const errText = await upstream.text();

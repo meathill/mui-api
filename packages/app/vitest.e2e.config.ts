@@ -19,6 +19,8 @@ export default defineConfig({
           MOONSHOT_API_KEY: 'test-moonshot-key',
           MIMO_API_KEY: 'test-mimo-key',
           ANTHROPIC_API_KEY: 'test-anthropic-key',
+          OPENAI_API_KEY: 'test-openai-key',
+          OPENAI_BASE_URL: 'https://api.openai.com/v1',
         },
       },
     }),

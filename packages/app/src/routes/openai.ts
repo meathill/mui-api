@@ -100,6 +100,10 @@ openai.post('/chat/completions', async (c) => {
 
     if (!upstream.ok) {
       const errText = await upstream.text();
+      const cf = (c.req.raw as unknown as { cf?: Record<string, unknown> }).cf;
+      console.error(
+        `[openai] upstream=${provider} model=${modelId} upstreamModel=${upstreamModel} status=${upstream.status} cf-colo=${String(cf?.colo ?? '-')} cf-country=${String(cf?.country ?? '-')} openai_base=${c.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1'} has_key=${Boolean(c.env.OPENAI_API_KEY)} ray=${c.req.header('cf-ray') ?? '-'} err=${errText.slice(0, 500)}`,
+      );
       return upstreamError(c, upstream.status, `上游 ${provider} 错误 (${upstream.status}): ${errText}`);
     }
 
@@ -125,7 +129,11 @@ openai.post('/chat/completions', async (c) => {
     );
     return clientResp;
   } catch (error) {
-    console.error(`[${provider}] 调用失败:`, error);
+    const cf = (c.req.raw as unknown as { cf?: Record<string, unknown> }).cf;
+    console.error(
+      `[${provider}] 调用失败 colo=${String(cf?.colo ?? '-')} country=${String(cf?.country ?? '-')} openai_base=${c.env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1'} has_key=${Boolean(c.env.OPENAI_API_KEY)} ray=${c.req.header('cf-ray') ?? '-'}`,
+      error,
+    );
     const message = error instanceof Error ? error.message : '上游调用失败';
     // openai / @google/genai SDK 对非 2xx 抛异常而不是返回 Response，从异常上取上游状态码
     const status = (error as { status?: unknown }).status;

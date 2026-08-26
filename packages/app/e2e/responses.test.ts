@@ -119,11 +119,11 @@ describe('POST /v1/responses（OpenAI 原生 Responses API）', () => {
     const body = await res.json<{ id: string }>();
     expect(body.id).toBe('resp_test');
 
-    // 确实打到 CF AI Gateway 的 openai/responses 端点，并改写了 model
+    // OpenAI 现已直连（跳过 Gateway），打到 api.openai.com/v1/responses，并改写了 model
     const [url, init] = fetchMock.mock.calls[0];
-    expect(String(url)).toContain('/openai/responses');
+    expect(String(url)).toBe('https://api.openai.com/v1/responses');
     const h = new Headers(init?.headers);
-    expect(h.get('authorization')).toBe('Bearer test-token');
+    expect(h.get('authorization')).toBe('Bearer test-openai-key');
     const sentBody = JSON.parse(String(init?.body)) as { model: string; input: string };
     expect(sentBody.model).toBe('gpt-4o-cached-test');
     expect(sentBody.input).toBe('ping');

@@ -8,6 +8,7 @@ import { loggerMiddleware } from './middleware/logger';
 import { renderer } from './renderer';
 import admin from './routes/admin';
 import anthropic from './routes/anthropic';
+import health from './routes/health';
 import mcp from './routes/mcp';
 import oauth from './routes/oauth';
 import openai from './routes/openai';
@@ -35,6 +36,8 @@ app.use(renderer);
 
 // 挂载路由
 app.route('/admin', admin);
+app.route('/', health);
+app.route('/v1', health);
 // v1User 提供用户自助查询/充值端点（balance, usage, recharges, models, topup-sessions）
 // 必须在 OpenAI 兼容路由之前挂载，否则 openai 上的 `/*` authMiddleware 会拦截
 app.route('/v1', v1User);
