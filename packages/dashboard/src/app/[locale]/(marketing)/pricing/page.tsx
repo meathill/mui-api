@@ -22,15 +22,38 @@ export const dynamic = 'force-dynamic';
  * DB 中实际存在的 provider 若不在此列表（如 workers-ai 内部模型），不在公开 pricing 页展示。
  */
 const PROVIDER_DISPLAY: Record<string, { label: string; sourceUrl: string }> = {
-  openai: { label: 'OpenAI', sourceUrl: 'https://developers.openai.com/api/docs/pricing' },
+  openai: { label: 'OpenAI', sourceUrl: 'https://platform.openai.com/docs/pricing' },
   anthropic: { label: 'Anthropic', sourceUrl: 'https://www.anthropic.com/pricing' },
+  deepseek: { label: 'DeepSeek', sourceUrl: 'https://api-docs.deepseek.com/quick_start/pricing' },
+  moonshot: { label: 'Moonshot AI', sourceUrl: 'https://platform.moonshot.cn/docs/pricing' },
+  grok: { label: 'xAI Grok', sourceUrl: 'https://docs.x.ai/docs/models' },
+  zai: { label: 'Zhipu GLM', sourceUrl: 'https://bigmodel.cn/pricing' },
+  qwen: { label: 'Qwen', sourceUrl: 'https://help.aliyun.com/zh/dashscope/developer-reference/model-pricing' },
+  minimax: { label: 'MiniMax', sourceUrl: 'https://platform.minimaxi.com/document/price' },
+  meta: { label: 'Meta', sourceUrl: 'https://www.llama.com/docs/pricing' },
+  longcat: { label: 'LongCat', sourceUrl: 'https://longcat.chat/pricing' },
+  hy: { label: 'HY', sourceUrl: 'https://hy.ai/pricing' },
   'google-ai-studio': { label: 'Gemini', sourceUrl: 'https://ai.google.dev/pricing' },
-  moonshot: { label: 'Moonshot AI', sourceUrl: 'https://platform.kimi.ai/docs/pricing/chat-k3' },
   'xiaomi-mimo': { label: 'Xiaomi MiMo', sourceUrl: 'https://api.xiaomimimo.com/pricing' },
-  grok: { label: 'xAI Grok', sourceUrl: 'https://x.ai/api' },
+  'workers-ai': { label: 'Workers AI', sourceUrl: 'https://developers.cloudflare.com/workers-ai/models/' },
 };
 
-const PROVIDER_ORDER = ['openai', 'anthropic', 'google-ai-studio', 'moonshot', 'xiaomi-mimo', 'grok'];
+const PROVIDER_ORDER = [
+  'openai',
+  'anthropic',
+  'deepseek',
+  'moonshot',
+  'grok',
+  'zai',
+  'qwen',
+  'minimax',
+  'meta',
+  'longcat',
+  'hy',
+  'google-ai-studio',
+  'xiaomi-mimo',
+  'workers-ai',
+];
 
 const providerStyles: Record<
   string,
@@ -69,6 +92,46 @@ const providerStyles: Record<
     badgeClassName: 'border-slate-500/20 bg-slate-500/10 text-slate-700',
     surfaceClassName: 'bg-slate-500/5',
     borderClassName: 'from-slate-500/70 via-slate-400/20 to-transparent',
+  },
+  deepseek: {
+    badgeClassName: 'border-blue-500/20 bg-blue-500/10 text-blue-700',
+    surfaceClassName: 'bg-blue-500/5',
+    borderClassName: 'from-blue-500/70 via-sky-400/20 to-transparent',
+  },
+  zai: {
+    badgeClassName: 'border-violet-500/20 bg-violet-500/10 text-violet-700',
+    surfaceClassName: 'bg-violet-500/5',
+    borderClassName: 'from-violet-500/70 via-violet-400/20 to-transparent',
+  },
+  qwen: {
+    badgeClassName: 'border-amber-500/20 bg-amber-500/10 text-amber-700',
+    surfaceClassName: 'bg-amber-500/5',
+    borderClassName: 'from-amber-500/70 via-amber-400/20 to-transparent',
+  },
+  minimax: {
+    badgeClassName: 'border-teal-500/20 bg-teal-500/10 text-teal-700',
+    surfaceClassName: 'bg-teal-500/5',
+    borderClassName: 'from-teal-500/70 via-teal-400/20 to-transparent',
+  },
+  meta: {
+    badgeClassName: 'border-sky-500/20 bg-sky-500/10 text-sky-700',
+    surfaceClassName: 'bg-sky-500/5',
+    borderClassName: 'from-sky-500/70 via-sky-400/20 to-transparent',
+  },
+  longcat: {
+    badgeClassName: 'border-pink-500/20 bg-pink-500/10 text-pink-700',
+    surfaceClassName: 'bg-pink-500/5',
+    borderClassName: 'from-pink-500/70 via-pink-400/20 to-transparent',
+  },
+  hy: {
+    badgeClassName: 'border-lime-500/20 bg-lime-500/10 text-lime-700',
+    surfaceClassName: 'bg-lime-500/5',
+    borderClassName: 'from-lime-500/70 via-lime-400/20 to-transparent',
+  },
+  'workers-ai': {
+    badgeClassName: 'border-zinc-500/20 bg-zinc-500/10 text-zinc-700',
+    surfaceClassName: 'bg-zinc-500/5',
+    borderClassName: 'from-zinc-500/70 via-zinc-400/20 to-transparent',
   },
 };
 

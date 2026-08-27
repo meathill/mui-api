@@ -23,16 +23,16 @@
     "compareOpenrouter": "MuiRouter vs OpenRouter"
   },
   "hero": {
-    "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — เราเตอร์เดียว",
+    "badge": "OpenAI / Claude / DeepSeek / GLM / Qwen / Grok / Kimi / MiniMax — one router",
     "title": "เราเตอร์ AI API เดียวสำหรับ",
     "titleHighlight": "ทุก LLM",
-    "description": "MuiRouter คือเราเตอร์ API ที่รองรับ OpenAI คีย์เดียว route คำขอของคุณไปยัง OpenAI, Claude, Gemini, Grok และอื่นๆ ไม่ต้องใช้ VPN ไม่ต้องมีบัญชีต่างประเทศ เริ่มฟรีด้วย MiMo แล้วเติมเงินเพื่อใช้โมเดลที่เหลือ",
+    "description": "MuiRouter is an OpenAI-compatible API router: one key routes your requests to OpenAI, Claude, DeepSeek, GLM, Qwen, Kimi, Grok, MiniMax and more. No VPN, no overseas account — top up and pay at list price.",
     "descriptionLine2": "ใช้งานร่วมกับ OpenAI SDK ได้ทันที — แค่เปลี่ยน Base URL",
     "ctaPrimary": "สมัครฟรี",
     "ctaSecondary": "ดูราคา",
     "ctaLearn": "ดูวิธีการทำงานของเราเตอร์ AI",
-    "stat1Value": "6",
-    "stat1Label": "ผู้ให้บริการ AI หลัก",
+    "stat1Value": "9",
+    "stat1Label": "AI Providers",
     "stat2Value": "100%",
     "stat2Label": "รองรับ OpenAI",
     "stat3Value": "300+",
@@ -42,7 +42,7 @@
   },
   "models": {
     "title": "route ทุก LLM หลักผ่าน API เดียว",
-    "subtitle": "รองรับ OpenAI, Anthropic, Google, Moonshot AI, xAI, Workers AI และ Xiaomi MiMo — ขยายเพิ่มอย่างต่อเนื่อง",
+    "subtitle": "Supporting OpenAI, Anthropic, DeepSeek, Moonshot AI, xAI, Zhipu GLM, Qwen, MiniMax, Meta and more — continuously expanding",
     "openaiDesc": "โมเดลอเนกประสงค์ที่ทรงพลังที่สุด — โค้ด การใช้เหตุผล มัลติโมดัล",
     "anthropicDesc": "บริบทยาวพิเศษ ยอดเยี่ยมในการเขียนโค้ดและการวิเคราะห์",
     "googleDesc": "มัลติโมดัลโดยกำเนิด หน้าต่างบริบทขนาดใหญ่พิเศษ",
@@ -52,7 +52,12 @@
     "workersDesc": "โมเดลเนทีฟของ Cloudflare สำหรับต้นทุนต่ำและปริมาณงานสูง",
     "mimoDesc": "โมเดลของ Xiaomi สำหรับบริบทยาว มัลติโมดัล และการสังเคราะห์เสียง พร้อมโควตาทดลองฟรี",
     "comingSoon": "(เร็วๆ นี้)",
-    "footnote": "รองรับทั้งโหมดที่เข้ากันได้กับ OpenAI และการส่งต่อ API ดั้งเดิม — ไม่สูญเสียฟีเจอร์ใดๆ"
+    "footnote": "รองรับทั้งโหมดที่เข้ากันได้กับ OpenAI และการส่งต่อ API ดั้งเดิม — ไม่สูญเสียฟีเจอร์ใดๆ",
+    "zaiDesc": "Zhipu GLM flagship reasoning and coding models at list price",
+    "qwenDesc": "Alibaba Qwen Max/Plus and Qwen3 MoE models at list price",
+    "minimaxDesc": "MiniMax M2/M3 series for fast and cost-effective inference",
+    "metaDesc": "โมเดล Muse Spark ของ Meta น้ำหนักเบา คุ้มค่า",
+    "viewAll": "View all models →"
   },
   "advantages": {
     "title": "ทำไมนักพัฒนาถึงเลือก MuiRouter",
@@ -72,7 +77,7 @@
     "step1Title": "สร้างบัญชี",
     "step1Desc": "ลงทะเบียนด้วยอีเมล เสร็จใน 30 วินาที รับ API Key ส่วนตัวของคุณทันที",
     "step2Title": "ลองก่อน แล้วค่อยเติมเงิน",
-    "step2Desc": "ใช้โควตา MiMo ฟรีเพื่อทดลองได้ทันที แล้วค่อยเติมเงินเมื่ออยากใช้โมเดลหรือปริมาณที่มากขึ้น",
+    "step2Desc": "Start with a small top-up, then scale as you need.",
     "step3Title": "เริ่มเรียกใช้",
     "step3Desc": "เปลี่ยน Base URL — ไม่ต้องแก้ไขโค้ดอื่น"
   },
@@ -93,7 +98,7 @@
   },
   "cta": {
     "title": "หยุดลำบากกับ VPN และบัตรเครดิตต่างประเทศ",
-    "description": "สมัครเพื่อรับ API Key และเรียกใช้งานครั้งแรกด้วยโควตา MiMo ฟรี",
+    "description": "Sign up to get your API key and pay at list price.",
     "descriptionLine2": "เติมเงินเฉพาะเมื่อจำเป็นต้องใช้โมเดลหรือปริมาณมากขึ้น จ่ายตามการใช้งาน",
     "button": "สมัครฟรี"
   },
@@ -128,7 +133,14 @@
       "google-ai-studio": "ราคา token สาธารณะปัจจุบันของ Google Gemini สำหรับโมเดลข้อความและมัลติโมดัล",
       "moonshot": "ราคา token สาธารณะปัจจุบันของ Moonshot AI Kimi K3 รวมราคาเมื่อแคชพรอมต์ทำงาน",
       "xiaomi-mimo": "ราคา token สาธารณะปัจจุบันของ Xiaomi MiMo (ระดับ ≤256K)",
-      "grok": "ราคา token ปัจจุบันของโมเดลหลักและโมเดลสายโค้ดของ xAI Grok"
+      "grok": "ราคา token ปัจจุบันของโมเดลหลักและโมเดลสายโค้ดของ xAI Grok",
+      "deepseek": "Current DeepSeek V4/V3/R1 public token prices.",
+      "zai": "Current Zhipu GLM flagship and Flash public token prices.",
+      "qwen": "Current Alibaba Qwen Max/Plus/Qwen3 public token prices.",
+      "minimax": "Current MiniMax M-series public token prices.",
+      "meta": "Current Meta, LongCat and HY public token prices.",
+      "longcat": "Current LongCat public token prices.",
+      "hy": "Current HY public token prices."
     },
     "columns": {
       "model": "โมเดล",

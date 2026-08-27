@@ -1,4 +1,6 @@
+import { ArrowRight } from '@phosphor-icons/react/ssr';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/i18n/navigation';
 
 export function ModelsSection() {
   const t = useTranslations('models');
@@ -13,14 +15,8 @@ export function ModelsSection() {
     {
       name: 'Anthropic',
       color: 'bg-[#fadfd5] text-[#c44a32] border border-[var(--brand-tongue)]',
-      models: ['Claude Opus 5', 'Claude Fable 5', 'Claude Sonnet 5', 'Claude Haiku 4.5'],
+      models: ['Claude Opus 5', 'Claude Sonnet 5', 'Claude Haiku 4.5', 'Claude Opus 4.6'],
       description: t('anthropicDesc'),
-    },
-    {
-      name: 'Google',
-      color: 'bg-[var(--brand-corgi)]/30 text-[var(--brand-ink)] border border-[var(--brand-yellow-warm)]',
-      models: ['Gemini 3.1 Pro', 'Gemini 3.1 Flash Lite', 'Gemini 3 Flash', 'Gemini 2.5 Pro'],
-      description: t('googleDesc'),
     },
     {
       name: 'DeepSeek',
@@ -31,7 +27,7 @@ export function ModelsSection() {
     {
       name: 'Moonshot AI',
       color: 'bg-cyan-500/10 text-cyan-800 border border-cyan-500/30',
-      models: ['Kimi K3', 'Kimi K2.6', 'Kimi K2', 'Kimi Vision'],
+      models: ['Kimi K3', 'Kimi K2.7 Code', 'Kimi K2.6', 'Kimi K2'],
       description: t('moonshotDesc'),
     },
     {
@@ -41,16 +37,28 @@ export function ModelsSection() {
       description: t('grokDesc'),
     },
     {
-      name: 'Workers AI',
-      color: 'bg-[var(--brand-paper-deep)] text-[var(--brand-ink-soft)] border border-[var(--brand-rule-strong)]',
-      models: ['GLM-4.7 Flash', 'Qwen3-30B', 'Kimi K2.6'],
-      description: t('workersDesc'),
+      name: 'Zhipu GLM',
+      color: 'bg-violet-500/10 text-violet-800 border border-violet-500/30',
+      models: ['GLM-5.3', 'GLM-5.3 Flash', 'GLM-5.2', 'GLM-4.7 Flash'],
+      description: t('zaiDesc'),
     },
     {
-      name: 'Xiaomi MiMo',
-      color: 'bg-[var(--brand-yellow)] text-[#3a2e23] border border-[var(--brand-yellow-deep)]',
-      models: ['MiMo v2.5 Pro', 'MiMo v2.5', 'MiMo v2.5 Flash', 'MiMo TTS'],
-      description: t('mimoDesc'),
+      name: 'Qwen',
+      color: 'bg-amber-500/10 text-amber-800 border border-amber-500/30',
+      models: ['Qwen3.8 Max', 'Qwen3.7 Max', 'Qwen3.7 Plus', 'Qwen3-30B'],
+      description: t('qwenDesc'),
+    },
+    {
+      name: 'MiniMax',
+      color: 'bg-teal-500/10 text-teal-800 border border-teal-500/30',
+      models: ['MiniMax M3', 'MiniMax M2.7', 'MiniMax M2.5'],
+      description: t('minimaxDesc'),
+    },
+    {
+      name: 'Meta',
+      color: 'bg-sky-500/10 text-sky-800 border border-sky-500/30',
+      models: ['Muse Spark 1.2'],
+      description: t('metaDesc'),
     },
   ];
 
@@ -90,7 +98,16 @@ export function ModelsSection() {
           ))}
         </div>
 
-        <p className="mt-6 text-center text-sm text-muted-foreground">{t('footnote')}</p>
+        <div className="mt-8 flex flex-col items-center gap-3">
+          <Link
+            href="/models"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand-yellow-deep)] hover:text-[var(--brand-ink)] transition-colors"
+          >
+            {t('viewAll')}
+            <ArrowRight size={14} />
+          </Link>
+          <p className="text-center text-sm text-muted-foreground">{t('footnote')}</p>
+        </div>
       </div>
     </section>
   );

@@ -23,16 +23,16 @@
     "compareOpenrouter": "MuiRouter vs OpenRouter"
   },
   "hero": {
-    "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — un seul routeur",
+    "badge": "OpenAI / Claude / DeepSeek / GLM / Qwen / Grok / Kimi / MiniMax — one router",
     "title": "Un seul routeur d'API IA pour ",
     "titleHighlight": "chaque LLM",
-    "description": "MuiRouter est un routeur d'API compatible OpenAI : une seule clé route vos requêtes vers OpenAI, Claude, Gemini, Grok et plus. Sans VPN, sans compte à l'étranger — commencez gratuitement avec MiMo, rechargez pour le reste.",
+    "description": "MuiRouter is an OpenAI-compatible API router: one key routes your requests to OpenAI, Claude, DeepSeek, GLM, Qwen, Kimi, Grok, MiniMax and more. No VPN, no overseas account — top up and pay at list price.",
     "descriptionLine2": "Compatible d'emblée avec le SDK OpenAI — changez simplement le Base URL.",
     "ctaPrimary": "Inscription gratuite",
     "ctaSecondary": "Voir les tarifs",
     "ctaLearn": "Découvrez comment fonctionne le routeur IA",
-    "stat1Value": "6",
-    "stat1Label": "Fournisseurs IA majeurs",
+    "stat1Value": "9",
+    "stat1Label": "AI Providers",
     "stat2Value": "100%",
     "stat2Label": "Compatible OpenAI",
     "stat3Value": "300+",
@@ -42,7 +42,7 @@
   },
   "models": {
     "title": "Routez chaque LLM majeur via une seule API",
-    "subtitle": "Compatible OpenAI, Anthropic, Google, Moonshot AI, xAI, Workers AI et Xiaomi MiMo — en expansion continue",
+    "subtitle": "Supporting OpenAI, Anthropic, DeepSeek, Moonshot AI, xAI, Zhipu GLM, Qwen, MiniMax, Meta and more — continuously expanding",
     "openaiDesc": "Le modèle généraliste le plus puissant — code, raisonnement, multimodal",
     "anthropicDesc": "Contexte ultra-long, excellent en programmation et analyse",
     "googleDesc": "Multimodal natif, fenêtre de contexte ultra-large",
@@ -52,7 +52,12 @@
     "workersDesc": "Modèles natifs Cloudflare pour des appels peu coûteux et à haut débit",
     "mimoDesc": "Modèles Xiaomi couvrant long contexte, multimodal et synthèse vocale, avec quota d'essai gratuit",
     "comingSoon": "(bientôt disponible)",
-    "footnote": "Prend en charge le mode compatible OpenAI et le passage natif API — aucune fonctionnalité perdue"
+    "footnote": "Prend en charge le mode compatible OpenAI et le passage natif API — aucune fonctionnalité perdue",
+    "zaiDesc": "Zhipu GLM flagship reasoning and coding models at list price",
+    "qwenDesc": "Alibaba Qwen Max/Plus and Qwen3 MoE models at list price",
+    "minimaxDesc": "MiniMax M2/M3 series for fast and cost-effective inference",
+    "metaDesc": "Modèle Muse Spark de Meta, léger et économique",
+    "viewAll": "View all models →"
   },
   "advantages": {
     "title": "Pourquoi les développeurs choisissent MuiRouter",
@@ -72,7 +77,7 @@
     "step1Title": "Créer un compte",
     "step1Desc": "Inscription par email, terminée en 30 secondes. Obtenez votre API Key personnelle instantanément.",
     "step2Title": "Essayez d'abord, rechargez ensuite",
-    "step2Desc": "Utilisez le quota gratuit MiMo pour tester immédiatement, puis rechargez pour plus de modèles ou de volume.",
+    "step2Desc": "Start with a small top-up, then scale as you need.",
     "step3Title": "Commencer les appels",
     "step3Desc": "Remplacez le Base URL — aucune autre modification de code nécessaire."
   },
@@ -93,7 +98,7 @@
   },
   "cta": {
     "title": "Arrêtez de lutter avec les VPN et les cartes bancaires étrangères",
-    "description": "Inscrivez-vous pour obtenir votre API Key et lancez votre premier appel avec le quota gratuit MiMo.",
+    "description": "Sign up to get your API key and pay at list price.",
     "descriptionLine2": "Rechargez seulement quand vous avez besoin de plus de modèles ou de volume. Paiement à l'utilisation.",
     "button": "Inscription gratuite"
   },
@@ -128,7 +133,14 @@
       "google-ai-studio": "Tarifs publics actuels de Google Gemini pour les modèles texte et multimodaux.",
       "moonshot": "Tarifs publics actuels de Moonshot AI Kimi K3, y compris les entrées trouvées dans le cache.",
       "xiaomi-mimo": "Tarifs publics actuels de Xiaomi MiMo (niveau ≤256K).",
-      "grok": "Tarifs actuels par token des modèles phares et orientés code de xAI Grok."
+      "grok": "Tarifs actuels par token des modèles phares et orientés code de xAI Grok.",
+      "deepseek": "Current DeepSeek V4/V3/R1 public token prices.",
+      "zai": "Current Zhipu GLM flagship and Flash public token prices.",
+      "qwen": "Current Alibaba Qwen Max/Plus/Qwen3 public token prices.",
+      "minimax": "Current MiniMax M-series public token prices.",
+      "meta": "Current Meta, LongCat and HY public token prices.",
+      "longcat": "Current LongCat public token prices.",
+      "hy": "Current HY public token prices."
     },
     "columns": {
       "model": "Modèle",

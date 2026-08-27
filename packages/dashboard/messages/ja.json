@@ -23,16 +23,16 @@
     "compareOpenrouter": "MuiRouter vs OpenRouter"
   },
   "hero": {
-    "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo — 1つのルーター",
+    "badge": "OpenAI / Claude / DeepSeek / GLM / Qwen / Grok / Kimi / MiniMax — one router",
     "title": "1つの AI API ルーターで、",
     "titleHighlight": "すべての LLM へ",
-    "description": "MuiRouter は OpenAI 互換の API ルーター。1つのキーでリクエストを OpenAI、Claude、Gemini、Grok などへ route します。VPN 不要、海外アカウント不要 — まず無料の MiMo で始め、ほかのモデルはチャージして利用できます。",
+    "description": "MuiRouter is an OpenAI-compatible API router: one key routes your requests to OpenAI, Claude, DeepSeek, GLM, Qwen, Kimi, Grok, MiniMax and more. No VPN, no overseas account — top up and pay at list price.",
     "descriptionLine2": "OpenAI SDK にそのまま対応 — Base URL を変えるだけ。",
     "ctaPrimary": "無料で登録",
     "ctaSecondary": "料金を見る",
     "ctaLearn": "AI ルーターの仕組みを見る",
-    "stat1Value": "6",
-    "stat1Label": "主要AIプロバイダー",
+    "stat1Value": "9",
+    "stat1Label": "AI Providers",
     "stat2Value": "100%",
     "stat2Label": "OpenAI互換",
     "stat3Value": "300+",
@@ -42,7 +42,7 @@
   },
   "models": {
     "title": "主要な LLM を、1つの API で route",
-    "subtitle": "OpenAI、Anthropic、Google、Moonshot AI、xAI、Workers AI、Xiaomi MiMoに対応 — 継続的に拡大中",
+    "subtitle": "Supporting OpenAI, Anthropic, DeepSeek, Moonshot AI, xAI, Zhipu GLM, Qwen, MiniMax, Meta and more — continuously expanding",
     "openaiDesc": "最も強力な汎用モデル — コード、推論、マルチモーダル",
     "anthropicDesc": "超長コンテキスト、優れたコーディングと分析能力",
     "googleDesc": "ネイティブマルチモーダル、超大型コンテキストウィンドウ",
@@ -52,7 +52,12 @@
     "workersDesc": "低コストで高スループットなCloudflareネイティブモデル",
     "mimoDesc": "長文脈、マルチモーダル、音声合成に対応するXiaomiモデル。無料試用枠にも対応",
     "comingSoon": "（近日対応）",
-    "footnote": "OpenAI互換モードとネイティブAPIパススルーの両方に対応 — 機能の損失なし"
+    "footnote": "OpenAI互換モードとネイティブAPIパススルーの両方に対応 — 機能の損失なし",
+    "zaiDesc": "Zhipu GLM flagship reasoning and coding models at list price",
+    "qwenDesc": "Alibaba Qwen Max/Plus and Qwen3 MoE models at list price",
+    "minimaxDesc": "MiniMax M2/M3 series for fast and cost-effective inference",
+    "metaDesc": "Meta自社 Muse Spark、軽量でコスト効率",
+    "viewAll": "View all models →"
   },
   "advantages": {
     "title": "開発者が MuiRouter を選ぶ理由",
@@ -72,7 +77,7 @@
     "step1Title": "アカウント作成",
     "step1Desc": "メール登録、30秒で完了。個人用API Keyを即座に取得。",
     "step2Title": "まず試して、あとでチャージ",
-    "step2Desc": "無料のMiMo枠ですぐ試し、より多くのモデルや利用量が必要になったらチャージできます。",
+    "step2Desc": "Start with a small top-up, then scale as you need.",
     "step3Title": "呼び出し開始",
     "step3Desc": "Base URLを置き換えるだけ — 他のコード変更は不要。"
   },
@@ -93,7 +98,7 @@
   },
   "cta": {
     "title": "VPNや海外クレジットカードに悩むのはもうやめましょう",
-    "description": "登録してAPI Keyを取得し、無料のMiMo枠で最初の呼び出しを実行できます。",
+    "description": "Sign up to get your API key and pay at list price.",
     "descriptionLine2": "より多くのモデルや利用量が必要になった時だけチャージ。従量課金です。",
     "button": "無料で登録"
   },
@@ -128,7 +133,14 @@
       "google-ai-studio": "Google Gemini のテキスト・マルチモーダルモデルに対する最新の公開 token 価格です。",
       "moonshot": "プロンプトキャッシュヒットを含む Moonshot AI Kimi K3 の最新公開 token 価格です。",
       "xiaomi-mimo": "Xiaomi MiMo の最新公開 token 価格（≤256K 帯）です。",
-      "grok": "xAI Grok の最新のフラッグシップモデルとコード向けモデルの token 価格です。"
+      "grok": "xAI Grok の最新のフラッグシップモデルとコード向けモデルの token 価格です。",
+      "deepseek": "Current DeepSeek V4/V3/R1 public token prices.",
+      "zai": "Current Zhipu GLM flagship and Flash public token prices.",
+      "qwen": "Current Alibaba Qwen Max/Plus/Qwen3 public token prices.",
+      "minimax": "Current MiniMax M-series public token prices.",
+      "meta": "Current Meta, LongCat and HY public token prices.",
+      "longcat": "Current LongCat public token prices.",
+      "hy": "Current HY public token prices."
     },
     "columns": {
       "model": "モデル",

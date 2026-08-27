@@ -23,16 +23,16 @@
     "compareOpenrouter": "MuiRouter vs OpenRouter"
   },
   "hero": {
-    "badge": "OpenAI / Gemini / Claude / Grok / Workers AI / MiMo——一个路由全搞定",
+    "badge": "OpenAI / Claude / DeepSeek / GLM / Qwen / Grok / Kimi / MiniMax——一个路由全搞定",
     "title": "一个 AI API 路由，连接",
     "titleHighlight": "每一个大模型",
-    "description": "MuiRouter 是 OpenAI 兼容的 API 路由：一个 Key 即可把你的请求路由到 OpenAI、Claude、Gemini、Grok 等模型。无需翻墙，无需海外账号——用 MiMo 免费起步，充值即可解锁其余模型。",
+    "description": "MuiRouter 是 OpenAI 兼容的 API 路由：一个 Key 即可把你的请求路由到 OpenAI、Claude、DeepSeek、GLM、Qwen、Kimi、Grok、MiniMax 等模型。无需翻墙，无需海外账号——充值即用，按原厂价计费。",
     "descriptionLine2": "兼容 OpenAI SDK，换个 Base URL 就能用。",
     "ctaPrimary": "免费注册，立即开始",
     "ctaSecondary": "查看定价",
     "ctaLearn": "了解 AI 路由的工作原理",
-    "stat1Value": "6",
-    "stat1Label": "主流 AI 厂商",
+    "stat1Value": "9",
+    "stat1Label": "接入厂商",
     "stat2Value": "100%",
     "stat2Label": "OpenAI 兼容",
     "stat3Value": "300+",
@@ -42,7 +42,7 @@
   },
   "models": {
     "title": "用一个 API 路由所有主流大模型",
-    "subtitle": "支持 OpenAI、Anthropic、Google、Moonshot AI、xAI、Workers AI、Xiaomi MiMo 等模型，持续扩展中",
+    "subtitle": "支持 OpenAI、Anthropic、DeepSeek、Moonshot AI、xAI、智谱 GLM、千问、MiniMax、Meta 等模型，持续扩展中",
     "openaiDesc": "最强通用模型，代码、推理、多模态",
     "anthropicDesc": "超长上下文，编程与分析能力出众",
     "googleDesc": "多模态原生，超大上下文窗口",
@@ -52,7 +52,12 @@
     "workersDesc": "Cloudflare 原生模型，低成本高吞吐",
     "mimoDesc": "小米自研模型，覆盖长上下文、多模态与语音合成，支持免费体验额度",
     "comingSoon": "（即将支持）",
-    "footnote": "同时支持 OpenAI 兼容模式和各厂商原生 API 透传，不丢失任何功能"
+    "footnote": "同时支持 OpenAI 兼容模式和各厂商原生 API 透传，不丢失任何功能",
+    "zaiDesc": "智谱 GLM 旗舰推理与代码模型，按原厂价直通",
+    "qwenDesc": "阿里千问 Max/Plus 及 Qwen3 MoE 模型，按原厂价直通",
+    "minimaxDesc": "MiniMax M 系列，兼顾速度与性价比",
+    "metaDesc": "Meta 自研 Muse Spark 模型，轻量高性价比",
+    "viewAll": "查看全部模型 →"
   },
   "advantages": {
     "title": "开发者为什么选择 MuiRouter",
@@ -72,7 +77,7 @@
     "step1Title": "注册账号",
     "step1Desc": "邮箱注册，30 秒完成。立即获得专属 API Key。",
     "step2Title": "先试用，再充值",
-    "step2Desc": "免费 MiMo 额度可直接体验，更多模型和更高用量再按需充值。",
+    "step2Desc": "先小额充值验证调用，再按量扩展。",
     "step3Title": "开始调用",
     "step3Desc": "替换 Base URL，现有代码无需任何修改。"
   },
@@ -93,7 +98,7 @@
   },
   "cta": {
     "title": "别再折腾 VPN 和海外信用卡了",
-    "description": "注册即可获取 API Key，先用免费 MiMo 额度跑通调用。",
+    "description": "注册即可获取 API Key，按原厂价直通调用。",
     "descriptionLine2": "需要更多模型和更高用量时再充值，按量计费，用多少花多少。",
     "button": "免费注册"
   },
@@ -128,7 +133,14 @@
       "google-ai-studio": "Google Gemini 当前公开的主流文本与多模态模型 token 定价。",
       "moonshot": "Moonshot AI Kimi K3 当前公开的 token 定价，包含 Prompt 缓存命中价。",
       "xiaomi-mimo": "Xiaomi MiMo 当前公开的文本与多模态模型 token 定价（按 ≤256K 档位列示）。",
-      "grok": "xAI Grok 当前公开的旗舰与代码导向模型 token 定价。"
+      "grok": "xAI Grok 当前公开的旗舰与代码导向模型 token 定价。",
+      "deepseek": "DeepSeek 当前公开的 V4/V3/R1 系列 token 定价。",
+      "zai": "智谱 GLM 当前公开的旗舰与 Flash 系列 token 定价。",
+      "qwen": "阿里千问当前公开的 Max/Plus/Qwen3 系列 token 定价。",
+      "minimax": "MiniMax 当前公开的 M 系列 token 定价。",
+      "meta": "Meta 及 LongCat/HY 当前公开的模型 token 定价。",
+      "longcat": "LongCat 当前公开的模型 token 定价。",
+      "hy": "HY 当前公开的模型 token 定价。"
     },
     "columns": {
       "model": "模型",
