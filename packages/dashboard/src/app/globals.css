@@ -176,8 +176,8 @@
 
   /* —— ink stack: 暖米白系，不是纯白 —— */
   --brand-ink: #f3e9d5;
-  --brand-ink-soft: #d4c4a4;
-  --brand-mute: #998973;
+  --brand-ink-soft: #e0d2b8;
+  --brand-mute: #c2b8a0;
 
   /* —— rules: 低 alpha 暖白 —— */
   --brand-rule: rgb(243 233 213 / 0.1);
