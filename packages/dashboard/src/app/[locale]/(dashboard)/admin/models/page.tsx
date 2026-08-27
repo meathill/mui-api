@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
+import { toastManager } from '@/components/ui/toast';
 import { useAsyncResource } from '@/hooks/use-async-resource';
 import { api, type ModelCreateInput, type ModelInfo } from '@/lib/api';
 import { ModelFormDialog } from './model-form-dialog';
@@ -38,7 +40,7 @@ export default function ModelsPage() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<ModelFormData>(EMPTY_FORM);
-  const [formMsg, setFormMsg] = useState('');
+  const [saving, setSaving] = useState(false);
 
   // 排序
   const [sortField, setSortField] = useState<SortField | null>('id');
@@ -142,7 +144,6 @@ export default function ModelsPage() {
     );
     setMetadataOpen(model.metadataJson != null || model.contextLength != null);
     setDialogOpen(true);
-    setFormMsg('');
   }
 
   function handleAdd() {
@@ -151,12 +152,10 @@ export default function ModelsPage() {
     setAdvancedOpen(false);
     setMetadataOpen(false);
     setDialogOpen(true);
-    setFormMsg('');
   }
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setFormMsg('');
     const payload: ModelCreateInput = {
       id: form.id,
       provider: form.provider,
@@ -176,22 +175,22 @@ export default function ModelsPage() {
       longContextCacheWritePrice: parseOptionalNumber(form.longContextCacheWritePrice),
       longContextOutputPrice: parseOptionalNumber(form.longContextOutputPrice),
     };
+    setSaving(true);
     try {
       if (editingId) {
         const { id: _id, ...updateData } = payload;
         await api.updateModel(editingId, updateData);
-        setFormMsg(te('updateSuccess'));
+        toastManager.add({ title: te('updateSuccess'), type: 'success' });
       } else {
         await api.createModel(payload);
-        setFormMsg(te('createSuccess'));
+        toastManager.add({ title: te('createSuccess'), type: 'success' });
       }
       loadModels();
-      setTimeout(() => {
-        setDialogOpen(false);
-        setFormMsg('');
-      }, 800);
+      setDialogOpen(false);
     } catch (err) {
-      setFormMsg(err instanceof Error ? err.message : te('operationFailed'));
+      toastManager.add({ title: err instanceof Error ? err.message : te('operationFailed'), type: 'error' });
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -245,8 +244,8 @@ export default function ModelsPage() {
         onToggleAdvanced={() => setAdvancedOpen((v) => !v)}
         metadataOpen={metadataOpen}
         onToggleMetadata={() => setMetadataOpen((v) => !v)}
-        formMsg={formMsg}
         onSubmit={handleSubmit}
+        pending={saving}
       />
 
       {/* 删除确认弹窗 */}

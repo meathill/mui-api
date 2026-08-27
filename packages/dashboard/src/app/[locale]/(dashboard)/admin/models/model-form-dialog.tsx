@@ -4,6 +4,7 @@ import { CaretDown, CaretRight } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import type { FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 import {
   Dialog,
   DialogBackdrop,
@@ -18,7 +19,22 @@ import { Input } from '@/components/ui/input';
 import type { ModelFormData } from './model-form-types';
 import { ModelMetadataFields } from './model-metadata-fields';
 
-const PROVIDERS = ['openai', 'anthropic', 'google-ai-studio', 'moonshot', 'workers-ai', 'xiaomi-mimo', 'grok'];
+const PROVIDERS = [
+  'openai',
+  'anthropic',
+  'google-ai-studio',
+  'moonshot',
+  'workers-ai',
+  'xiaomi-mimo',
+  'grok',
+  'deepseek',
+  'zai',
+  'qwen',
+  'minimax',
+  'meta',
+  'longcat',
+  'hy',
+];
 
 export function ModelFormDialog({
   open,
@@ -30,8 +46,8 @@ export function ModelFormDialog({
   onToggleAdvanced,
   metadataOpen,
   onToggleMetadata,
-  formMsg,
   onSubmit,
+  pending = false,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -42,8 +58,8 @@ export function ModelFormDialog({
   onToggleAdvanced: () => void;
   metadataOpen: boolean;
   onToggleMetadata: () => void;
-  formMsg: string;
   onSubmit: (e: FormEvent) => void;
+  pending?: boolean;
 }) {
   const t = useTranslations('adminModels');
 
@@ -219,15 +235,15 @@ export function ModelFormDialog({
           />
         </form>
         <DialogFooter variant="bare">
-          {formMsg && <span className="text-sm text-muted-foreground mr-auto">{formMsg}</span>}
           <DialogClose
             render={
-              <Button type="button" variant="outline">
+              <Button type="button" variant="outline" disabled={pending}>
                 {t('cancel')}
               </Button>
             }
           />
-          <Button type="submit" form="model-form">
+          <Button type="submit" form="model-form" disabled={pending}>
+            {pending && <Spinner className="mr-2 size-4" />}
             {editingId ? t('update') : t('create')}
           </Button>
         </DialogFooter>

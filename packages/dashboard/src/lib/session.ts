@@ -1,5 +1,6 @@
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { headers } from 'next/headers';
+import { cache } from 'react';
 import { getAuth } from './auth';
 
 interface SessionUser {
@@ -14,9 +15,9 @@ interface SessionResult {
 }
 
 /**
- * 在服务端获取当前用户会话
+ * 在服务端获取当前用户会话（同请求内去重，避免 layout 嵌套重复查 D1）
  */
-export async function getSession(): Promise<SessionResult> {
+export const getSession = cache(async (): Promise<SessionResult> => {
   try {
     const auth = await getAuth();
     const headerStore = await headers();
@@ -46,4 +47,4 @@ export async function getSession(): Promise<SessionResult> {
     console.error('[getSession] 获取会话失败:', error);
     return { user: null, isAdmin: false };
   }
-}
+});

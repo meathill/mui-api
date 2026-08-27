@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { TableSkeleton } from '@/components/admin/admin-skeletons';
 import { RechargeLogTable } from '@/components/admin/recharge-log-table';
 import { Button } from '@/components/ui/button';
 import { useAsyncResource } from '@/hooks/use-async-resource';
@@ -54,7 +55,7 @@ export function UserRechargeSection({ userId }: UserRechargeSectionProps) {
       </div>
       {error && <p className="text-destructive mb-3">{error}</p>}
       {loading ? (
-        <p className="text-muted-foreground">{tc('loading')}</p>
+        <TableSkeleton rows={4} cols={4} />
       ) : (
         <>
           <RechargeLogTable logs={logs} userMap={userMap} showUserColumn={false} />

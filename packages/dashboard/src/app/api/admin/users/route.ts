@@ -1,4 +1,4 @@
-import { desc, sql } from 'drizzle-orm';
+import { desc, like, sql } from 'drizzle-orm';
 import { connection, type NextRequest, NextResponse } from 'next/server';
 import { user as userTable } from '@/db/schema';
 import { requireAdmin } from '@/lib/admin';
@@ -17,14 +17,18 @@ export async function GET(request: NextRequest) {
     if ('error' in result) return result.error;
 
     const searchParams = new URL(request.url).searchParams;
-    const page = Number(searchParams.get('page') || '1');
-    const pageSize = Number(searchParams.get('pageSize') || '50');
+    const page = Math.max(1, Number(searchParams.get('page') || '1'));
+    const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize') || '20')));
+    const q = searchParams.get('q')?.trim() || searchParams.get('search')?.trim() || '';
+    // 兼容旧 cursor 参数（已废弃）
     const offset = (page - 1) * pageSize;
 
     const db = await getDb();
 
-    // 从 D1 user 表分页查询所有已注册用户
-    const countResult = await db.select({ count: sql<number>`count(*)` }).from(userTable).get();
+    // 邮箱服务端筛选（大小写不敏感）
+    const whereClause = q ? like(sql`lower(${userTable.email})`, `%${q.toLowerCase()}%`) : undefined;
+
+    const countResult = await db.select({ count: sql<number>`count(*)` }).from(userTable).where(whereClause).get();
     const total = countResult?.count ?? 0;
 
     const dbUsers = await db
@@ -35,6 +39,7 @@ export async function GET(request: NextRequest) {
         createdAt: userTable.createdAt,
       })
       .from(userTable)
+      .where(whereClause)
       .orderBy(desc(userTable.createdAt))
       .limit(pageSize)
       .offset(offset);

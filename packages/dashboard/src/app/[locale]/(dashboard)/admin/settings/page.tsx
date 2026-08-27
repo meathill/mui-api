@@ -20,7 +20,9 @@ import { Card } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
+import { Spinner } from '@/components/ui/spinner';
 import { Switch } from '@/components/ui/switch';
+import { toastManager } from '@/components/ui/toast';
 import { api, type GlobalConfig, type ModelInfo, type SpendingStats } from '@/lib/api';
 
 const DEFAULT_FREE_QUOTA = {
@@ -42,7 +44,7 @@ export default function SettingsPage() {
   const te = useTranslations('errors');
   const tc = useTranslations('common');
 
-  const [msg, setMsg] = useState('');
+  const [saving, setSaving] = useState(false);
 
   const [dailyCap, setDailyCap] = useState('');
   const [monthlyCap, setMonthlyCap] = useState('');
@@ -86,7 +88,7 @@ export default function SettingsPage() {
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
-    setMsg('');
+    setSaving(true);
     try {
       await api.setGlobalConfig({
         dailySpendingCap: Number(dailyCap) || 0,
@@ -98,10 +100,12 @@ export default function SettingsPage() {
           modelIds: freeQuotaModelIds,
         },
       } as GlobalConfig);
-      setMsg(te('saveSuccess'));
+      toastManager.add({ title: te('saveSuccess'), type: 'success' });
       loadData();
     } catch (err) {
-      setMsg(err instanceof Error ? err.message : te('saveFailed'));
+      toastManager.add({ title: err instanceof Error ? err.message : te('saveFailed'), type: 'error' });
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -326,8 +330,10 @@ export default function SettingsPage() {
             />
           </div>
           <div className="flex items-center gap-3">
-            <Button type="submit">{t('save')}</Button>
-            {msg && <span className="text-sm text-muted-foreground">{msg}</span>}
+            <Button type="submit" disabled={saving}>
+              {saving && <Spinner className="mr-2 size-4" />}
+              {t('save')}
+            </Button>
           </div>
         </form>
       </Card>

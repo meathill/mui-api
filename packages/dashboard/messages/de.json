@@ -391,7 +391,8 @@
     "imageAspectRatio": "Seitenverhältnis",
     "imageAspectRatioAuto": "Automatisch",
     "imageResolution": "Auflösung",
-    "grokMaxImagesError": "Grok-Bildbearbeitung unterstützt bis zu {count} Referenzbilder."
+    "grokMaxImagesError": "Grok-Bildbearbeitung unterstützt bis zu {count} Referenzbilder.",
+    "recentModels": "Zuletzt verwendet"
   },
   "adminModels": {
     "title": "Modellverwaltung",

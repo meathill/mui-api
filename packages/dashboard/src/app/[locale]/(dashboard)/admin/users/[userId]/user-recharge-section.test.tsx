@@ -32,9 +32,9 @@ describe('UserRechargeSection', () => {
     getRechargeLogsMock.mockReturnValue(new Promise(() => {}));
     getUsersMock.mockReturnValue(new Promise(() => {}));
 
-    renderWithIntl(<UserRechargeSection userId="user-1" />);
+    const { container } = renderWithIntl(<UserRechargeSection userId="user-1" />);
 
-    expect(screen.getByText('加载中...')).toBeInTheDocument();
+    expect(container.querySelector('[data-slot="skeleton"]')).toBeInTheDocument();
   });
 
   it('加载完成后渲染充值记录', async () => {
@@ -56,7 +56,7 @@ describe('UserRechargeSection', () => {
 
     renderWithIntl(<UserRechargeSection userId="user-1" />);
 
-    await waitFor(() => expect(screen.queryByText('加载中...')).not.toBeInTheDocument());
+    await waitFor(() => expect(document.querySelector('[data-slot="skeleton"]')).not.toBeInTheDocument());
     expect(screen.getByText('手动充值')).toBeInTheDocument();
   });
 
@@ -76,9 +76,9 @@ describe('UserRechargeSection', () => {
     });
     getUsersMock.mockResolvedValue({ users: [], cursor: null });
 
-    renderWithIntl(<UserRechargeSection userId="user-1" />);
+    const { container } = renderWithIntl(<UserRechargeSection userId="user-1" />);
 
-    await waitFor(() => expect(screen.queryByText('加载中...')).not.toBeInTheDocument());
+    await waitFor(() => expect(container.querySelector('[data-slot="skeleton"]')).not.toBeInTheDocument());
     expect(screen.queryByText('上一页')).not.toBeInTheDocument();
   });
 
@@ -89,9 +89,9 @@ describe('UserRechargeSection', () => {
     });
     getUsersMock.mockResolvedValue({ users: [], cursor: null });
 
-    renderWithIntl(<UserRechargeSection userId="user-1" />);
+    const { container } = renderWithIntl(<UserRechargeSection userId="user-1" />);
 
-    await waitFor(() => expect(screen.queryByText('加载中...')).not.toBeInTheDocument());
+    await waitFor(() => expect(container.querySelector('[data-slot="skeleton"]')).not.toBeInTheDocument());
     expect(screen.getByText('上一页')).toBeDisabled();
     expect(screen.getByText('下一页')).not.toBeDisabled();
   });
@@ -106,8 +106,8 @@ describe('UserRechargeSection', () => {
     getUsersMock.mockResolvedValue({ users: [], cursor: null });
 
     const user = userEvent.setup();
-    renderWithIntl(<UserRechargeSection userId="user-1" />);
-    await waitFor(() => expect(screen.queryByText('加载中...')).not.toBeInTheDocument());
+    const { container } = renderWithIntl(<UserRechargeSection userId="user-1" />);
+    await waitFor(() => expect(container.querySelector('[data-slot="skeleton"]')).not.toBeInTheDocument());
 
     await user.click(screen.getByText('下一页'));
     await user.click(screen.getByText('下一页'));

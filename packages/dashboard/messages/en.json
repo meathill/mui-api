@@ -391,7 +391,8 @@
     "imageAspectRatio": "Aspect ratio",
     "imageAspectRatioAuto": "Auto",
     "imageResolution": "Resolution",
-    "grokMaxImagesError": "Grok image editing supports up to {count} reference images."
+    "grokMaxImagesError": "Grok image editing supports up to {count} reference images.",
+    "recentModels": "Recent"
   },
   "adminModels": {
     "title": "Model Management",

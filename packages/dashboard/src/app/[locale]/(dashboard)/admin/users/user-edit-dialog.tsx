@@ -14,6 +14,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Spinner } from '@/components/ui/spinner';
 import type { UserInfo } from '@/lib/api';
 
 export interface EditFormData {
@@ -27,16 +28,16 @@ export function UserEditDialog({
   editingUser,
   editForm,
   onChangeField,
-  editMsg,
   onSubmit,
+  pending = false,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   editingUser: UserInfo | null;
   editForm: EditFormData;
   onChangeField: (field: keyof EditFormData, value: string) => void;
-  editMsg: string;
   onSubmit: (e: FormEvent) => void;
+  pending?: boolean;
 }) {
   const t = useTranslations('adminUsers');
 
@@ -74,9 +75,15 @@ export function UserEditDialog({
           </div>
         </form>
         <DialogFooter variant="bare">
-          {editMsg && <span className="text-sm text-muted-foreground mr-auto">{editMsg}</span>}
-          <DialogClose render={<Button variant="outline">{t('cancel')}</Button>} />
-          <Button type="submit" form="user-edit-form">
+          <DialogClose
+            render={
+              <Button variant="outline" disabled={pending}>
+                {t('cancel')}
+              </Button>
+            }
+          />
+          <Button type="submit" form="user-edit-form" disabled={pending}>
+            {pending && <Spinner className="mr-2 size-4" />}
             {t('update')}
           </Button>
         </DialogFooter>

@@ -77,32 +77,73 @@ export default function PlaygroundPage() {
 
   useEffect(() => {
     async function loadModels() {
+      let fetched: ModelInfo[] | null = null;
+      // 优先公开端点，非 admin 也可用；失败回退 admin，再回退空
       try {
-        const modelsRes = await adminApi.getModels();
-        setAvailableModels(appendBuiltInPlaygroundModels(modelsRes.models));
-      } catch {
-        setAvailableModels(appendBuiltInPlaygroundModels([]));
+        const res = await fetch('/api/models');
+        if (res.ok) {
+          const data = (await res.json()) as { models: ModelInfo[] };
+          fetched = data.models ?? [];
+        }
+      } catch {}
+      if (fetched === null) {
+        try {
+          const modelsRes = await adminApi.getModels();
+          fetched = modelsRes.models;
+        } catch {}
       }
+      setAvailableModels(appendBuiltInPlaygroundModels(fetched ?? []));
     }
     loadModels();
   }, []);
 
+  function pickWithRecent(candidates: ModelInfo[], recentIds: string[] | undefined, fallback: ModelInfo | undefined) {
+    if (recentIds && recentIds.length > 0) {
+      for (const id of recentIds) {
+        const hit = candidates.find((m) => m.id === id);
+        if (hit) return hit;
+      }
+    }
+    return fallback;
+  }
+
   function setAvailableModels(availableModels: ModelInfo[]) {
     setModels(availableModels);
-    const imageDefault =
-      availableModels.find((model) => model.id === 'gpt-image-2') ?? availableModels.find(isImageModel);
-    const chatDefault = availableModels.find(
-      (model) => !isImageModel(model) && !isVideoModel(model) && !isTtsModel(model),
-    );
-    const ttsDefault =
-      availableModels.find((model) => model.id === 'mimo-v2.5-tts') ?? availableModels.find(isTtsModel);
-    const videoDefault =
-      availableModels.find((model) => model.id === 'grok-imagine-video') ?? availableModels.find(isVideoModel);
+    const chatCandidates = availableModels.filter((m) => !isImageModel(m) && !isVideoModel(m) && !isTtsModel(m));
+    const imageCandidates = availableModels.filter(isImageModel);
+    const ttsCandidates = availableModels.filter(isTtsModel);
+    const videoCandidates = availableModels.filter(isVideoModel);
 
-    if (chatDefault) chat.selectModel(chatDefault.id);
-    if (imageDefault) image.setImageModel(imageDefault.id);
-    if (ttsDefault) tts.setInitialModel(ttsDefault.id);
-    if (videoDefault) video.setInitialModel(videoDefault.id);
+    const recentChat = storage.recentModels['chat'];
+    const recentImage = storage.recentModels['image'];
+    const recentTts = storage.recentModels['tts'];
+    const recentVideo = storage.recentModels['video'];
+
+    const imageDefault = pickWithRecent(
+      imageCandidates,
+      recentImage,
+      availableModels.find((model) => model.id === 'gpt-image-2') ?? availableModels.find(isImageModel),
+    );
+    const chatDefault = pickWithRecent(
+      chatCandidates,
+      recentChat,
+      availableModels.find((model) => !isImageModel(model) && !isVideoModel(model) && !isTtsModel(model)),
+    );
+    const ttsDefault = pickWithRecent(
+      ttsCandidates,
+      recentTts,
+      availableModels.find((model) => model.id === 'mimo-v2.5-tts') ?? availableModels.find(isTtsModel),
+    );
+    const videoDefault = pickWithRecent(
+      videoCandidates,
+      recentVideo,
+      availableModels.find((model) => model.id === 'grok-imagine-video') ?? availableModels.find(isVideoModel),
+    );
+
+    if (chatDefault && !chat.chatModel) chat.selectModel(chatDefault.id);
+    if (imageDefault && !image.imageModel) image.setImageModel(imageDefault.id);
+    if (ttsDefault && !tts.ttsModel) tts.setInitialModel(ttsDefault.id);
+    if (videoDefault && !video.model) video.setInitialModel(videoDefault.id);
   }
 
   function handleModeChange(value: string) {
@@ -118,6 +159,7 @@ export default function PlaygroundPage() {
     if (mode === 'image') image.setImageModel(value);
     if (mode === 'video') video.selectModel(value);
     if (mode === 'tts') tts.setTtsModel(value);
+    storage.pushRecentModel(mode, value);
   }
 
   function handleRunClick() {
@@ -187,11 +229,14 @@ export default function PlaygroundPage() {
     if (item.mode === 'video') video.restore(item, storage.apiKey.trim());
   }
 
+  const recentIds = storage.recentModels[mode] ?? [];
+
   return (
     <PlaygroundView
       mode={mode}
       visibleModels={visibleModels}
       selectedModel={selectedModel}
+      recentIds={recentIds}
       apiKey={storage.apiKey}
       prompt={prompt}
       ttsModel={tts.ttsModel}

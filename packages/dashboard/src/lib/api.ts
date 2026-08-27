@@ -32,8 +32,20 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 // ==================== 管理员 API ====================
 
 export const adminApi = {
-  getUsers: (cursor?: string) =>
-    request<{ users: UserInfo[]; cursor: string | null }>(`/api/admin/users${cursor ? `?cursor=${cursor}` : ''}`),
+  getUsers: (params?: { page?: number; pageSize?: number; q?: string; cursor?: string }) => {
+    if (params?.cursor && !params?.q && !params?.page) {
+      return request<{ users: UserInfo[]; cursor: string | null; pagination?: Pagination }>(
+        `/api/admin/users?cursor=${encodeURIComponent(params.cursor)}`,
+      );
+    }
+    const qs = buildQuery({
+      page: params?.page,
+      pageSize: params?.pageSize,
+      q: params?.q,
+    });
+    const suffix = qs ? `?${qs}` : '';
+    return request<{ users: UserInfo[]; cursor: string | null; pagination?: Pagination }>(`/api/admin/users${suffix}`);
+  },
 
   getUser: (params: { email?: string; userId?: string }) =>
     request<{ user: UserInfo }>(`/api/admin/user?${buildQuery(params)}`),

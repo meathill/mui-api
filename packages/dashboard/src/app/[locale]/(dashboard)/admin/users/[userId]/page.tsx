@@ -3,6 +3,7 @@
 import { useParams } from 'next/navigation';
 import { useTranslations } from 'next-intl';
 import { useCallback } from 'react';
+import { UserDetailSkeleton } from '@/components/admin/admin-skeletons';
 import { PageHeader } from '@/components/page-header';
 import { useAsyncResource } from '@/hooks/use-async-resource';
 import { Link } from '@/i18n/navigation';
@@ -31,7 +32,7 @@ export default function UserDetailPage() {
 
       {error && <p className="text-destructive mb-4">{error}</p>}
       {loading ? (
-        <p className="text-muted-foreground">{tc('loading')}</p>
+        <UserDetailSkeleton />
       ) : user ? (
         <>
           <UserProfileCard user={user} />

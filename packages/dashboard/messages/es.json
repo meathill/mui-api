@@ -391,7 +391,8 @@
     "imageAspectRatio": "Relación de aspecto",
     "imageAspectRatioAuto": "Automática",
     "imageResolution": "Resolución",
-    "grokMaxImagesError": "La edición de Grok admite hasta {count} imágenes de referencia."
+    "grokMaxImagesError": "La edición de Grok admite hasta {count} imágenes de referencia.",
+    "recentModels": "Recientes"
   },
   "adminModels": {
     "title": "Gestión de modelos",

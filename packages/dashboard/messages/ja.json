@@ -391,7 +391,8 @@
     "imageAspectRatio": "アスペクト比",
     "imageAspectRatioAuto": "自動",
     "imageResolution": "解像度",
-    "grokMaxImagesError": "Grok の画像編集で使用できる参照画像は最大 {count} 枚です。"
+    "grokMaxImagesError": "Grok の画像編集で使用できる参照画像は最大 {count} 枚です。",
+    "recentModels": "最近使用"
   },
   "adminModels": {
     "title": "モデル管理",

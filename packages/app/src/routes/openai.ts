@@ -11,11 +11,17 @@ import {
   callDeepSeek,
   callGemini,
   callGrokEndpoint,
+  callHy,
+  callLongcat,
+  callMeta,
+  callMinimax,
   callMoonshot,
   callOpenAI,
   callOpenAIEndpoint,
   callOpenCodeGo,
+  callQwen,
   callXiaomiMiMo,
+  callZai,
 } from '../services/provider-dispatch';
 import { createProxyServices } from '../services/service-factory';
 import type { CloudflareBindings } from '../types';
@@ -80,6 +86,18 @@ openai.post('/chat/completions', async (c) => {
       upstream = await callDeepSeek(c.env, upstreamBody);
     } else if (provider === 'opencode-go') {
       upstream = await callOpenCodeGo(c.env, upstreamBody);
+    } else if (provider === 'zai') {
+      upstream = await callZai(c.env, upstreamBody);
+    } else if (provider === 'qwen') {
+      upstream = await callQwen(c.env, upstreamBody);
+    } else if (provider === 'minimax') {
+      upstream = await callMinimax(c.env, upstreamBody);
+    } else if (provider === 'meta') {
+      upstream = await callMeta(c.env, upstreamBody);
+    } else if (provider === 'longcat') {
+      upstream = await callLongcat(c.env, upstreamBody);
+    } else if (provider === 'hy') {
+      upstream = await callHy(c.env, upstreamBody);
     } else if (provider === 'google-ai-studio') {
       const unsupported = findUnsupportedChatFeature(body);
       if (unsupported) {

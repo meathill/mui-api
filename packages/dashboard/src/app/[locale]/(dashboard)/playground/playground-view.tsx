@@ -36,6 +36,7 @@ type PlaygroundViewProps = {
   mode: PlaygroundMode;
   visibleModels: ModelInfo[];
   selectedModel: string;
+  recentIds?: string[];
   apiKey: string;
   prompt: string;
   ttsModel: string;
@@ -125,6 +126,7 @@ export function PlaygroundView(props: PlaygroundViewProps) {
                   models={props.visibleModels}
                   value={props.selectedModel}
                   onValueChange={props.onModelChange}
+                  recentIds={props.recentIds}
                 />
               </Field>
 

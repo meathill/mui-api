@@ -41,5 +41,11 @@
         "organizeImports": "on"
       }
     }
-  }
+  },
+  "overrides": [
+    {
+      "includes": ["**/worker-configuration.d.ts"],
+      "formatter": { "enabled": false }
+    }
+  ]
 }

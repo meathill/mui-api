@@ -28,6 +28,7 @@ type ModelPickerProps = {
   value: string;
   onValueChange: (value: string) => void;
   className?: string;
+  recentIds?: string[];
 };
 
 export function ModelPicker(props: ModelPickerProps) {
@@ -43,7 +44,10 @@ export function ModelPicker(props: ModelPickerProps) {
     return map;
   }, [props.models]);
 
-  const groups = React.useMemo(() => groupModelsByProvider(props.models), [props.models]);
+  const groups = React.useMemo(
+    () => groupModelsByProvider(props.models, props.recentIds),
+    [props.models, props.recentIds],
+  );
 
   // 搜索匹配 id + provider（含显示名）+ 标签文案，而非仅 id。
   const toSearchText = React.useCallback(
@@ -120,7 +124,11 @@ export function ModelPicker(props: ModelPickerProps) {
         <ComboboxList>
           {(group: ModelGroup) => (
             <ComboboxGroup key={group.provider} items={group.items}>
-              <ComboboxGroupLabel>{PROVIDER_LABELS[group.provider] ?? group.provider}</ComboboxGroupLabel>
+              <ComboboxGroupLabel>
+                {group.provider === '__recent__'
+                  ? t('recentModels')
+                  : (PROVIDER_LABELS[group.provider] ?? group.provider)}
+              </ComboboxGroupLabel>
               <ComboboxCollection>
                 {(id: string) => <ModelOption key={id} model={modelById.get(id)} />}
               </ComboboxCollection>

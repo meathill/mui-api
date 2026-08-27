@@ -3,6 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
+import { CardSkeleton, TableSkeleton } from '@/components/admin/admin-skeletons';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -102,7 +103,15 @@ export function UserDailyStatsSection({ userId }: UserDailyStatsSectionProps) {
 
       {error && <p className="text-destructive mb-4">{error}</p>}
       {loading ? (
-        <p className="text-muted-foreground">{tc('loading')}</p>
+        <div className="space-y-3">
+          <div className="grid grid-cols-4 gap-3">
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton />
+          </div>
+          <TableSkeleton rows={6} cols={5} />
+        </div>
       ) : data ? (
         <>
           <div className="grid grid-cols-4 gap-3 mb-4">

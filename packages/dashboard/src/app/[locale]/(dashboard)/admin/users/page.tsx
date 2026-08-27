@@ -4,7 +4,10 @@ import { formatBalance } from '@muirouter/shared-db/money';
 import { MagnifyingGlass } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { TableSkeleton } from '@/components/admin/admin-skeletons';
 import { PageHeader } from '@/components/page-header';
+import { Spinner } from '@/components/ui/spinner';
+import { toastManager } from '@/components/ui/toast';
 import {
   AlertDialog,
   AlertDialogClose,
@@ -19,11 +22,14 @@ import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { useAsyncResource } from '@/hooks/use-async-resource';
 import { Link } from '@/i18n/navigation';
-import { api, type UserInfo } from '@/lib/api';
+import { api, type Pagination, type UserInfo } from '@/lib/api';
 import { type EditFormData, UserEditDialog } from './user-edit-dialog';
 import { type SortDirection, type SortField, UserTable } from './user-table';
 
 const PAGE_SIZE = 20;
+const EMPTY_PAGINATION: Pagination = { page: 1, pageSize: PAGE_SIZE, total: 0, totalPages: 1 };
+
+type UsersResponse = { users: UserInfo[]; pagination?: Pagination; cursor?: string | null };
 
 export default function UsersPage() {
   const t = useTranslations('adminUsers');
@@ -34,41 +40,59 @@ export default function UsersPage() {
   const [rechargeEmail, setRechargeEmail] = useState('');
   const [rechargeAmount, setRechargeAmount] = useState('');
   const [rechargeNote, setRechargeNote] = useState('');
-  const [rechargeMsg, setRechargeMsg] = useState('');
+  const [recharging, setRecharging] = useState(false);
 
-  // 排序
+  // 搜索（输入值与防抖后实际请求值分离）
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // 分页（服务端）
+  const [page, setPage] = useState(1);
+
+  // 排序（当前页内客户端排序，仅作展示；服务端按 createdAt 倒序）
   const [sortField, setSortField] = useState<SortField | null>('createdAt');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
-
-  // 搜索
-  const [search, setSearch] = useState('');
-
-  // 分页
-  const [page, setPage] = useState(1);
 
   // 编辑弹窗
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<UserInfo | null>(null);
   const [editForm, setEditForm] = useState<EditFormData>({ maxConcurrency: '3', rateMultiplier: '1' });
-  const [editMsg, setEditMsg] = useState('');
+  const [saving, setSaving] = useState(false);
 
   // 错误弹窗
   const [errorDialogOpen, setErrorDialogOpen] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
-  const fetchUsers = useCallback(async () => (await api.getUsers()).users, []);
-  const { data: users, loading, error, reload: loadUsers } = useAsyncResource<UserInfo[]>(fetchUsers, []);
+  // 防抖：输入 300ms 后才触发服务端搜索
+  useEffect(() => {
+    const timer = setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    return () => clearTimeout(timer);
+  }, [search]);
 
-  // 数据处理流水线：搜索 → 排序 → 分页
-  const filteredUsers = useMemo(() => {
-    if (!search.trim()) return users;
-    const keyword = search.toLowerCase();
-    return users.filter((u) => u.email.toLowerCase().includes(keyword));
-  }, [users, search]);
+  // 搜索变化回到第 1 页
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
+  const fetchUsers = useCallback(async (): Promise<UsersResponse> => {
+    const res = await api.getUsers({ page, pageSize: PAGE_SIZE, q: debouncedSearch || undefined });
+    return res as UsersResponse;
+  }, [page, debouncedSearch]);
+
+  const {
+    data: response,
+    loading,
+    error,
+    reload: loadUsers,
+  } = useAsyncResource<UsersResponse>(fetchUsers, { users: [], pagination: EMPTY_PAGINATION });
+
+  const users = response.users ?? [];
+  const pagination = response.pagination ?? EMPTY_PAGINATION;
+
+  // 当前页内排序（服务端已按 createdAt 倒序，此处仅对当前页做二次排，避免跨页错乱，不建议对 balance 大范围排序）
   const sortedUsers = useMemo(() => {
-    if (!sortField) return filteredUsers;
-    return [...filteredUsers].sort((a, b) => {
+    if (!sortField) return users;
+    return [...users].sort((a, b) => {
       let cmp = 0;
       switch (sortField) {
         case 'email':
@@ -86,16 +110,7 @@ export default function UsersPage() {
       }
       return sortDirection === 'desc' ? -cmp : cmp;
     });
-  }, [filteredUsers, sortField, sortDirection]);
-
-  const totalPages = Math.max(1, Math.ceil(sortedUsers.length / PAGE_SIZE));
-  const safePage = Math.min(page, totalPages);
-  const pagedUsers = sortedUsers.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
-
-  // 搜索变化时回到第 1 页
-  useEffect(() => {
-    setPage(1);
-  }, [search]);
+  }, [users, sortField, sortDirection]);
 
   function handleSort(field: SortField) {
     if (sortField === field) {
@@ -112,16 +127,18 @@ export default function UsersPage() {
 
   async function handleRecharge(e: React.FormEvent) {
     e.preventDefault();
-    setRechargeMsg('');
+    setRecharging(true);
     try {
       const result = await api.recharge(rechargeEmail, Number(rechargeAmount), rechargeNote || undefined);
-      setRechargeMsg(te('rechargeSuccess', { balance: formatBalance(result.balance) }));
+      toastManager.add({ title: te('rechargeSuccess', { balance: formatBalance(result.balance) }), type: 'success' });
       setRechargeEmail('');
       setRechargeAmount('');
       setRechargeNote('');
       loadUsers();
     } catch (err) {
-      setRechargeMsg(err instanceof Error ? err.message : te('rechargeFailed'));
+      toastManager.add({ title: err instanceof Error ? err.message : te('rechargeFailed'), type: 'error' });
+    } finally {
+      setRecharging(false);
     }
   }
 
@@ -131,31 +148,28 @@ export default function UsersPage() {
       maxConcurrency: String(user.maxConcurrency),
       rateMultiplier: String(user.rateMultiplier),
     });
-    setEditMsg('');
     setEditDialogOpen(true);
   }
 
   async function handleEditSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!editingUser) return;
-    setEditMsg('');
 
     const maxConcurrency = Number(editForm.maxConcurrency);
     const rateMultiplier = Number(editForm.rateMultiplier);
-
+    setSaving(true);
     try {
       await Promise.all([
         api.setConcurrency(editingUser.userId, maxConcurrency),
         api.setRateMultiplier(editingUser.userId, rateMultiplier),
       ]);
-      setEditMsg(te('updateSuccess'));
+      toastManager.add({ title: te('updateSuccess'), type: 'success' });
       loadUsers();
-      setTimeout(() => {
-        setEditDialogOpen(false);
-        setEditMsg('');
-      }, 800);
+      setEditDialogOpen(false);
     } catch (err) {
-      setEditMsg(err instanceof Error ? err.message : te('operationFailed'));
+      toastManager.add({ title: err instanceof Error ? err.message : te('operationFailed'), type: 'error' });
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -193,8 +207,8 @@ export default function UsersPage() {
         editingUser={editingUser}
         editForm={editForm}
         onChangeField={(field, value) => setEditForm((prev) => ({ ...prev, [field]: value }))}
-        editMsg={editMsg}
         onSubmit={handleEditSubmit}
+        pending={saving}
       />
 
       {/* 充值 */}
@@ -227,8 +241,10 @@ export default function UsersPage() {
               className="w-40"
             />
           </div>
-          <Button type="submit">{t('recharge')}</Button>
-          {rechargeMsg && <span className="text-sm text-muted-foreground">{rechargeMsg}</span>}
+          <Button type="submit" disabled={recharging}>
+            {recharging && <Spinner className="mr-2 size-4" />}
+            {t('recharge')}
+          </Button>
         </form>
       </Card>
 
@@ -239,7 +255,7 @@ export default function UsersPage() {
         </Link>
       </div>
 
-      {/* 搜索栏 */}
+      {/* 搜索栏：服务端 email 搜索 */}
       <div className="relative mb-4 max-w-sm">
         <MagnifyingGlass className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
@@ -252,40 +268,38 @@ export default function UsersPage() {
 
       {error && <p className="text-destructive mb-4">{error}</p>}
       {loading ? (
-        <p className="text-muted-foreground">{tc('loading')}</p>
+        <TableSkeleton rows={8} cols={7} />
       ) : (
         <>
           <UserTable
-            users={pagedUsers}
+            users={sortedUsers}
             sortField={sortField}
             sortDirection={sortDirection}
             onSort={handleSort}
             onEdit={handleEdit}
             onUnsuspend={handleUnsuspend}
-            hasSearch={!!search}
+            hasSearch={!!debouncedSearch}
           />
 
-          {/* 分页 */}
-          {sortedUsers.length > PAGE_SIZE && (
-            <div className="flex items-center justify-between mt-3">
-              <span className="text-sm text-muted-foreground">
-                {t('pagination', { count: sortedUsers.length, page: safePage, totalPages })}
-              </span>
-              <div className="flex gap-2">
-                <Button variant="outline" size="sm" onClick={() => setPage(safePage - 1)} disabled={safePage <= 1}>
-                  {t('prev')}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setPage(safePage + 1)}
-                  disabled={safePage >= totalPages}
-                >
-                  {t('next')}
-                </Button>
-              </div>
+          {/* 分页：服务端驱动 */}
+          <div className="flex items-center justify-between mt-3">
+            <span className="text-sm text-muted-foreground">
+              {t('pagination', { count: pagination.total, page: pagination.page, totalPages: pagination.totalPages })}
+            </span>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setPage((p) => p - 1)} disabled={pagination.page <= 1}>
+                {t('prev')}
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => p + 1)}
+                disabled={pagination.page >= pagination.totalPages}
+              >
+                {t('next')}
+              </Button>
             </div>
-          )}
+          </div>
         </>
       )}
     </div>

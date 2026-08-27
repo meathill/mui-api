@@ -391,7 +391,8 @@
     "imageAspectRatio": "宽高比",
     "imageAspectRatioAuto": "自动",
     "imageResolution": "分辨率",
-    "grokMaxImagesError": "Grok 图片编辑最多支持 {count} 张参考图。"
+    "grokMaxImagesError": "Grok 图片编辑最多支持 {count} 张参考图。",
+    "recentModels": "最近使用"
   },
   "adminModels": {
     "title": "模型管理",

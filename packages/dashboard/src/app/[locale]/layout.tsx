@@ -4,6 +4,7 @@ import { Fraunces, JetBrains_Mono, Nunito } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { hasLocale, NextIntlClientProvider } from 'next-intl';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
+import { ToastProvider } from '@/components/ui/toast';
 import { routing } from '@/i18n/routing';
 import { getMarketingOgImage, SITE_URL } from '@/lib/seo';
 
@@ -130,7 +131,9 @@ export default async function LocaleLayout({
         />
       </head>
       <body className="font-sans antialiased">
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
+        <NextIntlClientProvider>
+          <ToastProvider position="bottom-right">{children}</ToastProvider>
+        </NextIntlClientProvider>
       </body>
       <GoogleAnalytics gaId="G-JLM9L0BTTV" />
     </html>

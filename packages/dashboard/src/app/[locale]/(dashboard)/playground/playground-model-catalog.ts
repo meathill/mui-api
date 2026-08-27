@@ -108,6 +108,13 @@ export const PROVIDER_LABELS: Record<string, string> = {
   'workers-ai': 'Workers AI',
   'xiaomi-mimo': 'Xiaomi MiMo',
   grok: 'xAI Grok',
+  deepseek: 'DeepSeek',
+  zai: 'Zhipu AI',
+  qwen: 'Qwen',
+  minimax: 'MiniMax',
+  meta: 'Meta',
+  longcat: 'LongCat',
+  hy: 'Hy',
 };
 
 /** 分组展示顺序；未列出的 provider 追加到末尾，保证新 provider 不会被丢弃。 */
@@ -119,15 +126,36 @@ export const PROVIDER_ORDER: readonly string[] = [
   'workers-ai',
   'xiaomi-mimo',
   'grok',
+  'deepseek',
+  'zai',
+  'qwen',
+  'minimax',
+  'meta',
+  'longcat',
+  'hy',
 ];
 
 export type ModelGroup = {
   provider: string;
   items: string[];
+  labelKey?: string;
 };
 
-/** 按 provider 把模型分组，组内保留原顺序，组间按 PROVIDER_ORDER 排序。 */
-export function groupModelsByProvider(models: ModelInfo[]): ModelGroup[] {
+/** 按 provider 把模型分组，组内保留原顺序，组间按 PROVIDER_ORDER 排序；recentIds 置顶为“最近使用”组。 */
+export function groupModelsByProvider(models: ModelInfo[], recentIds?: string[]): ModelGroup[] {
+  if (recentIds && recentIds.length > 0) {
+    const available = new Set(models.map((m) => m.id));
+    const recentItems = recentIds.filter((id) => available.has(id));
+    if (recentItems.length > 0) {
+      const rest = models.filter((m) => !recentItems.includes(m.id));
+      const baseGroups = groupModelsByProviderInternal(rest);
+      return [{ provider: '__recent__', items: recentItems, labelKey: 'recentModels' }, ...baseGroups];
+    }
+  }
+  return groupModelsByProviderInternal(models);
+}
+
+function groupModelsByProviderInternal(models: ModelInfo[]): ModelGroup[] {
   const idsByProvider = new Map<string, string[]>();
   for (const model of models) {
     const ids = idsByProvider.get(model.provider) ?? [];

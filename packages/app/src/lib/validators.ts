@@ -27,6 +27,13 @@ export const ProviderSchema = z.enum([
   'workers-ai',
   'xiaomi-mimo',
   'grok',
+  'deepseek',
+  'zai',
+  'qwen',
+  'minimax',
+  'meta',
+  'longcat',
+  'hy',
 ]);
 export type ProviderInput = z.infer<typeof ProviderSchema>;
 

@@ -199,6 +199,40 @@ export async function callDeepSeek(env: CloudflareBindings, body: AnyBody): Prom
   );
 }
 
+/** 通用 OpenCode Go 直连（chat/completions 经 Go 订阅，不暴露上游） */
+async function callViaOpenCodeGo(env: CloudflareBindings, providerLabel: string, body: AnyBody): Promise<Response> {
+  return callOpenAICompatDirect(
+    env,
+    {
+      apiKey: undefined,
+      apiKeyEnvName: 'OPENCODE_GO_API_KEY',
+      baseUrl: openCodeGoBaseURL(env),
+      providerLabel,
+      allowOpenCodeGoFallback: true,
+    },
+    body,
+  );
+}
+
+export async function callZai(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  return callViaOpenCodeGo(env, 'Zhipu AI', body);
+}
+export async function callQwen(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  return callViaOpenCodeGo(env, 'Qwen', body);
+}
+export async function callMinimax(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  return callViaOpenCodeGo(env, 'MiniMax', body);
+}
+export async function callMeta(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  return callViaOpenCodeGo(env, 'Meta', body);
+}
+export async function callLongcat(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  return callViaOpenCodeGo(env, 'LongCat', body);
+}
+export async function callHy(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+  return callViaOpenCodeGo(env, 'Hy', body);
+}
+
 /**
  * Gemini @google/genai SDK 调用，接收标准 OpenAI chat body。
  * 请求经 gemini-compat 翻译为 { contents, config }，响应翻译回 OpenAI

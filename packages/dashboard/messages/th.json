@@ -391,7 +391,8 @@
     "imageAspectRatio": "อัตราส่วนภาพ",
     "imageAspectRatioAuto": "อัตโนมัติ",
     "imageResolution": "ความละเอียด",
-    "grokMaxImagesError": "การแก้ไขภาพ Grok รองรับภาพอ้างอิงสูงสุด {count} ภาพ"
+    "grokMaxImagesError": "การแก้ไขภาพ Grok รองรับภาพอ้างอิงสูงสุด {count} ภาพ",
+    "recentModels": "ล่าสุด"
   },
   "adminModels": {
     "title": "จัดการโมเดล",
