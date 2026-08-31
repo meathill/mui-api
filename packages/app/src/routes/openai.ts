@@ -67,6 +67,10 @@ openai.post('/chat/completions', async (c) => {
   if (accessError) return accessError;
   const provider = modelConfig.provider;
   const isStream = body.stream === true;
+  const streamOptions = (body as Record<string, unknown>).stream_options as Record<string, unknown> | undefined;
+  console.log(
+    `[billing] 入站请求: model=${modelId} provider=${provider} stream=${isStream} stream_options=${JSON.stringify(streamOptions)} messages=${Array.isArray(body.messages) ? (body.messages as unknown[]).length : 0} user=${c.get('userId')}`,
+  );
 
   // 上游的 model 字段应当用 upstreamModelId；再按 provider 抹平参数差异
   const upstreamBody = normalizeChatBody({ ...body, model: upstreamModel }, provider);

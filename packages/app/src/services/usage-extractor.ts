@@ -36,6 +36,12 @@ type ProviderKey =
   | 'xiaomi-mimo'
   | 'deepseek'
   | 'opencode-go'
+  | 'zai'
+  | 'qwen'
+  | 'minimax'
+  | 'meta'
+  | 'longcat'
+  | 'hy'
   | 'grok'
   | 'grok-image';
 
@@ -63,6 +69,12 @@ export function extractUsage(
     case 'xiaomi-mimo':
     case 'deepseek':
     case 'opencode-go':
+    case 'zai':
+    case 'qwen':
+    case 'minimax':
+    case 'meta':
+    case 'longcat':
+    case 'hy':
       return extractOpenAIUsage(data);
     case 'anthropic':
       return extractAnthropicUsage(data);
@@ -75,7 +87,11 @@ export function extractUsage(
     case 'grok-image':
       return extractGrokImageUsage(data, grokImageContext);
     default:
-      return null;
+      // 未知 provider（例如将来新增的 opencode-go 代理模型）按 OpenAI 兼容兜底，
+      // 避免因 switch 漏枚举导致 usage 被静默丢弃（H3）。
+      // DeepSeek 经 Go 劫持时仍以原 provider='deepseek' 调用，但上游实为 Go 的 OpenAI 形状，
+      // 此兜底同样保证解析不丢失。
+      return extractOpenAIUsage(data);
   }
 }
 
@@ -115,15 +131,27 @@ function extractOpenAIUsage(data: Record<string, unknown>): UsageResult | null {
 function extractAnthropicUsage(data: Record<string, unknown>): UsageResult | null {
   const usage = data.usage as Record<string, unknown> | undefined;
   const model = (data.model as string | undefined) ?? 'unknown';
-  if (!usage) return null;
-  // Anthropic 语义：input_tokens 已经是「不含 cache_read / cache_creation」的纯 input
-  return {
+  if (!usage) {
+    console.warn(`[billing] anthropic 非流式 usage 缺失: model=${model}`);
+    return null;
+  }
+  const result = {
     model,
     inputTokens: numberOrZero(usage.input_tokens),
     cachedInputTokens: numberOrZero(usage.cache_read_input_tokens),
     cacheWriteTokens: numberOrZero(usage.cache_creation_input_tokens),
     outputTokens: numberOrZero(usage.output_tokens),
   };
+  if (result.cachedInputTokens === 0 && result.cacheWriteTokens === 0) {
+    // 调试用：若原厂账单显示 cache 占比高而此处长期为 0，说明上游已启用 cache 但解析漏了
+    // 仅在非零输入时打印，避免噪音
+    if (result.inputTokens > 0 || result.outputTokens > 0) {
+      console.warn(
+        `[billing] anthropic cache 为 0: model=${model} it=${result.inputTokens} cit=${result.cachedInputTokens} cwt=${result.cacheWriteTokens} ot=${result.outputTokens}`,
+      );
+    }
+  }
+  return result;
 }
 
 function extractGeminiUsage(data: Record<string, unknown>): UsageResult | null {
@@ -189,28 +217,67 @@ function extractGrokImageUsage(data: Record<string, unknown>, context?: GrokImag
  */
 export async function extractStreamUsage(provider: string, response: Response): Promise<UsageResult | null> {
   const reader = response.body?.getReader();
-  if (!reader) return null;
+  if (!reader) {
+    console.warn(`[billing] extractStreamUsage 无 body: provider=${provider}`);
+    return null;
+  }
 
   const decoder = new TextDecoder();
   let buffer = '';
   const accumulated = emptyUsage();
   let touched = false;
+  let chunkCount = 0;
+  let lineCount = 0;
+  const seenTypes = new Set<string>();
 
   try {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
+      chunkCount++;
       buffer += decoder.decode(value, { stream: true });
       const lines = buffer.split('\n');
       buffer = lines.pop() ?? '';
 
       for (const line of lines) {
+        lineCount++;
         if (!line.startsWith('data: ') || line === 'data: [DONE]') continue;
+        const raw = line.slice(6).trim();
+        if (!raw || raw === '[DONE]') continue;
         let data: Record<string, unknown>;
         try {
-          data = JSON.parse(line.slice(6));
-        } catch {
+          data = JSON.parse(raw);
+        } catch (e) {
+          console.warn(
+            `[billing] SSE JSON 解析失败: provider=${provider} raw=${raw.slice(0, 200)} err=${String(e).slice(0, 100)}`,
+          );
           continue;
+        }
+        // 调试：记录所有 anthropic type 与 openai usage 存在情况（采样，避免刷屏）
+        if (provider === 'anthropic') {
+          const t = (data.type as string | undefined) ?? 'no_type';
+          if (!seenTypes.has(t) && seenTypes.size < 20) {
+            seenTypes.add(t);
+          }
+          // 若该 chunk 含 usage 但 extractChunkUsage 返回 null，说明分支漏了
+          const maybeUsage = (data as Record<string, unknown>).usage ?? (data as Record<string, unknown>).delta ?? null;
+          if (
+            maybeUsage &&
+            (data.type === 'content_block_delta' ||
+              data.type === 'content_block_start' ||
+              data.type === 'content_block_stop')
+          ) {
+            console.warn(
+              `[billing] anthropic 中间块含 usage 被跳过: type=${data.type} hasUsage=${!!(data as Record<string, unknown>).usage}`,
+            );
+          }
+        } else {
+          const hasUsage =
+            !!(data as Record<string, unknown>).usage ||
+            !!((data as Record<string, unknown>).choices as unknown[] | undefined)?.[0];
+          if (hasUsage && chunkCount < 3) {
+            // 采样：仅前几个 chunk 打印，避免每个请求都打大量日志
+          }
         }
         const extracted = extractChunkUsage(provider, data);
         if (!extracted) continue;
@@ -224,18 +291,50 @@ export async function extractStreamUsage(provider: string, response: Response): 
         if (extracted.model !== 'unknown') accumulated.model = extracted.model;
       }
     }
+    // 处理最后残留的 buffer（可能没有以 \n 结尾的最后一行）
+    if (buffer.startsWith('data: ')) {
+      const raw = buffer.slice(6).trim();
+      if (raw && raw !== '[DONE]') {
+        try {
+          const data = JSON.parse(raw) as Record<string, unknown>;
+          const extracted = extractChunkUsage(provider, data);
+          if (extracted) {
+            touched = true;
+            if (extracted.inputTokens) accumulated.inputTokens = extracted.inputTokens;
+            if (extracted.cachedInputTokens) accumulated.cachedInputTokens = extracted.cachedInputTokens;
+            if (extracted.cacheWriteTokens) accumulated.cacheWriteTokens = extracted.cacheWriteTokens;
+            if (extracted.outputTokens) accumulated.outputTokens = extracted.outputTokens;
+            if (extracted.model !== 'unknown') accumulated.model = extracted.model;
+          }
+        } catch {
+          // ignore
+        }
+      }
+    }
   } finally {
     reader.releaseLock();
   }
 
-  if (!touched) return null;
+  if (!touched) {
+    console.warn(
+      `[billing] 流式全程无 usage: provider=${provider} chunks=${chunkCount} lines=${lineCount} seenTypes=[${[...seenTypes].join(',')}] accumulated=${JSON.stringify(accumulated)}`,
+    );
+    return null;
+  }
   if (
     accumulated.inputTokens === 0 &&
     accumulated.cachedInputTokens === 0 &&
     accumulated.cacheWriteTokens === 0 &&
     accumulated.outputTokens === 0
   ) {
+    console.warn(`[billing] 流式 touched 但全 0: provider=${provider} model=${accumulated.model} chunks=${chunkCount}`);
     return null;
+  }
+  // 成功时也采样日志，便于核对 gateway tokens 与本服务抽取是否一致（10% 采样避免噪音）
+  if (Math.random() < 0.1) {
+    console.log(
+      `[billing] 流式抽取成功: provider=${provider} model=${accumulated.model} it=${accumulated.inputTokens} ot=${accumulated.outputTokens} cit=${accumulated.cachedInputTokens} cwt=${accumulated.cacheWriteTokens} chunks=${chunkCount}`,
+    );
   }
   return accumulated;
 }
@@ -252,10 +351,16 @@ export async function extractStreamUsage(provider: string, response: Response): 
 function extractChunkUsage(provider: string, data: Record<string, unknown>): UsageResult | null {
   if (provider === 'anthropic') {
     const type = data.type as string | undefined;
+    // 兜底：任何含 usage 的 chunk 都先尝试抽取（防止新 shape 如 4.7 的 delta.usage 或 content_block 夹带 usage 被硬跳过）
+    const fallbackUsage =
+      (data.usage as Record<string, unknown> | undefined) ??
+      ((data.delta as Record<string, unknown> | undefined)?.usage as Record<string, unknown> | undefined) ??
+      ((data.message as Record<string, unknown> | undefined)?.usage as Record<string, unknown> | undefined);
     if (type === 'message_start') {
       const msg = data.message as Record<string, unknown> | undefined;
-      const usage = msg?.usage as Record<string, unknown> | undefined;
-      const model = (msg?.model as string | undefined) ?? 'unknown';
+      const usage =
+        (msg?.usage as Record<string, unknown> | undefined) ?? (data.usage as Record<string, unknown> | undefined);
+      const model = (msg?.model as string | undefined) ?? (data.model as string | undefined) ?? 'unknown';
       if (usage) {
         return {
           model,
@@ -265,24 +370,83 @@ function extractChunkUsage(provider: string, data: Record<string, unknown>): Usa
           outputTokens: numberOrZero(usage.output_tokens),
         };
       }
+      console.warn(`[billing] anthropic message_start 缺少 usage: model=${model} keys=${Object.keys(data).join(',')}`);
     } else if (type === 'message_delta') {
-      const usage = data.usage as Record<string, unknown> | undefined;
+      const usage =
+        (data.usage as Record<string, unknown> | undefined) ??
+        ((data.delta as Record<string, unknown> | undefined)?.usage as Record<string, unknown> | undefined);
       if (usage) {
+        return {
+          model: (data.model as string | undefined) ?? 'unknown',
+          inputTokens: numberOrZero(usage.input_tokens),
+          cachedInputTokens: numberOrZero((usage as Record<string, unknown>).cache_read_input_tokens),
+          cacheWriteTokens: numberOrZero((usage as Record<string, unknown>).cache_creation_input_tokens),
+          outputTokens: numberOrZero(usage.output_tokens),
+        };
+      }
+      // 兼容：部分网关把 usage 放在 message_delta.message.usage
+      const msgUsage = (data.message as Record<string, unknown> | undefined)?.usage as
+        | Record<string, unknown>
+        | undefined;
+      if (msgUsage && numberOrZero(msgUsage.output_tokens) > 0) {
         return {
           model: 'unknown',
           inputTokens: 0,
           cachedInputTokens: 0,
           cacheWriteTokens: 0,
-          outputTokens: numberOrZero(usage.output_tokens),
+          outputTokens: numberOrZero(msgUsage.output_tokens),
         };
       }
+    } else if (type === 'message_stop') {
+      // 兜底：部分实现把最终 usage 放在 message_stop
+      if (fallbackUsage) {
+        return {
+          model: (data.model as string | undefined) ?? 'unknown',
+          inputTokens: numberOrZero(fallbackUsage.input_tokens),
+          cachedInputTokens: numberOrZero((fallbackUsage as Record<string, unknown>).cache_read_input_tokens),
+          cacheWriteTokens: numberOrZero((fallbackUsage as Record<string, unknown>).cache_creation_input_tokens),
+          outputTokens: numberOrZero(fallbackUsage.output_tokens),
+        };
+      }
+      return null;
+    } else if (type === 'content_block_delta' || type === 'content_block_start' || type === 'content_block_stop') {
+      // 若中间块意外含 usage（新模型），先抽取再决定
+      if (fallbackUsage) {
+        console.warn(`[billing] anthropic 中间块命中 usage: type=${type} keys=${Object.keys(fallbackUsage).join(',')}`);
+        return {
+          model: (data.model as string | undefined) ?? 'unknown',
+          inputTokens: numberOrZero(fallbackUsage.input_tokens),
+          cachedInputTokens: numberOrZero((fallbackUsage as Record<string, unknown>).cache_read_input_tokens),
+          cacheWriteTokens: numberOrZero((fallbackUsage as Record<string, unknown>).cache_creation_input_tokens),
+          outputTokens: numberOrZero(fallbackUsage.output_tokens),
+        };
+      }
+      return null;
+    }
+    // 未知类型但含 usage，兜底抽取
+    if (fallbackUsage) {
+      console.warn(
+        `[billing] anthropic 未识别事件但含 usage，兜底抽取: type=${type} keys=${Object.keys(fallbackUsage).join(',')}`,
+      );
+      return {
+        model: (data.model as string | undefined) ?? 'unknown',
+        inputTokens: numberOrZero(fallbackUsage.input_tokens),
+        cachedInputTokens: numberOrZero((fallbackUsage as Record<string, unknown>).cache_read_input_tokens),
+        cacheWriteTokens: numberOrZero((fallbackUsage as Record<string, unknown>).cache_creation_input_tokens),
+        outputTokens: numberOrZero(fallbackUsage.output_tokens),
+      };
+    }
+    // 未知 anthropic 事件类型且无 usage，记录便于 tail 发现新 shape
+    if (type && type !== 'ping') {
+      console.warn(`[billing] anthropic 未识别事件: type=${type} keys=${Object.keys(data).join(',').slice(0, 200)}`);
     }
     return null;
   }
   if (provider === 'google-ai-studio') {
     return extractGeminiUsage(data);
   }
-  // openai / workers-ai / moonshot / xiaomi-mimo / grok 同形
+  // openai / workers-ai / moonshot / xiaomi-mimo / grok / deepseek / zai / qwen / minimax / meta / longcat / hy 同形
+  // DeepSeek 经 OpenCode Go 劫持后仍为 OpenAI 兼容 SSE，最后 chunk 的 data.usage 或 choices[0].usage 均已由 extractOpenAIUsage 覆盖
   return extractOpenAIUsage(data);
 }
 

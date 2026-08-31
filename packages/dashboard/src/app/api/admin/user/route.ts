@@ -1,9 +1,11 @@
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { eq } from 'drizzle-orm';
 import { connection, type NextRequest, NextResponse } from 'next/server';
 import { user as userTable } from '@/db/schema';
 import { requireAdmin } from '@/lib/admin';
 import { getDb } from '@/lib/db';
 import { getKV, getUserData } from '@/lib/kv';
+import { getWallet, getWalletRecord } from '@/lib/wallet-do';
 
 /**
  * GET /api/admin/user — 查询单个用户信息
@@ -41,7 +43,22 @@ export async function GET(request: NextRequest) {
     }
 
     const kv = await getKV();
-    const { data, metadata } = await getUserData(kv, userId);
+    let { data, metadata } = await getUserData(kv, userId);
+
+    // 优先以 WalletDO 权威账本为准，KV 只是展示镜像（可能滞后或被旧并发写脏）
+    // sync-mirror 会同步镜像并返回最新数据；失败时回退到 KV
+    try {
+      const { env } = await getCloudflareContext({ async: true });
+      if (env.WALLET) {
+        const walletRecord = await getWalletRecord(env.WALLET, userId);
+        if (walletRecord?.data && walletRecord?.metadata) {
+          data = walletRecord.data;
+          metadata = walletRecord.metadata;
+        }
+      }
+    } catch {
+      // 回退到 KV
+    }
 
     // 按 userId 查询时保留 KV 兜底：仅存在于 KV 的历史用户不在 D1 user 表里
     if (!row && (!data || !metadata)) {

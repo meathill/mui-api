@@ -58,7 +58,30 @@ export function UserDailyStatsSection({ userId }: UserDailyStatsSectionProps) {
     reload();
   }
 
-  const chartData = (data?.timeSeries ?? []).map((item) => ({
+  // 按 UTC 补零：保证 7 天查 7 行，避免“只有一天有数”的错觉，且与用量统计口径一致
+  const filledTimeSeries = (() => {
+    if (!data) return [];
+    const map = new Map<string, (typeof data.timeSeries)[number]>();
+    for (const item of data.timeSeries) {
+      const key = formatPeriodLabel(item.periodStart as string | number | null);
+      map.set(key, item);
+    }
+    const start = new Date(`${startDate}T00:00:00.000Z`);
+    const end = new Date(`${endDate}T00:00:00.000Z`);
+    if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime()) || start > end) {
+      return data.timeSeries;
+    }
+    const out: typeof data.timeSeries = [];
+    for (let d = new Date(start); d <= end; d.setUTCDate(d.getUTCDate() + 1)) {
+      const key = formatDate(d);
+      const hit = map.get(key);
+      if (hit) out.push(hit);
+      else out.push({ periodStart: key, totalCost: 0, totalInputTokens: 0, totalOutputTokens: 0, requestCount: 0 });
+    }
+    return out;
+  })();
+
+  const chartData = filledTimeSeries.map((item) => ({
     name: formatPeriodLabel(item.periodStart),
     cost: Number(item.totalCost.toFixed(4)),
     requests: item.requestCount,
@@ -158,7 +181,7 @@ export function UserDailyStatsSection({ userId }: UserDailyStatsSectionProps) {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {data.timeSeries.map((item) => (
+                {filledTimeSeries.map((item) => (
                   <TableRow key={String(item.periodStart)}>
                     <TableCell>{formatPeriodLabel(item.periodStart)}</TableCell>
                     <TableCell className="text-right font-mono">{item.requestCount.toLocaleString()}</TableCell>
@@ -167,7 +190,7 @@ export function UserDailyStatsSection({ userId }: UserDailyStatsSectionProps) {
                     <TableCell className="text-right font-mono">${item.totalCost.toFixed(4)}</TableCell>
                   </TableRow>
                 ))}
-                {data.timeSeries.length === 0 && (
+                {filledTimeSeries.length === 0 && (
                   <TableRow>
                     <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
                       {tud('emptyDaily')}

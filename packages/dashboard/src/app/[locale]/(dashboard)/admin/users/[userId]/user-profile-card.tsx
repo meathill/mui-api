@@ -3,14 +3,16 @@
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import type { UserInfo } from '@/lib/api';
 
 export interface UserProfileCardProps {
   user: UserInfo;
+  onAdjustBalance?: () => void;
 }
 
-export function UserProfileCard({ user }: UserProfileCardProps) {
+export function UserProfileCard({ user, onAdjustBalance }: UserProfileCardProps) {
   const t = useTranslations('adminUsers');
   const tu = useTranslations('adminUsage');
 
@@ -39,6 +41,8 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
     { label: t('colCreatedAt'), value: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-' },
   ];
 
+  const tDetail = useTranslations('adminUserDetail');
+
   return (
     <Card className="p-4 mb-4">
       <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -49,6 +53,13 @@ export function UserProfileCard({ user }: UserProfileCardProps) {
           </div>
         ))}
       </dl>
+      {onAdjustBalance && (
+        <div className="mt-4 flex justify-end">
+          <Button size="sm" variant="outline" onClick={onAdjustBalance}>
+            {tDetail('adjustBalance')}
+          </Button>
+        </div>
+      )}
     </Card>
   );
 }

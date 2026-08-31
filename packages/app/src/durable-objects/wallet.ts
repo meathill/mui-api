@@ -108,6 +108,10 @@ export class WalletDO {
 
   private async handleAdd(userId: string, request: Request): Promise<Response> {
     const { amount } = (await request.json()) as AmountRequest;
+    if (!Number.isFinite(amount) || amount === 0) {
+      return Response.json({ ok: false, error: 'invalid_amount' } satisfies WalletResponse, { status: 400 });
+    }
+    // 允许负数用于计费冲正，余额可为负，调用方需自行保证备注可审计
     const result = await this.mutateExisting(userId, (data) => {
       data.balance += amount;
     });

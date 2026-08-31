@@ -26,8 +26,11 @@ export async function POST(request: Request) {
       amount: number;
       note?: string;
     };
-    if (!email || !amount || amount <= 0) {
-      return NextResponse.json({ error: 'email 和 amount（正数）为必填' }, { status: 400 });
+    if (!email || amount === undefined || amount === null || !Number.isFinite(amount) || amount === 0) {
+      return NextResponse.json({ error: 'email 和 amount（非 0 数值）为必填，负数用于冲正' }, { status: 400 });
+    }
+    if (amount < 0 && (!note || !note.trim())) {
+      return NextResponse.json({ error: '负数调整必须填写备注' }, { status: 400 });
     }
 
     const { env } = await getCloudflareContext({ async: true });

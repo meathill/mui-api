@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { GlobalConfig } from './alert-service';
-import { BillingService, type ModelPricing, type UsageInfo } from './billing-service';
+import { BillingService, GROK_NO_USAGE_BASE_COST, type ModelPricing, type UsageInfo } from './billing-service';
 import type { KVService } from './kv-service';
 import type { WalletService } from './wallet-service';
 
@@ -309,6 +309,92 @@ describe('BillingService', () => {
       expect(result.chargedCost).toBeCloseTo(0.5, 5);
       expect(services.data().balance).toBeCloseTo(0.5, 5);
       expect(services.data().freeQuotaUsed).toBe(0);
+    });
+  });
+
+  describe('processFixedCost grok 无 usage 兜底', () => {
+    it('按 $0.01 基准 * markup * multiplier 计费并记录 0 token 日志', async () => {
+      const services = createMockServices({ balance: 1, concurrency: 0 }, null);
+      const service = new BillingService(services.kvService, mockDb as never, services.walletService);
+
+      const result = await service.processFixedCost(
+        'user-1',
+        'key-1',
+        'grok-4.3',
+        GROK_NO_USAGE_BASE_COST,
+        { inputPrice: 1.25, outputPrice: 2.5, markupRate: 1 },
+        1,
+        { useFreeQuota: true },
+      );
+
+      expect(result.totalCost).toBeCloseTo(0.01, 6);
+      expect(result.chargedCost).toBeCloseTo(0.01, 6);
+      expect(result.tier).toBe('standard');
+      expect(services.data().balance).toBeCloseTo(0.99, 6);
+    });
+
+    it('受 markup 与 userRateMultiplier 影响', async () => {
+      const services = createMockServices({ balance: 10, concurrency: 0 }, null);
+      const service = new BillingService(services.kvService, mockDb as never, services.walletService);
+
+      const result = await service.processFixedCost(
+        'user-1',
+        'key-1',
+        'grok-imagine-image',
+        GROK_NO_USAGE_BASE_COST,
+        { inputPrice: 0, outputPrice: 1, markupRate: 1.05 },
+        1.5,
+        { useFreeQuota: false },
+      );
+
+      // 0.01 * 1.05 * 1.5 = 0.01575
+      expect(result.totalCost).toBeCloseTo(0.01575, 6);
+      expect(services.data().balance).toBeCloseTo(9.98425, 6);
+    });
+
+    it('允许 freeQuota 抵扣兜底成本', async () => {
+      const services = createMockServices(
+        { balance: 1, concurrency: 0, freeQuotaUsed: 0 },
+        createGlobalConfig(['grok-4.3']),
+      );
+      const service = new BillingService(services.kvService, mockDb as never, services.walletService);
+
+      const result = await service.processFixedCost(
+        'user-1',
+        'key-1',
+        'grok-4.3',
+        GROK_NO_USAGE_BASE_COST,
+        { inputPrice: 1.25, outputPrice: 2.5, markupRate: 1 },
+        1,
+        { useFreeQuota: true },
+      );
+
+      expect(result.freeQuotaDeducted).toBeCloseTo(0.01, 6);
+      expect(result.chargedCost).toBe(0);
+      expect(services.data().balance).toBe(1);
+      expect(services.data().freeQuotaUsed).toBeCloseTo(0.01, 6);
+    });
+
+    it('freeQuota 不足时仅抵扣剩余并扣差额', async () => {
+      const services = createMockServices(
+        { balance: 1, concurrency: 0, freeQuotaUsed: 0.995 },
+        createGlobalConfig(['grok-4.3']),
+      );
+      const service = new BillingService(services.kvService, mockDb as never, services.walletService);
+
+      const result = await service.processFixedCost(
+        'user-1',
+        'key-1',
+        'grok-4.3',
+        GROK_NO_USAGE_BASE_COST,
+        { inputPrice: 1.25, outputPrice: 2.5, markupRate: 1 },
+        1,
+        { useFreeQuota: true },
+      );
+
+      expect(result.freeQuotaDeducted).toBeCloseTo(0.005, 6);
+      expect(result.chargedCost).toBeCloseTo(0.005, 6);
+      expect(services.data().balance).toBeCloseTo(0.995, 6);
     });
   });
 });

@@ -22,16 +22,28 @@ const ANTHROPIC_UNSUPPORTED_PARAMS = [
 ] as const;
 
 export function normalizeChatBody(body: ChatBody, provider: string): ChatBody {
+  let normalized: ChatBody = body;
+
+  // 计费必需：OpenAI 兼容流式只有显式 stream_options.include_usage=true 时，上游才在终态 SSE 携带 usage。
+  // 216→16 漏记的根因即大量 SDK（OpenAI/JS 6.34 等）默认不带该字段，导致 extractStreamUsage 全程无 usage。
+  // 网关侧强制补齐，避免客户端记忆负担；对非 OpenAI 兼容 provider（如 workers-ai 的 env.AI.run）该字段被忽略，无副作用。
+  if (normalized.stream === true) {
+    const so = normalized.stream_options as Record<string, unknown> | undefined;
+    if (!so || so.include_usage !== true) {
+      normalized = { ...normalized, stream_options: { ...(so ?? {}), include_usage: true } };
+    }
+  }
+
   if (provider === 'openai') {
-    if (body.max_tokens === undefined) return body;
-    const { max_tokens, ...rest } = body;
+    if (normalized.max_tokens === undefined) return normalized;
+    const { max_tokens, ...rest } = normalized;
     // 两者都传时以新参数为准，只保证不把 max_tokens 发给上游
     return { ...rest, max_completion_tokens: rest.max_completion_tokens ?? max_tokens };
   }
 
   if (provider === 'grok') {
-    if (!GROK_UNSUPPORTED_PARAMS.some((key) => key in body)) return body;
-    const rest = { ...body };
+    if (!GROK_UNSUPPORTED_PARAMS.some((key) => key in normalized)) return normalized;
+    const rest = { ...normalized };
     for (const key of GROK_UNSUPPORTED_PARAMS) {
       delete rest[key];
     }
@@ -39,13 +51,13 @@ export function normalizeChatBody(body: ChatBody, provider: string): ChatBody {
   }
 
   if (provider === 'anthropic') {
-    if (!ANTHROPIC_UNSUPPORTED_PARAMS.some((key) => key in body)) return body;
-    const rest = { ...body };
+    if (!ANTHROPIC_UNSUPPORTED_PARAMS.some((key) => key in normalized)) return normalized;
+    const rest = { ...normalized };
     for (const key of ANTHROPIC_UNSUPPORTED_PARAMS) {
       delete rest[key];
     }
     return rest;
   }
 
-  return body;
+  return normalized;
 }

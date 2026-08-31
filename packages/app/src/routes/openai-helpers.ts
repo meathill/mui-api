@@ -2,7 +2,7 @@ import type { Context } from 'hono';
 import type { Model } from '../db/schema';
 import { badRequest, createErrorResponse, ErrorTypes, upstreamError } from '../lib/errors';
 import { MIN_BALANCE } from '../middleware/auth';
-import type { ModelPricing } from '../services/billing-service';
+import { GROK_NO_USAGE_BASE_COST, type ModelPricing } from '../services/billing-service';
 import type { ProxyServices } from '../services/service-factory';
 import { extractStreamUsage, extractUsage, type GrokImageUsageContext } from '../services/usage-extractor';
 import type { CloudflareBindings } from '../types';
@@ -66,6 +66,10 @@ export function isResponse(value: unknown): value is Response {
   return value instanceof Response;
 }
 
+function isGrokFallbackProvider(provider: string): boolean {
+  return provider === 'grok' || provider === 'grok-image';
+}
+
 export async function processBilling(
   c: OpenAIContext,
   services: ProxyServices,
@@ -82,25 +86,63 @@ export async function processBilling(
   try {
     const data = (await response.json()) as JsonBody;
     const usage = extractUsage(provider, data, grokImageContext);
-    if (usage && hasAnyTokens(usage)) {
-      const billing = await services.billingService.processUsage(
-        userId,
-        apiKeyId,
-        {
-          model: modelId,
-          inputTokens: usage.inputTokens,
-          cachedInputTokens: usage.cachedInputTokens,
-          cacheWriteTokens: usage.cacheWriteTokens,
-          outputTokens: usage.outputTokens,
-        },
-        modelPricing,
-        userRateMultiplier,
-        { useFreeQuota: true },
-      );
-      await services.alertService.checkAfterBilling(userId, billing.totalCost);
+    if (!usage || !hasAnyTokens(usage)) {
+      if (isGrokFallbackProvider(provider)) {
+        console.warn(
+          `[billing] grok 非流式无 usage，兜底计费 $${GROK_NO_USAGE_BASE_COST}: provider=${provider} model=${modelId} keys=${Object.keys(data).slice(0, 10).join(',')}`,
+        );
+        const billing = await services.billingService.processFixedCost(
+          userId,
+          apiKeyId,
+          modelId,
+          GROK_NO_USAGE_BASE_COST,
+          modelPricing,
+          userRateMultiplier,
+          { useFreeQuota: true },
+        );
+        console.log(
+          `[billing] grok 兜底入账成功: user=${userId} model=${modelId} cost=${billing.totalCost} charged=${billing.chargedCost}`,
+        );
+        await services.alertService.checkAfterBilling(userId, billing.totalCost);
+        return;
+      }
+      if (!usage) {
+        console.warn(
+          `[billing] 非流式 usage 抽取为 null: provider=${provider} model=${modelId} keys=${Object.keys(data).slice(0, 10).join(',')}`,
+        );
+      } else {
+        console.warn(
+          `[billing] 非流式 usage 全 0: provider=${provider} model=${modelId} usage=${JSON.stringify(usage)}`,
+        );
+      }
+      return;
     }
+    console.log(
+      `[billing] 非流式抽取成功: provider=${provider} model=${modelId} it=${usage.inputTokens} ot=${usage.outputTokens} cit=${usage.cachedInputTokens} cwt=${usage.cacheWriteTokens}`,
+    );
+    const billing = await services.billingService.processUsage(
+      userId,
+      apiKeyId,
+      {
+        model: modelId,
+        inputTokens: usage.inputTokens,
+        cachedInputTokens: usage.cachedInputTokens,
+        cacheWriteTokens: usage.cacheWriteTokens,
+        outputTokens: usage.outputTokens,
+      },
+      modelPricing,
+      userRateMultiplier,
+      { useFreeQuota: true },
+    );
+    console.log(
+      `[billing] 非流式入账成功: user=${userId} model=${modelId} cost=${billing.totalCost} charged=${billing.chargedCost}`,
+    );
+    await services.alertService.checkAfterBilling(userId, billing.totalCost);
   } catch (error) {
-    console.error('非流式计费失败:', error);
+    console.error(
+      `[billing] 非流式计费失败: provider=${provider} model=${modelId} err=${String(error).slice(0, 500)}`,
+      error,
+    );
   }
 }
 
@@ -119,29 +161,68 @@ export function processStreamBilling(
   const userId = c.get('userId');
   const apiKeyId = c.get('apiKeyId');
   const userRateMultiplier = c.get('rateMultiplier');
+  const start = Date.now();
   c.executionCtx.waitUntil(
     (async () => {
       try {
         const usage = await extractStreamUsage(provider, new Response(billingStream));
-        if (usage && hasAnyTokens(usage)) {
-          const billing = await services.billingService.processUsage(
-            userId,
-            apiKeyId,
-            {
-              model: modelId,
-              inputTokens: usage.inputTokens,
-              cachedInputTokens: usage.cachedInputTokens,
-              cacheWriteTokens: usage.cacheWriteTokens,
-              outputTokens: usage.outputTokens,
-            },
-            modelPricing,
-            userRateMultiplier,
-            { useFreeQuota: true },
-          );
-          await services.alertService.checkAfterBilling(userId, billing.totalCost);
+        if (!usage || !hasAnyTokens(usage)) {
+          if (isGrokFallbackProvider(provider)) {
+            console.warn(
+              `[billing] grok 流式无 usage，兜底计费 $${GROK_NO_USAGE_BASE_COST}: provider=${provider} model=${modelId} user=${userId} elapsed=${Date.now() - start}ms`,
+            );
+            const billing = await services.billingService.processFixedCost(
+              userId,
+              apiKeyId,
+              modelId,
+              GROK_NO_USAGE_BASE_COST,
+              modelPricing,
+              userRateMultiplier,
+              { useFreeQuota: true },
+            );
+            console.log(
+              `[billing] grok 流式兜底入账成功: user=${userId} model=${modelId} cost=${billing.totalCost} charged=${billing.chargedCost} tier=${billing.tier} elapsed=${Date.now() - start}ms`,
+            );
+            await services.alertService.checkAfterBilling(userId, billing.totalCost);
+            return;
+          }
+          if (!usage) {
+            console.warn(
+              `[billing] 流式 usage 抽取为 null: provider=${provider} model=${modelId} user=${userId} elapsed=${Date.now() - start}ms`,
+            );
+          } else {
+            console.warn(
+              `[billing] 流式 usage 全 0: provider=${provider} model=${modelId} user=${userId} usage=${JSON.stringify(usage)}`,
+            );
+          }
+          return;
         }
+        console.log(
+          `[billing] 流式抽取成功: provider=${provider} model=${modelId} user=${userId} it=${usage.inputTokens} ot=${usage.outputTokens} cit=${usage.cachedInputTokens} cwt=${usage.cacheWriteTokens}`,
+        );
+        const billing = await services.billingService.processUsage(
+          userId,
+          apiKeyId,
+          {
+            model: modelId,
+            inputTokens: usage.inputTokens,
+            cachedInputTokens: usage.cachedInputTokens,
+            cacheWriteTokens: usage.cacheWriteTokens,
+            outputTokens: usage.outputTokens,
+          },
+          modelPricing,
+          userRateMultiplier,
+          { useFreeQuota: true },
+        );
+        console.log(
+          `[billing] 流式入账成功: user=${userId} model=${modelId} cost=${billing.totalCost} charged=${billing.chargedCost} tier=${billing.tier} elapsed=${Date.now() - start}ms`,
+        );
+        await services.alertService.checkAfterBilling(userId, billing.totalCost);
       } catch (error) {
-        console.error('流式计费失败:', error);
+        console.error(
+          `[billing] 流式计费失败: provider=${provider} model=${modelId} user=${userId} err=${String(error).slice(0, 1000)}`,
+          error,
+        );
       }
     })(),
   );

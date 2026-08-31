@@ -72,3 +72,15 @@ export async function setWalletMetadata(
 ): Promise<WalletRecord> {
   return callWallet(wallet, userId, '/set-metadata', patch);
 }
+
+export async function syncWalletMirror(wallet: DurableObjectNamespace, userId: string): Promise<WalletRecord | null> {
+  try {
+    return await callWallet(wallet, userId, '/sync-mirror', {});
+  } catch {
+    return null;
+  }
+}
+
+export async function getWalletRecord(wallet: DurableObjectNamespace, userId: string): Promise<WalletRecord | null> {
+  return syncWalletMirror(wallet, userId);
+}

@@ -84,6 +84,22 @@ videos.post('/videos/generations', paidAuthMiddleware, async (c) => {
       rateMultiplier: c.get('rateMultiplier'),
       status: 'pending',
     });
+    // 立即落库 pending 日志，按上限预扣口径计费，确保 Grok 16 提交即对上（4d/4e 统计包含 pending）
+    await services.db
+      .insert(usageLogs)
+      .values({
+        id: `video:${data.request_id}`,
+        userId,
+        apiKeyId: c.get('apiKeyId'),
+        modelId: body.model,
+        inputTokens: 0,
+        outputTokens: internalTokens,
+        cachedInputTokens: 0,
+        cacheWriteTokens: 0,
+        tier: 'standard',
+        cost: estimatedCost,
+      })
+      .onConflictDoNothing();
     return c.json(data);
   } catch (error) {
     await services.walletService.releaseReservation(userId, reservationId).catch(() => undefined);
@@ -129,6 +145,8 @@ videos.get('/videos/:requestId', paidAuthMiddleware, async (c) => {
           .update(videoGenerationJobs)
           .set({ status, updatedAt: new Date() })
           .where(eq(videoGenerationJobs.requestId, requestId)),
+        // 回滚 pending 预扣日志：失败/过期不计费
+        services.db.delete(usageLogs).where(eq(usageLogs.id, `video:${requestId}`)),
       ]);
       return c.json(data);
     }
@@ -167,6 +185,7 @@ videos.get('/videos/:requestId', paidAuthMiddleware, async (c) => {
       );
       if (reservation.status !== 'settled') return gatewayError(c, '视频任务预占已失效，无法完成结算');
 
+      // pending 已按上限预扣写入 usage_logs，此处按实际成本覆盖（通常 actual <= estimated）
       await services.db
         .insert(usageLogs)
         .values({
@@ -181,7 +200,10 @@ videos.get('/videos/:requestId', paidAuthMiddleware, async (c) => {
           tier: 'standard',
           cost: actualCost,
         })
-        .onConflictDoNothing();
+        .onConflictDoUpdate({
+          target: usageLogs.id,
+          set: { outputTokens: internalTokens, cost: actualCost },
+        });
 
       const updated = await services.db
         .update(videoGenerationJobs)

@@ -5,6 +5,9 @@ import type { FreeQuotaConfig } from '../types';
 import type { KVService } from './kv-service';
 import type { WalletService } from './wallet-service';
 
+// grok 非法请求无 usage 时的兜底基准成本（上游侧），受 markupRate 与 userRateMultiplier 影响
+export const GROK_NO_USAGE_BASE_COST = 0.01;
+
 // 默认加价倍率
 const DEFAULT_MARKUP_RATE = 1.2;
 
@@ -160,6 +163,83 @@ export class BillingService {
   }
 
   /**
+   * 兜底计费：不依赖 token，直接按固定基准成本计费（用于 grok 非法请求无 usage 的场景）。
+   * 语义：totalCost = baseCost * markupRate * userRateMultiplier，再走 freeQuota→扣余额→记日志。
+   * 日志 token 全记 0，仅 cost 有值，解决“无 usage 导致无日志”问题。
+   */
+  async processFixedCost(
+    userId: string,
+    apiKeyId: string | null,
+    modelId: string,
+    baseCost: number,
+    modelPricing?: ModelPricing | null,
+    userRateMultiplier = 1,
+    options: BillingOptions = {},
+  ): Promise<BillingResult> {
+    const markupRate = modelPricing?.markupRate ?? DEFAULT_MARKUP_RATE;
+    const cost = baseCost * markupRate * userRateMultiplier;
+    const tier: BillingTier = 'standard';
+    const usage: UsageInfo = {
+      model: modelId,
+      inputTokens: 0,
+      cachedInputTokens: 0,
+      cacheWriteTokens: 0,
+      outputTokens: 0,
+    };
+
+    let freeQuotaDeducted = 0;
+    if (options.useFreeQuota) {
+      try {
+        const freeQuota = await this.getFreeQuotaState(userId, modelId);
+        if (freeQuota.eligible && freeQuota.remaining > 0) {
+          freeQuotaDeducted = Math.min(cost, freeQuota.remaining);
+          await this.walletService.consumeFreeQuota(userId, freeQuotaDeducted);
+          console.log(
+            `[billing] 免费额度抵扣: user=${userId} model=${modelId} deducted=${freeQuotaDeducted} remaining=${freeQuota.remaining - freeQuotaDeducted}`,
+          );
+        }
+      } catch (e) {
+        console.error(`[billing] 免费额度处理失败: user=${userId} model=${modelId} err=${String(e).slice(0, 500)}`, e);
+      }
+    }
+
+    const chargedCost = Math.max(0, cost - freeQuotaDeducted);
+
+    if (chargedCost > 0) {
+      try {
+        await this.deductBalance(userId, chargedCost);
+        console.log(`[billing] 钱包扣费成功: user=${userId} charged=${chargedCost} total=${cost}`);
+      } catch (e) {
+        console.error(
+          `[billing] 钱包扣费失败: user=${userId} charged=${chargedCost} err=${String(e).slice(0, 800)}`,
+          e,
+        );
+        throw e;
+      }
+    } else {
+      console.log(`[billing] 钱包无需扣费: user=${userId} total=${cost} freeDeducted=${freeQuotaDeducted}`);
+    }
+
+    try {
+      await this.logUsage(userId, apiKeyId, usage, cost, tier);
+      console.log(`[billing] D1 日志写入成功: user=${userId} model=${modelId} tier=${tier} cost=${cost}`);
+    } catch (e) {
+      console.error(
+        `[billing] D1 日志写入失败: user=${userId} model=${modelId} cost=${cost} err=${String(e).slice(0, 1000)}`,
+        e,
+      );
+      throw e;
+    }
+
+    return {
+      totalCost: cost,
+      chargedCost,
+      freeQuotaDeducted,
+      tier,
+    };
+  }
+
+  /**
    * 处理完整的计费流程（计算 + KV扣费 + D1记录日志）
    */
   async processUsage(
@@ -174,10 +254,20 @@ export class BillingService {
 
     let freeQuotaDeducted = 0;
     if (options.useFreeQuota) {
-      const freeQuota = await this.getFreeQuotaState(userId, usage.model);
-      if (freeQuota.eligible && freeQuota.remaining > 0) {
-        freeQuotaDeducted = Math.min(cost, freeQuota.remaining);
-        await this.walletService.consumeFreeQuota(userId, freeQuotaDeducted);
+      try {
+        const freeQuota = await this.getFreeQuotaState(userId, usage.model);
+        if (freeQuota.eligible && freeQuota.remaining > 0) {
+          freeQuotaDeducted = Math.min(cost, freeQuota.remaining);
+          await this.walletService.consumeFreeQuota(userId, freeQuotaDeducted);
+          console.log(
+            `[billing] 免费额度抵扣: user=${userId} model=${usage.model} deducted=${freeQuotaDeducted} remaining=${freeQuota.remaining - freeQuotaDeducted}`,
+          );
+        }
+      } catch (e) {
+        console.error(
+          `[billing] 免费额度处理失败: user=${userId} model=${usage.model} err=${String(e).slice(0, 500)}`,
+          e,
+        );
       }
     }
 
@@ -185,11 +275,31 @@ export class BillingService {
 
     // KV 扣款
     if (chargedCost > 0) {
-      await this.deductBalance(userId, chargedCost);
+      try {
+        await this.deductBalance(userId, chargedCost);
+        console.log(`[billing] 钱包扣费成功: user=${userId} charged=${chargedCost} total=${cost}`);
+      } catch (e) {
+        console.error(
+          `[billing] 钱包扣费失败: user=${userId} charged=${chargedCost} err=${String(e).slice(0, 800)}`,
+          e,
+        );
+        throw e;
+      }
+    } else {
+      console.log(`[billing] 钱包无需扣费: user=${userId} total=${cost} freeDeducted=${freeQuotaDeducted}`);
     }
 
     // D1 记录日志
-    await this.logUsage(userId, apiKeyId, usage, cost, tier);
+    try {
+      await this.logUsage(userId, apiKeyId, usage, cost, tier);
+      console.log(`[billing] D1 日志写入成功: user=${userId} model=${usage.model} tier=${tier} cost=${cost}`);
+    } catch (e) {
+      console.error(
+        `[billing] D1 日志写入失败: user=${userId} model=${usage.model} cost=${cost} err=${String(e).slice(0, 1000)}`,
+        e,
+      );
+      throw e;
+    }
 
     return {
       totalCost: cost,
@@ -204,7 +314,9 @@ function resolvePricing(model: string, modelPricing: ModelPricing | null | undef
   if (modelPricing) return modelPricing;
   const fallback = FALLBACK_PRICING[model];
   if (!fallback) {
-    console.warn(`模型 ${model} 无定价配置，使用 gpt-4o-mini 兜底`);
+    console.warn(
+      `[billing] 定价缺失: 模型 ${model} 无定价配置，使用 gpt-4o-mini 兜底 (0.15/0.6) —— 若为 Grok/Claude/DeepSeek 请检查 models 表是否缺行或 KV models:catalog 缓存过期`,
+    );
   }
   const pricing = fallback ?? FALLBACK_PRICING['gpt-4o-mini'];
   return {

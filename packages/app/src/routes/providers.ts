@@ -1,9 +1,26 @@
 import { Hono } from 'hono';
+import type { Model } from '../db/schema';
 import { badRequest, gatewayError } from '../lib/errors';
 import { paidAuthMiddleware } from '../middleware/auth';
 import { createProxyServices } from '../services/service-factory';
+import type { ModelPricing } from '../services/billing-service';
 import { extractStreamUsage, extractUsage } from '../services/usage-extractor';
 import type { CloudflareBindings } from '../types';
+
+function toModelPricing(model: Model): ModelPricing {
+  return {
+    inputPrice: model.inputPrice ?? 0,
+    outputPrice: model.outputPrice ?? 0,
+    markupRate: model.markupRate ?? 1.2,
+    cachedInputPrice: model.cachedInputPrice,
+    cacheWritePrice: model.cacheWritePrice,
+    longContextThresholdTokens: model.longContextThresholdTokens,
+    longContextInputPrice: model.longContextInputPrice,
+    longContextCachedInputPrice: model.longContextCachedInputPrice,
+    longContextCacheWritePrice: model.longContextCacheWritePrice,
+    longContextOutputPrice: model.longContextOutputPrice,
+  };
+}
 
 const providers = new Hono<{ Bindings: CloudflareBindings }>();
 
@@ -27,7 +44,7 @@ providers.all('/:provider{.+}/*', async (c) => {
   const userId = c.get('userId');
   const apiKeyId = c.get('apiKeyId');
   const userRateMultiplier = c.get('rateMultiplier');
-  const { billingService, alertService, gatewayService } = createProxyServices(c.env, c.get('db'));
+  const { billingService, alertService, gatewayService, modelCatalog } = createProxyServices(c.env, c.get('db'));
 
   try {
     const fullPath = c.req.path;
@@ -48,6 +65,15 @@ providers.all('/:provider{.+}/*', async (c) => {
           try {
             const usage = await extractStreamUsage(provider, new Response(billingStream));
             if (usage && hasAnyTokens(usage)) {
+              let modelPricing: ModelPricing | null = null;
+              if (usage.model && usage.model !== 'unknown') {
+                const model = await modelCatalog.getById(usage.model);
+                if (model) modelPricing = toModelPricing(model);
+                else
+                  console.warn(
+                    `[billing] 原生代理流式: 模型 ${usage.model} 未在 models 表命中，将回退 gpt-4o-mini 兜底`,
+                  );
+              }
               const billing = await billingService.processUsage(
                 userId,
                 apiKeyId,
@@ -58,7 +84,7 @@ providers.all('/:provider{.+}/*', async (c) => {
                   cacheWriteTokens: usage.cacheWriteTokens,
                   outputTokens: usage.outputTokens,
                 },
-                null,
+                modelPricing,
                 userRateMultiplier,
               );
               await alertService.checkAfterBilling(userId, billing.totalCost);
@@ -84,6 +110,15 @@ providers.all('/:provider{.+}/*', async (c) => {
           const data = (await billingResponse.json()) as Record<string, unknown>;
           const usage = extractUsage(provider, data);
           if (usage && hasAnyTokens(usage)) {
+            let modelPricing: ModelPricing | null = null;
+            if (usage.model && usage.model !== 'unknown') {
+              const model = await modelCatalog.getById(usage.model);
+              if (model) modelPricing = toModelPricing(model);
+              else
+                console.warn(
+                  `[billing] 原生代理非流式: 模型 ${usage.model} 未在 models 表命中，将回退 gpt-4o-mini 兜底`,
+                );
+            }
             const billing = await billingService.processUsage(
               userId,
               apiKeyId,
@@ -94,7 +129,7 @@ providers.all('/:provider{.+}/*', async (c) => {
                 cacheWriteTokens: usage.cacheWriteTokens,
                 outputTokens: usage.outputTokens,
               },
-              null,
+              modelPricing,
               userRateMultiplier,
             );
             await alertService.checkAfterBilling(userId, billing.totalCost);

@@ -39,25 +39,28 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: '必须提供 startDate 和 endDate' }, { status: 400 });
     }
 
-    const startDate = new Date(startDateStr);
-    const endDate = new Date(`${endDateStr}T23:59:59`);
+    const startDate = new Date(`${startDateStr}T00:00:00.000Z`);
+    const endDate = new Date(`${endDateStr}T23:59:59.999Z`);
     const granularity = granularityParam || autoGranularity(startDate, endDate);
 
     const db = await getDb();
 
-    // 尝试从 usage_stats 获取数据
+    // 尝试从 usage_stats 获取数据：按实际查询维度判定，避免全局有数据但该用户无数据时误走聚合
+    const statsCountWhere = [
+      eq(usageStats.granularity, granularity),
+      gte(usageStats.periodStart, startDate),
+      lte(usageStats.periodStart, endDate),
+      isNull(usageStats.modelId),
+    ];
+    if (userId) {
+      statsCountWhere.push(eq(usageStats.userId, userId));
+    } else {
+      statsCountWhere.push(isNull(usageStats.userId));
+    }
     const statsCount = await db
       .select({ cnt: sql<number>`count(*)` })
       .from(usageStats)
-      .where(
-        and(
-          eq(usageStats.granularity, granularity),
-          gte(usageStats.periodStart, startDate),
-          lte(usageStats.periodStart, endDate),
-          isNull(usageStats.userId),
-          isNull(usageStats.modelId),
-        ),
-      )
+      .where(and(...statsCountWhere))
       .get();
 
     const hasAggregatedData = (statsCount?.cnt ?? 0) > 0;

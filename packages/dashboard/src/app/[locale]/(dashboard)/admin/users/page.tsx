@@ -224,10 +224,10 @@ export default function UsersPage() {
             <Input
               type="number"
               step="0.01"
-              min="0.01"
               value={rechargeAmount}
               onChange={(e) => setRechargeAmount(e.target.value)}
               className="w-28"
+              placeholder="正数为充值，负数为扣减"
               required
             />
           </div>

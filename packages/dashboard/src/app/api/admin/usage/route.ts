@@ -25,8 +25,8 @@ export async function GET(request: NextRequest) {
     const conditions = [];
     if (userId) conditions.push(eq(usageLogs.userId, userId));
     if (modelId) conditions.push(eq(usageLogs.modelId, modelId));
-    if (startDate) conditions.push(gte(usageLogs.createdAt, new Date(startDate)));
-    if (endDate) conditions.push(lte(usageLogs.createdAt, new Date(endDate)));
+    if (startDate) conditions.push(gte(usageLogs.createdAt, new Date(`${startDate}T00:00:00.000Z`)));
+    if (endDate) conditions.push(lte(usageLogs.createdAt, new Date(`${endDate}T23:59:59.999Z`)));
 
     const where = conditions.length > 0 ? and(...conditions) : undefined;
     const db = await getDb();

@@ -16,7 +16,7 @@ export async function GET() {
 
     const db = await getDb();
     const todayStart = new Date();
-    todayStart.setHours(0, 0, 0, 0);
+    todayStart.setUTCHours(0, 0, 0, 0);
 
     const row = await db
       .select({
