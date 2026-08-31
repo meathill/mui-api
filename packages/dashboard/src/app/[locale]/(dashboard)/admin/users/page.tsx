@@ -49,7 +49,7 @@ export default function UsersPage() {
   // 分页（服务端）
   const [page, setPage] = useState(1);
 
-  // 排序（当前页内客户端排序，仅作展示；服务端按 createdAt 倒序）
+  // 排序：email/createdAt 为服务端排序（数据库生效），balance/rateMultiplier 为 KV 字段，仅当前页客户端排序
   const [sortField, setSortField] = useState<SortField | null>('createdAt');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
@@ -74,10 +74,16 @@ export default function UsersPage() {
     setPage(1);
   }, [debouncedSearch]);
 
+  const isDbSortable = sortField === 'email' || sortField === 'createdAt';
   const fetchUsers = useCallback(async (): Promise<UsersResponse> => {
-    const res = await api.getUsers({ page, pageSize: PAGE_SIZE, q: debouncedSearch || undefined });
+    const res = await api.getUsers({
+      page,
+      pageSize: PAGE_SIZE,
+      q: debouncedSearch || undefined,
+      ...(isDbSortable && sortField ? { sortBy: sortField, sortDir: sortDirection } : {}),
+    });
     return res as UsersResponse;
-  }, [page, debouncedSearch]);
+  }, [page, debouncedSearch, isDbSortable, sortField, sortDirection]);
 
   const {
     data: response,
@@ -89,30 +95,29 @@ export default function UsersPage() {
   const users = response.users ?? [];
   const pagination = response.pagination ?? EMPTY_PAGINATION;
 
-  // 当前页内排序（服务端已按 createdAt 倒序，此处仅对当前页做二次排，避免跨页错乱，不建议对 balance 大范围排序）
+  // DB 字段由服务端排序，KV 字段（balance/rateMultiplier）仅当前页客户端排序
   const sortedUsers = useMemo(() => {
     if (!sortField) return users;
+    // email/createdAt 已由数据库排好，直接返回
+    if (sortField === 'email' || sortField === 'createdAt') return users;
     return [...users].sort((a, b) => {
       let cmp = 0;
       switch (sortField) {
-        case 'email':
-          cmp = a.email.localeCompare(b.email);
-          break;
         case 'balance':
           cmp = a.balance - b.balance;
           break;
         case 'rateMultiplier':
           cmp = a.rateMultiplier - b.rateMultiplier;
           break;
-        case 'createdAt':
-          cmp = (a.createdAt ?? '').localeCompare(b.createdAt ?? '');
-          break;
+        default:
+          return 0;
       }
       return sortDirection === 'desc' ? -cmp : cmp;
     });
   }, [users, sortField, sortDirection]);
 
   function handleSort(field: SortField) {
+    const wasDbSortable = field === 'email' || field === 'createdAt';
     if (sortField === field) {
       if (sortDirection === 'desc') {
         setSortDirection('asc');
@@ -122,6 +127,10 @@ export default function UsersPage() {
     } else {
       setSortField(field);
       setSortDirection('desc');
+    }
+    // DB 排序切换时回到第 1 页，避免停留在越界页
+    if (wasDbSortable || sortField === 'email' || sortField === 'createdAt') {
+      setPage(1);
     }
   }
 

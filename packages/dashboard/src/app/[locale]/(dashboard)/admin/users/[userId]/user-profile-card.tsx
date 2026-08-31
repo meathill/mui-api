@@ -3,7 +3,6 @@
 import { useTranslations } from 'next-intl';
 import type { ReactNode } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import type { UserInfo } from '@/lib/api';
 
@@ -12,7 +11,7 @@ export interface UserProfileCardProps {
   onAdjustBalance?: () => void;
 }
 
-export function UserProfileCard({ user, onAdjustBalance }: UserProfileCardProps) {
+export function UserProfileCard({ user }: UserProfileCardProps) {
   const t = useTranslations('adminUsers');
   const tu = useTranslations('adminUsage');
 
@@ -41,25 +40,16 @@ export function UserProfileCard({ user, onAdjustBalance }: UserProfileCardProps)
     { label: t('colCreatedAt'), value: user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '-' },
   ];
 
-  const tDetail = useTranslations('adminUserDetail');
-
   return (
-    <Card className="p-4 mb-4">
-      <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+    <Card className="p-5 sm:p-6 mb-4">
+      <dl className="grid grid-cols-2 gap-6 sm:grid-cols-4">
         {fields.map((field) => (
           <div key={field.label}>
-            <dt className="text-xs text-muted-foreground">{field.label}</dt>
-            <dd className="mt-1 text-sm font-medium">{field.value}</dd>
+            <dt className="text-sm text-muted-foreground">{field.label}</dt>
+            <dd className="mt-2 text-lg sm:text-xl font-semibold tracking-tight">{field.value}</dd>
           </div>
         ))}
       </dl>
-      {onAdjustBalance && (
-        <div className="mt-4 flex justify-end">
-          <Button size="sm" variant="outline" onClick={onAdjustBalance}>
-            {tDetail('adjustBalance')}
-          </Button>
-        </div>
-      )}
     </Card>
   );
 }

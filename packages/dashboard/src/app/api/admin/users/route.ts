@@ -1,4 +1,4 @@
-import { desc, like, sql } from 'drizzle-orm';
+import { asc, desc, like, sql } from 'drizzle-orm';
 import { connection, type NextRequest, NextResponse } from 'next/server';
 import { user as userTable } from '@/db/schema';
 import { requireAdmin } from '@/lib/admin';
@@ -20,6 +20,12 @@ export async function GET(request: NextRequest) {
     const page = Math.max(1, Number(searchParams.get('page') || '1'));
     const pageSize = Math.min(100, Math.max(1, Number(searchParams.get('pageSize') || '20')));
     const q = searchParams.get('q')?.trim() || searchParams.get('search')?.trim() || '';
+    const rawSortBy = searchParams.get('sortBy') || searchParams.get('sortField') || '';
+    const rawSortDir = searchParams.get('sortDir') || searchParams.get('sortDirection') || '';
+    const SORTABLE = { email: userTable.email, createdAt: userTable.createdAt } as const;
+    const sortBy: keyof typeof SORTABLE = rawSortBy in SORTABLE ? (rawSortBy as keyof typeof SORTABLE) : 'createdAt';
+    const sortDir = rawSortDir === 'asc' ? 'asc' : 'desc';
+    const orderExpr = sortDir === 'asc' ? asc(SORTABLE[sortBy]) : desc(SORTABLE[sortBy]);
     // 兼容旧 cursor 参数（已废弃）
     const offset = (page - 1) * pageSize;
 
@@ -40,7 +46,7 @@ export async function GET(request: NextRequest) {
       })
       .from(userTable)
       .where(whereClause)
-      .orderBy(desc(userTable.createdAt))
+      .orderBy(orderExpr)
       .limit(pageSize)
       .offset(offset);
 

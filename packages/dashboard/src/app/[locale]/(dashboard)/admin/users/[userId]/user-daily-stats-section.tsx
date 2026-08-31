@@ -59,7 +59,7 @@ export function UserDailyStatsSection({ userId }: UserDailyStatsSectionProps) {
   }
 
   // 按 UTC 补零：保证 7 天查 7 行，避免“只有一天有数”的错觉，且与用量统计口径一致
-  const filledTimeSeries = (() => {
+  const filledTimeSeriesAsc = (() => {
     if (!data) return [];
     const map = new Map<string, (typeof data.timeSeries)[number]>();
     for (const item of data.timeSeries) {
@@ -81,7 +81,10 @@ export function UserDailyStatsSection({ userId }: UserDailyStatsSectionProps) {
     return out;
   })();
 
-  const chartData = filledTimeSeries.map((item) => ({
+  // 图表保持升序（时间轴正向），表格降序（最新日期在前）
+  const filledTimeSeries = [...filledTimeSeriesAsc].reverse();
+
+  const chartData = filledTimeSeriesAsc.map((item) => ({
     name: formatPeriodLabel(item.periodStart),
     cost: Number(item.totalCost.toFixed(4)),
     requests: item.requestCount,
@@ -127,7 +130,7 @@ export function UserDailyStatsSection({ userId }: UserDailyStatsSectionProps) {
       {error && <p className="text-destructive mb-4">{error}</p>}
       {loading ? (
         <div className="space-y-3">
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <CardSkeleton />
             <CardSkeleton />
             <CardSkeleton />
@@ -137,26 +140,28 @@ export function UserDailyStatsSection({ userId }: UserDailyStatsSectionProps) {
         </div>
       ) : data ? (
         <>
-          <div className="grid grid-cols-4 gap-3 mb-4">
-            <Card className="p-4">
-              <p className="text-xs text-muted-foreground">{t('totalCost')}</p>
-              <p className="font-heading text-2xl font-bold tracking-tight">${data.overview.totalCost.toFixed(4)}</p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            <Card className="p-5 sm:p-6">
+              <p className="text-sm text-muted-foreground">{t('totalCost')}</p>
+              <p className="font-heading text-3xl sm:text-4xl font-bold tracking-tight mt-2">
+                ${data.overview.totalCost.toFixed(4)}
+              </p>
             </Card>
-            <Card className="p-4">
-              <p className="text-xs text-muted-foreground">{t('totalRequests')}</p>
-              <p className="font-heading text-2xl font-bold tracking-tight">
+            <Card className="p-5 sm:p-6">
+              <p className="text-sm text-muted-foreground">{t('totalRequests')}</p>
+              <p className="font-heading text-3xl sm:text-4xl font-bold tracking-tight mt-2">
                 {data.overview.requestCount.toLocaleString()}
               </p>
             </Card>
-            <Card className="p-4">
-              <p className="text-xs text-muted-foreground">{t('totalInputTokens')}</p>
-              <p className="font-heading text-2xl font-bold tracking-tight">
+            <Card className="p-5 sm:p-6">
+              <p className="text-sm text-muted-foreground">{t('totalInputTokens')}</p>
+              <p className="font-heading text-3xl sm:text-4xl font-bold tracking-tight mt-2">
                 {data.overview.totalInputTokens.toLocaleString()}
               </p>
             </Card>
-            <Card className="p-4">
-              <p className="text-xs text-muted-foreground">{t('totalOutputTokens')}</p>
-              <p className="font-heading text-2xl font-bold tracking-tight">
+            <Card className="p-5 sm:p-6">
+              <p className="text-sm text-muted-foreground">{t('totalOutputTokens')}</p>
+              <p className="font-heading text-3xl sm:text-4xl font-bold tracking-tight mt-2">
                 {data.overview.totalOutputTokens.toLocaleString()}
               </p>
             </Card>

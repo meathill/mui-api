@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useCallback, useState } from 'react';
 import { UserDetailSkeleton } from '@/components/admin/admin-skeletons';
 import { PageHeader } from '@/components/page-header';
+import { Button } from '@/components/ui/button';
 import { useAsyncResource } from '@/hooks/use-async-resource';
 import { Link } from '@/i18n/navigation';
 import { api, type UserInfo } from '@/lib/api';
@@ -31,14 +32,25 @@ export default function UserDetailPage() {
           {t('backToList')}
         </Link>
       </div>
-      <PageHeader eyebrow="Admin · Users" title={t('title')} description={user?.email} />
+      <PageHeader
+        eyebrow="Admin · Users"
+        title={t('title')}
+        description={user?.email}
+        actions={
+          user ? (
+            <Button size="sm" variant="outline" onClick={() => setAdjustOpen(true)}>
+              {t('adjustBalance')}
+            </Button>
+          ) : undefined
+        }
+      />
 
       {error && <p className="text-destructive mb-4">{error}</p>}
       {loading ? (
         <UserDetailSkeleton />
       ) : user ? (
         <>
-          <UserProfileCard user={user} onAdjustBalance={() => setAdjustOpen(true)} />
+          <UserProfileCard user={user} />
           <UserBalanceAdjustDialog
             open={adjustOpen}
             onOpenChange={setAdjustOpen}

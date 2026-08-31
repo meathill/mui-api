@@ -50,10 +50,10 @@ export function UserTable({
 }) {
   const t = useTranslations('adminUsers');
 
-  const SORTABLE_COLUMNS: { field: SortField; label: string; align?: string }[] = [
+  const SORTABLE_COLUMNS: { field: SortField; label: string; align?: string; hint?: string }[] = [
     { field: 'email', label: t('colEmail') },
-    { field: 'balance', label: t('colBalance'), align: 'text-right' },
-    { field: 'rateMultiplier', label: t('colRate'), align: 'text-right' },
+    { field: 'balance', label: t('colBalance'), align: 'text-right', hint: '仅当前页排序' },
+    { field: 'rateMultiplier', label: t('colRate'), align: 'text-right', hint: '仅当前页排序' },
     { field: 'createdAt', label: t('colCreatedAt') },
   ];
 
@@ -67,6 +67,7 @@ export function UserTable({
                 key={col.field}
                 className={`cursor-pointer select-none hover:bg-muted/50 ${col.align ?? ''}`}
                 onClick={() => onSort(col.field)}
+                title={col.hint}
               >
                 {col.label}
                 <SortIndicator field={col.field} sortField={sortField} sortDirection={sortDirection} />

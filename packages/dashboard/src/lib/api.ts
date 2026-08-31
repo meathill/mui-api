@@ -32,16 +32,29 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 // ==================== 管理员 API ====================
 
 export const adminApi = {
-  getUsers: (params?: { page?: number; pageSize?: number; q?: string; cursor?: string }) => {
+  getUsers: (params?: {
+    page?: number;
+    pageSize?: number;
+    q?: string;
+    cursor?: string;
+    sortBy?: string;
+    sortDir?: string;
+    sortField?: string;
+    sortDirection?: string;
+  }) => {
     if (params?.cursor && !params?.q && !params?.page) {
       return request<{ users: UserInfo[]; cursor: string | null; pagination?: Pagination }>(
         `/api/admin/users?cursor=${encodeURIComponent(params.cursor)}`,
       );
     }
+    const sortBy = params?.sortBy ?? params?.sortField;
+    const sortDir = params?.sortDir ?? params?.sortDirection;
     const qs = buildQuery({
       page: params?.page,
       pageSize: params?.pageSize,
       q: params?.q,
+      sortBy,
+      sortDir,
     });
     const suffix = qs ? `?${qs}` : '';
     return request<{ users: UserInfo[]; cursor: string | null; pagination?: Pagination }>(`/api/admin/users${suffix}`);
