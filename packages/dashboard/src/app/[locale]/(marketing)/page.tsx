@@ -26,8 +26,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function LandingPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  setRequestLocale(locale);
-  const t = await getTranslations({ locale, namespace: 'metadata' });
+  const resolvedLocale = getResolvedLocale(locale);
+  setRequestLocale(resolvedLocale);
+  const t = await getTranslations({ locale: resolvedLocale, namespace: 'metadata' });
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -76,7 +77,7 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
       <StepsSection />
       <CodeSection />
       <HomeFaqSection />
-      <CtaSection />
+      {resolvedLocale === 'zh' && <CtaSection />}
     </div>
   );
 }

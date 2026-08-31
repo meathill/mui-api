@@ -20,7 +20,22 @@
     "openrouterAlternatives": "Alternatives à OpenRouter",
     "opencode": "opencode",
     "mcpServer": "Serveur MCP",
-    "compareOpenrouter": "MuiRouter vs OpenRouter"
+    "compareOpenrouter": "MuiRouter vs OpenRouter",
+    "products": "Produits",
+    "gateways": "Gateways",
+    "compare": "Comparer",
+    "legal": "Légal",
+    "terms": "Conditions",
+    "privacy": "Confidentialité",
+    "about": "À propos",
+    "contact": "Contact",
+    "claudeGateway": "Claude Gateway",
+    "gptGateway": "GPT Gateway",
+    "geminiGateway": "Gemini Gateway",
+    "grokGateway": "Grok Gateway",
+    "muirouterVsOpenrouter": "MuiRouter vs OpenRouter",
+    "litellmVsOpenrouter": "LiteLLM vs MuiRouter",
+    "litellmVsMuirouter": "LiteLLM vs MuiRouter"
   },
   "hero": {
     "badge": "OpenAI / Claude / DeepSeek / GLM / Qwen / Grok / Kimi / MiniMax — one router",
@@ -221,7 +236,13 @@
     "submitting": "Inscription en cours...",
     "submit": "S'inscrire",
     "hasAccount": "Vous avez déjà un compte ?",
-    "login": "Se connecter"
+    "login": "Se connecter",
+    "agreeTermsPrefix": "J'accepte les ",
+    "agreeTermsAnd": " et la ",
+    "agreeTermsSuffix": ".",
+    "agreeTermsRequired": "Vous devez accepter les conditions",
+    "termsLink": "Conditions",
+    "privacyLink": "Confidentialité"
   },
   "sidebar": {
     "console": "Console",
@@ -608,7 +629,15 @@
     "sectionDaily": "Statistiques quotidiennes",
     "viewAll": "Voir tout →",
     "colDate": "Date",
-    "emptyDaily": "Aucune statistique pour l'instant"
+    "emptyDaily": "Aucune statistique pour l'instant",
+    "adjustBalance": "Adjust Balance",
+    "adjustAmountPlaceholder": "e.g. 10 or -5 (negative requires note)",
+    "adjustAmountHint": "Positive to credit, negative to debit (billing correction). Balance may go negative.",
+    "adjustAmountZeroError": "Amount cannot be 0",
+    "adjustNegativeNoteRequired": "Note is required for negative adjustments",
+    "adjustNoteRequiredPlaceholder": "Reason for correction (required)",
+    "previewBalance": "Balance after: {balance}",
+    "confirmAdjust": "Confirm"
   },
   "errors": {
     "loginFailed": "Échec de la connexion",
@@ -1421,7 +1450,7 @@
         "label": "Routeur & passerelle MCP"
       },
       {
-        "href": "/litellm-vs-openrouter",
+        "href": "/litellm-vs-muirouter",
         "label": "LiteLLM vs OpenRouter"
       },
       {
@@ -1431,104 +1460,6 @@
     ],
     "ctaTitle": "Vérifiez les chiffres par vous-même",
     "ctaDescription": "Créez un compte gratuit et consultez les tarifs réels par modèle avant de basculer.",
-    "ctaButton": "Commencer gratuitement"
-  },
-  "litellmVsOpenrouter": {
-    "metaTitle": "LiteLLM vs OpenRouter — Auto-hébergé vs passerelle LLM managée",
-    "metaDescription": "Comparez LiteLLM et OpenRouter sur le mode de déploiement, la tarification, la couverture des fournisseurs et la charge opérationnelle — et où se situe MuiRouter comme alternative managée et compatible OpenAI.",
-    "eyebrow": "LiteLLM vs OpenRouter",
-    "title": "LiteLLM vs OpenRouter — ",
-    "titleHighlight": "comparés",
-    "intro": "LiteLLM est un proxy open source que vous hébergez vous-même ; OpenRouter est une passerelle API managée avec un vaste catalogue de modèles. Voici comment ils diffèrent sur le déploiement, la tarification et les opérations — et où MuiRouter se situe comme alternative managée et compatible OpenAI avec des endpoints natifs par fournisseur.",
-    "ctaPrimary": "Commencer gratuitement",
-    "ctaSecondary": "Voir les tarifs",
-    "featuresTitle": "LiteLLM vs OpenRouter vs MuiRouter en un coup d'œil",
-    "comparisonRows": [
-      {
-        "label": "Mode de déploiement",
-        "values": [
-          "Open source, auto-hébergé — vous exploitez et maintenez le proxy vous-même",
-          "SaaS managé — inscrivez-vous et appelez l'API, aucune infrastructure à exploiter",
-          "SaaS managé — inscrivez-vous et appelez l'API, aucune infrastructure à exploiter"
-        ]
-      },
-      {
-        "label": "Modèle de tarification",
-        "values": [
-          "Cœur open source gratuit ; l'Enterprise ajoute SSO/audit/support à un tarif sur devis",
-          "Tarification du fournisseur répercutée telle quelle, plus des frais de carte de 5,5 % (5 % en crypto) sur les recharges",
-          "Le prix par token inclut déjà le coût de la plateforme — aucun frais séparé sur les recharges"
-        ]
-      },
-      {
-        "label": "Catalogue de modèles",
-        "values": [
-          "100+ fournisseurs — le catalogue le plus large des trois",
-          "Vaste catalogue couvrant des centaines de modèles chez des dizaines de fournisseurs",
-          "Sélection ciblée : OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot et MiMo"
-        ]
-      },
-      {
-        "label": "Compatibilité OpenAI",
-        "values": [
-          "Oui — traduit chaque fournisseur vers une réponse au format OpenAI unifié",
-          "Oui — le format suit de très près l'API Chat d'OpenAI",
-          "Oui — endpoint compatible Chat Completions"
-        ]
-      },
-      {
-        "label": "Charge opérationnelle",
-        "values": [
-          "Vous gérez la disponibilité, la mise à l'échelle, les mises à jour et les clés",
-          "Aucune — entièrement managé, aucun serveur à exploiter",
-          "Aucune — entièrement managé, aucun serveur à exploiter"
-        ]
-      },
-      {
-        "label": "Endpoints natifs des fournisseurs",
-        "values": [
-          "Passthrough via un api_base et une api_key personnalisés par appel",
-          "Requêtes normalisées vers un seul format de type OpenAI",
-          "Endpoint natif Anthropic /v1/messages et OpenAI /v1/responses, même clé et même solde"
-        ]
-      }
-    ],
-    "faqTitle": "FAQ LiteLLM vs OpenRouter",
-    "faq": [
-      {
-        "question": "LiteLLM est-il gratuit ?",
-        "answer": "Le cœur open source (SDK Python et Proxy Server) est gratuit et auto-hébergé — vous exploitez l'infrastructure. LiteLLM Enterprise ajoute SSO/SCIM, journaux d'audit et support 24/7 pour les équipes en production, à un tarif sur devis."
-      },
-      {
-        "question": "Dois-je exploiter mon propre serveur avec OpenRouter ou MuiRouter ?",
-        "answer": "Non. OpenRouter et MuiRouter sont tous deux managés — vous obtenez une clé API et appelez l'endpoint, sans proxy à déployer ni à maintenir. C'est la principale différence pratique avec le modèle auto-hébergé de LiteLLM."
-      },
-      {
-        "question": "Lequel choisir ?",
-        "answer": "Si vous voulez un contrôle total, une logique de routage personnalisée et aucun frais de plateforme par requête, auto-héberger LiteLLM a du sens. Si vous voulez un endpoint managé avec le catalogue de modèles le plus large, OpenRouter convient. Si vous voulez un endpoint managé avec un accès natif à Claude/GPT et sans frais séparé sur les recharges, essayez MuiRouter."
-      }
-    ],
-    "relatedTitle": "Liens connexes",
-    "related": [
-      {
-        "href": "/muirouter-vs-openrouter",
-        "label": "MuiRouter vs OpenRouter"
-      },
-      {
-        "href": "/llm-router",
-        "label": "Routeur LLM"
-      },
-      {
-        "href": "/ai-router",
-        "label": "Routeur API IA"
-      },
-      {
-        "href": "/pricing",
-        "label": "Tarifs"
-      }
-    ],
-    "ctaTitle": "Vérifiez les chiffres par vous-même",
-    "ctaDescription": "Créez un compte gratuit et consultez les tarifs réels par modèle avant de choisir.",
     "ctaButton": "Commencer gratuitement"
   },
   "openrouterAlternatives": {
@@ -1622,7 +1553,7 @@
         "label": "MuiRouter vs OpenRouter"
       },
       {
-        "href": "/litellm-vs-openrouter",
+        "href": "/litellm-vs-muirouter",
         "label": "LiteLLM vs OpenRouter"
       },
       {
@@ -1744,7 +1675,7 @@
         "label": "MuiRouter vs OpenRouter"
       },
       {
-        "href": "/litellm-vs-openrouter",
+        "href": "/litellm-vs-muirouter",
         "label": "LiteLLM vs OpenRouter"
       },
       {
@@ -1825,7 +1756,7 @@
         "label": "Qu'est-ce qu'un serveur MCP ?"
       },
       {
-        "href": "/compare/openrouter",
+        "href": "/muirouter-vs-openrouter",
         "label": "MuiRouter vs OpenRouter"
       },
       {
@@ -1873,5 +1804,97 @@
         "label": "API compatible OpenAI"
       }
     ]
+  },
+  "litellmVsMuirouter": {
+    "metaTitle": "LiteLLM vs MuiRouter — Proxy auto-hébergé vs passerelle managée",
+    "metaDescription": "Comparez LiteLLM et MuiRouter sur le déploiement, le prix, la compatibilité et l'exploitation.",
+    "eyebrow": "LiteLLM vs MuiRouter",
+    "title": "LiteLLM vs MuiRouter — ",
+    "titleHighlight": "comparés",
+    "intro": "LiteLLM est un proxy open-source auto-hébergé ; MuiRouter est une passerelle managée, compatible OpenAI, avec endpoints natifs.",
+    "ctaPrimary": "Commencer gratuitement",
+    "ctaSecondary": "Voir les tarifs",
+    "featuresTitle": "LiteLLM vs MuiRouter en un coup d'œil",
+    "comparisonRows": [
+      {
+        "label": "Mode de déploiement",
+        "values": [
+          "Open source, auto-hébergé — vous exploitez et maintenez le proxy vous-même",
+          "SaaS managé — inscrivez-vous et appelez l'API, aucune infrastructure à exploiter"
+        ]
+      },
+      {
+        "label": "Modèle de tarification",
+        "values": [
+          "Cœur open source gratuit ; l'Enterprise ajoute SSO/audit/support à un tarif sur devis",
+          "Le prix par token inclut déjà le coût de la plateforme — aucun frais séparé sur les recharges"
+        ]
+      },
+      {
+        "label": "Catalogue de modèles",
+        "values": [
+          "100+ fournisseurs — le catalogue le plus large des trois",
+          "Sélection ciblée : OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot et MiMo"
+        ]
+      },
+      {
+        "label": "Compatibilité OpenAI",
+        "values": [
+          "Oui — traduit chaque fournisseur vers une réponse au format OpenAI unifié",
+          "Oui — endpoint compatible Chat Completions"
+        ]
+      },
+      {
+        "label": "Charge opérationnelle",
+        "values": [
+          "Vous gérez la disponibilité, la mise à l'échelle, les mises à jour et les clés",
+          "Aucune — entièrement managé, aucun serveur à exploiter"
+        ]
+      },
+      {
+        "label": "Endpoints natifs des fournisseurs",
+        "values": [
+          "Passthrough via un api_base et une api_key personnalisés par appel",
+          "Endpoint natif Anthropic /v1/messages et OpenAI /v1/responses, même clé et même solde"
+        ]
+      }
+    ],
+    "faqTitle": "FAQ LiteLLM vs MuiRouter",
+    "faq": [
+      {
+        "question": "LiteLLM est-il gratuit ?",
+        "answer": "Le cœur open source (SDK Python et Proxy Server) est gratuit et auto-hébergé — vous exploitez l'infrastructure. LiteLLM Enterprise ajoute SSO/SCIM, journaux d'audit et support 24/7 pour les équipes en production, à un tarif sur devis."
+      },
+      {
+        "question": "Dois-je exploiter mon propre serveur avec MuiRouter ou MuiRouter ?",
+        "answer": "Non. OpenRouter et MuiRouter sont tous deux managés — vous obtenez une clé API et appelez l'endpoint, sans proxy à déployer ni à maintenir. C'est la principale différence pratique avec le modèle auto-hébergé de LiteLLM."
+      },
+      {
+        "question": "Lequel choisir ?",
+        "answer": "Si vous voulez un contrôle total, une logique de routage personnalisée et aucun frais de plateforme par requête, auto-héberger LiteLLM a du sens. Si vous voulez un endpoint managé avec le catalogue de modèles le plus large, OpenRouter convient. Si vous voulez un endpoint managé avec un accès natif à Claude/GPT et sans frais séparé sur les recharges, essayez MuiRouter."
+      }
+    ],
+    "relatedTitle": "Liens connexes",
+    "related": [
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "Routeur LLM"
+      },
+      {
+        "href": "/ai-router",
+        "label": "Routeur API IA"
+      },
+      {
+        "href": "/pricing",
+        "label": "Tarifs"
+      }
+    ],
+    "ctaTitle": "Vérifiez les chiffres par vous-même",
+    "ctaDescription": "Créez un compte gratuit et consultez les tarifs réels par modèle avant de choisir.",
+    "ctaButton": "Commencer gratuitement"
   }
 }

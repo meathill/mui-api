@@ -75,22 +75,16 @@ export function buildSitemapEntries(blogPosts: Awaited<ReturnType<typeof getPubl
       lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
     },
     {
-      path: '/compare/openrouter',
-      changeFrequency: 'monthly',
-      priority: 0.7,
-      lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
-    },
-    {
       path: '/muirouter-vs-openrouter',
       changeFrequency: 'monthly',
       priority: 0.7,
       lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
     },
     {
-      path: '/litellm-vs-openrouter',
+      path: '/litellm-vs-muirouter',
       changeFrequency: 'monthly',
       priority: 0.7,
-      lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
+      lastModified: new Date('2026-09-01'),
     },
     {
       path: '/openrouter-alternatives',
@@ -105,6 +99,10 @@ export function buildSitemapEntries(blogPosts: Awaited<ReturnType<typeof getPubl
       lastModified: NEW_SEO_PAGES_PUBLISHED_AT,
     },
     { path: '/register', changeFrequency: 'monthly', priority: 0.6, lastModified: STATIC_PAGES_UPDATED_AT },
+    { path: '/terms', changeFrequency: 'monthly', priority: 0.5, lastModified: new Date('2026-09-01') },
+    { path: '/privacy', changeFrequency: 'monthly', priority: 0.5, lastModified: new Date('2026-09-01') },
+    { path: '/about', changeFrequency: 'monthly', priority: 0.5, lastModified: new Date('2026-09-01') },
+    { path: '/contact', changeFrequency: 'monthly', priority: 0.5, lastModified: new Date('2026-09-01') },
     // /login 不在 sitemap：layout 已设 robots: noindex，与 sitemap 收录冲突会让 GSC 报错。
   ];
   const entries: MetadataRoute.Sitemap = [];

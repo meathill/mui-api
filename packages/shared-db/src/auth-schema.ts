@@ -8,6 +8,9 @@ export const user = sqliteTable('user', {
   image: text('image'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull(),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
+  acceptedTermsAt: integer('accepted_terms_at', { mode: 'timestamp_ms' }),
+  acceptedTermsVersion: text('accepted_terms_version'),
+  acceptedPrivacyVersion: text('accepted_privacy_version'),
 });
 
 export const session = sqliteTable('session', {

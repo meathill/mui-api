@@ -42,7 +42,7 @@ test.describe('营销页面', () => {
     const navigation = page.getByRole('navigation');
     const pricing = navigation.getByRole('link', pricingLink);
     const blog = navigation.getByRole('link', blogLink);
-    const language = navigation.getByRole('combobox');
+    const language = page.getByRole('combobox');
     const signIn = navigation.getByRole('link', signInLink);
 
     await expect(logo).toBeVisible();
@@ -52,22 +52,22 @@ test.describe('营销页面', () => {
     await expect(signIn).toBeVisible();
     await expect(navigation.getByRole('link', registerLink)).toHaveCount(0);
 
-    const [logoBox, pricingBox, blogBox, languageBox, signInBox] = await Promise.all([
+    const [logoBox, pricingBox, blogBox, signInBox] = await Promise.all([
       logo.boundingBox(),
       pricing.boundingBox(),
       blog.boundingBox(),
-      language.boundingBox(),
       signIn.boundingBox(),
     ]);
 
-    if (!logoBox || !pricingBox || !blogBox || !languageBox || !signInBox) {
+    if (!logoBox || !pricingBox || !blogBox || !signInBox) {
       throw new Error('Header items must be visible before checking order.');
     }
 
     expect(logoBox.x).toBeLessThan(pricingBox.x);
     expect(pricingBox.x).toBeLessThan(blogBox.x);
-    expect(blogBox.x).toBeLessThan(languageBox.x);
-    expect(languageBox.x).toBeLessThan(signInBox.x);
+    expect(blogBox.x).toBeLessThan(signInBox.x);
+    // 语言切换已移至 footer，通过 footer 定位校验可见性，不再参与 header 排序
+    await expect(page.locator('footer').getByRole('combobox')).toBeVisible();
   });
 
   test('点击首页主 CTA 跳转到注册页', async ({ page }) => {

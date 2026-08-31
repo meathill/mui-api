@@ -20,6 +20,13 @@ export async function getAuth() {
     secret: env.BETTER_AUTH_SECRET,
     baseURL: process.env.NODE_ENV === 'development' ? 'http://localhost:3035' : env.BETTER_AUTH_URL,
     trustedOrigins: ['http://localhost:3035', env.NEXT_PUBLIC_SITE_URL].filter(Boolean),
+    user: {
+      additionalFields: {
+        acceptedTermsAt: { type: 'date', required: false, fieldName: 'acceptedTermsAt' },
+        acceptedTermsVersion: { type: 'string', required: false, fieldName: 'acceptedTermsVersion' },
+        acceptedPrivacyVersion: { type: 'string', required: false, fieldName: 'acceptedPrivacyVersion' },
+      },
+    },
     emailAndPassword: {
       enabled: true,
       minPasswordLength: 8,

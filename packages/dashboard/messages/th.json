@@ -20,7 +20,22 @@
     "openrouterAlternatives": "ทางเลือกแทน OpenRouter",
     "opencode": "opencode",
     "mcpServer": "MCP Server",
-    "compareOpenrouter": "MuiRouter vs OpenRouter"
+    "compareOpenrouter": "MuiRouter vs OpenRouter",
+    "products": "ผลิตภัณฑ์",
+    "gateways": "เกตเวย์",
+    "compare": "เปรียบเทียบ",
+    "legal": "กฎหมาย",
+    "terms": "ข้อกำหนด",
+    "privacy": "ความเป็นส่วนตัว",
+    "about": "เกี่ยวกับ",
+    "contact": "ติดต่อ",
+    "claudeGateway": "Claude Gateway",
+    "gptGateway": "GPT Gateway",
+    "geminiGateway": "Gemini Gateway",
+    "grokGateway": "Grok Gateway",
+    "muirouterVsOpenrouter": "MuiRouter vs OpenRouter",
+    "litellmVsOpenrouter": "LiteLLM vs MuiRouter",
+    "litellmVsMuirouter": "LiteLLM vs MuiRouter"
   },
   "hero": {
     "badge": "OpenAI / Claude / DeepSeek / GLM / Qwen / Grok / Kimi / MiniMax — one router",
@@ -221,7 +236,13 @@
     "submitting": "กำลังสมัคร...",
     "submit": "สมัครสมาชิก",
     "hasAccount": "มีบัญชีอยู่แล้ว?",
-    "login": "เข้าสู่ระบบ"
+    "login": "เข้าสู่ระบบ",
+    "agreeTermsPrefix": "ฉันยอมรับ",
+    "agreeTermsAnd": "และ",
+    "agreeTermsSuffix": "",
+    "agreeTermsRequired": "คุณต้องยอมรับข้อกำหนด",
+    "termsLink": "ข้อกำหนด",
+    "privacyLink": "นโยบายความเป็นส่วนตัว"
   },
   "sidebar": {
     "console": "คอนโซล",
@@ -608,7 +629,15 @@
     "sectionDaily": "สถิติรายวัน",
     "viewAll": "ดูทั้งหมด →",
     "colDate": "วันที่",
-    "emptyDaily": "ยังไม่มีข้อมูลสถิติ"
+    "emptyDaily": "ยังไม่มีข้อมูลสถิติ",
+    "adjustBalance": "Adjust Balance",
+    "adjustAmountPlaceholder": "e.g. 10 or -5 (negative requires note)",
+    "adjustAmountHint": "Positive to credit, negative to debit (billing correction). Balance may go negative.",
+    "adjustAmountZeroError": "Amount cannot be 0",
+    "adjustNegativeNoteRequired": "Note is required for negative adjustments",
+    "adjustNoteRequiredPlaceholder": "Reason for correction (required)",
+    "previewBalance": "Balance after: {balance}",
+    "confirmAdjust": "Confirm"
   },
   "errors": {
     "loginFailed": "เข้าสู่ระบบล้มเหลว",
@@ -1418,7 +1447,7 @@
         "label": "MCP Router & Gateway"
       },
       {
-        "href": "/litellm-vs-openrouter",
+        "href": "/litellm-vs-muirouter",
         "label": "LiteLLM vs OpenRouter"
       },
       {
@@ -1428,104 +1457,6 @@
     ],
     "ctaTitle": "ตรวจสอบตัวเลขด้วยตัวเอง",
     "ctaDescription": "สร้างบัญชีฟรีแล้วดูราคาจริงของแต่ละโมเดลก่อนตัดสินใจย้าย",
-    "ctaButton": "เริ่มฟรี"
-  },
-  "litellmVsOpenrouter": {
-    "metaTitle": "LiteLLM vs OpenRouter — เทียบ self-hosted กับ managed LLM gateway",
-    "metaDescription": "เทียบ LiteLLM กับ OpenRouter ในเรื่องรูปแบบการดีพลอย ราคา ความครอบคลุมของ provider และภาระด้านปฏิบัติการ — พร้อมดูว่า MuiRouter เหมาะกับใครในฐานะทางเลือกแบบ managed ที่รองรับ OpenAI",
-    "eyebrow": "LiteLLM vs OpenRouter",
-    "title": "LiteLLM vs OpenRouter — ",
-    "titleHighlight": "เทียบกัน",
-    "intro": "LiteLLM คือ proxy โอเพนซอร์สที่คุณต้อง self-host เอง ส่วน OpenRouter คือ managed API gateway ที่มีแคตตาล็อกโมเดลกว้าง นี่คือความแตกต่างในเรื่องการดีพลอย ราคา และการดูแลระบบ — พร้อมดูว่า MuiRouter เหมาะกับใครในฐานะทางเลือกแบบ managed ที่รองรับ OpenAI และมีเอนด์พอยต์ดั้งเดิมของแต่ละ provider",
-    "ctaPrimary": "เริ่มฟรี",
-    "ctaSecondary": "ดูราคา",
-    "featuresTitle": "LiteLLM vs OpenRouter vs MuiRouter แบบเห็นภาพรวม",
-    "comparisonRows": [
-      {
-        "label": "รูปแบบการดีพลอย",
-        "values": [
-          "โอเพนซอร์ส, self-hosted — คุณต้องรันและดูแล proxy เอง",
-          "Managed SaaS — สมัครแล้วเรียก API ได้เลย ไม่ต้องดูแลโครงสร้างพื้นฐาน",
-          "Managed SaaS — สมัครแล้วเรียก API ได้เลย ไม่ต้องดูแลโครงสร้างพื้นฐาน"
-        ]
-      },
-      {
-        "label": "รูปแบบราคา",
-        "values": [
-          "แกนโอเพนซอร์สฟรี; Enterprise เพิ่ม SSO/audit/support ราคาต้องติดต่อฝ่ายขาย",
-          "ส่งต่อราคาจาก provider ตรงๆ บวกค่าธรรมเนียมบัตร 5.5% (คริปโต 5%) ตอนเติมเงิน",
-          "ราคาต่อโทเค็นรวมต้นทุนแพลตฟอร์มไว้แล้ว — เติมเงินไม่มีค่าธรรมเนียมเพิ่ม"
-        ]
-      },
-      {
-        "label": "แคตตาล็อกโมเดล",
-        "values": [
-          "100+ provider — กว้างที่สุดในสามตัว",
-          "แคตตาล็อกกว้างครอบคลุมโมเดลหลายร้อยตัวจากผู้ให้บริการหลายสิบเจ้า",
-          "คัดสรร: OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot และ MiMo"
-        ]
-      },
-      {
-        "label": "ความเข้ากันได้กับ OpenAI",
-        "values": [
-          "รองรับ — แปลทุก provider ให้ตอบกลับในรูปแบบ OpenAI แบบเดียวกัน",
-          "รองรับ — รูปแบบใกล้เคียงกับ OpenAI Chat API มาก",
-          "รองรับ — เอนด์พอยต์ที่เข้ากันได้กับ Chat Completions"
-        ]
-      },
-      {
-        "label": "ภาระด้านปฏิบัติการ",
-        "values": [
-          "คุณต้องดูแล uptime การสเกล การอัปเดต และการจัดการคีย์เอง",
-          "ไม่มี — managed เต็มรูปแบบ ไม่ต้องดูแลเซิร์ฟเวอร์",
-          "ไม่มี — managed เต็มรูปแบบ ไม่ต้องดูแลเซิร์ฟเวอร์"
-        ]
-      },
-      {
-        "label": "เอนด์พอยต์ดั้งเดิมของผู้ให้บริการ",
-        "values": [
-          "รองรับผ่านการกำหนด api_base และ api_key เองต่อคำขอ",
-          "คำขอถูกทำให้เป็นมาตรฐานรูปแบบ OpenAI แบบเดียว",
-          "Anthropic /v1/messages และ OpenAI /v1/responses แบบดั้งเดิม ใช้คีย์และยอดเงินเดียวกัน"
-        ]
-      }
-    ],
-    "faqTitle": "คำถามที่พบบ่อยเกี่ยวกับ LiteLLM vs OpenRouter",
-    "faq": [
-      {
-        "question": "LiteLLM ฟรีไหม?",
-        "answer": "แกนโอเพนซอร์ส (Python SDK และ Proxy Server) ฟรีและต้อง self-host เอง — คุณต้องดูแลโครงสร้างพื้นฐาน LiteLLM Enterprise เพิ่ม SSO/SCIM บันทึก audit และซัพพอร์ต 24/7 สำหรับทีมที่ใช้งานจริง ราคาต้องติดต่อฝ่ายขาย"
-      },
-      {
-        "question": "ใช้ OpenRouter หรือ MuiRouter ต้องรันเซิร์ฟเวอร์เองไหม?",
-        "answer": "ไม่ต้อง ทั้ง OpenRouter และ MuiRouter เป็น managed — คุณได้ API key มาแล้วเรียกเอนด์พอยต์ได้เลย ไม่ต้องดีพลอยหรือดูแล proxy นี่คือความต่างหลักในทางปฏิบัติกับโมเดล self-hosted ของ LiteLLM"
-      },
-      {
-        "question": "ควรเลือกตัวไหน?",
-        "answer": "ถ้าต้องการควบคุมเต็มที่ ปรับ logic การ route เอง และไม่อยากเสียค่าธรรมเนียมแพลตฟอร์มต่อคำขอ self-host LiteLLM เหมาะกว่า ถ้าต้องการเอนด์พอยต์แบบ managed ที่มีแคตตาล็อกโมเดลกว้างที่สุด OpenRouter เหมาะ ถ้าต้องการเอนด์พอยต์แบบ managed ที่เข้าถึง Claude/GPT แบบดั้งเดิมและเติมเงินไม่มีค่าธรรมเนียมเพิ่ม ลอง MuiRouter"
-      }
-    ],
-    "relatedTitle": "ที่เกี่ยวข้อง",
-    "related": [
-      {
-        "href": "/muirouter-vs-openrouter",
-        "label": "MuiRouter vs OpenRouter"
-      },
-      {
-        "href": "/llm-router",
-        "label": "เราเตอร์ LLM"
-      },
-      {
-        "href": "/ai-router",
-        "label": "เราเตอร์ AI API"
-      },
-      {
-        "href": "/pricing",
-        "label": "ราคา"
-      }
-    ],
-    "ctaTitle": "ตรวจสอบตัวเลขด้วยตัวเอง",
-    "ctaDescription": "สร้างบัญชีฟรีแล้วดูราคาจริงของแต่ละโมเดลก่อนตัดสินใจเลือก",
     "ctaButton": "เริ่มฟรี"
   },
   "openrouterAlternatives": {
@@ -1606,7 +1537,7 @@
         "label": "MuiRouter vs OpenRouter"
       },
       {
-        "href": "/litellm-vs-openrouter",
+        "href": "/litellm-vs-muirouter",
         "label": "LiteLLM vs OpenRouter"
       },
       {
@@ -1712,7 +1643,7 @@
         "label": "MuiRouter vs OpenRouter"
       },
       {
-        "href": "/litellm-vs-openrouter",
+        "href": "/litellm-vs-muirouter",
         "label": "LiteLLM vs OpenRouter"
       },
       {
@@ -1793,7 +1724,7 @@
         "label": "MCP server คืออะไร"
       },
       {
-        "href": "/compare/openrouter",
+        "href": "/muirouter-vs-openrouter",
         "label": "MuiRouter vs OpenRouter"
       },
       {
@@ -1841,5 +1772,94 @@
         "label": "API ที่เข้ากันได้กับ OpenAI"
       }
     ]
+  },
+  "litellmVsMuirouter": {
+    "metaTitle": "LiteLLM vs MuiRouter — Self-Hosted vs Managed",
+    "metaDescription": "เปรียบเทียบ LiteLLM และ MuiRouter ด้านการติดตั้ง ราคา ความเข้ากันได้ และการดำเนินงาน",
+    "eyebrow": "LiteLLM vs MuiRouter",
+    "title": "LiteLLM vs MuiRouter — ",
+    "titleHighlight": "เทียบกัน",
+    "intro": "LiteLLM คือพร็อกซีโอเพนซอร์สที่ต้องโฮสต์เอง; MuiRouter คือเกตเวย์แบบมีการจัดการที่เข้ากันได้กับ OpenAI",
+    "ctaPrimary": "เริ่มฟรี",
+    "ctaSecondary": "ดูราคา",
+    "featuresTitle": "LiteLLM vs MuiRouter ภาพรวม",
+    "comparisonRows": [
+      {
+        "label": "รูปแบบการดีพลอย",
+        "values": [
+          "โอเพนซอร์ส, self-hosted — คุณต้องรันและดูแล proxy เอง",
+          "Managed SaaS — สมัครแล้วเรียก API ได้เลย ไม่ต้องดูแลโครงสร้างพื้นฐาน"
+        ]
+      },
+      {
+        "label": "รูปแบบราคา",
+        "values": [
+          "แกนโอเพนซอร์สฟรี; Enterprise เพิ่ม SSO/audit/support ราคาต้องติดต่อฝ่ายขาย",
+          "ราคาต่อโทเค็นรวมต้นทุนแพลตฟอร์มไว้แล้ว — เติมเงินไม่มีค่าธรรมเนียมเพิ่ม"
+        ]
+      },
+      {
+        "label": "แคตตาล็อกโมเดล",
+        "values": [
+          "100+ provider — กว้างที่สุดในสามตัว",
+          "คัดสรร: OpenAI, Claude, Gemini, Grok, Workers AI, Moonshot และ MiMo"
+        ]
+      },
+      {
+        "label": "ความเข้ากันได้กับ OpenAI",
+        "values": [
+          "รองรับ — แปลทุก provider ให้ตอบกลับในรูปแบบ OpenAI แบบเดียวกัน",
+          "รองรับ — เอนด์พอยต์ที่เข้ากันได้กับ Chat Completions"
+        ]
+      },
+      {
+        "label": "ภาระด้านปฏิบัติการ",
+        "values": ["คุณต้องดูแล uptime การสเกล การอัปเดต และการจัดการคีย์เอง", "ไม่มี — managed เต็มรูปแบบ ไม่ต้องดูแลเซิร์ฟเวอร์"]
+      },
+      {
+        "label": "เอนด์พอยต์ดั้งเดิมของผู้ให้บริการ",
+        "values": [
+          "รองรับผ่านการกำหนด api_base และ api_key เองต่อคำขอ",
+          "Anthropic /v1/messages และ OpenAI /v1/responses แบบดั้งเดิม ใช้คีย์และยอดเงินเดียวกัน"
+        ]
+      }
+    ],
+    "faqTitle": "คำถามที่พบบ่อยเกี่ยวกับ LiteLLM vs MuiRouter",
+    "faq": [
+      {
+        "question": "LiteLLM ฟรีไหม?",
+        "answer": "แกนโอเพนซอร์ส (Python SDK และ Proxy Server) ฟรีและต้อง self-host เอง — คุณต้องดูแลโครงสร้างพื้นฐาน LiteLLM Enterprise เพิ่ม SSO/SCIM บันทึก audit และซัพพอร์ต 24/7 สำหรับทีมที่ใช้งานจริง ราคาต้องติดต่อฝ่ายขาย"
+      },
+      {
+        "question": "ใช้ MuiRouter หรือ MuiRouter ต้องรันเซิร์ฟเวอร์เองไหม?",
+        "answer": "ไม่ต้อง ทั้ง OpenRouter และ MuiRouter เป็น managed — คุณได้ API key มาแล้วเรียกเอนด์พอยต์ได้เลย ไม่ต้องดีพลอยหรือดูแล proxy นี่คือความต่างหลักในทางปฏิบัติกับโมเดล self-hosted ของ LiteLLM"
+      },
+      {
+        "question": "ควรเลือกตัวไหน?",
+        "answer": "ถ้าต้องการควบคุมเต็มที่ ปรับ logic การ route เอง และไม่อยากเสียค่าธรรมเนียมแพลตฟอร์มต่อคำขอ self-host LiteLLM เหมาะกว่า ถ้าต้องการเอนด์พอยต์แบบ managed ที่มีแคตตาล็อกโมเดลกว้างที่สุด OpenRouter เหมาะ ถ้าต้องการเอนด์พอยต์แบบ managed ที่เข้าถึง Claude/GPT แบบดั้งเดิมและเติมเงินไม่มีค่าธรรมเนียมเพิ่ม ลอง MuiRouter"
+      }
+    ],
+    "relatedTitle": "ที่เกี่ยวข้อง",
+    "related": [
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "เราเตอร์ LLM"
+      },
+      {
+        "href": "/ai-router",
+        "label": "เราเตอร์ AI API"
+      },
+      {
+        "href": "/pricing",
+        "label": "ราคา"
+      }
+    ],
+    "ctaTitle": "ตรวจสอบตัวเลขด้วยตัวเอง",
+    "ctaDescription": "สร้างบัญชีฟรีแล้วดูราคาจริงของแต่ละโมเดลก่อนตัดสินใจเลือก",
+    "ctaButton": "เริ่มฟรี"
   }
 }

@@ -1,0 +1,53 @@
+# Privacy Policy
+
+**Effective Date:** September 1, 2026 · **Version:** 2026-09-01
+
+## 1. Overview
+
+MuiRouter ("we", "us") operates `muirouter.com` and `api.muirouter.com`. This policy describes what we collect, how we use it, and your choices.
+
+## 2. Data We Collect
+
+- **Account:** email, name, avatar (if via OAuth), password hash (if email auth). We never store raw passwords.
+- **Usage:** model ID, token counts, cost, latency, timestamps, API key prefix, IP and user-agent. Prompts and completions are forwarded to the upstream provider but not retained longer than needed for billing and abuse detection unless you opt into extended logging.
+- **Billing:** Stripe handles card data. We store top-up amount, currency, Stripe session/customer/payment intent IDs and resulting wallet balance.
+- **Cookies:** session cookies for authentication and locale preference. No third-party ad cookies.
+
+## 3. How We Use Data
+
+- To authenticate, route, meter, bill and support your account.
+- To detect abuse, enforce rate limits and comply with upstream provider policies.
+- To send service notices (billing, security, Terms changes). We do not sell your data.
+
+## 4. Processors and Transfers
+
+- **Cloudflare** (edge, D1, KV, R2, Durable Objects) — infrastructure.
+- **Stripe** — payments.
+- **Upstream model providers** (OpenAI, Anthropic, Google, Moonshot, xAI, Xiaomi MiMo) — inference. Their handling of prompts is governed by their own policies.
+- Data may be processed in the United States or other regions where these processors operate.
+
+## 5. Retention
+
+- Account and billing records are retained while your account is active and as required by law.
+- Usage logs are retained for analytics and support, then aggregated or deleted per our retention schedule.
+- You may request deletion of your account by contacting `support@muirouter.com`; legal or billing retention may require us to keep certain records.
+
+## 6. Your Rights
+
+You may request access, correction or deletion of your personal data. For EU/UK/California residents, additional rights apply under GDPR/CCPA — contact us to exercise them.
+
+## 7. Security
+
+We use TLS, least-privilege access and centralized credential storage (Cloudflare AI Gateway Stored Keys). No system is perfectly secure; use strong passwords and rotate keys regularly.
+
+## 8. Changes
+
+When this policy version changes, you will be prompted to re-consent in the dashboard. The current Privacy version is `2026-09-01`.
+
+## 9. Contact
+
+Questions: `support@muirouter.com`.
+
+---
+
+*Template for MuiRouter — have counsel review before publishing.*

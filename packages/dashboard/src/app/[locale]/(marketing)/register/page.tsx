@@ -6,10 +6,12 @@ import { useState } from 'react';
 import { SocialLoginButtons } from '@/components/social-login-buttons';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Link, useRouter } from '@/i18n/navigation';
 import { signUp } from '@/lib/auth-client';
+import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from '@/lib/legal';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -21,10 +23,16 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError('');
+
+    if (!agreed) {
+      setError(t('agreeTermsRequired'));
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError(te('passwordMismatch'));
@@ -39,10 +47,15 @@ export default function RegisterPage() {
     setLoading(true);
 
     try {
-      const result = await signUp.email({
+      const result = await (
+        signUp.email as unknown as (p: Record<string, unknown>) => Promise<{ error: { message?: string } | null }>
+      )({
         email,
         password,
         name: name || email.split('@')[0],
+        acceptedTermsAt: new Date(),
+        acceptedTermsVersion: CURRENT_TERMS_VERSION,
+        acceptedPrivacyVersion: CURRENT_PRIVACY_VERSION,
       });
       if (result.error) {
         setError(result.error.message || te('registerFailed'));
@@ -126,9 +139,24 @@ export default function RegisterPage() {
             />
           </div>
 
+          <label className="flex items-start gap-2 text-sm cursor-pointer">
+            <Checkbox checked={agreed} onCheckedChange={(v) => setAgreed(v === true)} />
+            <span>
+              {t('agreeTermsPrefix')}
+              <Link href="/terms" target="_blank" className="text-primary underline-offset-4 hover:underline">
+                {t('termsLink')}
+              </Link>
+              {t('agreeTermsAnd')}
+              <Link href="/privacy" target="_blank" className="text-primary underline-offset-4 hover:underline">
+                {t('privacyLink')}
+              </Link>
+              {t('agreeTermsSuffix')}
+            </span>
+          </label>
+
           {error && <p className="text-sm text-destructive">{error}</p>}
 
-          <Button type="submit" variant="press" className="w-full" disabled={loading}>
+          <Button type="submit" variant="press" className="w-full" disabled={loading || !agreed}>
             {loading ? t('submitting') : t('submit')}
           </Button>
         </form>

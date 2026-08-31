@@ -11,7 +11,7 @@ const db = env.DB;
 await db.batch([
   // 创建表结构
   db.prepare(
-    'CREATE TABLE IF NOT EXISTS user (id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, email TEXT NOT NULL, email_verified INTEGER NOT NULL, image TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)',
+    'CREATE TABLE IF NOT EXISTS user (id TEXT PRIMARY KEY NOT NULL, name TEXT NOT NULL, email TEXT NOT NULL, email_verified INTEGER NOT NULL, image TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL, accepted_terms_at INTEGER, accepted_terms_version TEXT, accepted_privacy_version TEXT)',
   ),
   db.prepare('CREATE UNIQUE INDEX IF NOT EXISTS user_email_unique ON user (email)'),
   db.prepare(
@@ -52,12 +52,12 @@ await db.batch([
     'CREATE TABLE IF NOT EXISTS oauth_tokens (token_hash TEXT PRIMARY KEY NOT NULL, kind TEXT NOT NULL, pair_id TEXT NOT NULL, client_id TEXT NOT NULL, user_id TEXT NOT NULL, scope TEXT NOT NULL, expires_at INTEGER NOT NULL, created_at INTEGER DEFAULT (unixepoch()))',
   ),
 
-  // 种子数据：测试用户
+  // 种子数据：测试用户（已同意最新条款，避免 dashboard 强制弹窗阻挡 e2e）
   db.prepare(
-    "INSERT OR IGNORE INTO user (id, name, email, email_verified, image, created_at, updated_at) VALUES ('test-user-1', 'test@example.com', 'test@example.com', 1, NULL, unixepoch(), unixepoch())",
+    "INSERT OR IGNORE INTO user (id, name, email, email_verified, image, created_at, updated_at, accepted_terms_at, accepted_terms_version, accepted_privacy_version) VALUES ('test-user-1', 'test@example.com', 'test@example.com', 1, NULL, unixepoch(), unixepoch(), unixepoch(), '2026-09-01', '2026-09-01')",
   ),
   db.prepare(
-    "INSERT OR IGNORE INTO user (id, name, email, email_verified, image, created_at, updated_at) VALUES ('test-user-broke', 'broke@example.com', 'broke@example.com', 1, NULL, unixepoch(), unixepoch())",
+    "INSERT OR IGNORE INTO user (id, name, email, email_verified, image, created_at, updated_at, accepted_terms_at, accepted_terms_version, accepted_privacy_version) VALUES ('test-user-broke', 'broke@example.com', 'broke@example.com', 1, NULL, unixepoch(), unixepoch(), unixepoch(), '2026-09-01', '2026-09-01')",
   ),
 
   // 种子数据：测试模型

@@ -70,8 +70,8 @@ export function ModelsSection() {
   ];
 
   return (
-    <section className="py-14 px-6 border-t border-border">
-      <div className="mx-auto max-w-6xl">
+    <section className="py-14 border-t border-border">
+      <div className="container mx-auto px-6">
         <div className="text-center mb-8">
           <h2 className="text-3xl font-bold tracking-tight">{t('title')}</h2>
           <p className="mt-3 text-muted-foreground text-lg">{t('subtitle')}</p>

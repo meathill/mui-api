@@ -20,7 +20,22 @@
     "openrouterAlternatives": "OpenRouter の代替",
     "opencode": "opencode 連携",
     "mcpServer": "MCP サーバー",
-    "compareOpenrouter": "MuiRouter vs OpenRouter"
+    "compareOpenrouter": "MuiRouter vs OpenRouter",
+    "products": "プロダクト",
+    "gateways": "ゲートウェイ",
+    "compare": "比較",
+    "legal": "法務",
+    "terms": "利用規約",
+    "privacy": "プライバシー",
+    "about": "私たちについて",
+    "contact": "お問い合わせ",
+    "claudeGateway": "Claude ゲートウェイ",
+    "gptGateway": "GPT ゲートウェイ",
+    "geminiGateway": "Gemini ゲートウェイ",
+    "grokGateway": "Grok ゲートウェイ",
+    "muirouterVsOpenrouter": "MuiRouter vs OpenRouter",
+    "litellmVsOpenrouter": "LiteLLM vs MuiRouter",
+    "litellmVsMuirouter": "LiteLLM vs MuiRouter"
   },
   "hero": {
     "badge": "OpenAI / Claude / DeepSeek / GLM / Qwen / Grok / Kimi / MiniMax — one router",
@@ -221,7 +236,13 @@
     "submitting": "登録中...",
     "submit": "新規登録",
     "hasAccount": "すでにアカウントをお持ちですか？",
-    "login": "ログイン"
+    "login": "ログイン",
+    "agreeTermsPrefix": "",
+    "agreeTermsAnd": "と",
+    "agreeTermsSuffix": "に同意します。",
+    "agreeTermsRequired": "利用規約に同意してください",
+    "termsLink": "利用規約",
+    "privacyLink": "プライバシーポリシー"
   },
   "sidebar": {
     "console": "コンソール",
@@ -608,7 +629,15 @@
     "sectionDaily": "日別統計",
     "viewAll": "すべて表示 →",
     "colDate": "日付",
-    "emptyDaily": "統計データはまだありません"
+    "emptyDaily": "統計データはまだありません",
+    "adjustBalance": "Adjust Balance",
+    "adjustAmountPlaceholder": "e.g. 10 or -5 (negative requires note)",
+    "adjustAmountHint": "Positive to credit, negative to debit (billing correction). Balance may go negative.",
+    "adjustAmountZeroError": "Amount cannot be 0",
+    "adjustNegativeNoteRequired": "Note is required for negative adjustments",
+    "adjustNoteRequiredPlaceholder": "Reason for correction (required)",
+    "previewBalance": "Balance after: {balance}",
+    "confirmAdjust": "Confirm"
   },
   "errors": {
     "loginFailed": "ログインに失敗しました",
@@ -1418,7 +1447,7 @@
         "label": "MCP ルーター & ゲートウェイ"
       },
       {
-        "href": "/litellm-vs-openrouter",
+        "href": "/litellm-vs-muirouter",
         "label": "LiteLLM vs OpenRouter"
       },
       {
@@ -1428,104 +1457,6 @@
     ],
     "ctaTitle": "自分の目で数字を確かめる",
     "ctaDescription": "無料アカウントを作成し、乗り換える前にモデルごとの実際の料金を確認しましょう。",
-    "ctaButton": "無料で始める"
-  },
-  "litellmVsOpenrouter": {
-    "metaTitle": "LiteLLM vs OpenRouter — セルフホストとマネージド LLM ゲートウェイの比較",
-    "metaDescription": "LiteLLM と OpenRouter を、デプロイ形態、料金、プロバイダーカバレッジ、運用負荷の観点で比較——さらに MuiRouter がマネージドで OpenAI 互換の選択肢としてどこに位置するかも解説。",
-    "eyebrow": "LiteLLM vs OpenRouter",
-    "title": "LiteLLM vs OpenRouter — ",
-    "titleHighlight": "比較",
-    "intro": "LiteLLM は自分でホストするオープンソースのプロキシ、OpenRouter は幅広いモデルカタログを持つマネージド API ゲートウェイです。デプロイ形態、料金、運用の観点でどう違うのか——そして MuiRouter がネイティブなプロバイダーエンドポイントを備えた、マネージドで OpenAI 互換の選択肢としてどこに位置するかを解説します。",
-    "ctaPrimary": "無料で始める",
-    "ctaSecondary": "料金を見る",
-    "featuresTitle": "LiteLLM vs OpenRouter vs MuiRouter 早見表",
-    "comparisonRows": [
-      {
-        "label": "デプロイ形態",
-        "values": [
-          "オープンソース、セルフホスト——プロキシの運用・保守は自分で行う",
-          "マネージド SaaS——サインアップして API を呼ぶだけ、インフラの運用不要",
-          "マネージド SaaS——サインアップして API を呼ぶだけ、インフラの運用不要"
-        ]
-      },
-      {
-        "label": "料金モデル",
-        "values": [
-          "オープンソースのコアは無料；Enterprise は SSO/監査/サポートを追加、料金は要問い合わせ",
-          "プロバイダー価格をそのまま転嫁し、チャージごとに5.5%のカード手数料（暗号資産は5%）が発生",
-          "トークン単価にプラットフォームコストを含む——チャージに別途手数料なし"
-        ]
-      },
-      {
-        "label": "モデルカタログ",
-        "values": [
-          "100以上のプロバイダー——3つの中で最も幅広い",
-          "数十のプロバイダーにまたがる数百のモデルを網羅する幅広いカタログ",
-          "厳選：OpenAI、Claude、Gemini、Grok、Workers AI、Moonshot、MiMo"
-        ]
-      },
-      {
-        "label": "OpenAI 互換性",
-        "values": [
-          "対応——各プロバイダーを統一された OpenAI 形式のレスポンスに変換",
-          "対応——形式は OpenAI Chat API に近い",
-          "対応——Chat Completions 互換エンドポイント"
-        ]
-      },
-      {
-        "label": "運用負荷",
-        "values": [
-          "稼働率、スケーリング、アップデート、キー管理をすべて自分で担う",
-          "なし——完全マネージドでサーバー運用不要",
-          "なし——完全マネージドでサーバー運用不要"
-        ]
-      },
-      {
-        "label": "プロバイダーのネイティブエンドポイント",
-        "values": [
-          "呼び出しごとにカスタムの api_base と api_key でパススルー対応",
-          "リクエストは1つの OpenAI 形式に正規化される",
-          "ネイティブな Anthropic /v1/messages と OpenAI /v1/responses、同じキー・同じ残高"
-        ]
-      }
-    ],
-    "faqTitle": "LiteLLM vs OpenRouter FAQ",
-    "faq": [
-      {
-        "question": "LiteLLM は無料ですか？",
-        "answer": "オープンソースのコア（Python SDK と Proxy Server）は無料でセルフホスト——インフラの運用は自分で行います。LiteLLM Enterprise は本番運用チーム向けに SSO/SCIM、監査ログ、24/7サポートを追加し、料金は要問い合わせです。"
-      },
-      {
-        "question": "OpenRouter や MuiRouter を使うのに自分でサーバーを運用する必要はありますか？",
-        "answer": "いいえ。OpenRouter と MuiRouter はどちらもマネージドです——API キーを取得してエンドポイントを呼ぶだけで、プロキシのデプロイや保守は不要です。これが LiteLLM のセルフホストモデルとの主な実務上の違いです。"
-      },
-      {
-        "question": "どれを選ぶべきですか？",
-        "answer": "完全なコントロール、カスタムのルーティングロジック、リクエストごとのプラットフォーム手数料なしを求めるなら、LiteLLM のセルフホストが理にかなっています。最も幅広いモデルカタログを持つマネージドエンドポイントが欲しいなら OpenRouter が向いています。ネイティブな Claude/GPT アクセスとチャージ時の別途手数料なしのマネージドエンドポイントが欲しいなら、MuiRouter を試してみてください。"
-      }
-    ],
-    "relatedTitle": "関連ページ",
-    "related": [
-      {
-        "href": "/muirouter-vs-openrouter",
-        "label": "MuiRouter vs OpenRouter"
-      },
-      {
-        "href": "/llm-router",
-        "label": "LLM ルーター"
-      },
-      {
-        "href": "/ai-router",
-        "label": "AI API ルーター"
-      },
-      {
-        "href": "/pricing",
-        "label": "料金"
-      }
-    ],
-    "ctaTitle": "自分の目で数字を確かめる",
-    "ctaDescription": "無料アカウントを作成し、選ぶ前にモデルごとの実際の料金を確認しましょう。",
     "ctaButton": "無料で始める"
   },
   "openrouterAlternatives": {
@@ -1616,7 +1547,7 @@
         "label": "MuiRouter vs OpenRouter"
       },
       {
-        "href": "/litellm-vs-openrouter",
+        "href": "/litellm-vs-muirouter",
         "label": "LiteLLM vs OpenRouter"
       },
       {
@@ -1732,7 +1663,7 @@
         "label": "MuiRouter vs OpenRouter"
       },
       {
-        "href": "/litellm-vs-openrouter",
+        "href": "/litellm-vs-muirouter",
         "label": "LiteLLM vs OpenRouter"
       },
       {
@@ -1813,7 +1744,7 @@
         "label": "MCP サーバーとは？"
       },
       {
-        "href": "/compare/openrouter",
+        "href": "/muirouter-vs-openrouter",
         "label": "MuiRouter vs OpenRouter"
       },
       {
@@ -1861,5 +1792,97 @@
         "label": "OpenAI 互換 API"
       }
     ]
+  },
+  "litellmVsMuirouter": {
+    "metaTitle": "LiteLLM vs MuiRouter — セルフホスト vs マネージド",
+    "metaDescription": "LiteLLM と MuiRouter をデプロイ、価格、互換性、運用面で比較。",
+    "eyebrow": "LiteLLM vs MuiRouter",
+    "title": "LiteLLM vs MuiRouter — ",
+    "titleHighlight": "比較",
+    "intro": "LiteLLM はセルフホストのオープンソースプロキシ、MuiRouter はマネージドで OpenAI 互換、ネイティブエンドポイントを持つゲートウェイです。",
+    "ctaPrimary": "無料で始める",
+    "ctaSecondary": "料金を見る",
+    "featuresTitle": "LiteLLM vs MuiRouter 概要",
+    "comparisonRows": [
+      {
+        "label": "デプロイ形態",
+        "values": [
+          "オープンソース、セルフホスト——プロキシの運用・保守は自分で行う",
+          "マネージド SaaS——サインアップして API を呼ぶだけ、インフラの運用不要"
+        ]
+      },
+      {
+        "label": "料金モデル",
+        "values": [
+          "オープンソースのコアは無料；Enterprise は SSO/監査/サポートを追加、料金は要問い合わせ",
+          "トークン単価にプラットフォームコストを含む——チャージに別途手数料なし"
+        ]
+      },
+      {
+        "label": "モデルカタログ",
+        "values": [
+          "100以上のプロバイダー——3つの中で最も幅広い",
+          "厳選：OpenAI、Claude、Gemini、Grok、Workers AI、Moonshot、MiMo"
+        ]
+      },
+      {
+        "label": "OpenAI 互換性",
+        "values": [
+          "対応——各プロバイダーを統一された OpenAI 形式のレスポンスに変換",
+          "対応——Chat Completions 互換エンドポイント"
+        ]
+      },
+      {
+        "label": "運用負荷",
+        "values": [
+          "稼働率、スケーリング、アップデート、キー管理をすべて自分で担う",
+          "なし——完全マネージドでサーバー運用不要"
+        ]
+      },
+      {
+        "label": "プロバイダーのネイティブエンドポイント",
+        "values": [
+          "呼び出しごとにカスタムの api_base と api_key でパススルー対応",
+          "ネイティブな Anthropic /v1/messages と OpenAI /v1/responses、同じキー・同じ残高"
+        ]
+      }
+    ],
+    "faqTitle": "LiteLLM vs MuiRouter FAQ",
+    "faq": [
+      {
+        "question": "LiteLLM は無料ですか？",
+        "answer": "オープンソースのコア（Python SDK と Proxy Server）は無料でセルフホスト——インフラの運用は自分で行います。LiteLLM Enterprise は本番運用チーム向けに SSO/SCIM、監査ログ、24/7サポートを追加し、料金は要問い合わせです。"
+      },
+      {
+        "question": "MuiRouter や MuiRouter を使うのに自分でサーバーを運用する必要はありますか？",
+        "answer": "いいえ。OpenRouter と MuiRouter はどちらもマネージドです——API キーを取得してエンドポイントを呼ぶだけで、プロキシのデプロイや保守は不要です。これが LiteLLM のセルフホストモデルとの主な実務上の違いです。"
+      },
+      {
+        "question": "どれを選ぶべきですか？",
+        "answer": "完全なコントロール、カスタムのルーティングロジック、リクエストごとのプラットフォーム手数料なしを求めるなら、LiteLLM のセルフホストが理にかなっています。最も幅広いモデルカタログを持つマネージドエンドポイントが欲しいなら OpenRouter が向いています。ネイティブな Claude/GPT アクセスとチャージ時の別途手数料なしのマネージドエンドポイントが欲しいなら、MuiRouter を試してみてください。"
+      }
+    ],
+    "relatedTitle": "関連ページ",
+    "related": [
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "LLM ルーター"
+      },
+      {
+        "href": "/ai-router",
+        "label": "AI API ルーター"
+      },
+      {
+        "href": "/pricing",
+        "label": "料金"
+      }
+    ],
+    "ctaTitle": "自分の目で数字を確かめる",
+    "ctaDescription": "無料アカウントを作成し、選ぶ前にモデルごとの実際の料金を確認しましょう。",
+    "ctaButton": "無料で始める"
   }
 }

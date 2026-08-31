@@ -1,34 +1,6 @@
-import type { Metadata } from 'next';
-import { getTranslations, setRequestLocale } from 'next-intl/server';
-import { buildMetadata, getResolvedLocale } from '@/lib/seo';
-import { RouterLanding } from '../_components/router-landing';
+import { redirect } from 'next/navigation';
 
-const COMPARISON_COLUMNS = ['LiteLLM', 'OpenRouter', 'MuiRouter'];
-
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
-  const { locale } = await params;
-  const resolvedLocale = getResolvedLocale(locale);
-  const t = await getTranslations({ locale: resolvedLocale, namespace: 'litellmVsOpenrouter' });
-
-  return buildMetadata({
-    path: '/litellm-vs-openrouter',
-    title: t('metaTitle'),
-    description: t('metaDescription'),
-    locale: resolvedLocale,
-  });
-}
-
-export default async function LitellmVsOpenrouterPage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  setRequestLocale(locale);
-  return (
-    <RouterLanding
-      namespace="litellmVsOpenrouter"
-      path="/litellm-vs-openrouter"
-      locale={locale}
-      variant="comparisonTable"
-      comparisonColumns={COMPARISON_COLUMNS}
-      highlightColumnIndex={2}
-    />
-  );
+// 2026-09 更名：LiteLLM 对比对象由 OpenRouter 改为 MuiRouter
+export default function LitellmVsOpenrouterRedirect() {
+  redirect('/litellm-vs-muirouter');
 }

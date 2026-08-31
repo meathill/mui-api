@@ -81,7 +81,7 @@ export default async function ModelsPage({ params }: { params: Promise<{ locale:
   const total = sections.reduce((acc, s) => acc + s.models.length, 0);
 
   return (
-    <div className="mx-auto max-w-6xl px-6 py-10">
+    <div className="container mx-auto px-6 py-10">
       <div className="mb-8">
         <h1 className="text-3xl font-bold tracking-tight">{locale === 'zh' ? '全量模型' : 'All Models'}</h1>
         <p className="mt-2 text-muted-foreground">

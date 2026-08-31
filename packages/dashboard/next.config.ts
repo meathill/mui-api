@@ -19,6 +19,14 @@ const nextConfig: NextConfig = {
     NEXT_PUBLIC_APP_VERSION: process.env.npm_package_version || '0.0.0',
   },
   transpilePackages: ['@muirouter/shared-db'],
+  async redirects() {
+    return [
+      // 2026-09 去重：/compare/openrouter 与 /muirouter-vs-openrouter 重复，统一到后者
+      { source: '/compare/openrouter', destination: '/muirouter-vs-openrouter', permanent: true },
+      // 2026-09 更名：LiteLLM 对比对象由 OpenRouter 改为 MuiRouter
+      { source: '/litellm-vs-openrouter', destination: '/litellm-vs-muirouter', permanent: true },
+    ];
+  },
 };
 
 export default withNextIntl(withMDX(nextConfig));

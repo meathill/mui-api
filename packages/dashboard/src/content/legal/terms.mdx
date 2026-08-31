@@ -1,0 +1,86 @@
+# Terms of Service
+
+**Effective Date:** September 1, 2026 · **Version:** 2026-09-01 · **Operator:** Meathill LLC
+
+> This is a developer-oriented AI gateway. By creating an account or calling the API, you agree to these Terms.
+
+## 1. Service Description
+
+MuiRouter provides an OpenAI-compatible AI API router and MCP server that forwards your requests to upstream providers (OpenAI, Anthropic, Google AI Studio, Moonshot AI, xAI, Xiaomi MiMo, Cloudflare Workers AI, etc.). We do not train on your prompts. You bring one API key (`sk-gw-`) and we route, bill and meter the request.
+
+## 2. Accounts and API Keys
+
+- You must provide accurate contact information and keep credentials confidential.
+- You are responsible for all activity under your API keys and OAuth tokens.
+- We may suspend accounts that materially violate these Terms or upstream provider policies.
+
+## 3. Acceptable Use
+
+Do not use the service to violate law, infringe IP, generate illegal content, or attack the service or its upstreams. We reserve the right to block models, prompts or accounts that trigger upstream abuse detection.
+
+## 4. Billing
+
+- Pay-per-token. No subscription. Prices are per model as configured in the dashboard at request time.
+- Top-ups are prepaid wallet credits. Credits do not expire.
+- Stripe Checkout is the payment processor. Prices are in USD.
+
+## 5. Credits, Free Quota and Consumptions
+
+- Free quota, if enabled, is a limited promotional allowance for selected models. It offsets billable cost but does not create cash value.
+- Metered usage is final once the upstream response is returned. Token counts are as reported by the upstream provider.
+
+## 6. Refund Policy
+
+We want you to try before you commit. At the same time, many costs are incurred at the moment you pay or call a model.
+
+### 6.1 Eligibility
+
+- Only **unused prepaid wallet balance** is refundable.
+- Request must be made **within 30 days** of the original top-up. Contact `support@muirouter.com`.
+- Free promotional quota is never refundable.
+
+### 6.2 Deductions
+
+Approved refunds are calculated as:
+
+```
+refundable = max(0, topUpAmount - consumed - topUpAmount × 5.5% - fxLoss)
+```
+
+- **Stripe fee:** 5.5% of the original top-up amount is non-refundable (Stripe processing cost; same rate for card and crypto channels).
+- **Consumed amount:** any billable inference, image, video or other metered calls already settled against the wallet are deducted.
+- **Conversion / channel fees:** any FX conversion or cross-border / crypto on-ramp fees charged by your bank or payment channel are deducted and borne by you.
+
+### 6.3 Minimum and Payout
+
+- Minimum refundable amount is **$5.00**. Amounts below $5.00 will not be processed.
+- Refunds are returned to the original payment method. Timing depends on Stripe and your bank (typically 5–10 business days).
+- We may ask for account verification before processing.
+
+### 6.4 Chargebacks
+
+Filing a chargeback without first contacting support is a violation of these Terms and may result in account suspension.
+
+## 7. Service Availability
+
+We target high availability via Cloudflare's global edge, but do not guarantee uninterrupted service. Upstream provider outages, rate limits or policy changes are outside our control.
+
+## 8. Privacy
+
+Our data practices are described in the [Privacy Policy](/privacy). By using the service you also agree to the Privacy Policy.
+
+## 9. Changes to Terms
+
+We may update these Terms. When the version changes (see date at top), you will be asked to re-consent via a prompt in the dashboard before continuing to use the service. The current versions are `2026-09-01` for both Terms and Privacy.
+
+## 10. Limitation of Liability
+
+To the maximum extent permitted by law, the service is provided "as is". Our aggregate liability for any claim arising from the service is limited to the amount you paid in the 30 days preceding the claim.
+
+## 11. Governing Law
+
+These Terms are governed by the laws specified at time of contracting with Meathill LLC. Contact us at `support@muirouter.com` for questions.
+
+---
+
+*This document is a template drafted for MuiRouter and should be reviewed by counsel before final publication.*

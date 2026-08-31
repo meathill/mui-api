@@ -7,6 +7,9 @@ interface SessionUser {
   id: string;
   email: string;
   name: string;
+  acceptedTermsAt?: Date | string | null;
+  acceptedTermsVersion?: string | null;
+  acceptedPrivacyVersion?: string | null;
 }
 
 interface SessionResult {
@@ -40,6 +43,15 @@ export const getSession = cache(async (): Promise<SessionResult> => {
         id: session.user.id,
         email: session.user.email,
         name: session.user.name,
+        acceptedTermsAt: (session.user as Record<string, unknown>).acceptedTermsAt as Date | string | null | undefined,
+        acceptedTermsVersion: (session.user as Record<string, unknown>).acceptedTermsVersion as
+          | string
+          | null
+          | undefined,
+        acceptedPrivacyVersion: (session.user as Record<string, unknown>).acceptedPrivacyVersion as
+          | string
+          | null
+          | undefined,
       },
       isAdmin,
     };

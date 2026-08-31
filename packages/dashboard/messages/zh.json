@@ -20,7 +20,22 @@
     "openrouterAlternatives": "OpenRouter 替代品",
     "opencode": "opencode 接入",
     "mcpServer": "MCP 服务器",
-    "compareOpenrouter": "MuiRouter vs OpenRouter"
+    "compareOpenrouter": "MuiRouter vs OpenRouter",
+    "products": "产品",
+    "gateways": "网关",
+    "compare": "对比",
+    "legal": "法律",
+    "terms": "使用协议",
+    "privacy": "隐私政策",
+    "about": "关于",
+    "contact": "联系",
+    "claudeGateway": "Claude 网关",
+    "gptGateway": "GPT 网关",
+    "geminiGateway": "Gemini 网关",
+    "grokGateway": "Grok 网关",
+    "muirouterVsOpenrouter": "MuiRouter vs OpenRouter",
+    "litellmVsOpenrouter": "LiteLLM vs MuiRouter",
+    "litellmVsMuirouter": "LiteLLM vs MuiRouter"
   },
   "hero": {
     "badge": "OpenAI / Claude / DeepSeek / GLM / Qwen / Grok / Kimi / MiniMax——一个路由全搞定",
@@ -221,7 +236,13 @@
     "submitting": "注册中...",
     "submit": "注册",
     "hasAccount": "已有账户？",
-    "login": "登录"
+    "login": "登录",
+    "agreeTermsPrefix": "我已阅读并同意",
+    "agreeTermsAnd": "和",
+    "agreeTermsSuffix": "。",
+    "agreeTermsRequired": "请先勾选同意使用协议与隐私政策",
+    "termsLink": "使用协议",
+    "privacyLink": "隐私政策"
   },
   "sidebar": {
     "console": "控制台",
@@ -608,7 +629,15 @@
     "sectionDaily": "按天统计",
     "viewAll": "查看全部 →",
     "colDate": "日期",
-    "emptyDaily": "暂无统计数据"
+    "emptyDaily": "暂无统计数据",
+    "adjustBalance": "调整余额",
+    "adjustAmountPlaceholder": "如 10 或 -5（负数需备注）",
+    "adjustAmountHint": "正数为充值，负数为扣减（用于计费冲正），可为负余额",
+    "adjustAmountZeroError": "金额不能为 0",
+    "adjustNegativeNoteRequired": "负数调整必须填写备注",
+    "adjustNoteRequiredPlaceholder": "请填写冲正原因（必填）",
+    "previewBalance": "调整后余额：{balance}",
+    "confirmAdjust": "确认调整"
   },
   "errors": {
     "loginFailed": "登录失败",
@@ -1412,7 +1441,7 @@
         "label": "MCP 路由与网关"
       },
       {
-        "href": "/litellm-vs-openrouter",
+        "href": "/litellm-vs-muirouter",
         "label": "LiteLLM vs OpenRouter"
       },
       {
@@ -1422,104 +1451,6 @@
     ],
     "ctaTitle": "自己核对一下数字",
     "ctaDescription": "注册一个免费账号，换之前先看看每个模型的真实价格。",
-    "ctaButton": "免费开始"
-  },
-  "litellmVsOpenrouter": {
-    "metaTitle": "LiteLLM vs OpenRouter——自建代理与托管 LLM 网关对比",
-    "metaDescription": "对比 LiteLLM 和 OpenRouter 的部署方式、计价、provider 覆盖和运维负担——以及 MuiRouter 作为托管、OpenAI 兼容替代方案的定位。",
-    "eyebrow": "LiteLLM vs OpenRouter",
-    "title": "LiteLLM vs OpenRouter——",
-    "titleHighlight": "对比",
-    "intro": "LiteLLM 是一个需要自己部署的开源代理；OpenRouter 是一个模型目录广泛的托管 API 网关。以下是两者在部署方式、计价和运维上的差异——以及 MuiRouter 作为托管、OpenAI 兼容、带原生 provider 端点的替代方案定位在哪里。",
-    "ctaPrimary": "免费开始",
-    "ctaSecondary": "查看定价",
-    "featuresTitle": "LiteLLM vs OpenRouter vs MuiRouter 一览",
-    "comparisonRows": [
-      {
-        "label": "部署方式",
-        "values": [
-          "开源、自己部署——代理服务器需要你自己运行和维护",
-          "托管 SaaS——注册后直接调用 API，无需运维基础设施",
-          "托管 SaaS——注册后直接调用 API，无需运维基础设施"
-        ]
-      },
-      {
-        "label": "计价方式",
-        "values": [
-          "开源核心免费；企业版加 SSO/审计/支持，价格需联系销售",
-          "按 provider 原价透传，每次充值另收 5.5% 信用卡手续费（加密货币 5%）",
-          "每 token 价格已包含平台成本——充值没有额外手续费"
-        ]
-      },
-      {
-        "label": "模型覆盖",
-        "values": [
-          "100+ provider——三者中覆盖最广",
-          "覆盖数十家 provider、数百个模型的庞大目录",
-          "精选：OpenAI、Claude、Gemini、Grok、Workers AI、Moonshot 和 MiMo"
-        ]
-      },
-      {
-        "label": "OpenAI 兼容性",
-        "values": [
-          "支持——把每家 provider 都翻译成统一的 OpenAI 格式响应",
-          "支持——请求格式紧密贴合 OpenAI Chat API",
-          "支持——Chat Completions 兼容端点"
-        ]
-      },
-      {
-        "label": "运维负担",
-        "values": [
-          "可用性、扩容、升级、key 管理都要自己负责",
-          "无——全托管，不需要运行服务器",
-          "无——全托管，不需要运行服务器"
-        ]
-      },
-      {
-        "label": "原生 provider 端点",
-        "values": [
-          "支持按次自定义 api_base 和 api_key 透传",
-          "请求统一规范化为一套 OpenAI 格式",
-          "原生 Anthropic /v1/messages 和 OpenAI /v1/responses，同一个 Key 和余额"
-        ]
-      }
-    ],
-    "faqTitle": "LiteLLM vs OpenRouter 常见问题",
-    "faq": [
-      {
-        "question": "LiteLLM 免费吗？",
-        "answer": "开源核心（Python SDK 和 Proxy Server）免费、自己部署——基础设施需要你自己运行。LiteLLM 企业版给生产环境团队加上 SSO/SCIM、审计日志和 24/7 支持，价格需联系销售。"
-      },
-      {
-        "question": "用 OpenRouter 或 MuiRouter 需要自己搭服务器吗？",
-        "answer": "不需要。OpenRouter 和 MuiRouter 都是托管服务——拿到一个 API Key 就能调用端点，不需要部署或维护代理服务。这是它们和 LiteLLM 自建模式最大的实际差异。"
-      },
-      {
-        "question": "应该选哪个？",
-        "answer": "如果你要完全的控制权、自定义路由逻辑、不想被每次请求收平台费，自建 LiteLLM 更合适。如果你要托管端点、模型目录最广，OpenRouter 合适。如果你要托管端点、原生访问 Claude/GPT、充值没有额外手续费，可以试试 MuiRouter。"
-      }
-    ],
-    "relatedTitle": "相关页面",
-    "related": [
-      {
-        "href": "/muirouter-vs-openrouter",
-        "label": "MuiRouter vs OpenRouter"
-      },
-      {
-        "href": "/llm-router",
-        "label": "大模型路由"
-      },
-      {
-        "href": "/ai-router",
-        "label": "AI API 路由"
-      },
-      {
-        "href": "/pricing",
-        "label": "定价"
-      }
-    ],
-    "ctaTitle": "自己核对一下数字",
-    "ctaDescription": "注册一个免费账号，选之前先看看每个模型的真实价格。",
     "ctaButton": "免费开始"
   },
   "openrouterAlternatives": {
@@ -1596,7 +1527,7 @@
         "label": "MuiRouter vs OpenRouter"
       },
       {
-        "href": "/litellm-vs-openrouter",
+        "href": "/litellm-vs-muirouter",
         "label": "LiteLLM vs OpenRouter"
       },
       {
@@ -1694,7 +1625,7 @@
         "label": "MuiRouter vs OpenRouter"
       },
       {
-        "href": "/litellm-vs-openrouter",
+        "href": "/litellm-vs-muirouter",
         "label": "LiteLLM vs OpenRouter"
       },
       {
@@ -1775,7 +1706,7 @@
         "label": "什么是 MCP 服务器？"
       },
       {
-        "href": "/compare/openrouter",
+        "href": "/muirouter-vs-openrouter",
         "label": "MuiRouter vs OpenRouter"
       },
       {
@@ -1823,5 +1754,85 @@
         "label": "OpenAI 兼容接口"
       }
     ]
+  },
+  "litellmVsMuirouter": {
+    "metaTitle": "LiteLLM vs MuiRouter——自建代理与托管网关对比",
+    "metaDescription": "对比 LiteLLM 与 MuiRouter 的部署方式、计价、OpenAI 兼容性与运维负担——自建代理 vs 托管、OpenAI 兼容、带原生 provider 端点的网关。",
+    "eyebrow": "LiteLLM vs MuiRouter",
+    "title": "LiteLLM vs MuiRouter——",
+    "titleHighlight": "对比",
+    "intro": "LiteLLM 是需要自建的开源代理；MuiRouter 是托管式、OpenAI 兼容、带原生 provider 端点、按 token 计费的网关。下面是两者在部署、计价与运维上的核心差异与选型建议。",
+    "ctaPrimary": "免费开始",
+    "ctaSecondary": "查看定价",
+    "featuresTitle": "LiteLLM vs MuiRouter 一览",
+    "comparisonRows": [
+      {
+        "label": "部署方式",
+        "values": ["开源、自己部署——代理服务器需要你自己运行和维护", "托管 SaaS——注册后直接调用 API，无需运维基础设施"]
+      },
+      {
+        "label": "计价方式",
+        "values": [
+          "开源核心免费；企业版加 SSO/审计/支持，价格需联系销售",
+          "每 token 价格已包含平台成本——充值没有额外手续费"
+        ]
+      },
+      {
+        "label": "模型覆盖",
+        "values": ["100+ provider——三者中覆盖最广", "精选：OpenAI、Claude、Gemini、Grok、Workers AI、Moonshot 和 MiMo"]
+      },
+      {
+        "label": "OpenAI 兼容性",
+        "values": ["支持——把每家 provider 都翻译成统一的 OpenAI 格式响应", "支持——Chat Completions 兼容端点"]
+      },
+      {
+        "label": "运维负担",
+        "values": ["可用性、扩容、升级、key 管理都要自己负责", "无——全托管，不需要运行服务器"]
+      },
+      {
+        "label": "原生 provider 端点",
+        "values": [
+          "支持按次自定义 api_base 和 api_key 透传",
+          "原生 Anthropic /v1/messages 和 OpenAI /v1/responses，同一个 Key 和余额"
+        ]
+      }
+    ],
+    "faqTitle": "LiteLLM vs MuiRouter 常见问题",
+    "faq": [
+      {
+        "question": "LiteLLM 免费吗？",
+        "answer": "开源核心（Python SDK 和 Proxy Server）免费、需自建。企业版增加 SSO/SCIM、审计与 24/7 支持，需联系销售。"
+      },
+      {
+        "question": "用 MuiRouter 需要自建服务器吗？",
+        "answer": "不需要。MuiRouter 是全托管，拿一个 API Key 直接调端点，无需部署代理。这是与 LiteLLM 自建模式的最大区别。"
+      },
+      {
+        "question": "该怎么选？",
+        "answer": "要完全可控、自定义路由、不想被平台抽成，选自建 LiteLLM；要托管、OpenAI 兼容、原生 Claude/GPT 端点、充值无额外手续费，选 MuiRouter。"
+      }
+    ],
+    "relatedTitle": "相关页面",
+    "related": [
+      {
+        "href": "/muirouter-vs-openrouter",
+        "label": "MuiRouter vs OpenRouter"
+      },
+      {
+        "href": "/llm-router",
+        "label": "大模型路由"
+      },
+      {
+        "href": "/ai-router",
+        "label": "AI API 路由"
+      },
+      {
+        "href": "/pricing",
+        "label": "定价"
+      }
+    ],
+    "ctaTitle": "自己核对一下数字",
+    "ctaDescription": "注册一个免费账号，选之前先看看每个模型的真实价格。",
+    "ctaButton": "免费开始"
   }
 }

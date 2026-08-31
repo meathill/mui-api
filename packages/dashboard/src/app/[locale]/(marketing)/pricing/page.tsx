@@ -227,7 +227,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
       </div>
 
       <section className="border-b border-border/70">
-        <div className="mx-auto grid max-w-6xl gap-10 px-6 py-16 sm:py-20 lg:grid-cols-[minmax(0,1.15fr)_20rem] lg:items-start">
+        <div className="container mx-auto grid gap-10 px-6 py-16 sm:py-20 lg:grid-cols-[minmax(0,1.15fr)_20rem] lg:items-start">
           <div className="space-y-6">
             <Badge variant="outline" className="w-fit">
               {t('eyebrow')}
@@ -254,7 +254,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
         </div>
       </section>
 
-      <section className="mx-auto max-w-6xl px-6 py-12 sm:py-16">
+      <section className="container mx-auto px-6 py-12 sm:py-16">
         <PricingCards locale={locale} />
 
         <div className="mt-12">
