@@ -9,6 +9,20 @@
 - [x] 测试与质量保障：通过 `messages-parity`、`sitemap.test.ts`、`vitest`、`typecheck` 和 `format`
 
 
+## Claude Fable 5.1 接入与文章发布（2026-09-02）
+
+### 模型与定价（已上线）
+- [x] 修改 `packages/app/src/db/seed.ts`：追加 `claude-fable-5-1`、`claude-fable-5.1` 与 `claude-fable-5`
+- [x] 同步 `seed-models.sql` / `packages/dashboard/seed-models.sql`
+- [x] 生成并执行一次性 SQL 脚本写入远程 D1 `models` 表（价格：10/50/0.25/12.5）
+- [x] 清除远程 KV `models:catalog` 缓存
+- [x] 一次性 SQL 脚本已清理删除
+
+### 文章发布（已发布至 muicv-cms）
+- [x] 用户审阅并确认中文解读文章草稿（已落本地 `docs/claude-fable-5-1.md` 并清理多余分割线）
+- [x] 正式发布至 MuiCV Payload CMS（section: `product`，slug: `claude-fable-5-1-announcement`，id: 7）
+- [x] 验证线上 API 可正常检索，状态为 `published`
+
 ## GPT-5.6 Sol 限时降价跟进与博客发布（2026-08-22）
 
 ### 模型与定价

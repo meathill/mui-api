@@ -282,6 +282,54 @@ export const SEED_MODELS: NewModel[] = [
 
   // Anthropic (Claude) — 经 CF AI Gateway BYOK（ANTHROPIC_API_KEY 自付，不经 CF Unified Billing）；
   // upstreamModelId 用 Anthropic 规范连字符 ID（已 smoke 实测 CF 原生端点可用）。markupRate 1：按原厂价直通，不加价。
+  // Claude Fable 5.1（2026-09-01 发布）：Mythos 级底座，基础 input $10 / output $50；
+  // prompt caching 读单价 $0.25/1M（相比 Fable 5 降价 75%），写单价 $12.50/1M（1.25× input）。
+  {
+    id: 'claude-fable-5-1',
+    provider: 'anthropic',
+    upstreamModelId: 'claude-fable-5-1',
+    inputPrice: 10,
+    outputPrice: 50,
+    markupRate: 1,
+    cachedInputPrice: 0.25,
+    cacheWritePrice: 12.5,
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
+  // 别名支持 dot 形式：claude-fable-5.1
+  {
+    id: 'claude-fable-5.1',
+    provider: 'anthropic',
+    upstreamModelId: 'claude-fable-5-1',
+    inputPrice: 10,
+    outputPrice: 50,
+    markupRate: 1,
+    cachedInputPrice: 0.25,
+    cacheWritePrice: 12.5,
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
+  // Claude Fable 5（2026-06-09 发布）：上一代 Fable，标准 10% 缓存读（$1.00/1M）
+  {
+    id: 'claude-fable-5',
+    provider: 'anthropic',
+    upstreamModelId: 'claude-fable-5',
+    inputPrice: 10,
+    outputPrice: 50,
+    markupRate: 1,
+    ...anthropicCache(10),
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
   {
     id: 'claude-sonnet-5',
     provider: 'anthropic',
