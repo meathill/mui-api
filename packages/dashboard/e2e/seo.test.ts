@@ -44,16 +44,26 @@ test.describe('SEO', () => {
       const jsonLd = page.locator('script[type="application/ld+json"]');
       await expect(jsonLd.first()).toBeAttached();
       const structuredData = (await jsonLd.allTextContents()).map(
-        (content) => JSON.parse(content) as { '@context'?: string; '@graph'?: Array<{ '@type'?: string }> },
+        (content) =>
+          JSON.parse(content) as {
+            '@context'?: string;
+            '@type'?: string;
+            '@graph'?: Array<{ '@type'?: string }>;
+          },
       );
       const data = structuredData.find((item) => Array.isArray(item['@graph']));
+      // 首页 @graph 之外，HomeFaqSection 还会独立输出一个 FAQPage script，这里一并展开。
+      const entities = structuredData.flatMap((entry) => entry['@graph'] ?? [entry]);
 
       expect(data).toBeDefined();
       expect(data?.['@context']).toBe('https://schema.org');
       expect(data?.['@graph']).toBeInstanceOf(Array);
       expect(data?.['@graph']?.some((item) => item['@type'] === 'Organization')).toBe(true);
       expect(data?.['@graph']?.some((item) => item['@type'] === 'WebSite')).toBe(true);
-      expect(data?.['@graph']?.some((item) => item['@type'] === 'WebApplication')).toBe(true);
+      // Issue #12：无真实评价时不得输出 WebApplication/SoftwareApplication，避免 Google 报缺 rating/review，也不伪造评分。
+      expect(entities.some((item) => item['@type'] === 'WebApplication')).toBe(false);
+      expect(entities.some((item) => item['@type'] === 'SoftwareApplication')).toBe(false);
+      expect(entities.some((item) => item['@type'] === 'FAQPage')).toBe(true);
     });
   });
 

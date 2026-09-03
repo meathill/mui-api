@@ -30,6 +30,9 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
   setRequestLocale(resolvedLocale);
   const t = await getTranslations({ locale: resolvedLocale, namespace: 'metadata' });
 
+  // Issue #12：无真实、页面可见的评价体系时不输出 WebApplication/SoftwareApplication，
+  // 否则 Google Rich Results 会报缺 aggregateRating/review，且不能伪造评分。
+  // 首页 FAQ 结构化数据由 HomeFaqSection 独立输出，这里只保留 Organization + WebSite。
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [
@@ -47,22 +50,6 @@ export default async function LandingPage({ params }: { params: Promise<{ locale
         url: 'https://muirouter.com',
         description: t('description'),
         publisher: { '@id': 'https://muirouter.com/#organization' },
-      },
-      {
-        '@type': 'WebApplication',
-        name: 'MuiRouter',
-        url: 'https://muirouter.com',
-        isPartOf: { '@id': 'https://muirouter.com/#website' },
-        provider: { '@id': 'https://muirouter.com/#organization' },
-        applicationCategory: 'DeveloperApplication',
-        operatingSystem: 'All',
-        description: t('description'),
-        offers: {
-          '@type': 'Offer',
-          price: '0',
-          priceCurrency: 'USD',
-          description: t('title'),
-        },
       },
     ],
   };
