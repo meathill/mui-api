@@ -11,13 +11,22 @@ export const GROK_NO_USAGE_BASE_COST = 0.01;
 // 默认加价倍率
 const DEFAULT_MARKUP_RATE = 1.2;
 
+// OpenAI service_tier 计费倍率（以官方各档定价相对标准档的比值为准）：
+// fast/priority 为 2×（2026-07-30 priority 更名为 fast，两个取值并存），flex/batch 类为 0.5×。
+// 未映射的取值（default/auto/scale 等）按 1× 计。
+export const SERVICE_TIER_MULTIPLIERS: Record<string, number> = {
+  fast: 2,
+  priority: 2,
+  flex: 0.5,
+};
+
 // 兜底定价（当 DB 中无配置且未传入 modelPricing 时）
 const FALLBACK_PRICING: Record<string, { input: number; output: number }> = {
   'gpt-4o': { input: 2.5, output: 10 },
   'gpt-4o-mini': { input: 0.15, output: 0.6 },
 };
 
-export type BillingTier = 'standard' | 'long_context';
+export type BillingTier = 'standard' | 'long_context' | 'fast' | 'long_context_fast' | 'flex' | 'long_context_flex';
 
 export interface UsageInfo {
   inputTokens: number;
@@ -25,6 +34,8 @@ export interface UsageInfo {
   cacheWriteTokens: number;
   outputTokens: number;
   model: string;
+  // 上游回显的 service_tier（fast/priority/flex），来自 OpenAI 兼容响应；缺失按 standard 计
+  serviceTier?: string;
 }
 
 export interface ModelPricing {
@@ -104,9 +115,18 @@ export class BillingService {
         usage.cacheWriteTokens * cacheWritePrice +
         usage.outputTokens * outputPrice) /
       1_000_000;
-    const cost = rawCost * pricing.markupRate * userRateMultiplier;
+    // service_tier 倍率与长上下文档位正交，逐项叠加
+    const tierMultiplier = usage.serviceTier ? (SERVICE_TIER_MULTIPLIERS[usage.serviceTier] ?? 1) : 1;
+    const cost = rawCost * pricing.markupRate * userRateMultiplier * tierMultiplier;
 
-    return { cost, tier: isLongContext ? 'long_context' : 'standard' };
+    let tier: BillingTier = isLongContext ? 'long_context' : 'standard';
+    if (tierMultiplier > 1) {
+      tier = isLongContext ? 'long_context_fast' : 'fast';
+    } else if (tierMultiplier < 1) {
+      tier = isLongContext ? 'long_context_flex' : 'flex';
+    }
+
+    return { cost, tier };
   }
 
   /**

@@ -14,6 +14,31 @@ describe('extractUsage', () => {
     });
   });
 
+  it('openai 提取顶层 service_tier（fast 模式计费依据）', () => {
+    const data = {
+      model: 'gpt-6-astra',
+      service_tier: 'fast',
+      usage: { prompt_tokens: 10, completion_tokens: 20 },
+    };
+    const result = extractUsage('openai', data);
+    expect(result?.serviceTier).toBe('fast');
+  });
+
+  it('openai 响应无 service_tier 时不产生该字段', () => {
+    const result = extractUsage('openai', { model: 'gpt-4o', usage: { prompt_tokens: 1, completion_tokens: 1 } });
+    expect(result?.serviceTier).toBeUndefined();
+  });
+
+  it('anthropic 的 service_tier 不参与 OpenAI 倍率抽取', () => {
+    const data = {
+      model: 'claude-sonnet-5',
+      service_tier: 'priority',
+      usage: { input_tokens: 10, output_tokens: 5 },
+    };
+    const result = extractUsage('anthropic', data);
+    expect(result?.serviceTier).toBeUndefined();
+  });
+
   it('openai 图片接口提取 input_tokens/output_tokens', () => {
     const data = { model: 'gpt-image-2', usage: { input_tokens: 35, output_tokens: 1056 } };
     expect(extractUsage('openai', data)).toEqual({
@@ -241,6 +266,26 @@ describe('extractStreamUsage', () => {
     ]);
     const result = await extractStreamUsage('openai', response);
     expect(result).toEqual({ model: 'gpt-4o', inputTokens: 10, outputTokens: 5, ...zeroCache });
+  });
+
+  it('openai 流式：chunk 上的 service_tier 被保留', async () => {
+    const response = createSSEResponse([
+      'data: {"model":"gpt-6-astra","service_tier":"fast","choices":[{"delta":{"content":"Hi"}}]}\n\n',
+      'data: {"model":"gpt-6-astra","service_tier":"fast","choices":[],"usage":{"prompt_tokens":100,"completion_tokens":10}}\n\n',
+      'data: [DONE]\n\n',
+    ]);
+    const result = await extractStreamUsage('openai', response);
+    expect(result?.serviceTier).toBe('fast');
+  });
+
+  it('openai 流式：上游降级回 default 时不误判 fast', async () => {
+    const response = createSSEResponse([
+      'data: {"model":"gpt-6-astra","service_tier":"default","choices":[{"delta":{"content":"Hi"}}]}\n\n',
+      'data: {"model":"gpt-6-astra","service_tier":"default","choices":[],"usage":{"prompt_tokens":100,"completion_tokens":10}}\n\n',
+      'data: [DONE]\n\n',
+    ]);
+    const result = await extractStreamUsage('openai', response);
+    expect(result?.serviceTier).toBe('default');
   });
 
   it('openai 流式：尾 chunk 带 cached_tokens', async () => {

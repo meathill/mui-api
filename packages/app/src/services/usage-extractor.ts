@@ -25,6 +25,8 @@ export interface UsageResult {
   cacheWriteTokens: number;
   outputTokens: number;
   model: string;
+  // 上游回显的 service_tier（如 fast/priority/flex），决定计费倍率；仅 OpenAI 兼容响应携带
+  serviceTier?: string;
 }
 
 type ProviderKey =
@@ -125,7 +127,10 @@ function extractOpenAIUsage(data: Record<string, unknown>): UsageResult | null {
   // prompt_tokens 包含 cached 部分，扣掉后剩下的才是非 cache 的 input
   const inputTokens = Math.max(0, promptTokens - cachedInputTokens);
   // output_tokens_details.reasoning_tokens 已经是 output_tokens 的子集（breakdown），不需要额外累加
-  return { model, inputTokens, cachedInputTokens, cacheWriteTokens: 0, outputTokens: completionTokens };
+  // service_tier：chat.completion / responses 的顶层字段（stream chunk 同样携带），
+  // 上游实际应用的档位（请求 fast 但上游降级时回显 default）才是计费依据
+  const serviceTier = typeof source.service_tier === 'string' && source.service_tier ? source.service_tier : undefined;
+  return { model, inputTokens, cachedInputTokens, cacheWriteTokens: 0, outputTokens: completionTokens, serviceTier };
 }
 
 function extractAnthropicUsage(data: Record<string, unknown>): UsageResult | null {
@@ -289,6 +294,7 @@ export async function extractStreamUsage(provider: string, response: Response): 
         if (extracted.cacheWriteTokens) accumulated.cacheWriteTokens = extracted.cacheWriteTokens;
         if (extracted.outputTokens) accumulated.outputTokens = extracted.outputTokens;
         if (extracted.model !== 'unknown') accumulated.model = extracted.model;
+        if (extracted.serviceTier) accumulated.serviceTier = extracted.serviceTier;
       }
     }
     // 处理最后残留的 buffer（可能没有以 \n 结尾的最后一行）
@@ -305,6 +311,7 @@ export async function extractStreamUsage(provider: string, response: Response): 
             if (extracted.cacheWriteTokens) accumulated.cacheWriteTokens = extracted.cacheWriteTokens;
             if (extracted.outputTokens) accumulated.outputTokens = extracted.outputTokens;
             if (extracted.model !== 'unknown') accumulated.model = extracted.model;
+            if (extracted.serviceTier) accumulated.serviceTier = extracted.serviceTier;
           }
         } catch {
           // ignore

@@ -2,6 +2,11 @@
 
 长期待办，按发现时间倒序排列；开工前先读，避免与已评估过的事项重复盘点。
 
+## 计费与模型目录（2026-09-05 接入 GPT-6 Astra 时发现）
+
+- ~~`service_tier` fast/priority 未参与计费~~：已于同日修复——计费按上游回显的 `service_tier` 应用倍率（fast/priority 2×、flex 0.5×），usage_logs.tier 扩展 fast/flex 变体。
+- **`gpt-6` 路由别名（备选）**：官方仅发布 `gpt-6-astra`（无短别名），平台暂不加；如用户反馈需要，可加一条 `upstreamModelId` 指向 astra 的别名条目，未来 OpenAI 发新变体时再调整映射。
+
 ## 测试覆盖缺口（2026-07-18 维护轮次盘点，已确认是真实缺口，暂不处理）
 
 排查方法见仓库记忆 `mui-api-e2e-service-coverage`：必须同时查 `src` 与 `e2e` 两个目录，避免漏数已有覆盖。以下均已按此方法核实为真实缺口。

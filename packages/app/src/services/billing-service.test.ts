@@ -105,6 +105,73 @@ describe('BillingService', () => {
       expect(cost).toBeGreaterThan(0);
     });
 
+    it('service_tier fast 按上游 2× 计费', () => {
+      const service = new BillingService(null as never, mockDb as never, null as never);
+      const base = makeUsage({ model: 'gpt-6-astra', inputTokens: 100_000, outputTokens: 50_000 });
+      const standard = service.calculateCost(base, { inputPrice: 10, outputPrice: 50, markupRate: 1 });
+      const fast = service.calculateCost(makeUsage({ ...base, serviceTier: 'fast' }), {
+        inputPrice: 10,
+        outputPrice: 50,
+        markupRate: 1,
+      });
+      expect(fast.cost).toBeCloseTo(standard.cost * 2, 8);
+      expect(fast.tier).toBe('fast');
+    });
+
+    it('service_tier priority（fast 旧名）同样 2×', () => {
+      const service = new BillingService(null as never, mockDb as never, null as never);
+      const { cost, tier } = service.calculateCost(
+        makeUsage({ model: 'gpt-5.6-sol', inputTokens: 1_000_000, serviceTier: 'priority' }),
+        { inputPrice: 4, outputPrice: 20, markupRate: 1 },
+      );
+      // 1_000_000/1M * 4 * 2 = 8
+      expect(cost).toBeCloseTo(8, 6);
+      expect(tier).toBe('fast');
+    });
+
+    it('service_tier flex 按上游 0.5× 计费', () => {
+      const service = new BillingService(null as never, mockDb as never, null as never);
+      const { cost, tier } = service.calculateCost(
+        makeUsage({ model: 'gpt-6-astra', inputTokens: 1_000_000, serviceTier: 'flex' }),
+        { inputPrice: 10, outputPrice: 50, markupRate: 1 },
+      );
+      expect(cost).toBeCloseTo(5, 6);
+      expect(tier).toBe('flex');
+    });
+
+    it('未映射的 service_tier（default/auto）按 1× 计', () => {
+      const service = new BillingService(null as never, mockDb as never, null as never);
+      for (const serviceTier of ['default', 'auto', 'scale', undefined]) {
+        const { cost, tier } = service.calculateCost(
+          makeUsage({ model: 'gpt-6-astra', inputTokens: 1_000_000, serviceTier }),
+          { inputPrice: 10, outputPrice: 50, markupRate: 1 },
+        );
+        expect(cost).toBeCloseTo(10, 6);
+        expect(tier).toBe('standard');
+      }
+    });
+
+    it('fast 与长上下文档位叠加：long_context_fast', () => {
+      const service = new BillingService(null as never, mockDb as never, null as never);
+      const pricing: ModelPricing = {
+        inputPrice: 10,
+        outputPrice: 50,
+        markupRate: 1,
+        cachedInputPrice: 1,
+        longContextThresholdTokens: 272_000,
+        longContextInputPrice: 20,
+        longContextCachedInputPrice: 2,
+        longContextOutputPrice: 75,
+      };
+      // >272K 触发长上下文，fast 再 ×2：input 300K 非缓存走 20*2=40，output 100K 走 75*2=150
+      const { cost, tier } = service.calculateCost(
+        makeUsage({ model: 'gpt-6-astra', inputTokens: 300_000, outputTokens: 100_000, serviceTier: 'fast' }),
+        pricing,
+      );
+      expect(cost).toBeCloseTo((300_000 / 1_000_000) * 40 + (100_000 / 1_000_000) * 150, 8);
+      expect(tier).toBe('long_context_fast');
+    });
+
     it('Grok 图片内部 token 继续应用 markup 与用户倍率', () => {
       const service = new BillingService(null as never, mockDb as never, null as never);
       const { cost } = service.calculateCost(
