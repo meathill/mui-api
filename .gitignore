@@ -7,3 +7,4 @@ dist/
 .claude
 .pnpm-store/
 .zcode/
+blog-export.json
