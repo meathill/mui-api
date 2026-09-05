@@ -1,14 +1,10 @@
-import { and, desc, eq, inArray } from 'drizzle-orm';
 import { unstable_cache } from 'next/cache';
-import { type BlogPost, type BlogPostTranslation, blogPosts, blogPostTranslations } from '@/db/app-schema';
 import { defaultLocale, type Locale } from '@/i18n/config';
-import { getDb } from '@/lib/db';
 import { BLOG_CONTENT_TAG, PUBLIC_CONTENT_REVALIDATE_SECONDS } from '@/lib/public-cache';
+import { isBuildTime, listPublishedCmsBlogDocuments, type CmsBlogDocument } from './cms-blog-client';
 
 // 旧导入入口：路径/hreflang 的真实实现已迁到 lib/seo.ts，这里只做转发。
 export { getLanguageAlternates, getLocalizedPath, getResolvedLocale } from '@/lib/seo';
-
-const PUBLISHED_STATUS = 'published';
 
 export type BlogSource = {
   label: string;
@@ -33,100 +29,40 @@ export type BlogSitemapPost = {
   publishedAt: string;
 };
 
-function parseStringArray(value: string): string[] {
-  try {
-    const parsed: unknown = JSON.parse(value);
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-    return parsed.filter((item): item is string => typeof item === 'string');
-  } catch {
-    return [];
-  }
+// CJK 按每分钟 350 字、拉丁词按每分钟 200 词粗估，仅用于 CMS 未填 readingMinutes 的文章。
+function estimateReadingMinutes(markdown: string): number {
+  const cjkChars = (markdown.match(/[\u3400-\u9fff\u3040-\u30ff\uac00-\ud7af]/g) ?? []).length;
+  const latinWords = (markdown.match(/[A-Za-z0-9][A-Za-z0-9'-]*/g) ?? []).length;
+  return Math.max(1, Math.round(cjkChars / 350 + latinWords / 200));
 }
 
-function parseSources(value: string): BlogSource[] {
-  try {
-    const parsed: unknown = JSON.parse(value);
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-    return parsed.filter((item): item is BlogSource => {
-      if (typeof item !== 'object' || item === null) {
-        return false;
-      }
-      const source = item as Record<string, unknown>;
-      return typeof source.label === 'string' && typeof source.url === 'string';
-    });
-  } catch {
-    return [];
-  }
-}
-
-function pickTranslation(translations: readonly BlogPostTranslation[], locale: Locale): BlogPostTranslation | null {
+/** 同一 slug 的多语言文档里做 locale 回退：请求 locale → en → 第一份可用文档。
+ *  与旧 D1 pickTranslation 语义一致，保证 gpt-6-astra 这类「中文先行」文章
+ *  在所有语言的列表/详情里仍然显示中文版。 */
+export function pickDocumentForLocale(
+  group: readonly CmsBlogDocument[],
+  locale: Locale,
+): CmsBlogDocument | null {
   return (
-    translations.find((translation) => translation.locale === locale) ??
-    translations.find((translation) => translation.locale === defaultLocale) ??
-    translations[0] ??
+    group.find((doc) => doc.locale === locale) ??
+    group.find((doc) => doc.locale === defaultLocale) ??
+    group[0] ??
     null
   );
 }
 
-export function toLocalizedBlogPost(
-  post: BlogPost,
-  translations: readonly BlogPostTranslation[],
-  locale: Locale,
-): LocalizedBlogPost | null {
-  const translation = pickTranslation(translations, locale);
-  if (!translation) {
-    return null;
-  }
-
+export function toLocalizedBlogPost(document: CmsBlogDocument): LocalizedBlogPost {
   return {
-    slug: post.slug,
-    href: `/blog/${post.slug}`,
-    title: translation.title,
-    description: translation.description,
-    publishedAt: post.publishedAt,
-    sourcePublishedAt: post.sourcePublishedAt,
-    readingMinutes: post.readingMinutes,
-    tags: parseStringArray(translation.tagsJson),
-    sources: parseSources(translation.sourcesJson),
+    slug: document.slug,
+    href: `/blog/${document.slug}`,
+    title: document.title,
+    description: document.description,
+    publishedAt: document.publishedAt,
+    sourcePublishedAt: document.sourcePublishedAt ?? document.publishedAt,
+    readingMinutes: document.readingMinutes ?? estimateReadingMinutes(document.bodyMarkdown),
+    tags: document.tags,
+    sources: document.sources,
   };
-}
-
-function groupTranslationsBySlug(translations: readonly BlogPostTranslation[]): Map<string, BlogPostTranslation[]> {
-  const groups = new Map<string, BlogPostTranslation[]>();
-  for (const translation of translations) {
-    const group = groups.get(translation.slug) ?? [];
-    group.push(translation);
-    groups.set(translation.slug, group);
-  }
-  return groups;
-}
-
-export function toPublishedLocalizedBlogPosts(
-  posts: readonly BlogPost[],
-  translations: readonly BlogPostTranslation[],
-  locale: Locale,
-): LocalizedBlogPost[] {
-  const translationsBySlug = groupTranslationsBySlug(translations);
-  return posts
-    .filter((post) => post.status === PUBLISHED_STATUS)
-    .map((post) => toLocalizedBlogPost(post, translationsBySlug.get(post.slug) ?? [], locale))
-    .filter((post): post is LocalizedBlogPost => post !== null);
-}
-
-async function getTranslationsForSlugs(slugs: readonly string[]): Promise<BlogPostTranslation[]> {
-  if (slugs.length === 0) {
-    return [];
-  }
-
-  const db = await getDb();
-  return db
-    .select()
-    .from(blogPostTranslations)
-    .where(inArray(blogPostTranslations.slug, [...slugs]));
 }
 
 const PUBLIC_CONTENT_CACHE_OPTIONS = {
@@ -134,59 +70,69 @@ const PUBLIC_CONTENT_CACHE_OPTIONS = {
   tags: [BLOG_CONTENT_TAG],
 };
 
-async function loadLocalizedBlogPosts(locale: Locale): Promise<LocalizedBlogPost[]> {
-  const db = await getDb();
-  const posts = await db
-    .select()
-    .from(blogPosts)
-    .where(eq(blogPosts.status, PUBLISHED_STATUS))
-    .orderBy(desc(blogPosts.publishedAt));
-  const translations = await getTranslationsForSlugs(posts.map((post) => post.slug));
-  return toPublishedLocalizedBlogPosts(posts, translations, locale);
+async function loadCmsBlogDocuments(): Promise<CmsBlogDocument[]> {
+  const documents = await listPublishedCmsBlogDocuments();
+  // 运行期 CMS 返回空多半是故障：抛错让 unstable_cache 保留旧值，也避免把空结果缓存一整天。
+  // 构建期允许为空（CMS 尚未 seed 时降级为按需 ISR，不阻断构建）。
+  if (documents.length === 0 && !isBuildTime()) {
+    throw new Error('muicv CMS 返回空文章列表，疑似故障，拒绝缓存空结果');
+  }
+  return documents;
 }
 
-export function getLocalizedBlogPosts(locale: Locale): Promise<LocalizedBlogPost[]> {
-  return unstable_cache(loadLocalizedBlogPosts, ['blog-posts', locale], PUBLIC_CONTENT_CACHE_OPTIONS)(locale);
+function getCmsBlogDocuments(): Promise<CmsBlogDocument[]> {
+  return unstable_cache(loadCmsBlogDocuments, ['cms-blog-documents'], PUBLIC_CONTENT_CACHE_OPTIONS)();
 }
 
-async function loadLocalizedBlogPost(slug: string, locale: Locale): Promise<LocalizedBlogPost | null> {
-  const db = await getDb();
-  const [post] = await db
-    .select()
-    .from(blogPosts)
-    .where(and(eq(blogPosts.slug, slug), eq(blogPosts.status, PUBLISHED_STATUS)))
-    .limit(1);
-
-  if (!post) {
-    return null;
+export async function getLocalizedBlogPosts(locale: Locale): Promise<LocalizedBlogPost[]> {
+  const documents = await getCmsBlogDocuments();
+  const groupsBySlug = new Map<string, CmsBlogDocument[]>();
+  for (const document of documents) {
+    const group = groupsBySlug.get(document.slug) ?? [];
+    group.push(document);
+    groupsBySlug.set(document.slug, group);
   }
 
-  const translations = await db.select().from(blogPostTranslations).where(eq(blogPostTranslations.slug, slug));
-  return toLocalizedBlogPost(post, translations, locale);
-}
-
-export function getLocalizedBlogPost(slug: string, locale: Locale): Promise<LocalizedBlogPost | null> {
-  return unstable_cache(loadLocalizedBlogPost, ['blog-post', slug, locale], PUBLIC_CONTENT_CACHE_OPTIONS)(slug, locale);
-}
-
-async function loadPublishedBlogSitemapPosts(): Promise<BlogSitemapPost[]> {
-  const db = await getDb();
-  const posts = await db
-    .select({
-      slug: blogPosts.slug,
-      publishedAt: blogPosts.publishedAt,
+  return [...groupsBySlug.values()]
+    .map((group) => {
+      const representative = pickDocumentForLocale(group, locale);
+      return representative ? toLocalizedBlogPost(representative) : null;
     })
-    .from(blogPosts)
-    .where(eq(blogPosts.status, PUBLISHED_STATUS))
-    .orderBy(desc(blogPosts.publishedAt));
-
-  return posts.map((post) => ({
-    slug: post.slug,
-    href: `/blog/${post.slug}`,
-    publishedAt: post.publishedAt,
-  }));
+    .filter((post): post is LocalizedBlogPost => post !== null)
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.slug.localeCompare(b.slug));
 }
 
-export function getPublishedBlogSitemapPosts(): Promise<BlogSitemapPost[]> {
-  return unstable_cache(loadPublishedBlogSitemapPosts, ['blog-sitemap'], PUBLIC_CONTENT_CACHE_OPTIONS)();
+async function findCmsBlogDocument(slug: string, locale: Locale): Promise<CmsBlogDocument | null> {
+  const documents = await getCmsBlogDocuments();
+  return pickDocumentForLocale(
+    documents.filter((document) => document.slug === slug),
+    locale,
+  );
+}
+
+export async function getLocalizedBlogPost(slug: string, locale: Locale): Promise<LocalizedBlogPost | null> {
+  const document = await findCmsBlogDocument(slug, locale);
+  return document ? toLocalizedBlogPost(document) : null;
+}
+
+/** 详情页正文：返回该 locale（含回退）文章的 Markdown 原文。 */
+export async function getBlogContent(slug: string, locale: Locale): Promise<string | null> {
+  const document = await findCmsBlogDocument(slug, locale);
+  return document?.bodyMarkdown ?? null;
+}
+
+export async function getPublishedBlogSitemapPosts(): Promise<BlogSitemapPost[]> {
+  const documents = await getCmsBlogDocuments();
+  const publishedAtBySlug = new Map<string, string>();
+  for (const document of documents) {
+    if (!publishedAtBySlug.has(document.slug)) {
+      publishedAtBySlug.set(document.slug, document.publishedAt);
+    }
+  }
+
+  return [...publishedAtBySlug.entries()].map(([slug, publishedAt]) => ({
+    slug,
+    href: `/blog/${slug}`,
+    publishedAt,
+  }));
 }

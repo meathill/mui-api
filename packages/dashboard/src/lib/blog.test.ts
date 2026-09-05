@@ -1,35 +1,26 @@
 import { describe, expect, it } from 'vitest';
-import type { BlogPost, BlogPostTranslation } from '@/db/app-schema';
-import { toLocalizedBlogPost, toPublishedLocalizedBlogPosts } from './blog';
+import type { CmsBlogDocument } from './cms-blog-client';
+import { pickDocumentForLocale, toLocalizedBlogPost } from './blog';
 
-function makePost(overrides: Partial<BlogPost> = {}): BlogPost {
-  return {
-    slug: 'codex-context-drift',
-    publishedAt: '2026-07-02',
-    sourcePublishedAt: '2026-06-28',
-    readingMinutes: 4,
-    status: 'published',
-    createdAt: new Date('2026-07-02T00:00:00.000Z'),
-    updatedAt: new Date('2026-07-02T00:00:00.000Z'),
-    ...overrides,
-  };
-}
-
-function makeTranslation(overrides: Partial<BlogPostTranslation> = {}): BlogPostTranslation {
+function makeDocument(overrides: Partial<CmsBlogDocument> = {}): CmsBlogDocument {
   return {
     slug: 'codex-context-drift',
     locale: 'en',
     title: 'Codex Getting Worse Is Not Magic',
     description: 'Reduce errors, then reset context.',
-    tagsJson: '["Codex","AI coding"]',
-    sourcesJson: '[{"label":"Linux.do","url":"https://linux.do/t/topic/2490104"}]',
+    bodyMarkdown: 'Body text for the article.',
+    tags: ['Codex', 'AI coding'],
+    sources: [{ label: 'Linux.do', url: 'https://linux.do/t/topic/2490104' }],
+    sourcePublishedAt: '2026-06-28',
+    readingMinutes: 4,
+    publishedAt: '2026-07-02',
     ...overrides,
   };
 }
 
 describe('blog metadata helpers', () => {
-  it('converts D1 rows to a localized blog post', () => {
-    const post = toLocalizedBlogPost(makePost(), [makeTranslation()], 'en');
+  it('converts a CMS document to a localized blog post', () => {
+    const post = toLocalizedBlogPost(makeDocument());
 
     expect(post).toEqual({
       slug: 'codex-context-drift',
@@ -44,46 +35,28 @@ describe('blog metadata helpers', () => {
     });
   });
 
-  it('falls back to English metadata when the requested locale is missing', () => {
-    const post = toLocalizedBlogPost(makePost(), [makeTranslation()], 'fr');
+  it('falls back to publishedAt and estimates reading minutes when CMS omits them', () => {
+    const english = makeDocument({ sourcePublishedAt: null, readingMinutes: null });
+    const chinese = makeDocument({
+      sourcePublishedAt: null,
+      readingMinutes: null,
+      bodyMarkdown: '这是一段中文正文。'.repeat(80),
+    });
 
-    expect(post?.title).toBe('Codex Getting Worse Is Not Magic');
+    expect(toLocalizedBlogPost(english).sourcePublishedAt).toBe('2026-07-02');
+    expect(toLocalizedBlogPost(english).readingMinutes).toBe(1);
+    expect(toLocalizedBlogPost(chinese).readingMinutes).toBe(2);
   });
 
-  it('filters unpublished posts before localization', () => {
-    const posts = [makePost(), makePost({ slug: 'draft-post', status: 'draft' })];
-    const translations = [makeTranslation(), makeTranslation({ slug: 'draft-post', title: 'Draft' })];
+  it('picks the requested locale, then falls back to English, then to the first available', () => {
+    const group = [
+      makeDocument({ locale: 'zh' }),
+      makeDocument({ locale: 'ja' }),
+    ];
 
-    expect(toPublishedLocalizedBlogPosts(posts, translations, 'en')).toHaveLength(1);
-    expect(toPublishedLocalizedBlogPosts(posts, translations, 'en')[0]?.slug).toBe('codex-context-drift');
-  });
-
-  it('uses empty tags and sources when JSON metadata is malformed', () => {
-    const post = toLocalizedBlogPost(
-      makePost(),
-      [
-        makeTranslation({
-          tagsJson: 'not json',
-          sourcesJson: '[{"label":"missing url"}]',
-        }),
-      ],
-      'en',
-    );
-
-    expect(post?.tags).toEqual([]);
-    expect(post?.sources).toEqual([]);
-  });
-});
-
-describe('blog content loaders', () => {
-  it('registers gpt-5-6-sol-price-cut content loader', async () => {
-    const { hasBlogContent } = await import('./blog-content');
-    expect(hasBlogContent('gpt-5-6-sol-price-cut')).toBe(true);
-    expect(hasBlogContent('gpt-5-6-price-cut')).toBe(true);
-  });
-
-  it('registers gpt-6-astra content loader', async () => {
-    const { hasBlogContent } = await import('./blog-content');
-    expect(hasBlogContent('gpt-6-astra')).toBe(true);
+    expect(pickDocumentForLocale(group, 'zh')?.locale).toBe('zh');
+    expect(pickDocumentForLocale(group, 'fr')?.locale).toBe('zh');
+    expect(pickDocumentForLocale([makeDocument({ locale: 'ja' })], 'fr')?.locale).toBe('ja');
+    expect(pickDocumentForLocale([], 'en')).toBeNull();
   });
 });
