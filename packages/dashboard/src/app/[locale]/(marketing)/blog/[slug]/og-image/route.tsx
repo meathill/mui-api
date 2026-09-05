@@ -2,7 +2,6 @@ import { ImageResponse } from 'next/og';
 import { connection } from 'next/server';
 import { createBlogOgImage } from '@/components/blog-og-image';
 import { getLocalizedBlogPost } from '@/lib/blog';
-import { hasBlogContent } from '@/lib/blog-content';
 import { createOgEtag, matchesEtag, materializeOgResponse, OG_CACHE_CONTROL } from '@/lib/og-cache';
 import { getResolvedLocale, MARKETING_OG_IMAGE_SIZE } from '@/lib/seo';
 
@@ -10,9 +9,6 @@ import { getResolvedLocale, MARKETING_OG_IMAGE_SIZE } from '@/lib/seo';
 // next/og 仅在默认的 Node.js runtime 下可用，设为 edge 会导致线上 500。
 export async function GET(request: Request, { params }: { params: Promise<{ locale: string; slug: string }> }) {
   const { locale, slug } = await params;
-  if (!hasBlogContent(slug)) {
-    return new Response('Not found', { status: 404 });
-  }
 
   await connection();
   const localizedPost = await getLocalizedBlogPost(slug, getResolvedLocale(locale));

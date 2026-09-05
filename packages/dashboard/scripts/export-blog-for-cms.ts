@@ -73,11 +73,11 @@ function toIsoDate(date: string): string {
 }
 
 function runD1Query(sql: string): D1Result<Record<string, unknown>> {
-  const result = spawnSync(
-    'npx',
-    ['wrangler', 'd1', 'execute', 'mui-api', '--remote', '--json', '--command', sql],
-    { cwd: DASHBOARD_ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 },
-  );
+  const result = spawnSync('npx', ['wrangler', 'd1', 'execute', 'mui-api', '--remote', '--json', '--command', sql], {
+    cwd: DASHBOARD_ROOT,
+    encoding: 'utf8',
+    maxBuffer: 64 * 1024 * 1024,
+  });
   if (result.status !== 0) {
     throw new Error(`wrangler d1 execute 失败（exit ${result.status}）：${result.stderr}`);
   }

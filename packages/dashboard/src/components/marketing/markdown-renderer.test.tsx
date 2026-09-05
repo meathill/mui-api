@@ -27,9 +27,7 @@ describe('MarkdownRenderer', () => {
   });
 
   it('把 mermaid 代码块渲染为 Mermaid 组件而不是 pre', () => {
-    const html = renderToStaticMarkup(
-      <MarkdownRenderer content={'```mermaid\nflowchart TD\n  A --> B\n```'} />,
-    );
+    const html = renderToStaticMarkup(<MarkdownRenderer content={'```mermaid\nflowchart TD\n  A --> B\n```'} />);
 
     expect(html).toContain('data-testid="mermaid"');
     expect(html).toContain('flowchart TD');

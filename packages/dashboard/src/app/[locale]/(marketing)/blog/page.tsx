@@ -4,8 +4,9 @@ import { Link } from '@/i18n/navigation';
 import { getLocalizedBlogPosts } from '@/lib/blog';
 import { buildMetadata, getLocalizedPath, getResolvedLocale, SITE_URL } from '@/lib/seo';
 
-// 文章列表来自 D1，build 阶段无绑定无法预渲染；查询由 unstable_cache 做天级缓存。
-export const dynamic = 'force-dynamic';
+// 文章列表来自 muicv CMS（lib/blog.ts 内 unstable_cache 做天级缓存）；
+// 构建期走公网 URL 可预渲染，运行期 24h ISR 自然过期。
+export const revalidate = 86_400;
 
 function formatDate(locale: string, date: string) {
   return new Intl.DateTimeFormat(locale, {

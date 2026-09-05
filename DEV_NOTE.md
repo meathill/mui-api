@@ -249,22 +249,19 @@ D1_ERROR: Network connection lost.
 - 语言配置文件和翻译文本由 `next-intl` 标准结构维护。
 - SEO 适配多语言，`sitemap.xml` 和 `robots.txt`、JSON-LD 都考虑了多语言版本的动态生成。
 
-### 博客 metadata 放 D1，正文保留 MDX
+### 博客内容源切换到 muicv CMS（articles 集合）
 
-**注意 sitemap 的 24 小时缓存**：`getPublishedBlogSitemapPosts()` 走 `unstable_cache`（`PUBLIC_CONTENT_REVALIDATE_SECONDS = 86_400`，tag `blog-content`）。新文章插入 D1 后页面立即可访问（按 slug 读是新缓存键），但 sitemap 要等缓存过期才收录。发布后要立刻推搜索引擎，绕过 sitemap 直接 POST IndexNow（key 与 host 见 `scripts/indexnow.ts`），或调用 `revalidateTag('blog-content')`（当前仓库无调用点）。
+**注意 sitemap 的 24 小时缓存**：`getPublishedBlogSitemapPosts()` 走 `unstable_cache`（`PUBLIC_CONTENT_REVALIDATE_SECONDS = 86_400`，tag `blog-content`）。在 CMS 后台发布新文章后，页面最长 24h 才自然更新（无 webhook 打 tag，CMS 侧编辑不通知本站）。要立刻生效就绕过 sitemap 直接 POST IndexNow（key 与 host 见 `scripts/indexnow.ts`）。
 
-**决策**：博客文章正文继续放在 `packages/dashboard/src/content/blog/*.mdx`，标题、描述、发布日期、阅读时间、tags、sources 等 metadata 放 D1 的 `blog_posts` / `blog_post_translations`。文章页和 OG 图统一走 `/blog/[slug]` 动态路由，不再为每篇文章新增单独 route 文件，也不再维护代码内 `BLOG_POSTS` 常量。
+**决策**：博客正文与元数据全部存 muicv Payload CMS 的 `articles` 集合（`site='muirouter'`，`site+locale+slug` 唯一），站点侧只保留只读客户端 `src/lib/cms-blog-client.ts`。阅读时间（`readingMinutes`）、引用来源（`sources` / `sourcePublishedAt`）是 articles 集合的可选字段；本地 `blog_posts` / `blog_post_translations` 表已 drop（迁移 `0030`），105 个 MDX 正文文件已删除。正文用 `MarkdownRenderer`（react-markdown + remark-gfm）运行时渲染，mermaid 代码块继续走 `Mermaid` 组件；`mdx-components.tsx` 与 `@next/mdx` 管线仅为 legal（terms/privacy/about）页面保留。
 
-**原因**：
-- 新增文章时只需要提交 MDX 正文并写入 D1 metadata，减少重复改 `blog.ts`、文章页、OG route 的维护成本。
-- 正文仍进 Git，保留 review、回滚、构建期 MDX 校验能力，不引入富文本安全、图片上传、编辑器等 CMS 复杂度。
-- metadata 是运行时数据，`/blog`、`/blog/[slug]`、`/sitemap.xml`、OG 图都会查询 D1；这些公共数据统一进入下述天级 `unstable_cache` 缓存。
+**取数链路**（对齐 dyqr 仓库同款模式，2026-09 迁移）：
+- 运行时优先走 `MUICV_CMS` service binding（同 Cloudflare 账号内网，不出公网）；**构建期 `NEXT_PHASE === 'phase-production-build'` 时 binding 是不可用 stub，必须回落公网 `https://cms.muicv.com`**（env `MUICV_CMS_URL` 可覆盖）。这是 Workers Builds 场景最容易踩的坑。
+- 一次全量拉 `site=muirouter` + `status=published`（limit 200，当前 112 条文档），列表/详情/sitemap/OG 图共用；locale 在 client 层映射（CMS `zh-CN` → 站点 `zh`），`publishedAt` 截取为 `YYYY-MM-DD`（页面 `formatDate` 拼 `T00:00:00.000Z` 依赖此格式）。
+- locale 回退链「请求 locale → en → 第一可用」，与旧 D1 `pickTranslation` 语义一致；gpt-6-astra 这类「中文先行」文章在所有语言下仍显示中文版。
+- 运行期 CMS 返回空列表视为故障：`loadCmsBlogDocuments` 抛错让 `unstable_cache` 保留旧值，也不把空结果缓存一整天；构建期允许为空，详情页 `generateStaticParams` 返回 `[]` 降级按需 ISR，不阻断构建。
 
-**发文流程**：
-1. 添加 `content/blog/{slug}.mdx`，需要中文时添加 `{slug}.zh.mdx`。
-2. 向 `blog_posts` 写入 slug、发布日期、阅读时间、状态等。
-3. 向 `blog_post_translations` 写入各语言 title / description / tags_json / sources_json。
-4. 不再新增单篇 `page.tsx` / `og-image/route.tsx`。
+**发文流程**：在 muicv CMS 后台（或 MCP `upsert_article`，`site=muirouter`）新建文档、填齐 summary / seoTitle / seoDescription / sources，置为 published；站点 24h 内自然生效，急发就手动跑 IndexNow。新增文章/语言不再需要动本仓库。
 
 ### ⛔ Cache Components / PPR 不能在 Cloudflare Workers 上用
 
@@ -280,7 +277,7 @@ D1_ERROR: Network connection lost.
 2. 对 `.next/prerender-manifest.json` 按 `compute` 字段分组：`static` 的活、`resuming`（PPR 运行时 resume）和 `blocking`（运行时整页渲染）的死。这个对照能一次性区分「渲染路径问题」和「数据源问题」。
 3. 反证数据源无辜：`/sitemap.xml` 当时同样跑 `'use cache'` + D1 却返回 200——Route Handler 不走 PPR 渲染路径。
 
-**当前方案**：公共 D1 查询用 `unstable_cache(fn, keyParts, { revalidate: 86400, tags })`（`src/lib/public-cache.ts` 定义常量），页面用 `export const dynamic = 'force-dynamic'`。缓存条目落在 OpenNext 的 R2 incremental cache 里。
+**当前方案**：公共 D1 查询用 `unstable_cache(fn, keyParts, { revalidate: 86400, tags })`（`src/lib/public-cache.ts` 定义常量），页面用 `export const dynamic = 'force-dynamic'`。缓存条目落在 OpenNext 的 R2 incremental cache 里。博客页已改为 muicv CMS 数据源 + `export const revalidate = 86400` 预渲染（见上文），不再受此事故影响；pricing 仍走 force-dynamic + D1。
 
 **不要给公共页加 Suspense 外壳**：外层 shell 一旦 flush，HTTP 状态就锁死在 200。`8991df5` 因此还引入了两个隐性问题——不存在的 slug 返回 200 + 404 页面（soft 404，会被搜索引擎当正常页收录），D1 出错时返回 200 + 骨架屏（Ahrefs 报告里的 `Is rendered page: false`）。`notFound()` 和数据读取都必须在任何 Suspense 边界之外完成，宁可整页 500 也不要 soft 200。
 
@@ -312,7 +309,7 @@ D1_ERROR: Network connection lost.
 - Key 文件 `packages/dashboard/public/{key}.txt` 直接把 key 当作可公开访问的静态文件提交，**不当作 secret/env var 处理**——IndexNow 协议的验证机制本身就要求 key 文件公开可访问，加密/隐藏它没有安全收益，只会增加不必要的部署配置。`public/` 下的文件由 OpenNext 原样打包进 `.open-next/assets`，部署后由 Cloudflare Workers 在站点根路径直接提供服务，不需要额外路由。
 - 提交端点选用通用的 `https://api.indexnow.org/indexnow` 而非 Bing 专属端点：提交一次即可同时通知所有参与该协议的搜索引擎。
 - 只做**手动脚本**（`pnpm --dir packages/dashboard run submit:indexnow -- --dry-run`），不接入 GitHub Actions 定时任务或 Cloudflare Worker cron——仓库目前没有任何 schedule 类型的自动化先例，而这次的直接需求只是"推动一次重新发现"，人工控制发布节奏足够；`scripts/indexnow.ts` 已经把 URL 提取逻辑拆成纯函数，后续如果要接自动化触发点很容易。
-- `submit-indexnow.ts` 从线上 `sitemap.xml` 现抓 URL（而不是在构建期直接调用 `sitemap()` 函数），因为后者依赖 D1/`getPublishedBlogSitemapPosts()` 等 Next.js runtime 上下文，脚本用纯 node 执行没有这个上下文。
+- `submit-indexnow.ts` 从线上 `sitemap.xml` 现抓 URL（而不是在构建期直接调用 `sitemap()` 函数），因为后者依赖 Next.js runtime 上下文（CMS 客户端 / `getPublishedBlogSitemapPosts()`），脚本用纯 node 执行没有这个上下文。
 
 **踩过的坑：`packages/dashboard/tsconfig.json` 缺少 `allowImportingTsExtensions`**。Node 24 原生执行 `.ts` 文件不解析 tsconfig 的 `@/*` 路径别名，只支持标准 ESM 相对路径且必须带显式 `.ts` 扩展名（如 `import { x } from './indexnow.ts'`）——这是 `packages/app/scripts/print-seed-sql.ts` 早就验证过的写法。但 dashboard 的 `tsconfig.json` `include` 是 `**/*.ts`，会把 `scripts/` 下的新文件也纳入 typecheck，而 TypeScript 默认不允许 import 路径带 `.ts` 扩展名（`TS5097`）。修复：给 `compilerOptions` 加 `"allowImportingTsExtensions": true`（前提 `noEmit`/`emitDeclarationOnly` 二选一为 true，本项目已满足）。**后续任何人在 `packages/dashboard` 下新增"要被纯 node 执行的脚本"，都会撞到同一个坑**，且 CI 目前不跑 `pnpm run typecheck`（见 TESTING.md），这个坑不会被 CI 挡住，只会在本地手动 typecheck 时暴露。
 

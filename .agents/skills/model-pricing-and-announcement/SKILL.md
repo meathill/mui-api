@@ -12,9 +12,10 @@ description: 当上游 AI 厂商调价或发布新模型时，规范化执行模
 ## 核心原则
 
 1. **查证第一，数据精确**：必须从官方定价页、公告博客或官方社交媒体账号（X 等）获取最准确的官方原价与新价格（包括标准输入、标准输出、Prompt Caching 读取与写入倍率等）。
-2. **不生成 Drizzle 迁移文件**：模型价格与博客文章元数据属于动态运营数据，**不要在 `packages/shared-db/drizzle/` 生成迁移文件**。统一使用**一次性 SQL 脚本 + 修改 Seed 数据**的模式。
-3. **先中文审查，后多语翻译**：先撰写高质量、有深度的中文版本（`*.zh.mdx`），在 `blog-content.ts` 中先将各语言 loader 统一指向中文。待用户审查批准后，再翻译并补齐其他 7 种语言（en, fr, es, pt, de, th, ja）。
-4. **线上变更闭环**：执行一次性 SQL 脚本写入 D1 数据库 -> 清理 Cloudflare KV `models:catalog` 缓存 -> 验证无误后立即清理删除该临时 SQL 脚本。
+2. **价格变更不生成 Drizzle 迁移文件**：模型价格属于动态运营数据，**不要在 `packages/shared-db/drizzle/` 生成迁移文件**。统一使用**一次性 SQL 脚本 + 修改 Seed 数据**的模式。
+3. **博客内容全部走 muicv CMS**：博客正文与元数据（含标题、摘要、tags、sources、readingMinutes）存 muicv Payload CMS 的 `articles` 集合（`site=muirouter`），本仓库**不再维护** `content/blog/*.mdx`、`blog-content.ts` 与 D1 博客表（2026-09 已迁移）。发布用 MCP 工具 `upsert_article`（或 muicv CMS 后台）。
+4. **先中文审查，后多语翻译**：先撰写高质量中文版并发布（`locale=zh-CN`），待用户审查批准后，再逐语言补发其他 7 种（en, de, fr, es, pt, th, ja）。
+5. **线上变更闭环**：执行一次性 SQL 写 D1（仅模型价格）-> 清理 Cloudflare KV `models:catalog` 缓存 -> 验证无误后立即删除临时脚本。
 
 ---
 
@@ -44,12 +45,12 @@ description: 当上游 AI 厂商调价或发布新模型时，规范化执行模
 
 ---
 
-### 第三步：编写一次性生产执行脚本
+### 第三步：编写一次性生产执行脚本（仅模型价格）
 
-在 `scripts/` 目录下生成临时 SQL 脚本（如 `scripts/update-<model-slug>-price-and-post.sql`）：
+在 `scripts/` 目录下生成临时 SQL 脚本（如 `scripts/update-<model-slug>-price.sql`）：
 
 ```sql
--- 一次性执行脚本：更新模型价格并插入博客文章元数据
+-- 一次性执行脚本：更新模型价格（博客已迁 muicv CMS，不再写 D1）
 UPDATE models
 SET
   input_price = <new_input_price>,
@@ -57,47 +58,17 @@ SET
   cached_input_price = <new_cached_input_price>,
   cache_write_price = <new_cache_write_price>
 WHERE id IN ('<model-id>', '<model-alias>');
-
-INSERT OR REPLACE INTO blog_posts (slug, published_at, source_published_at, reading_minutes, status)
-VALUES
-  ('<blog-slug>', '<YYYY-MM-DD>', '<YYYY-MM-DD>', 5, 'published');
-
-INSERT OR REPLACE INTO blog_post_translations (
-  slug,
-  locale,
-  title,
-  description,
-  tags_json,
-  sources_json
-)
-VALUES
-  (
-    '<blog-slug>',
-    'zh',
-    '<中文文章标题>',
-    '<中文文章简介描述>',
-    '["<Tag1>", "<Tag2>"]',
-    '[{"label":"<官方定价源>","url":"<URL>"},{"label":"<官方公告>","url":"<URL>"}]'
-  ),
-  (
-    '<blog-slug>',
-    'en',
-    '<English Title>',
-    '<English Description>',
-    '["<Tag1>", "<Tag2>"]',
-    '[{"label":"<Official Pricing>","url":"<URL>"}]'
-  );
 ```
 
 ---
 
 ### 第四步：撰写中文解读博客文章
 
-在 `packages/dashboard/src/content/blog/<blog-slug>.zh.mdx` 编写文章。
+直接撰写 Markdown 正文（不落盘到本仓库，最后通过 `upsert_article` 发布）。
 
 **文章结构规范**：
 1. **背景引言**：交代官方发布/降价的具体时间、背景和涉及模型；
-2. **调价细节表格**：清晰呈现新旧价格对比、降幅百分比、同家族模型价格梯度对比；
+2. **调价细节表格**：用 GFM 表格清晰呈现新旧价格对比、降幅百分比、同家族模型价格梯度对比；
 3. **深度战略与技术解读**：
    - 从开发者与业务视角，深入分析（例如：输出端大幅降价对 Long Reasoning 与 Agent 循环成本的实质性影响）；
    - 分析大模型厂商之间的博弈（迎击开源模型、高端生态防守、算力承载测试与采购周期锁定等）；
@@ -106,35 +77,31 @@ VALUES
 
 ---
 
-### 第五步：注册 Dashboard Loader 与验证测试
+### 第五步：发布到 muicv CMS
 
-1. **`packages/dashboard/src/lib/blog-content.ts`**：
-   - 声明 `<modelSlug>Loaders`，各语言（en, zh, fr, es, pt, de, th, ja）初始均指向 `.zh.mdx`；
-   - 在 `blogContentLoaders` 对象中注册 `<blog-slug>`。
-2. **测试与质量回归**：
-   - 在 `packages/dashboard/src/lib/blog.test.ts` 补充 `hasBlogContent('<blog-slug>')` 单测；
-   - 运行单元测试：
-     ```bash
-     pnpm --filter mui-api test
-     pnpm --filter mui-api-dashboard test
-     ```
-   - 运行代码格式化与类型检查：
-     ```bash
-     pnpm run format
-     pnpm run typecheck
-     ```
-   - 验证 Next.js 生产构建：
-     ```bash
-     pnpm --filter mui-api-dashboard build
-     ```
+用 MCP 工具 `upsert_article` 发布（幂等，slug 重复即更新；也可在 muicv Payload 后台手工编辑）：
+
+- `site: "muirouter"`、`locale`：中文首发用 `"zh-CN"`（注意 CMS 用 `zh-CN` 不是 `zh`；其余语言为 `en/de/fr/es/pt/th/ja`）
+- `title` / `summary`（80~150 字摘要）/ `bodyMarkdown`（正文 Markdown）/ `tags` / `keywords`
+- `sources`：`[{ label, url }]` 官方定价页与公告链接；`sourcePublishedAt`：官方公告日期
+- `readingMinutes`：按正文字数估算（CJK 350 字/分钟 + 拉丁 200 词/分钟）
+- `publishedAt`：发布日期（ISO）；`status: "published"`；`author: "MuiRouter"`
+- `seoTitle` / `seoDescription`：搜索引擎标题与 120~160 字描述
+
+发布后站点侧 24h 内自然生效（`unstable_cache` 天级，无 webhook）；急发就手动跑：
+
+```bash
+pnpm --dir packages/dashboard run submit:indexnow -- --dry-run   # 预览
+pnpm --dir packages/dashboard run submit:indexnow                # 实际提交
+```
 
 ---
 
-### 第六步：执行线上变更与清理
+### 第六步：测试回归与收尾
 
-1. **执行远程 D1 数据库脚本**：
+1. **执行远程 D1 价格脚本**：
    ```bash
-   pnpm --filter mui-api exec wrangler d1 execute mui-api --remote --file=../../scripts/update-<model-slug>-price-and-post.sql
+   pnpm --filter mui-api exec wrangler d1 execute mui-api --remote --file=../../scripts/update-<model-slug>-price.sql
    ```
 2. **清理 Cloudflare KV 缓存**：
    ```bash
@@ -142,6 +109,14 @@ VALUES
    ```
 3. **清理临时 SQL 文件**：
    ```bash
-   rm scripts/update-<model-slug>-price-and-post.sql
+   rm scripts/update-<model-slug>-price.sql
    ```
-4. **更新 WIP.md** 记录完成状态。
+4. **测试与质量回归**：
+   ```bash
+   pnpm run format
+   pnpm run typecheck
+   pnpm --filter mui-api test
+   pnpm --filter mui-api-dashboard test
+   pnpm --filter mui-api-dashboard build
+   ```
+5. **更新 WIP.md** 记录完成状态。
