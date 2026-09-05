@@ -25,7 +25,7 @@
 
 - 全部 15 个 `/api/admin/**` route.ts 无测试：`global-config`、`models/[id]`、`models`、`recharge-logs`、`recharge`、`set-concurrency`、`set-rate-multiplier`、`set-spending-limit`、`spending-stats`、`statistics`、`unsuspend-user`、`usage-summary`、`usage`、`user`、`users`
 - `lib/wallet-do.ts`、`lib/top-up-service/{index,db,types,utils}.ts`（4 文件）无测试
-- `lib/admin.ts`、`api.ts`、`auth.ts`、`auth-client.ts`、`email.ts`、`session.ts`、`stripe.ts`、`blog-content.ts`、`utils.ts` 无测试（`api.ts` 304 行相对值得优先关注）
+- `lib/admin.ts`、`api.ts`、`auth.ts`、`auth-client.ts`、`email.ts`、`session.ts`、`stripe.ts`、`utils.ts` 无测试（`api.ts` 304 行相对值得优先关注；`blog-content.ts` 已随博客迁移 muicv CMS 删除，其替代 `lib/cms-blog-client.ts` 有单测）
 
 ### 脚本
 

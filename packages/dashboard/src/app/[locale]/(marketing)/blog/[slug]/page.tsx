@@ -72,15 +72,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
   return <BlogArticle locale={resolvedLocale} post={post} content={content} />;
 }
 
-async function BlogArticle({
-  locale,
-  post,
-  content,
-}: {
-  locale: Locale;
-  post: LocalizedBlogPost;
-  content: string;
-}) {
+async function BlogArticle({ locale, post, content }: { locale: Locale; post: LocalizedBlogPost; content: string }) {
   const t = await getTranslations({ locale, namespace: 'blog' });
 
   const jsonLd = {

@@ -49,10 +49,7 @@ describe('blog metadata helpers', () => {
   });
 
   it('picks the requested locale, then falls back to English, then to the first available', () => {
-    const group = [
-      makeDocument({ locale: 'zh' }),
-      makeDocument({ locale: 'ja' }),
-    ];
+    const group = [makeDocument({ locale: 'zh' }), makeDocument({ locale: 'ja' })];
 
     expect(pickDocumentForLocale(group, 'zh')?.locale).toBe('zh');
     expect(pickDocumentForLocale(group, 'fr')?.locale).toBe('zh');

@@ -42,7 +42,9 @@ const markdownComponents: Components = {
       {...props}
     />
   ),
-  li: ({ node: _node, className, ...props }) => <li className={['pl-1', className].filter(Boolean).join(' ')} {...props} />,
+  li: ({ node: _node, className, ...props }) => (
+    <li className={['pl-1', className].filter(Boolean).join(' ')} {...props} />
+  ),
   blockquote: ({ node: _node, className, ...props }) => (
     <blockquote
       className={[

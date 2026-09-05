@@ -39,15 +39,9 @@ function estimateReadingMinutes(markdown: string): number {
 /** 同一 slug 的多语言文档里做 locale 回退：请求 locale → en → 第一份可用文档。
  *  与旧 D1 pickTranslation 语义一致，保证 gpt-6-astra 这类「中文先行」文章
  *  在所有语言的列表/详情里仍然显示中文版。 */
-export function pickDocumentForLocale(
-  group: readonly CmsBlogDocument[],
-  locale: Locale,
-): CmsBlogDocument | null {
+export function pickDocumentForLocale(group: readonly CmsBlogDocument[], locale: Locale): CmsBlogDocument | null {
   return (
-    group.find((doc) => doc.locale === locale) ??
-    group.find((doc) => doc.locale === defaultLocale) ??
-    group[0] ??
-    null
+    group.find((doc) => doc.locale === locale) ?? group.find((doc) => doc.locale === defaultLocale) ?? group[0] ?? null
   );
 }
 

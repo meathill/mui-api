@@ -154,7 +154,10 @@ export function parseCmsBlogDocument(value: unknown): CmsBlogDocument | null {
     return null;
   }
 
-  const readingMinutes = typeof doc.readingMinutes === 'number' && Number.isFinite(doc.readingMinutes) && doc.readingMinutes > 0 ? doc.readingMinutes : null;
+  const readingMinutes =
+    typeof doc.readingMinutes === 'number' && Number.isFinite(doc.readingMinutes) && doc.readingMinutes > 0
+      ? doc.readingMinutes
+      : null;
 
   return {
     slug,
