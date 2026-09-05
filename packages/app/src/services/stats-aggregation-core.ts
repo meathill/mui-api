@@ -25,7 +25,8 @@ interface AggregateData {
 
 type UpsertRow = { userId: string | null; modelId: string | null } & AggregateRow;
 
-const longContextCountSql = sql<number>`SUM(CASE WHEN ${usageLogs.tier} = 'long_context' THEN 1 ELSE 0 END)`;
+// 长上下文档位含 fast/flex 变体（long_context_fast / long_context_flex），统一按前缀匹配
+const longContextCountSql = sql<number>`SUM(CASE WHEN ${usageLogs.tier} LIKE 'long_context%' THEN 1 ELSE 0 END)`;
 
 async function upsertStats(
   db: Database,
