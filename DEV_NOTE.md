@@ -214,7 +214,7 @@ D1_ERROR: Network connection lost.
 
 **原因**：Anthropic 官方公告明确该价格仅到 **2026-08-31**，2026-09-01 起涨回标准价 $3/$15（与 `claude-sonnet-4-6` 同价）。
 
-**待办（已逾期，2026-09-05 维护轮次处理）**：该调价未在 2026-09-01 前执行，seed.ts 已改为 `3`/`15` + `anthropicCache(3)`，生产 D1 需执行 `scripts/update-claude-sonnet-5-price.sql`（UPDATE 语句 + KV 缓存清理，见 WIP.md 紧急一节）并删除脚本。
+**待办（已于 2026-09-05 执行完毕）**：调价曾在 2026-09-01 前逾期未执行，seed.ts 已改为 `3`/`15` + `anthropicCache(3)`，生产 D1 已 UPDATE 至同价（`cached_input_price=0.3`、`cache_write_price=3.75`）并清除 KV `models:catalog` 缓存；一次性 SQL 脚本已删除。
 
 ### Xiaomi MiMo 定价记录
 
@@ -250,6 +250,8 @@ D1_ERROR: Network connection lost.
 - SEO 适配多语言，`sitemap.xml` 和 `robots.txt`、JSON-LD 都考虑了多语言版本的动态生成。
 
 ### 博客 metadata 放 D1，正文保留 MDX
+
+**注意 sitemap 的 24 小时缓存**：`getPublishedBlogSitemapPosts()` 走 `unstable_cache`（`PUBLIC_CONTENT_REVALIDATE_SECONDS = 86_400`，tag `blog-content`）。新文章插入 D1 后页面立即可访问（按 slug 读是新缓存键），但 sitemap 要等缓存过期才收录。发布后要立刻推搜索引擎，绕过 sitemap 直接 POST IndexNow（key 与 host 见 `scripts/indexnow.ts`），或调用 `revalidateTag('blog-content')`（当前仓库无调用点）。
 
 **决策**：博客文章正文继续放在 `packages/dashboard/src/content/blog/*.mdx`，标题、描述、发布日期、阅读时间、tags、sources 等 metadata 放 D1 的 `blog_posts` / `blog_post_translations`。文章页和 OG 图统一走 `/blog/[slug]` 动态路由，不再为每篇文章新增单独 route 文件，也不再维护代码内 `BLOG_POSTS` 常量。
 
