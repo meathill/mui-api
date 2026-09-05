@@ -119,4 +119,40 @@ describe('POST /v1/messages（Anthropic 原生）', () => {
 
     expect(res.status).toBe(200);
   });
+
+  it('客户端的 anthropic-beta 头透传到上游（1h 缓存 TTL 等 beta 能力依赖此头）', async () => {
+    const userId = `test-msg-beta-${Date.now()}`;
+    const betaKey = await seedApiKey(userId, 10);
+
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      Response.json({
+        id: 'msg_beta',
+        type: 'message',
+        role: 'assistant',
+        model: 'claude-sonnet-4-20250514',
+        content: [{ type: 'text', text: 'pong' }],
+        stop_reason: 'end_turn',
+        usage: { input_tokens: 10, output_tokens: 5 },
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await SELF.fetch('http://localhost/v1/messages', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${betaKey}`,
+        'Content-Type': 'application/json',
+        'anthropic-beta': 'extended-cache-ttl-2025-04-11',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 16,
+        messages: [{ role: 'user', content: 'ping' }],
+      }),
+    });
+
+    expect(res.status).toBe(200);
+    const [, init] = fetchMock.mock.calls[0];
+    expect(new Headers(init?.headers).get('anthropic-beta')).toBe('extended-cache-ttl-2025-04-11');
+  });
 });

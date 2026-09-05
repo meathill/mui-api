@@ -531,6 +531,8 @@
     "colUser": "Utilisateur",
     "colModel": "Modèle",
     "colInput": "Entrée",
+    "colCached": "Lecture cache",
+    "colCacheWrite": "Écriture cache",
     "colOutput": "Sortie",
     "colCost": "Coût",
     "empty": "Aucun enregistrement",

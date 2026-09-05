@@ -16,6 +16,24 @@ import {
 const anthropic = new Hono<{ Bindings: CloudflareBindings }>();
 
 /**
+ * 统计请求体中 cache_control 出现次数（顶层 automatic caching 字段与 system/tools/messages
+ * 各 content block 上的断点都计入）。用于入站日志，排查 prompt cache 零命中时区分
+ * "客户端没写断点" 与 "断点写了但没命中"。
+ */
+function countCacheControl(value: unknown): number {
+  if (Array.isArray(value)) {
+    return value.reduce<number>((sum, item) => sum + countCacheControl(item), 0);
+  }
+  if (value !== null && typeof value === 'object') {
+    return Object.entries(value).reduce<number>(
+      (sum, [key, val]) => sum + (key === 'cache_control' ? 1 : 0) + countCacheControl(val),
+      0,
+    );
+  }
+  return 0;
+}
+
+/**
  * POST /v1/messages —— Anthropic 原生 Messages API
  * 让客户端把 Anthropic SDK / Claude Code 的 base_url 直接指向本网关。
  * 仅服务 anthropic provider（Claude），经 CF AI Gateway + 官方 Anthropic SDK，Stored Keys 托管凭证。
@@ -48,9 +66,19 @@ anthropic.post('/messages', authMiddleware, async (c) => {
 
   const isStream = body.stream === true;
 
+  // 对齐 openai.ts 的入站日志；cache_control 次数为 0 是缓存零命中的直接信号
+  console.log(
+    `[billing] 入站请求: model=${modelId} provider=anthropic stream=${isStream} cache_control=${countCacheControl(body)} messages=${Array.isArray(body.messages) ? (body.messages as unknown[]).length : 0} user=${c.get('userId')}`,
+  );
+
   try {
     // 经官方 SDK + AI Gateway，apiKey=CF_AIG_TOKEN，baseURL=.../anthropic
-    const upstream = await callAnthropic(c.env, { ...body, model: upstreamModel });
+    const anthropicBeta = c.req.header('anthropic-beta');
+    const upstream = await callAnthropic(
+      c.env,
+      { ...body, model: upstreamModel },
+      anthropicBeta ? { 'anthropic-beta': anthropicBeta } : undefined,
+    );
 
     if (!upstream.ok) {
       const errText = await upstream.text();

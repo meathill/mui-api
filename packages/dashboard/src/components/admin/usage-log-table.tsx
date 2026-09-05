@@ -14,7 +14,7 @@ export interface UsageLogTableProps {
 
 export function UsageLogTable({ logs, userMap, showUserColumn = true }: UsageLogTableProps) {
   const t = useTranslations('adminUsage');
-  const colSpan = showUserColumn ? 6 : 5;
+  const colSpan = showUserColumn ? 8 : 7;
 
   return (
     <Card>
@@ -25,6 +25,8 @@ export function UsageLogTable({ logs, userMap, showUserColumn = true }: UsageLog
             {showUserColumn && <TableHead>{t('colUser')}</TableHead>}
             <TableHead>{t('colModel')}</TableHead>
             <TableHead className="text-right">{t('colInput')}</TableHead>
+            <TableHead className="text-right">{t('colCached')}</TableHead>
+            <TableHead className="text-right">{t('colCacheWrite')}</TableHead>
             <TableHead className="text-right">{t('colOutput')}</TableHead>
             <TableHead className="text-right">{t('colCost')}</TableHead>
           </TableRow>
@@ -48,6 +50,12 @@ export function UsageLogTable({ logs, userMap, showUserColumn = true }: UsageLog
               )}
               <TableCell>{log.modelId || '-'}</TableCell>
               <TableCell className="text-right font-mono">{log.inputTokens?.toLocaleString() ?? '-'}</TableCell>
+              <TableCell className="text-right font-mono text-muted-foreground">
+                {log.cachedInputTokens?.toLocaleString() ?? '-'}
+              </TableCell>
+              <TableCell className="text-right font-mono text-muted-foreground">
+                {log.cacheWriteTokens?.toLocaleString() ?? '-'}
+              </TableCell>
               <TableCell className="text-right font-mono">{log.outputTokens?.toLocaleString() ?? '-'}</TableCell>
               <TableCell className="text-right font-mono">${log.cost?.toFixed(4) ?? '-'}</TableCell>
             </TableRow>

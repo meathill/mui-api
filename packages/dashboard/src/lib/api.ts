@@ -237,6 +237,8 @@ export interface UsageLog {
   modelId: string | null;
   inputTokens: number | null;
   outputTokens: number | null;
+  cachedInputTokens: number | null;
+  cacheWriteTokens: number | null;
   cost: number | null;
   createdAt: string | null;
 }

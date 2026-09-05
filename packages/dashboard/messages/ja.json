@@ -531,6 +531,8 @@
     "colUser": "ユーザー",
     "colModel": "モデル",
     "colInput": "入力",
+    "colCached": "キャッシュ読込",
+    "colCacheWrite": "キャッシュ書込",
     "colOutput": "出力",
     "colCost": "コスト",
     "empty": "レコードなし",

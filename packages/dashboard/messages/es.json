@@ -531,6 +531,8 @@
     "colUser": "Usuario",
     "colModel": "Modelo",
     "colInput": "Entrada",
+    "colCached": "Lectura caché",
+    "colCacheWrite": "Escritura caché",
     "colOutput": "Salida",
     "colCost": "Coste",
     "empty": "Sin registros",

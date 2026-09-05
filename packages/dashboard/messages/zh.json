@@ -531,6 +531,8 @@
     "colUser": "用户",
     "colModel": "模型",
     "colInput": "输入",
+    "colCached": "缓存读",
+    "colCacheWrite": "缓存写",
     "colOutput": "输出",
     "colCost": "费用",
     "empty": "暂无记录",

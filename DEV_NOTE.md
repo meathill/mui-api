@@ -389,6 +389,20 @@ D1_ERROR: Network connection lost.
 - Workers AI `max_tokens` 默认 256，客户端不传会静默截断
 - Gemini 翻译层暂不支持 tools / tool_choice / 图片 content，命中返回 400 说明
 
+## Claude prompt cache
+
+**背景**：2026-09 有用户调 Claude 缓存零命中、烧钱快，Anthropic 发邮件提醒。排查（2026-09-03）确认三条入口对缓存的支持结构性不同：
+
+- `/v1/messages`（原生）：body 仅改写 model 字段，`cache_control` 完整透传，能否命中取决于客户端写法
+- `/v1/chat/completions` → CF 网关 compat 端点：**OpenAI 格式没有 `cache_control` 的位置，结构性无法用缓存**（OpenAI 是自动缓存、Anthropic 必须显式断点，从 OpenAI SDK 迁来的客户必踩）；已写 `docs/claude-prompt-cache-guide.md` 引导迁到 `/v1/messages`
+- `/providers/anthropic/*`（裸透传）：完全透传
+
+**决策与修复**：
+- `/v1/messages` 现透传客户端 `anthropic-beta` 头（SDK 默认丢弃，extended-cache-ttl 1h TTL 依赖它）；入站日志带 `cache_control=N` 计数，是排查零命中的关键信号
+- CF AI Gateway 的"缓存"是**响应级**缓存（按请求体精确匹配），对多轮对话基本永远 miss，替代不了 Anthropic 的 prompt cache；且若精确重试命中，上游免费但平台仍按原 usage 扣客户费，存在重复计费隐患——是否对 chat 流量关闭该缓存待定
+- Anthropic 真实 key 在 CF 后台 Stored Keys（代码外隐藏状态，多 key 轮换会打散 org 级缓存），排查时需人工核对后台只配了一个 key
+- 判定数据在 `usage_logs.cached_input_tokens / cache_write_tokens`（后台用量表已展示），一键诊断用 `node scripts/diagnose-claude-cache.ts --user <id>`
+
 ## 关键模式
 
 ### Claim Token（一次性密钥查看）

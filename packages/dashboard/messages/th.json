@@ -531,6 +531,8 @@
     "colUser": "ผู้ใช้",
     "colModel": "โมเดล",
     "colInput": "อินพุต",
+    "colCached": "อ่านแคช",
+    "colCacheWrite": "เขียนแคช",
     "colOutput": "เอาต์พุต",
     "colCost": "ค่าใช้จ่าย",
     "empty": "ไม่มีบันทึก",

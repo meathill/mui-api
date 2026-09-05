@@ -118,11 +118,13 @@ describe('POST /v1/chat/completions —— Moonshot Kimi K3', () => {
 
     expect(response.status).toBe(200);
     expect(await response.text()).toBe(chunks.join(''));
+    // 网关强制补齐 stream_options.include_usage（b71fa5f）：流式响应必须携带 usage 才能计费
     expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toEqual({
       model: 'kimi-k3',
       messages: [{ role: 'user', content: '回答问题' }],
       reasoning_effort: 'max',
       stream: true,
+      stream_options: { include_usage: true },
     });
     await vi.waitFor(async () => {
       const userData = await env.KV.get<{ balance: number }>(`user:${userId}`, 'json');

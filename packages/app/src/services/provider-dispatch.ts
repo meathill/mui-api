@@ -300,10 +300,17 @@ export async function callGemini(env: CloudflareBindings, upstreamModel: string,
  * 鉴权：apiKey = CF_AIG_TOKEN，baseURL = .../anthropic，Stored Keys 在网关侧注入真实 Anthropic Key。
  * 不再区分 unified / byok，Worker 不持有 Anthropic 凭证。
  */
-export async function callAnthropic(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+export async function callAnthropic(
+  env: CloudflareBindings,
+  body: AnyBody,
+  defaultHeaders?: Record<string, string>,
+): Promise<Response> {
   const client = new Anthropic({
     apiKey: env.CF_AIG_TOKEN,
     baseURL: anthropicGatewayBase(env),
+    // SDK 默认不带 anthropic-beta，客户端声明的 beta 能力（如 extended-cache-ttl 的 1h 缓存 TTL）
+    // 若不透传会静默失效
+    ...(defaultHeaders ? { defaultHeaders } : {}),
   });
   // 归一化：用户可能传 claude-haiku-4.5(dot)，上游 Anthropic 需 hyphen
   const normalizedBody = body.model ? { ...body, model: String(body.model).replace(/\./g, '-') } : body;
