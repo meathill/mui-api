@@ -8,6 +8,7 @@ import {
   DEFAULT_CONCURRENCY_LEASE_TTL_MS,
   DEFAULT_CONCURRENCY_REFRESH_INTERVAL_MS,
 } from '../services/concurrency-service';
+import { getExecutionPolicy } from '../services/execution-policy';
 import { KVService } from '../services/kv-service';
 import { WalletService } from '../services/wallet-service';
 import type { CloudflareBindings, KVUserData } from '../types';
@@ -52,6 +53,14 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
     }
     const { userId, keyHash: apiKeyId } = validation;
 
+    // 中心项目 key：提前解析执行策略（计费模式 + 模型默认值），下游路由/计费按策略走。
+    // 普通 key（无 projectId）不查库，零额外开销。
+    const executionPolicy = validation.projectId
+      ? await getExecutionPolicy(c.get('db'), validation.projectId, userId)
+      : undefined;
+    // 只计量模式不预扣、不查余额：零余额也可调用，费用只记日志（对账口径见 usage_logs）。
+    const isMeterOnly = executionPolicy?.billingMode === 'meter_only';
+
     // 获取用户数据，如果 KV 中不存在则自动初始化（余额为 0）
     let { data, metadata } = await kvService.getUser(userId);
     if (!data) {
@@ -70,8 +79,12 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
       return c.json(createErrorResponse('账户已因超出消费限额被暂停，请联系管理员', 'account_suspended'), 403);
     }
 
-    // 检查余额
-    if (data.balance < MIN_BALANCE && !(allowFreeQuotaFallback && hasFreeQuotaFallback(globalConfig, data))) {
+    // 检查余额（只计量模式跳过：不做最小余额拦截，BillingService 侧同样不扣费）
+    if (
+      !isMeterOnly &&
+      data.balance < MIN_BALANCE &&
+      !(allowFreeQuotaFallback && hasFreeQuotaFallback(globalConfig, data))
+    ) {
       return c.json(
         createErrorResponse(`余额不足，当前余额: $${data.balance.toFixed(4)}`, ErrorTypes.INSUFFICIENT_QUOTA),
         402,
@@ -96,6 +109,7 @@ export function createAuthMiddleware(options: AuthMiddlewareOptions = {}) {
     c.set('balance', data.balance);
     c.set('rateMultiplier', metadata?.rateMultiplier ?? 1);
     c.set('concurrencyLeaseId', concurrencyLease.leaseId);
+    if (executionPolicy) c.set('executionPolicy', executionPolicy);
 
     const heartbeat = createLeaseHeartbeat(
       DEFAULT_CONCURRENCY_REFRESH_INTERVAL_MS,

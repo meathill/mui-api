@@ -37,6 +37,14 @@ export const usageLogs = sqliteTable('usage_logs', {
   cacheWriteTokens: integer('cache_write_tokens').default(0),
   tier: text('tier').default('standard'),
   cost: real('cost'),
+  // 中心集成（0028）：归属项目、实扣金额与计费口径审计列。旧日志这些列为 NULL。
+  projectId: text('project_id'),
+  chargedCost: real('charged_cost'),
+  billingMode: text('billing_mode'),
+  pricingSource: text('pricing_source'),
+  usageStatus: text('usage_status'),
+  upstreamModelId: text('upstream_model_id'),
+  connectionId: text('connection_id'),
   createdAt: integer('created_at', { mode: 'timestamp' }).default(sql`(unixepoch())`),
 });
 
@@ -55,6 +63,9 @@ export const videoGenerationJobs = sqliteTable('video_generation_jobs', {
   actualCost: real('actual_cost'),
   settledCost: real('settled_cost'),
   billedAt: integer('billed_at', { mode: 'timestamp' }),
+  // 中心集成（0028）：归属项目与计费模式。
+  projectId: text('project_id'),
+  billingMode: text('billing_mode').notNull().default('wallet'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
 });
@@ -186,6 +197,8 @@ export const oauthClients = sqliteTable('oauth_clients', {
   allowedRedirectUris: text('allowed_redirect_uris').notNull(),
   /** 逗号分隔，例如 `"balance,llm"`。 */
   allowedScopes: text('allowed_scopes').notNull().default('balance,llm'),
+  /** 中心集成（0028）：`none`（CLI 那种无 secret 公开客户端）或 `client_secret_post`。 */
+  authMethod: text('auth_method').notNull().default('client_secret_post'),
   isActive: integer('is_active', { mode: 'boolean' }).notNull().default(true),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
@@ -205,6 +218,8 @@ export const oauthCodes = sqliteTable('oauth_codes', {
   expiresAt: integer('expires_at', { mode: 'timestamp' }).notNull(),
   /** 单次消费——被换过 token 就置 1，第二次再来 400 invalid_grant。 */
   used: integer('used', { mode: 'boolean' }).notNull().default(false),
+  /** 中心集成（0028）：PKCE S256 code_challenge，普通 code 流程为 NULL。 */
+  codeChallenge: text('code_challenge'),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
 });
 
@@ -231,3 +246,14 @@ export type OauthCode = typeof oauthCodes.$inferSelect;
 export type NewOauthCode = typeof oauthCodes.$inferInsert;
 export type OauthToken = typeof oauthTokens.$inferSelect;
 export type NewOauthToken = typeof oauthTokens.$inferInsert;
+
+// 中心集成（0028）：项目 / provider 连接 / 配置审计 / 音频费率六张表。
+// 定义在 integration-schema.ts，`business` 出口统一转出，app 侧只认这一个入口。
+export {
+  audioModelRates,
+  configurationChanges,
+  controlDocuments,
+  integrationProjects,
+  modelConnections,
+  providerConnections,
+} from './integration-schema';

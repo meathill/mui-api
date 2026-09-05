@@ -23,6 +23,8 @@ export type BearerValidation = {
   clientId: string | null;
   /** OAuth 时是授权 scope；PAT 时为 null。 */
   scope: string | null;
+  /** 中心项目 key 的归属项目；普通 key / OAuth 为 undefined。 */
+  projectId?: string;
 };
 
 export async function validateBearer(
@@ -52,6 +54,7 @@ export async function validateBearer(
       source: 'pat',
       clientId: null,
       scope: null,
+      ...(result.projectId ? { projectId: result.projectId } : {}),
     };
   }
   return null;

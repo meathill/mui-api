@@ -20,7 +20,9 @@
     "./grok-video": "./src/grok-video.ts",
     "./money": "./src/money.ts",
     "./crypto": "./src/crypto.ts",
-    "./d1-retry": "./src/d1-retry.ts"
+    "./d1-retry": "./src/d1-retry.ts",
+    "./integration": "./src/integration.ts",
+    "./integration-guide": "./src/integration-guide.ts"
   },
   "dependencies": {
     "drizzle-orm": "^0.45.2"

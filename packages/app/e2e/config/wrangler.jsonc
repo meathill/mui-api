@@ -1,0 +1,15 @@
+{
+  "name": "mui-api-integration-test",
+  "main": "../../src/index.tsx",
+  "compatibility_date": "2026-03-08",
+  "compatibility_flags": ["nodejs_compat"],
+  "durable_objects": {
+    "bindings": [
+      { "name": "CONCURRENCY_LIMITER", "class_name": "ConcurrencyLimiterDO" },
+      { "name": "WALLET", "class_name": "WalletDO" }
+    ]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ConcurrencyLimiterDO", "WalletDO"] }],
+  "d1_databases": [{ "binding": "DB", "database_name": "test", "database_id": "local-test" }],
+  "kv_namespaces": [{ "binding": "KV", "id": "local-test" }]
+}

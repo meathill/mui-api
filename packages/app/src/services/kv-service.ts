@@ -15,6 +15,8 @@ export interface ApiKeyMetadata {
   keyPrefix: string;
   isActive: boolean;
   userId: string;
+  /** 中心项目 key 才有；普通 key 为 undefined。 */
+  projectId?: string;
 }
 
 /**
@@ -97,9 +99,9 @@ export class KVService {
   }
 
   /**
-   * 验证 API Key，返回 userId 和 keyHash，或 null
+   * 验证 API Key，返回 userId、keyHash 与归属项目（普通 key 无 projectId），或 null
    */
-  async validateApiKey(rawKey: string): Promise<{ userId: string; keyHash: string } | null> {
+  async validateApiKey(rawKey: string): Promise<{ userId: string; keyHash: string; projectId?: string } | null> {
     const keyHash = await hashApiKey(rawKey);
     const result = await this.kv.getWithMetadata(`${APIKEY_PREFIX}${keyHash}`, 'text');
     const metadata = result.metadata as ApiKeyMetadata | null;
@@ -108,7 +110,7 @@ export class KVService {
       return null;
     }
 
-    return { userId: result.value, keyHash };
+    return { userId: result.value, keyHash, ...(metadata.projectId ? { projectId: metadata.projectId } : {}) };
   }
 
   // ==================== 消费统计 ====================

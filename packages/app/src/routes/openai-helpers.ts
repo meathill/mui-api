@@ -1,4 +1,6 @@
 import type { Context } from 'hono';
+import type { ProviderConnection } from '../services/provider-connection';
+import { resolveProviderConnection } from '../services/provider-connection';
 import type { Model } from '../db/schema';
 import { badRequest, createErrorResponse, ErrorTypes, upstreamError } from '../lib/errors';
 import { MIN_BALANCE } from '../middleware/auth';
@@ -19,6 +21,8 @@ export type ModelLookup = {
   modelConfig: Model;
   upstreamModel: string;
   modelPricing: ModelPricing;
+  /** 中心 provider 连接（显式建模才有）；缺省走既有 provider 分发。 */
+  connection: ProviderConnection | null;
 };
 
 export async function readJsonBody(c: OpenAIContext): Promise<JsonBody | Response> {
@@ -44,6 +48,7 @@ export async function lookupModel(
     modelConfig,
     upstreamModel: modelConfig.upstreamModelId ?? modelId,
     modelPricing: toModelPricing(modelConfig),
+    connection: (await resolveProviderConnection(services.db, modelConfig.id))?.connection ?? null,
   };
 }
 

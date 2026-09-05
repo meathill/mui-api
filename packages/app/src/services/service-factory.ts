@@ -1,3 +1,4 @@
+import type { ExecutionPolicy } from '@muirouter/shared-db/integration';
 import type { Database } from '../db';
 import type { CloudflareBindings } from '../types';
 import { AlertService } from './alert-service';
@@ -21,12 +22,17 @@ export interface ProxyServices {
 /**
  * 创建代理路由所需的全部服务实例
  * 用于 openai.ts 和 providers.ts
+ * 中心项目请求透传 executionPolicy：BillingService 按项目计费模式（钱包/只计量）结算。
  */
-export function createProxyServices(env: CloudflareBindings, db: Database): ProxyServices {
+export function createProxyServices(
+  env: CloudflareBindings,
+  db: Database,
+  executionPolicy?: ExecutionPolicy,
+): ProxyServices {
   const defaultMaxConcurrency = Number(env.DEFAULT_MAX_CONCURRENCY) || 3;
   const kvService = new KVService(env.KV, defaultMaxConcurrency);
   const walletService = new WalletService(env);
-  const billingService = new BillingService(kvService, db, walletService);
+  const billingService = new BillingService(kvService, db, walletService, executionPolicy);
   const emailService = new EmailService({
     apiKey: env.RESEND_API_KEY,
     fromEmail: env.FROM_EMAIL,
