@@ -14,6 +14,7 @@
     "./auth": "./src/auth-schema.ts",
     "./business": "./src/business-schema.ts",
     "./types": "./src/types.ts",
+    "./kv-keys": "./src/kv-keys.ts",
     "./model-metadata": "./src/model-metadata.ts",
     "./grok-image": "./src/grok-image.ts",
     "./grok-video": "./src/grok-video.ts",

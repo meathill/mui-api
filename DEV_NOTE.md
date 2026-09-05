@@ -77,6 +77,15 @@ D1_ERROR: Network connection lost.
 
 **注意**：计费崩溃不影响已发送的响应。需要依赖告警系统发现计费异常。
 
+### 计费兜底与漏单治理（2026-08-31）
+
+8 月底集中治理了两类静默漏单，原则：**usage 缺失时宁可保守兜底，也不静默跳过计费管道**。
+
+- **流式漏单：强制补齐 `stream_options.include_usage`**（b71fa5f）。客户端（OpenAI JS SDK 6.34 等）默认不带该字段时，上游终态 SSE 不带 usage，extractor 返回 null 被静默跳过——8/30-31 实测网关 227 个请求只有 13 个落了 D1。修复：`chat-body-normalize` 对 `stream: true` 一律注入 `include_usage: true`；`usage-extractor` 兼容 anthropic `delta.usage` / `message_stop` 兜底。
+- **非法请求兜底：`GROK_NO_USAGE_BASE_COST`**（9588936）。grok / grok-image 响应异常缺失 usage 时按 $0.01 兜底计费（新增 `processFixedCost`，受 markupRate 与 userRateMultiplier 影响，允许 freeQuota 抵扣，0 token 也记日志），避免恶意/畸形请求白嫖且不留审计痕迹。
+- **视频按提交计费**：见「Grok 异步视频生成」一节的口径变更。
+- **管理侧配套**（d5fcca1）：支持负数冲正（修错账）、用户详情页余额调整、按天统计对齐 UTC——统计口径一律以 UTC 日切，勿混用本地时区。
+
 ### 模型白名单免费额度
 
 **决策**：免费体验额度放在全局 KV 配置 `config:global.freeQuota`，用户侧只在 `user:{userId}.freeQuotaUsed` 记录已使用金额。
@@ -122,13 +131,13 @@ D1_ERROR: Network connection lost.
 
 **决策**：根据不同 Provider 的特性采取不同的调用方式，不再一刀切地全部走 AI Gateway Stored Keys。
 
-**实现**：
-- **OpenAI / Google AI Studio**：继续走 CF AI Gateway，由其 Stored Keys 注入真实的 API Key。
+**实现**（2026-08-26 起，c27e2b0）：
+- **OpenAI**：优先 `OPENAI_API_KEY` 直连 `https://api.openai.com/v1`，缺 key 回退 CF AI Gateway（Stored Keys）；配合 Worker placement 改 smart 规避直连时的 "Country not supported"。Google AI Studio 仍走 Gateway Stored Keys。
+- **Anthropic (Claude)**：全量经 CF AI Gateway（Stored Keys）+ 官方 `@anthropic-ai/sdk`，原生 `/v1/messages` 与 compat `/v1/chat/completions` 统一走 SDK，byok/unified 分流已移除（详见下方「Claude 计费模式演进」）。upstreamModelId 用 Anthropic 规范连字符 ID（如 `claude-haiku-4-5`；`claude-haiku-4.5` dot 写法已做兼容归一）。
+  - **入站认证兼容 `x-api-key`**：Anthropic 官方 SDK / Claude Code 默认用 `x-api-key` 头而非 `Authorization: Bearer` 发送凭证，`authMiddleware` 两种头都接受（`middleware/auth.ts`），否则原生 SDK 直连会全部 401。
+  - **早期误区订正**：曾以为 Claude 可走 `env.AI.run`（Workers AI binding）「免 Key、按 Workers AI 计费」——这是错的：Workers AI 不托管 Claude，且 Workers AI 模型走 Gateway 也不计入 Unified Billing。
 - **Moonshot AI**：不走 CF AI Gateway，使用 `MOONSHOT_API_KEY` 直连 `https://api.moonshot.ai/v1/chat/completions`，可通过 `MOONSHOT_BASE_URL` 覆盖 base URL。Provider 标识为 `moonshot`，因此请求不会出现在 AI Gateway 日志中。
 - **Xiaomi MiMo**：不走 CF AI Gateway，直接用 `MIMO_API_KEY` 请求 OpenAI 兼容接口，默认 base URL 为 `https://api.xiaomimimo.com/v1`，可通过 `MIMO_BASE_URL` 覆盖。Provider 标识为 `xiaomi-mimo`，计费 usage 按 OpenAI 兼容响应解析。
-- **Anthropic (Claude)**：经 CF AI Gateway 转发，计费模式（unified 代付 / byok 自付，详见下方「只有 Claude 走 Unified Billing + BYOK 开关」一节）由 `ANTHROPIC_CREDENTIAL_MODE` 控制。两条对外面：原生 `/v1/messages` 走 provider-native 透传（`proxyNative`，`cf-aig-authorization` 固定带，unified 时另加 `Authorization: Bearer CF_TOKEN`、byok 时改成 `x-api-key`，返回 Anthropic 原生 usage）；OpenAI 兼容 `/v1/chat/completions` 走 compat 端点（`callAnthropicCompat`，`cf-aig-authorization` 固定带，unified 时不加别的、byok 时加 `Authorization: Bearer ANTHROPIC_API_KEY`，model 带 `anthropic/` 前缀，返回 OpenAI 形 usage）。upstreamModelId 用 Anthropic 规范连字符 ID（如 `claude-haiku-4-5`）。
-  - **入站认证兼容 `x-api-key`**：Anthropic 官方 SDK / Claude Code 默认用 `x-api-key` 头而非 `Authorization: Bearer` 发送凭证，`authMiddleware` 两种头都接受（`middleware/auth.ts`），否则原生 SDK 直连会全部 401。
-  - **早期误区订正**：曾以为 Claude 可走 `env.AI.run`（Workers AI binding）「免 Key、按 Workers AI 计费」——这是错的：Workers AI 不托管 Claude，且 Workers AI 模型走 Gateway 也不计入 Unified Billing。Claude 必须走 Unified Billing 代付。
 - **Workers AI (`@cf/*`)**：走 `env.AI.run` + `gateway: { id }`，按 Workers AI 用量（neuron）计费，保留 Gateway 监控。
 - **xAI Grok**：经 CF AI Gateway 转发，xAI key 以 Stored Keys 形式配置在网关侧（`callGrokEndpoint()` 只带 `cf-aig-authorization`，不注入 `Authorization`），本服务不持有真实 xAI key，接入模式与 OpenAI / Google AI Studio 一致。详见下方「xAI Grok 接入」一节。
 
@@ -156,7 +165,9 @@ D1_ERROR: Network connection lost.
 
 **已知限制（v1）**：不支持 `background: true` 轮询 / `GET` 检索 / 取消（Codex 交互式流式场景不需要）；所有网关用户共享同一上游 OpenAI 账号（AI Gateway Stored Keys），`previous_response_id` 未做租户级加密隔离——这是本项目现有共享凭证模型的既有属性，不是这次改动引入的新风险。
 
-### 只有 Claude 走 Unified Billing / BYOK（防误烧 credits）+ BYOK 开关
+### Claude 计费模式演进：Unified Billing → BYOK → 全量 Gateway Stored Keys（2026-08-26 去 BYOK）
+
+**终态（2026-08-26，c27e2b0）**：`ANTHROPIC_CREDENTIAL_MODE` 的 byok/unified 分流已整体移除，Claude 原生 `/v1/messages` 与 compat `/v1/chat/completions` 统一改用官方 `@anthropic-ai/sdk` 经 CF AI Gateway Stored Keys 转发，凭证由网关后台托管。BYOK 时 `markupRate=1.05`、unified 时 5% 充值费的经济性对比随开关一起成为历史。以下两条教训仍然有效。
 
 **背景**：其它 provider 的 key 容易获得（OpenAI/Gemini 走 Gateway Stored Keys 自付、MiMo 直连自有 key），只有 Claude 因账号门槛走 CF 代付。Unified Billing 有 5% 充值费与 200 req/min/网关 限速，必须严格限定只有 Claude 用。
 
@@ -185,6 +196,8 @@ D1_ERROR: Network connection lost.
 
 **任务归属与协议**：视频 generation 使用独立的 `video_generation_jobs` 表，以 xAI `request_id` 为主键，保存用户/API Key、模型参数、预占 ID、费率快照和终态结算结果。查询必须同时匹配 `request_id + user_id`，不存在和越权统一返回 404。当前只支持 generation：`grok-imagine-video` 可文生视频或单图生视频，`grok-imagine-video-1.5` 必须带单图；不代理 reference/edit/extension。
 
+**预占后结算 → 按提交计费（2026-08-31 口径变更，4f944a5）**：POST 提交时即按估算成本写入 `usage_logs`（`video:{request_id}`，pending 预占即计费，与 Grok 控制台按提交计费的口径对齐）；`GET /videos/:id` 失败/过期时回滚 pending 日志、不计费；完成时按实际成本 `onConflictDoUpdate` 覆盖估算值（actual ≤ estimated）。变更原因：旧口径在完成前 `usage_logs` 无记录，余额已扣但统计为 0，属计费漏洞。下述「预占后结算」细节中，钱包 reservation 机制不变，变的只是 usage log 的写入时点。
+
 **预占后结算**：视频不使用免费额度。提交前按 duration、resolution、输入图成本、模型 markup 和用户费率倍率计算最高授权金额，`WalletDO` 以 reservation ID 原子预占可用余额，但不提前扣款。`pending` 查询把预占有效期续到 24 小时；`failed/expired` 幂等释放；`done` 优先按 `usage.cost_in_usd_ticks` 计算实际费用，缺失时使用提交估算，低于预占则只扣实际值，高于预占则以授权金额封顶。
 
 **幂等边界**：钱包 reservation 记录负责并发结算去重，`usage_logs.id = video:{request_id}` 负责审计日志去重，任务表的 `billed_at` 负责快速跳过已完成结算。顺序是钱包结算、确定性 usage log、任务 billed 标记；任何一步失败都可由下次轮询安全重试。视频链接保持 xAI 临时 URL，不在本服务转存。
@@ -201,7 +214,7 @@ D1_ERROR: Network connection lost.
 
 **原因**：Anthropic 官方公告明确该价格仅到 **2026-08-31**，2026-09-01 起涨回标准价 $3/$15（与 `claude-sonnet-4-6` 同价）。
 
-**待办**：2026-09-01 前后需要把 `packages/app/src/db/seed.ts` 里 `claude-sonnet-5` 的 `inputPrice`/`outputPrice` 改为 `3`/`15`、`anthropicCache(2)` 改为 `anthropicCache(3)`，重新生成 SQL 并应用到远程 D1，否则会一直按限时价对外结算，实际成本超过收费。
+**待办（已逾期，2026-09-05 维护轮次处理）**：该调价未在 2026-09-01 前执行，seed.ts 已改为 `3`/`15` + `anthropicCache(3)`，生产 D1 需执行 `scripts/update-claude-sonnet-5-price.sql`（UPDATE 语句 + KV 缓存清理，见 WIP.md 紧急一节）并删除脚本。
 
 ### Xiaomi MiMo 定价记录
 

@@ -6,9 +6,10 @@
 
 排查方法见仓库记忆 `mui-api-e2e-service-coverage`：必须同时查 `src` 与 `e2e` 两个目录，避免漏数已有覆盖。以下均已按此方法核实为真实缺口。
 
+> 2026-09-05 维护轮次已覆盖：`routes/oauth.ts` 路由层（token/revoke 全分支单测）、dashboard `lib/kv.ts`（内存 KV 假实现全函数覆盖），已从下列清单移除。
+
 ### packages/app 路由层
 
-- `routes/oauth.ts`：`POST /oauth/token`、`POST /oauth/revoke` 无测试（service 层 `oauth-token-service.ts` 有 e2e 覆盖，但绕过了 Hono HTTP 层，路由自身的 JSON 解析异常、grant_type 分支、错误状态码映射未验证）
 - `routes/providers.ts`：`/providers/:provider/*` 原生透传代理路由层无测试（底层 credential 注入、usage 解析各自有单测，但路由自身的流式/非流式分支、计费胶水代码无测试）
 - `routes/admin/spending.ts`：7 个端点里 6 个无测试——`POST /set-spending-limit`、`GET /global-config`、`POST /global-config`、`GET /usage`、`GET /spending-stats`、`GET /recharge-logs`（只有 `POST /unsuspend-user` 有覆盖）
 - `routes/admin/users.ts`：`POST /set-concurrency`、`GET /user` 无测试
@@ -19,7 +20,7 @@
 
 - 全部 15 个 `/api/admin/**` route.ts 无测试：`global-config`、`models/[id]`、`models`、`recharge-logs`、`recharge`、`set-concurrency`、`set-rate-multiplier`、`set-spending-limit`、`spending-stats`、`statistics`、`unsuspend-user`、`usage-summary`、`usage`、`user`、`users`
 - `lib/wallet-do.ts`、`lib/top-up-service/{index,db,types,utils}.ts`（4 文件）无测试
-- `lib/admin.ts`、`api.ts`、`auth.ts`、`auth-client.ts`、`email.ts`、`kv.ts`、`session.ts`、`stripe.ts`、`blog-content.ts`、`utils.ts` 无测试（风险与复杂度不一，`api.ts` 304 行、`kv.ts` 210 行相对值得优先关注）
+- `lib/admin.ts`、`api.ts`、`auth.ts`、`auth-client.ts`、`email.ts`、`session.ts`、`stripe.ts`、`blog-content.ts`、`utils.ts` 无测试（`api.ts` 304 行相对值得优先关注）
 
 ### 脚本
 

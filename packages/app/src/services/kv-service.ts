@@ -1,14 +1,15 @@
 import { hashApiKey } from '@muirouter/shared-db/crypto';
+import {
+  APIKEY_PREFIX,
+  GLOBAL_CONFIG_KEY,
+  GLOBAL_SPENDING_PREFIX,
+  MODELS_CATALOG_KEY,
+  USER_KEY_PREFIX,
+  USER_SPENDING_PREFIX,
+} from '@muirouter/shared-db/kv-keys';
 import type { Model } from '../db/schema';
 import type { KVUserData, KVUserMetadata } from '../types';
 import type { GlobalConfig } from './alert-service';
-
-const USER_KEY_PREFIX = 'user:';
-const APIKEY_PREFIX = 'apikey:';
-const GLOBAL_CONFIG_KEY = 'config:global';
-const GLOBAL_SPENDING_PREFIX = 'stats:';
-const USER_SPENDING_PREFIX = 'spending:user:';
-const MODELS_CATALOG_KEY = 'models:catalog';
 
 export interface ApiKeyMetadata {
   keyPrefix: string;

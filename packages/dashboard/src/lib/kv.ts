@@ -9,6 +9,13 @@ import type {
   KVUserData,
   KVUserMetadata,
 } from '@muirouter/shared-db/types';
+import {
+  APIKEY_PREFIX,
+  GLOBAL_CONFIG_KEY,
+  GLOBAL_SPENDING_PREFIX,
+  MODELS_CATALOG_KEY,
+  USER_KEY_PREFIX,
+} from '@muirouter/shared-db/kv-keys';
 import { getCloudflareContext } from '@opennextjs/cloudflare';
 
 // ==================== 类型定义 ====================
@@ -23,12 +30,8 @@ export interface ApiKeyMetadata {
 }
 
 // ==================== KV Key 前缀 ====================
+// 前缀已上移到 @muirouter/shared-db/kv-keys（app / dashboard 双端共用）
 
-const USER_KEY_PREFIX = 'user:';
-const APIKEY_PREFIX = 'apikey:';
-const GLOBAL_CONFIG_KEY = 'config:global';
-const GLOBAL_SPENDING_PREFIX = 'stats:';
-const MODELS_CATALOG_KEY = 'models:catalog';
 const DEFAULT_FREE_QUOTA_CONFIG: FreeQuotaConfig = {
   enabled: false,
   amount: 0,

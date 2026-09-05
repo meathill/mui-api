@@ -1,59 +1,18 @@
 # WIP
 
-## Issue #10: 抢占 MCP Router 与 OpenRouter 替代词 SEO
+## 紧急：claude-sonnet-5 限时价已逾期未调（计费倒挂）
 
-### Actionable TODOs
-- [x] Title & Meta 升级：首页 Title、Description、OG 及 Keywords 强化 MCP Router 与 OpenRouter 替代词，同步 8 语种本地化
-- [x] /mcp 专题页升级：完善 MCP 协议支持说明（双 era）、多 Server 聚合路由及各客户端（Claude Code / Cursor / Claude Desktop / Cline）配置教程
-- [x] 上线 /compare/openrouter 对比页：展示自托管、多提供商切换与私有化部署优势，更新 sitemap 与导航
-- [x] 测试与质量保障：通过 `messages-parity`、`sitemap.test.ts`、`vitest`、`typecheck` 和 `format`
+- 官方限时价 $2/$10 于 2026-08-31 截止，标准价 $3/$15；DEV_NOTE 待办逾期未执行，生产 D1 极可能仍按限时价对外结算（seed.ts 已在本轮维护中改为标准价）
+- 执行 `scripts/update-claude-sonnet-5-price.sql`（含 KV 缓存清理与校验语句），执行后删掉该脚本
 
+## 进行中（已停靠 feat-union 分支，2026-09-05 维护轮次）
 
-## Claude Fable 5.1 接入与文章发布（2026-09-02）
+- **GA4 关键事件（issue #13）**：代码已完成，停靠 feat-union（提交 c95331e）。合入部署后按 `docs/ga4-key-events.md` 做 DebugView 验证与后台关键事件标记。
+- **AI 自主接入控制面**：未完成，停靠 feat-union（提交 18d14db，任务清单见该提交的 WIP.md）。恢复开发：`git rebase --onto master fab78f8 feat-union`。
+- ⚠️ 合并前需重命名 feat-union 的 `packages/shared-db/drizzle/0028_integration_control.sql` → `0029_*`：master 已有 `0028_add_terms_consent.sql`，撞号会破坏迁移顺序。
 
-### 模型与定价（已上线）
-- [x] 修改 `packages/app/src/db/seed.ts`：追加 `claude-fable-5-1`、`claude-fable-5.1` 与 `claude-fable-5`
-- [x] 同步 `seed-models.sql` / `packages/dashboard/seed-models.sql`
-- [x] 生成并执行一次性 SQL 脚本写入远程 D1 `models` 表（价格：10/50/0.25/12.5）
-- [x] 清除远程 KV `models:catalog` 缓存
-- [x] 一次性 SQL 脚本已清理删除
+## 待办：grok-4.6 / deepseek-v4-pro 博客发布（线上 404 已确认）
 
-### 文章发布（已发布至 muicv-cms）
-- [x] 用户审阅并确认中文解读文章草稿（已落本地 `docs/claude-fable-5-1.md` 并清理多余分割线）
-- [x] 正式发布至 MuiCV Payload CMS（section: `product`，slug: `claude-fable-5-1-announcement`，id: 7）
-- [x] 验证线上 API 可正常检索，状态为 `published`
-
-## GPT-5.6 Sol 限时降价跟进与博客发布（2026-08-22）
-
-### 模型与定价
-- [x] 修改 `packages/app/src/db/seed.ts` 中 `gpt-5.6-sol` / `gpt-5.6` 价格（4/20/0.4/5.0）以及核对 `gpt-5.6-terra` / `gpt-5.6-luna`
-- [x] 同步 `seed-models.sql` / `packages/dashboard/seed-models.sql`
-- [x] 生成并执行一次性 SQL 脚本 `scripts/update-gpt-5-6-sol-price-and-post.sql`（已执行写入远程 D1）
-- [x] 已清除远程 KV `models:catalog` 缓存
-- [x] 一次性 SQL 脚本已清理删除
-- [x] 工作流已沉淀为项目 Skill：`.agents/skills/model-pricing-and-announcement/SKILL.md`
-
-### 博客
-- [x] 中文文章 `packages/dashboard/src/content/blog/gpt-5-6-sol-price-cut.zh.mdx`
-- [x] 在 `packages/dashboard/src/lib/blog-content.ts` 中注册 `gpt-5-6-sol-price-cut` loader
-- [x] 已完成其余 7 种语言翻译（en, fr, es, pt, de, th, ja）并写入对应 MDX
-- [x] 8 种语言的 `blog_post_translations` 元数据已全部同步至远程 D1 数据库
-
-## grok-4.6 / deepseek-v4-pro 接入
-
-### 模型（已上线 2026-08-13）
-
-- [x] 已执行 `wrangler d1 execute mui-api --remote --file=scripts/insert-grok-4-6-deepseek-v4-pro-models.sql`
-- [x] 已清除 KV `models:catalog` 缓存（下次有效请求自动回源重建）
-- [ ] 用有效 API Key 请求 `GET /v1/models` 确认返回 `grok-4.6` / `deepseek-v4-pro`
-
-### 博客（未发布，grok-4-6 与 deepseek-v4-pro 各一篇）
-
-- [ ] 发布时执行完整版 `scripts/insert-grok-4-6-deepseek-v4-pro.sql`（含两篇博客、各 8 语种元数据）
-- [ ] 推送部署后跑 `pnpm --dir packages/dashboard run submit:indexnow -- --dry-run` 确认新 URL（`/blog/grok-4-6`、`/blog/deepseek-v4-pro` 各 8 语言）再正式提交
-
-## 部署后验证（未部署，待推送后执行）
-
-- [ ] 推送部署后跑 `pnpm --dir packages/dashboard run submit:indexnow -- --dry-run` 确认新 URL 再正式提交（issue #9）
-- [ ] 线上验证 MCP 双 era：curl modern `server/discover`（MCP-Protocol-Version: 2026-07-28 头 + `_meta`）、legacy `initialize`、`GET /mcp` 应 405
-- [ ] 用 Claude Code / Cursor 实测 MCP 接入仍可用（legacy 路径回归）
+- 8 语种 MDX 与 `blog-content.ts` loader 均已入库，但 D1 `blog_post_translations` 元数据从未插入，`/blog/grok-4-6` 与 `/blog/deepseek-v4-pro` 线上 404（2026-09-05 实测）
+- 元数据 SQL 可从历史恢复（模型段已上线，只需博客段）：`git show bcbb0e0:scripts/insert-grok-4-6-deepseek-v4-pro.sql > scripts/publish-grok-deepseek-blog.sql`，执行 `wrangler d1 execute mui-api --remote --file=scripts/publish-grok-deepseek-blog.sql` 后按需清 KV
+- 发布后跑 `pnpm --dir packages/dashboard run submit:indexnow -- --dry-run` 确认 16 个新 URL 再正式提交
