@@ -10,6 +10,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import { Link, useRouter } from '@/i18n/navigation';
+import { trackSignUp } from '@/lib/analytics';
 import { signUp } from '@/lib/auth-client';
 import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from '@/lib/legal';
 
@@ -61,6 +62,7 @@ export default function RegisterPage() {
         setError(result.error.message || te('registerFailed'));
         return;
       }
+      trackSignUp('email');
       router.push('/app');
     } catch {
       setError(te('registerFailedRetry'));

@@ -244,6 +244,12 @@
     "termsLink": "Terms",
     "privacyLink": "Privacy Policy"
   },
+  "consent": {
+    "title": "We value your privacy",
+    "message": "We use Google Analytics to understand which pages bring new users. Accept or decline — the site works either way.",
+    "accept": "Accept",
+    "decline": "Decline"
+  },
   "sidebar": {
     "console": "Console",
     "overview": "Overview",

@@ -244,6 +244,12 @@
     "termsLink": "Termos",
     "privacyLink": "Privacidade"
   },
+  "consent": {
+    "title": "Respeitamos sua privacidade",
+    "message": "Usamos o Google Analytics para entender quais páginas atraem novos usuários. Você pode aceitar ou recusar — o site funciona de qualquer forma.",
+    "accept": "Aceitar",
+    "decline": "Recusar"
+  },
   "sidebar": {
     "console": "Console",
     "overview": "Visão geral",

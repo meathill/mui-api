@@ -244,6 +244,12 @@
     "termsLink": "利用規約",
     "privacyLink": "プライバシーポリシー"
   },
+  "consent": {
+    "title": "プライバシーを尊重します",
+    "message": "どのページが新規ユーザーを呼び込んでいるか把握するため Google Analytics を利用しています。同意・拒否のどちらでもサイトはご利用いただけます。",
+    "accept": "同意する",
+    "decline": "拒否する"
+  },
   "sidebar": {
     "console": "コンソール",
     "overview": "概要",

@@ -4,6 +4,7 @@ import { GithubLogo } from '@phosphor-icons/react';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { markPendingSignUp } from '@/lib/analytics';
 import { signIn } from '@/lib/auth-client';
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -28,6 +29,8 @@ export function SocialLoginButtons() {
   async function handleSocialLogin(provider: Provider) {
     setError('');
     setLoadingProvider(provider);
+    // OAuth 跳转后无法区分注册/登录：先记 pending，dashboard 侧按账号创建时间补发 sign_up。
+    markPendingSignUp(provider);
     const result = await signIn.social({
       provider,
       callbackURL: '/app',

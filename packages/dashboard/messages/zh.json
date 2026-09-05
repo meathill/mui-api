@@ -244,6 +244,12 @@
     "termsLink": "使用协议",
     "privacyLink": "隐私政策"
   },
+  "consent": {
+    "title": "我们重视你的隐私",
+    "message": "我们使用 Google Analytics 了解哪些页面带来了新用户。接受或拒绝都可以使用完整功能。",
+    "accept": "接受",
+    "decline": "拒绝"
+  },
   "sidebar": {
     "console": "控制台",
     "overview": "数据概览",

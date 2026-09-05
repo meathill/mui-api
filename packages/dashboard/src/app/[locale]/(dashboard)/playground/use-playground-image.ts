@@ -3,6 +3,7 @@
 import { GROK_IMAGE_MAX_INPUTS } from '@muirouter/shared-db/grok-image';
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { trackPlaygroundFirstRun } from '@/lib/analytics';
 import { sendImageEditRequest, sendImageGenerationRequest } from './playground-api';
 import { toImageResult } from './playground-media-results';
 import type {
@@ -92,6 +93,7 @@ export function usePlaygroundImage(callbacks: UsePlaygroundImageOptions) {
         imageCount: results.length,
         grokImageOptions: isGrokImage ? grokImageOptions : undefined,
       });
+      trackPlaygroundFirstRun('image', imageModel);
     } catch (e) {
       if ((e as Error).name !== 'AbortError') {
         callbacks.setError(e instanceof Error ? e.message : te('operationFailed'));

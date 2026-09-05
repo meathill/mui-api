@@ -8,6 +8,7 @@ import {
 } from '@muirouter/shared-db/grok-video';
 import { useTranslations } from 'next-intl';
 import { useRef, useState } from 'react';
+import { trackPlaygroundFirstRun } from '@/lib/analytics';
 import { pollVideoGeneration, sendVideoGenerationRequest } from './playground-api';
 import type { GrokVideoOptions, HistoryItem, VideoApiResponse, VideoResult, VideoStatus } from './playground-types';
 
@@ -138,6 +139,7 @@ export function usePlaygroundVideo(callbacks: UsePlaygroundVideoOptions) {
     if (data.status === 'done' && data.video?.url) {
       setResult({ url: data.video.url, duration: data.video.duration });
       if (historyId) callbacks.updateHistory(historyId, { videoStatus: 'done', videoUrl: data.video.url });
+      trackPlaygroundFirstRun('video', model);
     } else if (data.status === 'failed' || data.status === 'expired') {
       callbacks.onError(t(data.status === 'failed' ? 'videoStatusFailed' : 'videoStatusExpired'));
     }

@@ -11,7 +11,7 @@ MuiRouter ("we", "us") operates `muirouter.com` and `api.muirouter.com`. This po
 - **Account:** email, name, avatar (if via OAuth), password hash (if email auth). We never store raw passwords.
 - **Usage:** model ID, token counts, cost, latency, timestamps, API key prefix, IP and user-agent. Prompts and completions are forwarded to the upstream provider but not retained longer than needed for billing and abuse detection unless you opt into extended logging.
 - **Billing:** Stripe handles card data. We store top-up amount, currency, Stripe session/customer/payment intent IDs and resulting wallet balance.
-- **Cookies:** session cookies for authentication and locale preference. No third-party ad cookies.
+- **Cookies:** session cookies for authentication and locale preference; a local consent choice for analytics. Google Analytics (GA4) runs in Consent Mode: denied by default until you accept the banner. No third-party ad cookies.
 
 ## 3. How We Use Data
 

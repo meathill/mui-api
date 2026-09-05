@@ -27,6 +27,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { trackApiKeyCreated } from '@/lib/analytics';
 import { userApi } from '@/lib/api';
 
 interface ApiKey {
@@ -59,6 +60,7 @@ export default function KeysPage() {
     setCreating(true);
     try {
       const result = await userApi.createKey();
+      trackApiKeyCreated();
       setNewRawKey(result.rawKey);
       setCopied(false);
       setNewKeyDialogOpen(true);

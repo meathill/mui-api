@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useEffect, useState } from 'react';
+import { trackPlaygroundFirstRun } from '@/lib/analytics';
 import { sendTtsRequest } from './playground-api';
 import {
   buildTtsRequestBody,
@@ -80,6 +81,7 @@ export function usePlaygroundTts(callbacks: UsePlaygroundTtsOptions) {
       const tokens = toTokenInfo(data.usage);
       if (tokens) callbacks.setTokenInfo(tokens);
       callbacks.createHistory({ mode: 'tts', model: ttsModel, prompt, ttsStylePrompt, audioFilename: result.filename });
+      trackPlaygroundFirstRun('tts', ttsModel);
     } catch (e) {
       if ((e as Error).name !== 'AbortError') {
         callbacks.setError(e instanceof Error ? e.message : te('operationFailed'));

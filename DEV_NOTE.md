@@ -517,3 +517,15 @@ temperature / topP / stopSequences，推理参数根本到不了模型，因此�
 **本机跑不了上游的 `bun run validate`**（bun-only，且 extensionless import 让 node 解析不了）。
 替代方案是用 python `tomllib` 模拟 `generateModels` + `mergeBaseModel`，除必填项外**务必把上面
 两条 refinement 也一起校验**。
+
+### GA4 关键事件与 Consent Mode v2（issue #13）
+
+**决策**：前端用 `@next/third-parties/google` 的 `sendGAEvent('event', name, params)` 统一上报，事件封装集中在 `lib/analytics.ts`；Consent Mode v2 默认 `denied`（内联脚本先于 gtag 注入，已同意的老用户直接恢复 `granted`），横幅组件 `CookieConsentBanner` 只在未表态时展示。
+
+**事件命名**：优先 GA4 推荐事件名（`sign_up`/`begin_checkout`/`purchase`，后台可直接标为关键事件），API Key 与 Playground 用自定义事件（`api_key_created`/`playground_first_run`）——`generate_lead` 语义模糊，故意不用。
+
+**社交登录的 sign_up 归因**：OAuth 跳转导致点击时无法确认是否注册成功。点击只写 sessionStorage pending 标记，`AnalyticsIdentity`（dashboard layout 下）用账号创建时间（30 分钟窗口）判断是否为新注册再补发；老用户换浏览器登录会走到这条路但因创建时间过期被丢弃，不污染计数。
+
+**去重语义**：一次性事件（`sign_up`/`playground_first_run`）用 localStorage；`purchase` 以 Stripe checkout session id 为 `transaction_id`（GA4 后台天然去重）+ 前端 localStorage 防轮询重复。浏览器级去重换设备会重复——注册数/收入永远以 D1 与 Stripe 对账为准，GA4 只看趋势，详见 `docs/ga4-key-events.md`。
+
+**测试约束**：dashboard 的 vitest 默认 node 环境，当前 jsdom 版本不带 `localStorage`/`sessionStorage`——`analytics.test.ts` 内注入内存存储 mock，不要给全局加 jsdom（会影响其它 24 个测试文件）。

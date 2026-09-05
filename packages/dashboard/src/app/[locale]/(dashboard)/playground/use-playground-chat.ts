@@ -2,6 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useState } from 'react';
+import { trackPlaygroundFirstRun } from '@/lib/analytics';
 import { readChatStream, sendChatRequest } from './playground-api';
 import type { HistoryItem, TokenInfo } from './playground-types';
 import { getKimiImageInputError } from './playground-media-results';
@@ -62,6 +63,7 @@ export function usePlaygroundChat(callbacks: UsePlaygroundChatOptions) {
         onUsage: callbacks.setTokenInfo,
       });
       callbacks.createHistory({ mode: 'chat', model: chatModel, prompt, response: result.content });
+      trackPlaygroundFirstRun('chat', chatModel);
     } catch (e) {
       if ((e as Error).name !== 'AbortError') {
         callbacks.setError(e instanceof Error ? e.message : te('operationFailed'));

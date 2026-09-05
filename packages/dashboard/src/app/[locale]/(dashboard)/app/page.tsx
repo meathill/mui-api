@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAsyncResource } from '@/hooks/use-async-resource';
 import { type FreeQuotaStatus, type TopUpSessionResult, userApi } from '@/lib/api';
+import { trackBeginCheckout, trackPurchase } from '@/lib/analytics';
 import { TOP_UP_AMOUNTS } from '@/lib/top-up';
 
 interface TopUpNotice {
@@ -133,6 +134,7 @@ export default function DashboardHome() {
 
     try {
       const result = await userApi.createTopUpCheckout(amount, locale);
+      trackBeginCheckout(amount);
       window.location.href = result.url;
     } catch (e) {
       setFailedNotice(e instanceof Error ? e.message : te('topUpFailed'));
@@ -150,6 +152,7 @@ export default function DashboardHome() {
 
       if (result.status === 'credited') {
         setData((current) => ({ ...current, balance: result.balanceAfter ?? current.balance }));
+        trackPurchase(sessionId, result.amount);
         setSuccessNotice(result);
         setTopUpAmountLoading(null);
         clearTopUpQuery(router, pathname);

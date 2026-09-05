@@ -244,6 +244,12 @@
     "termsLink": "AGB",
     "privacyLink": "Datenschutz"
   },
+  "consent": {
+    "title": "Deine Privatsphäre zählt",
+    "message": "Wir nutzen Google Analytics, um zu verstehen, welche Seiten neue Nutzer bringen. Akzeptieren oder ablehnen — die Seite funktioniert in beiden Fällen.",
+    "accept": "Akzeptieren",
+    "decline": "Ablehnen"
+  },
   "sidebar": {
     "console": "Konsole",
     "overview": "Übersicht",

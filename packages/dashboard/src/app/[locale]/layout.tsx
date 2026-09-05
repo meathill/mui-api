@@ -7,6 +7,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { ToastProvider } from '@/components/ui/toast';
 import { routing } from '@/i18n/routing';
 import { getMarketingOgImage, SITE_URL } from '@/lib/seo';
+import { CookieConsentBanner } from '@/components/cookie-consent-banner';
 
 const SITE_NAME = 'MuiRouter';
 
@@ -129,10 +130,19 @@ export default async function LocaleLayout({
             __html: `(function(){try{var k='mui-theme';var s=localStorage.getItem(k);var d=s==='dark'||((s===null||s==='system')&&window.matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.classList.add('dark');}catch(e){}})();`,
           }}
         />
+        <script
+          // GA4 Consent Mode v2 默认值：必须先于 <GoogleAnalytics /> 注入的 gtag 执行。
+          // 已同意的老用户直接恢复 granted，避免重复弹窗且不断归因。
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: 仅注入静态字符串
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments);}var c=null;try{c=localStorage.getItem('mui_analytics_consent');}catch(e){}var s=c==='granted'?'granted':'denied';gtag('consent','default',{ad_storage:s,ad_user_data:s,ad_personalization:s,analytics_storage:s,functionality_storage:'granted',security_storage:'granted'});}catch(e){}})();`,
+          }}
+        />
       </head>
       <body className="font-sans antialiased">
         <NextIntlClientProvider>
           <ToastProvider position="bottom-right">{children}</ToastProvider>
+          <CookieConsentBanner />
         </NextIntlClientProvider>
       </body>
       <GoogleAnalytics gaId="G-JLM9L0BTTV" />

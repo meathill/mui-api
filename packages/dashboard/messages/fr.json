@@ -244,6 +244,12 @@
     "termsLink": "Conditions",
     "privacyLink": "Confidentialité"
   },
+  "consent": {
+    "title": "Nous respectons votre vie privée",
+    "message": "Nous utilisons Google Analytics pour comprendre quelles pages attirent de nouveaux utilisateurs. Accepter ou refuser — le site fonctionne dans les deux cas.",
+    "accept": "Accepter",
+    "decline": "Refuser"
+  },
   "sidebar": {
     "console": "Console",
     "overview": "Aperçu",
