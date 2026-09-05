@@ -150,6 +150,18 @@ const gpt56SolPriceCutLoaders: Record<Locale, BlogContentLoader> = {
   ja: () => import('@/content/blog/gpt-5-6-sol-price-cut.ja.mdx'),
 };
 
+// 中文先行：待 zh 版审查定稿后再补齐其余语言翻译
+const gpt6AstraLoaders: Record<Locale, BlogContentLoader> = {
+  en: () => import('@/content/blog/gpt-6-astra.zh.mdx'),
+  zh: () => import('@/content/blog/gpt-6-astra.zh.mdx'),
+  fr: () => import('@/content/blog/gpt-6-astra.zh.mdx'),
+  es: () => import('@/content/blog/gpt-6-astra.zh.mdx'),
+  pt: () => import('@/content/blog/gpt-6-astra.zh.mdx'),
+  de: () => import('@/content/blog/gpt-6-astra.zh.mdx'),
+  th: () => import('@/content/blog/gpt-6-astra.zh.mdx'),
+  ja: () => import('@/content/blog/gpt-6-astra.zh.mdx'),
+};
+
 const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
   'claude-fable-5': claudeFable5Loaders,
   'claude-opus-5': claudeOpus5Loaders,
@@ -161,6 +173,7 @@ const blogContentLoaders: Record<string, Record<Locale, BlogContentLoader>> = {
   'gpt-5-6': gpt56Loaders,
   'gpt-5-6-price-cut': gpt56PriceCutLoaders,
   'gpt-5-6-sol-price-cut': gpt56SolPriceCutLoaders,
+  'gpt-6-astra': gpt6AstraLoaders,
   'grok-4-6': grok46Loaders,
   'kimi-k3': kimiK3Loaders,
   'xai-grok': xaiGrokLoaders,
