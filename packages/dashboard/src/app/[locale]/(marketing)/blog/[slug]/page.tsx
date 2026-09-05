@@ -1,16 +1,26 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
-import type { ComponentType } from 'react';
 import { AwesomeComment } from '@/components/marketing/awesome-comment';
+import { MarkdownRenderer } from '@/components/marketing/markdown-renderer';
 import type { Locale } from '@/i18n/config';
 import { Link } from '@/i18n/navigation';
-import { getLocalizedBlogPost, type LocalizedBlogPost } from '@/lib/blog';
-import { getBlogContent } from '@/lib/blog-content';
+import { getBlogContent, getLocalizedBlogPost, getPublishedBlogSitemapPosts, type LocalizedBlogPost } from '@/lib/blog';
 import { buildMetadata, getBlogPostOgImage, getLocalizedPath, getResolvedLocale, SITE_URL } from '@/lib/seo';
 
-// 文章元数据来自 D1，build 阶段无绑定无法预渲染；查询由 unstable_cache 做天级缓存。
-export const dynamic = 'force-dynamic';
+// 文章元数据与正文来自 muicv CMS（lib/blog.ts 内 unstable_cache 做天级缓存）；
+// 构建期走公网 URL 预渲染默认 locale 的文章页，其余 locale 按需 ISR。
+export const revalidate = 86_400;
+
+// CMS 构建期不可用（或尚未 seed）时返回空数组，降级为按需 ISR，不阻断构建。
+export async function generateStaticParams(): Promise<Array<{ slug: string }>> {
+  try {
+    const posts = await getPublishedBlogSitemapPosts();
+    return posts.map((post) => ({ slug: post.slug }));
+  } catch {
+    return [];
+  }
+}
 
 function formatDate(locale: string, date: string) {
   return new Intl.DateTimeFormat(locale, {
@@ -50,26 +60,26 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
   const { locale, slug } = await params;
   const resolvedLocale = getResolvedLocale(locale);
   setRequestLocale(resolvedLocale);
-  const [ArticleContent, post] = await Promise.all([
+  const [content, post] = await Promise.all([
     getBlogContent(slug, resolvedLocale),
     getLocalizedBlogPost(slug, resolvedLocale),
   ]);
 
-  if (!ArticleContent || !post) {
+  if (!content || !post) {
     notFound();
   }
 
-  return <BlogArticle locale={resolvedLocale} post={post} ArticleContent={ArticleContent} />;
+  return <BlogArticle locale={resolvedLocale} post={post} content={content} />;
 }
 
 async function BlogArticle({
   locale,
   post,
-  ArticleContent,
+  content,
 }: {
   locale: Locale;
   post: LocalizedBlogPost;
-  ArticleContent: ComponentType;
+  content: string;
 }) {
   const t = await getTranslations({ locale, namespace: 'blog' });
 
@@ -127,7 +137,7 @@ async function BlogArticle({
         </header>
 
         <div className="mt-12 max-w-3xl">
-          <ArticleContent />
+          <MarkdownRenderer content={content} />
         </div>
 
         <section className="mt-14 max-w-3xl rounded-lg border border-border bg-card p-6">

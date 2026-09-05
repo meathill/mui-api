@@ -21,7 +21,7 @@ const CMS_LIST_LIMIT = 200;
 /** 是否处于生产构建期（Workers Builds / 本地 next build）。
  *  构建期 platformProxy 会给 MUICV_CMS 一个不可用的本地 stub，必须走公网 URL，
  *  运行时才用 service binding 内网调用。 */
-function isBuildTime(): boolean {
+export function isBuildTime(): boolean {
   return process.env.NEXT_PHASE === 'phase-production-build';
 }
 
