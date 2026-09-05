@@ -61,6 +61,10 @@
     {
       "binding": "WORKER_SELF_REFERENCE",
       "service": "mui-api-dashboard"
+    },
+    {
+      "binding": "MUICV_CMS",
+      "service": "muicv-cms"
     }
   ],
   "vars": {
