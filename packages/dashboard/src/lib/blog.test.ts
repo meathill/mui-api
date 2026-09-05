@@ -81,4 +81,9 @@ describe('blog content loaders', () => {
     expect(hasBlogContent('gpt-5-6-sol-price-cut')).toBe(true);
     expect(hasBlogContent('gpt-5-6-price-cut')).toBe(true);
   });
+
+  it('registers gpt-6-astra content loader', async () => {
+    const { hasBlogContent } = await import('./blog-content');
+    expect(hasBlogContent('gpt-6-astra')).toBe(true);
+  });
 });

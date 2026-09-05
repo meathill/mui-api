@@ -47,6 +47,21 @@ function openaiCacheWithWrite(inputPrice: number) {
   };
 }
 
+/**
+ * GPT-5.6 起：超过 272K input tokens 的请求整单按长上下文档位计费，
+ * input / 缓存 2×、output 1.5×。
+ * @see https://developers.openai.com/api/docs/pricing
+ */
+function openaiLongContext(inputPrice: number, outputPrice: number) {
+  return {
+    longContextThresholdTokens: 272_000,
+    longContextInputPrice: round(inputPrice * 2),
+    longContextCachedInputPrice: round(inputPrice * 2 * 0.1),
+    longContextCacheWritePrice: round(inputPrice * 2 * 1.25),
+    longContextOutputPrice: round(outputPrice * 1.5),
+  };
+}
+
 /** anthropic：cache_read ~10% input、cache_creation ~125% input */
 function anthropicCache(inputPrice: number) {
   return {
@@ -78,11 +93,7 @@ export const SEED_MODELS: NewModel[] = [
     outputPrice: 20,
     markupRate: 1,
     ...openaiCacheWithWrite(4),
-    longContextThresholdTokens: null,
-    longContextInputPrice: null,
-    longContextCachedInputPrice: null,
-    longContextCacheWritePrice: null,
-    longContextOutputPrice: null,
+    ...openaiLongContext(4, 20),
   },
   // 短名 alias → Sol（与 OpenAI API 一致）
   {
@@ -93,11 +104,7 @@ export const SEED_MODELS: NewModel[] = [
     outputPrice: 20,
     markupRate: 1,
     ...openaiCacheWithWrite(4),
-    longContextThresholdTokens: null,
-    longContextInputPrice: null,
-    longContextCachedInputPrice: null,
-    longContextCacheWritePrice: null,
-    longContextOutputPrice: null,
+    ...openaiLongContext(4, 20),
   },
   {
     id: 'gpt-5.6-terra',
@@ -107,11 +114,7 @@ export const SEED_MODELS: NewModel[] = [
     outputPrice: 12.0,
     markupRate: 1,
     ...openaiCacheWithWrite(2.0),
-    longContextThresholdTokens: null,
-    longContextInputPrice: null,
-    longContextCachedInputPrice: null,
-    longContextCacheWritePrice: null,
-    longContextOutputPrice: null,
+    ...openaiLongContext(2, 12),
   },
   {
     id: 'gpt-5.6-luna',
@@ -121,11 +124,19 @@ export const SEED_MODELS: NewModel[] = [
     outputPrice: 1.2,
     markupRate: 1,
     ...openaiCacheWithWrite(0.2),
-    longContextThresholdTokens: null,
-    longContextInputPrice: null,
-    longContextCachedInputPrice: null,
-    longContextCacheWritePrice: null,
-    longContextOutputPrice: null,
+    ...openaiLongContext(0.2, 1.2),
+  },
+  // GPT-6 Astra：2026-09-04 发布的旗舰，官方仅此一个 id（无短别名）
+  // @see https://openai.com/index/gpt-6-astra/
+  {
+    id: 'gpt-6-astra',
+    provider: 'openai',
+    upstreamModelId: 'gpt-6-astra',
+    inputPrice: 10,
+    outputPrice: 50,
+    markupRate: 1,
+    ...openaiCacheWithWrite(10),
+    ...openaiLongContext(10, 50),
   },
   {
     id: 'gpt-5',
