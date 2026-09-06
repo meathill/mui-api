@@ -26,6 +26,23 @@ describe('buildBreadcrumbEntity', () => {
     expect(entity.itemListElement[1].item).toBe('https://muirouter.com/ai-router');
   });
 
+  it('传入 middle 时生成 Home → 中间层 → 当前页三级面包屑', () => {
+    expect(buildBreadcrumbEntity('/blog/some-post', 'en', 'Some Post', { name: 'Blog', path: '/blog' })).toEqual({
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://muirouter.com/' },
+        { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://muirouter.com/blog' },
+        { '@type': 'ListItem', position: 3, name: 'Some Post', item: 'https://muirouter.com/blog/some-post' },
+      ],
+    });
+  });
+
+  it('middle 名称为空白时忽略中间层，回退两级面包屑', () => {
+    const entity = buildBreadcrumbEntity('/blog/some-post', 'en', 'Some Post', { name: '  ', path: '/blog' });
+    expect(entity.itemListElement).toHaveLength(2);
+    expect(entity.itemListElement[1].name).toBe('Some Post');
+  });
+
   it('拒绝空白名称，防止搜索引擎显示未命名面包屑', () => {
     expect(() => buildBreadcrumbEntity('/openai-compatible-router', 'en', '   ')).toThrow('Breadcrumb name 不能为空');
   });

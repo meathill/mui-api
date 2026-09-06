@@ -9,7 +9,7 @@ declare module 'https://unpkg.com/@roudanio/awesome-auth@0.1.5/dist/awesome-auth
   export function getInstance(options: { googleId: string; root: string; prefix?: string }): unknown;
 }
 
-declare module 'https://unpkg.com/@roudanio/awesome-comment@0.10.10/dist/awesome-comment.js' {
+declare module 'https://unpkg.com/@roudanio/awesome-comment@0.12.0/dist/awesome-comment.js' {
   const AwesomeComment: {
     init: (
       root: HTMLElement,

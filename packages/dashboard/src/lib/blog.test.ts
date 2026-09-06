@@ -25,6 +25,7 @@ describe('blog metadata helpers', () => {
     expect(post).toEqual({
       slug: 'codex-context-drift',
       href: '/blog/codex-context-drift',
+      documentLocale: 'en',
       title: 'Codex Getting Worse Is Not Magic',
       description: 'Reduce errors, then reset context.',
       publishedAt: '2026-07-02',
@@ -55,5 +56,12 @@ describe('blog metadata helpers', () => {
     expect(pickDocumentForLocale(group, 'fr')?.locale).toBe('zh');
     expect(pickDocumentForLocale([makeDocument({ locale: 'ja' })], 'fr')?.locale).toBe('ja');
     expect(pickDocumentForLocale([], 'en')).toBeNull();
+  });
+
+  it('toLocalizedBlogPost 保留实际命中文档的语言，供详情页显示原文提示条', () => {
+    const zhOnly = toLocalizedBlogPost(makeDocument({ locale: 'zh' }));
+    expect(zhOnly.documentLocale).toBe('zh');
+    // en 请求回退命中 zh 文档时，documentLocale 与请求 locale 不同 → 详情页提示「暂无译文」
+    expect(pickDocumentForLocale([makeDocument({ locale: 'zh' })], 'en')?.locale).toBe('zh');
   });
 });
