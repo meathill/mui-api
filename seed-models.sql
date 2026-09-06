@@ -53,6 +53,7 @@ INSERT OR REPLACE INTO models (id, provider, upstream_model_id, input_price, out
   ('minimax-m2.7', 'minimax', 'minimax-m2.7', 0.3, 1.2, 1, 0.06, 0.375, NULL, NULL, NULL, NULL, NULL),
   ('minimax-m2.5', 'minimax', 'minimax-m2.5', 0.3, 1.2, 1, 0.06, 0.375, NULL, NULL, NULL, NULL, NULL),
   ('muse-spark-1.2-contributor', 'meta', 'muse-spark-1.2-contributor', 0.1, 0.2, 1, 0.002, NULL, NULL, NULL, NULL, NULL, NULL),
+  ('muse-spark-1.3', 'meta', 'muse-spark-1.3', 1.25, 4.25, 1, 0.15, NULL, NULL, NULL, NULL, NULL, NULL),
   ('qwen3.8-max', 'qwen', 'qwen3.8-max', 2, 6, 1, 0.25, 2.5, NULL, NULL, NULL, NULL, NULL),
   ('qwen3.7-max', 'qwen', 'qwen3.7-max', 2.5, 7.5, 1, 0.5, 3.125, NULL, NULL, NULL, NULL, NULL),
   ('qwen3.7-plus', 'qwen', 'qwen3.7-plus', 0.4, 1.6, 1, 0.04, 0.5, 256000, 1.2, 0.12, 1.5, 4.8),

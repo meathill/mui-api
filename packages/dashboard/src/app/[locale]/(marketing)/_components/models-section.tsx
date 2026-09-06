@@ -9,14 +9,14 @@ export function ModelsSection() {
     {
       name: 'OpenAI',
       color: 'bg-[var(--brand-fluff)] text-[var(--brand-yellow-deep)] border border-[var(--brand-corgi)]',
-      models: ['GPT-5.6 Sol', 'GPT-5.6 Terra', 'GPT-5.6 Luna', 'GPT Image 2'],
+      models: ['GPT-6 Astra', 'GPT-5.6 Sol', 'GPT-5.6 Terra', 'GPT-5.6 Luna', 'GPT Image 2'],
       description: t('openaiDesc'),
     },
     {
       name: 'Anthropic',
       color:
         'bg-[#fadfd5] text-[#c44a32] border border-[var(--brand-tongue)] dark:bg-[#e8775a]/20 dark:text-[#ffb7a3] dark:border-[#e8775a]/30',
-      models: ['Claude Opus 5', 'Claude Sonnet 5', 'Claude Haiku 4.5', 'Claude Opus 4.6'],
+      models: ['Claude Fable 5.1', 'Claude Opus 5', 'Claude Sonnet 5', 'Claude Haiku 4.5', 'Claude Opus 4.6'],
       description: t('anthropicDesc'),
     },
     {
@@ -64,7 +64,7 @@ export function ModelsSection() {
       name: 'Meta',
       color:
         'bg-sky-500/10 text-sky-800 border border-sky-500/30 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-400/30',
-      models: ['Muse Spark 1.2'],
+      models: ['Muse Spark 1.3', 'Muse Spark 1.2'],
       description: t('metaDesc'),
     },
   ];
