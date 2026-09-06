@@ -256,13 +256,19 @@ D1_ERROR: Network connection lost.
 **决策**：博客正文与元数据全部存 muicv Payload CMS 的 `articles` 集合（`site='muirouter'`，`site+locale+slug` 唯一），站点侧只保留只读客户端 `src/lib/cms-blog-client.ts`。阅读时间（`readingMinutes`）、引用来源（`sources` / `sourcePublishedAt`）是 articles 集合的可选字段；本地 `blog_posts` / `blog_post_translations` 表已 drop（迁移 `0030`），105 个 MDX 正文文件已删除。正文用 `MarkdownRenderer`（react-markdown + remark-gfm）运行时渲染，mermaid 代码块继续走 `Mermaid` 组件；`mdx-components.tsx` 与 `@next/mdx` 管线仅为 legal（terms/privacy/about）页面保留。
 
 **取数链路**（对齐 dyqr 仓库同款模式，2026-09 迁移）：
-- 运行时优先走 `MUICV_CMS` service binding（同 Cloudflare 账号内网，不出公网）；**构建期 `NEXT_PHASE === 'phase-production-build'` 时 binding 是不可用 stub，必须回落公网 `https://cms.muicv.com`**（env `MUICV_CMS_URL` 可覆盖）。这是 Workers Builds 场景最容易踩的坑。
+- 运行时优先走 `MUICV_CMS` service binding（同 Cloudflare 账号内网，不出公网）；**构建期 `NEXT_PHASE === 'phase-production-build'` 与本地 `next dev`（NODE_ENV=development，platformProxy 的 binding 是 503 stub）都直接回落公网 `https://cms.muicv.com`**（env `MUICV_CMS_URL` 可覆盖）。这是 Workers Builds 场景最容易踩的坑。
 - **binding.fetch 不接受相对路径**（`Invalid URL`）：必须传完整 URL，baseUrl 用虚构 host `https://muicv-cms.internal` 即可（workerd 只按 binding 路由、忽略 host）。首版用空串 + 相对路径，列表/详情页靠构建期预渲染掩盖，运行期的 og-image/sitemap 直接 500/空，2026-09-06 修复（1559ae9）。dyqr 仓库的 cms-blog-client.ts 存在同款 bug，被其 D1 降级掩盖。
 - 一次全量拉 `site=muirouter` + `status=published`（limit 200，当前 112 条文档），列表/详情/sitemap/OG 图共用；locale 在 client 层映射（CMS `zh-CN` → 站点 `zh`），`publishedAt` 截取为 `YYYY-MM-DD`（页面 `formatDate` 拼 `T00:00:00.000Z` 依赖此格式）。
-- locale 回退链「请求 locale → en → 第一可用」，与旧 D1 `pickTranslation` 语义一致；gpt-6-astra 这类「中文先行」文章在所有语言下仍显示中文版。
+- locale 回退链「请求 locale → en → 第一可用」，与旧 D1 `pickTranslation` 语义一致；gpt-6-astra 这类「中文先行」文章在所有语言下仍显示原文版。详情页按 `documentLocale !== 请求 locale` 显示「暂无译文」提示条（2026-09-06）。
 - 运行期 CMS 返回空列表视为故障：`loadCmsBlogDocuments` 抛错让 `unstable_cache` 保留旧值，也不把空结果缓存一整天；构建期允许为空，详情页 `generateStaticParams` 返回 `[]` 降级按需 ISR，不阻断构建。
 
 **发文流程**：在 muicv CMS 后台（或 MCP `upsert_article`，`site=muirouter`）新建文档、填齐 summary / seoTitle / seoDescription / sources，置为 published；站点 24h 内自然生效，急发就手动跑 IndexNow。新增文章/语言不再需要动本仓库。
+
+### 博客评论组件（Awesome Comment）远程加载与已知坑
+
+**集成方式**：`src/components/marketing/awesome-comment.tsx` 运行时从 unpkg 拉远程 ESM（`webpackIgnore`），版本 pin 在 4 处字符串（tsx 的 cssUrl + 两个 import()、`remote-modules.d.ts` 的 declare module），升级必须同步改，测试里 `vi.mock` 的 URL 也要对齐。`@roudanio/awesome-auth` 与 `awesome-comment` 版本独立演进，查 npm 最新版再升。
+
+**「评论区无样式」根因（2026-09-06 定位）**：0.10.10 与 0.12.0 的 `dist/style.css` 是上游构建缺陷，**awesomecomment.org 官方站点同样中招**，不是本仓库集成的锅。daisyUI5 语义变量（`--color-primary`、`--color-base-100`、`--radius-field` 等）的 4 种定义选择器全部无法命中标准集成 DOM：`.awesome-comment [data-theme=light]`（后代式，而实际 DOM 是外层容器挂 `data-theme`，应为祖先式 `[data-theme=light] .awesome-comment`）、`.awesome-comment:has(input.ac-theme-controller...)`（要求 widget 内部渲染主题切换 input）。结果所有引用这些变量的规则（`.ac-btn`/`.ac-textarea` 等）invalid at computed-value time。**「其它站点看起来正常」是错觉**：评论列表靠无变量依赖的 utility 类和图标呈现，裸的只有 textarea / POST COMMENT 等输入控件——官方 Examples 页的 Live demo 输入区同样全裸（实测 computed 全透明、0 圆角）。修复在 awesomecomment 仓库（修正 CSS 构建的 scoping 规则后发版），本仓库 bump pin 即可；排查手法：对比 `getComputedStyle(root)` 里各 CSS 变量的解析值与规则引用。
 
 ### ⛔ Cache Components / PPR 不能在 Cloudflare Workers 上用
 

@@ -16,7 +16,7 @@ vi.mock('https://unpkg.com/@roudanio/awesome-auth@0.1.5/dist/awesome-auth.js', (
   getInstance: remote.getInstance,
 }));
 
-vi.mock('https://unpkg.com/@roudanio/awesome-comment@0.10.10/dist/awesome-comment.js', () => ({
+vi.mock('https://unpkg.com/@roudanio/awesome-comment@0.12.0/dist/awesome-comment.js', () => ({
   default: { init: remote.init },
 }));
 

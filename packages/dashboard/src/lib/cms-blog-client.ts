@@ -32,7 +32,9 @@ export function isBuildTime(): boolean {
 const BINDING_BASE_URL = 'https://muicv-cms.internal';
 
 async function resolveCmsFetch(): Promise<{ fetchImpl: typeof fetch; baseUrl: string }> {
-  if (!isBuildTime()) {
+  // 本地 next dev 的 platformProxy 同样会注入一个不可用的 MUICV_CMS stub（fetch 返回 503），
+  // blog 相关页面会整页 500；dev 直接走公网 URL，生产仍优先 binding。
+  if (!isBuildTime() && process.env.NODE_ENV !== 'development') {
     try {
       const { env } = await getCloudflareContext({ async: true });
       if (env.MUICV_CMS && typeof env.MUICV_CMS.fetch === 'function') {

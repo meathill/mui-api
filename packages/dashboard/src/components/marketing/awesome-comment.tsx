@@ -28,7 +28,7 @@ const WIDGET_LOCALE_OVERRIDES: Record<string, string> = {
 };
 
 function loadStylesheet(): void {
-  const cssUrl = 'https://unpkg.com/@roudanio/awesome-comment@0.10.10/dist/style.css';
+  const cssUrl = 'https://unpkg.com/@roudanio/awesome-comment@0.12.0/dist/style.css';
   if (document.querySelector(`link[href="${cssUrl}"]`)) {
     return;
   }
@@ -72,7 +72,7 @@ export function AwesomeComment() {
         const [authModule, commentModule] = await Promise.all([
           import(/* webpackIgnore: true */ 'https://unpkg.com/@roudanio/awesome-auth@0.1.5/dist/awesome-auth.js'),
           import(
-            /* webpackIgnore: true */ 'https://unpkg.com/@roudanio/awesome-comment@0.10.10/dist/awesome-comment.js'
+            /* webpackIgnore: true */ 'https://unpkg.com/@roudanio/awesome-comment@0.12.0/dist/awesome-comment.js'
           ),
         ]);
 

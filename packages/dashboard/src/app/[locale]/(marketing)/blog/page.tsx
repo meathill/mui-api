@@ -56,7 +56,7 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
           </div>
           <Link
             href="/register"
-            className="inline-flex min-h-11 w-fit items-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex min-h-11 w-fit shrink-0 items-center whitespace-nowrap rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             {t('ctaButton')}
           </Link>

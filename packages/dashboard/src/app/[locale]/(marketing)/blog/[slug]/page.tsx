@@ -3,9 +3,18 @@ import { notFound } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { AwesomeComment } from '@/components/marketing/awesome-comment';
 import { MarkdownRenderer } from '@/components/marketing/markdown-renderer';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '@/components/ui/breadcrumb';
 import type { Locale } from '@/i18n/config';
 import { Link } from '@/i18n/navigation';
 import { getBlogContent, getLocalizedBlogPost, getPublishedBlogSitemapPosts, type LocalizedBlogPost } from '@/lib/blog';
+import { buildBreadcrumbEntity } from '@/lib/json-ld';
 import { buildMetadata, getBlogPostOgImage, getLocalizedPath, getResolvedLocale, SITE_URL } from '@/lib/seo';
 
 // 文章元数据与正文来自 muicv CMS（lib/blog.ts 内 unstable_cache 做天级缓存）；
@@ -29,6 +38,15 @@ function formatDate(locale: string, date: string) {
     day: 'numeric',
     timeZone: 'UTC',
   }).format(new Date(`${date}T00:00:00.000Z`));
+}
+
+/** 用读者的语言渲染原文语言名（如 zh → Chinese / 中文），展示在未翻译提示条里。 */
+function getLanguageDisplayName(readerLocale: Locale, language: Locale): string {
+  try {
+    return new Intl.DisplayNames([readerLocale], { type: 'language' }).of(language) ?? language;
+  } catch {
+    return language;
+  }
 }
 
 export async function generateMetadata({
@@ -74,40 +92,61 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 
 async function BlogArticle({ locale, post, content }: { locale: Locale; post: LocalizedBlogPost; content: string }) {
   const t = await getTranslations({ locale, namespace: 'blog' });
+  const blogLabel = t('metadata.title');
 
   const jsonLd = {
     '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: post.title,
-    description: post.description,
-    datePublished: post.publishedAt,
-    dateModified: post.publishedAt,
-    url: `${SITE_URL}${getLocalizedPath(post.href, locale)}`,
-    mainEntityOfPage: `${SITE_URL}${getLocalizedPath(post.href, locale)}`,
-    author: {
-      '@type': 'Organization',
-      name: 'MuiRouter',
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'MuiRouter',
-      logo: {
-        '@type': 'ImageObject',
-        url: `${SITE_URL}/favicon.svg`,
+    '@graph': [
+      {
+        '@type': 'BlogPosting',
+        headline: post.title,
+        description: post.description,
+        datePublished: post.publishedAt,
+        dateModified: post.publishedAt,
+        url: `${SITE_URL}${getLocalizedPath(post.href, locale)}`,
+        mainEntityOfPage: `${SITE_URL}${getLocalizedPath(post.href, locale)}`,
+        author: {
+          '@type': 'Organization',
+          name: 'MuiRouter',
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: 'MuiRouter',
+          logo: {
+            '@type': 'ImageObject',
+            url: `${SITE_URL}/favicon.svg`,
+          },
+        },
       },
-    },
+      buildBreadcrumbEntity(post.href, locale, post.title, { name: blogLabel, path: '/blog' }),
+    ],
   };
 
   return (
     <article className="bg-background">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <div className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
-        <Link
-          href="/blog"
-          className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
-        >
-          {t('backToBlog')}
-        </Link>
+        <Breadcrumb className="text-sm">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href={getLocalizedPath('/', locale)}>{t('breadcrumbHome')}</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbLink href={getLocalizedPath('/blog', locale)}>{blogLabel}</BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem className="min-w-0">
+              <BreadcrumbPage className="truncate">{post.title}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+
+        {post.documentLocale !== locale && (
+          <p className="mt-6 max-w-3xl rounded-lg border border-border bg-muted/50 px-4 py-3 text-sm leading-6 text-muted-foreground">
+            {t('untranslatedNotice', { language: getLanguageDisplayName(locale, post.documentLocale) })}
+          </p>
+        )}
 
         <header className="mt-8 max-w-3xl">
           <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
@@ -160,7 +199,7 @@ async function BlogArticle({ locale, post, content }: { locale: Locale; post: Lo
           </div>
           <Link
             href="/register"
-            className="inline-flex min-h-11 w-fit items-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
+            className="inline-flex min-h-11 w-fit shrink-0 items-center whitespace-nowrap rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
             {t('ctaButton')}
           </Link>
