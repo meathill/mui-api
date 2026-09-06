@@ -257,6 +257,7 @@ D1_ERROR: Network connection lost.
 
 **取数链路**（对齐 dyqr 仓库同款模式，2026-09 迁移）：
 - 运行时优先走 `MUICV_CMS` service binding（同 Cloudflare 账号内网，不出公网）；**构建期 `NEXT_PHASE === 'phase-production-build'` 时 binding 是不可用 stub，必须回落公网 `https://cms.muicv.com`**（env `MUICV_CMS_URL` 可覆盖）。这是 Workers Builds 场景最容易踩的坑。
+- **binding.fetch 不接受相对路径**（`Invalid URL`）：必须传完整 URL，baseUrl 用虚构 host `https://muicv-cms.internal` 即可（workerd 只按 binding 路由、忽略 host）。首版用空串 + 相对路径，列表/详情页靠构建期预渲染掩盖，运行期的 og-image/sitemap 直接 500/空，2026-09-06 修复（1559ae9）。dyqr 仓库的 cms-blog-client.ts 存在同款 bug，被其 D1 降级掩盖。
 - 一次全量拉 `site=muirouter` + `status=published`（limit 200，当前 112 条文档），列表/详情/sitemap/OG 图共用；locale 在 client 层映射（CMS `zh-CN` → 站点 `zh`），`publishedAt` 截取为 `YYYY-MM-DD`（页面 `formatDate` 拼 `T00:00:00.000Z` 依赖此格式）。
 - locale 回退链「请求 locale → en → 第一可用」，与旧 D1 `pickTranslation` 语义一致；gpt-6-astra 这类「中文先行」文章在所有语言下仍显示中文版。
 - 运行期 CMS 返回空列表视为故障：`loadCmsBlogDocuments` 抛错让 `unstable_cache` 保留旧值，也不把空结果缓存一整天；构建期允许为空，详情页 `generateStaticParams` 返回 `[]` 降级按需 ISR，不阻断构建。
