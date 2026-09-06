@@ -75,7 +75,8 @@ async function loadCmsBlogDocuments(): Promise<CmsBlogDocument[]> {
 }
 
 function getCmsBlogDocuments(): Promise<CmsBlogDocument[]> {
-  return unstable_cache(loadCmsBlogDocuments, ['cms-blog-documents'], PUBLIC_CONTENT_CACHE_OPTIONS)();
+  // v2：首版部署时构建期可能写入空结果脏缓存，bump 键强制失效一次。
+  return unstable_cache(loadCmsBlogDocuments, ['cms-blog-documents-v2'], PUBLIC_CONTENT_CACHE_OPTIONS)();
 }
 
 export async function getLocalizedBlogPosts(locale: Locale): Promise<LocalizedBlogPost[]> {

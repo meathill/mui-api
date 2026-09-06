@@ -26,7 +26,11 @@ export function isBuildTime(): boolean {
 }
 
 /** 运行时（worker 内）优先走 service binding：同账号内网调用，不出公网。
- *  build 期（Node 进程）拿不到可用 binding，回落公网 URL。 */
+ *  build 期（Node 进程）拿不到可用 binding，回落公网 URL。
+ *  注意 binding.fetch 不接受相对路径（Invalid URL），必须给完整 URL；
+ *  workerd 只按 binding 路由，host 用虚构值即可。 */
+const BINDING_BASE_URL = 'https://muicv-cms.internal';
+
 async function resolveCmsFetch(): Promise<{ fetchImpl: typeof fetch; baseUrl: string }> {
   if (!isBuildTime()) {
     try {
@@ -35,7 +39,7 @@ async function resolveCmsFetch(): Promise<{ fetchImpl: typeof fetch; baseUrl: st
         const binding = env.MUICV_CMS;
         return {
           fetchImpl: ((input, init) => binding.fetch(input, init)) as typeof fetch,
-          baseUrl: '',
+          baseUrl: BINDING_BASE_URL,
         };
       }
     } catch {
@@ -190,7 +194,7 @@ export function parseCmsBlogDocuments(value: unknown): CmsBlogDocument[] {
 async function fetchCmsDocs(query: URLSearchParams, fetchImpl?: typeof fetch): Promise<unknown | null> {
   const resolved = fetchImpl ? { fetchImpl, baseUrl: CMS_BASE_URL } : await resolveCmsFetch();
   try {
-    // service binding 时 baseUrl 为空串，path 直接作为 URL（Fetcher.fetch 接受相对路径）
+    // service binding 时 baseUrl 为虚构 host，workerd 只按 binding 路由、忽略 host
     const response = await resolved.fetchImpl(`${resolved.baseUrl}/api/articles?${query.toString()}`, {
       headers: { Accept: 'application/json' },
       cache: 'no-store',
