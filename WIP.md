@@ -1,5 +1,11 @@
 # WIP
 
+## 已完成：评论组件 pin 升到 0.12.1（2026-09-07，上游 #45 已修复发版）
+
+- ✅ 4 处 URL 同步改 0.12.0 → 0.12.1：tsx cssUrl、tsx import()、remote-modules.d.ts、test vi.mock
+- ✅ 评论组件单测 7/7 + format + 全仓 typecheck 全过
+- 上线验证由上游仓库完成（unpkg 0.12.1 产物选择器已修正）；待下次部署后浏览器抽查一条博客评论区输入控件样式。
+
 ## 已完成（2026-09-06，master）：博客文章页 4 个问题修复
 
 线上 `/blog/fable-5-1-muse-spark-1-3` 验收发现的问题，均已提交：
@@ -8,7 +14,7 @@
 - ✅ 面包屑导航 → 复用 ui/breadcrumb + 三级 BreadcrumbList JSON-LD（bf5451e）
 - ✅ 未翻译文章回退显示原文 + 提示条（决策：不做隐藏/404）（c86c60e）
 - ✅ 本地 dev CMS 503 → dev 环境直接走公网 URL，生产仍优先 binding
-- ⚠️ 评论组件升到 0.12.0（cb6feed），但**无样式根因在上游**：awesomecomment 仓库构建的 `dist/style.css` 主题块选择器写反（`.awesome-comment [data-theme=light]` 应为 `[data-theme=light] .awesome-comment`），变量不生效导致控件全裸。需在上游修复发版后 bump pin。详见 DEV_NOTE「博客评论组件」一节。
+- ⚠️ 评论组件升到 0.12.0（cb6feed），但**无样式根因在上游**：awesomecomment 仓库构建的 `dist/style.css` 主题块选择器写反（`.awesome-comment [data-theme=light]` 应为 `[data-theme=light] .awesome-comment`），变量不生效导致控件全裸。需在上游修复发版后 bump pin（2026-09-07 已升 0.12.1，见本文档顶部）。详见 DEV_NOTE「博客评论组件」一节。
 - 回归：171 单测 / format / typecheck / build 全过；浏览器验收 en+zh 两 locale（面包屑、提示条、按钮单行、JSON-LD @graph 均正确）。
 
 ## 进行中（feat-union 分支，2026-09-05 已 rebase 到新 master）
