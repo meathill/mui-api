@@ -3,7 +3,6 @@
 // Runtime types generated with workerd@1.20260801.1 2026-03-05 global_fetch_strictly_public,nodejs_compat
 interface __BaseEnv_CloudflareEnv {
   KV: KVNamespace;
-  NEXT_INC_CACHE_R2_BUCKET: R2Bucket;
   DB: D1Database;
   IMAGES: ImagesBinding;
   ASSETS: Fetcher;
