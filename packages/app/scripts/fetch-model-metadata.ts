@@ -55,6 +55,50 @@ const FIRST_PARTY_PROVIDERS = [
  * 只填有据可查的数据，宁可留空让生成器跳过，也不要编造 context 长度和发布日期。
  */
 const MANUAL_METADATA: Record<string, Omit<Resolved, 'model' | 'source'>> = {
+  'deepseek-v4.1-flash': {
+    displayName: 'DeepSeek V4.1 Flash',
+    contextLength: 1000000,
+    maxOutputTokens: 8192,
+    metadata: {
+      description:
+        'DeepSeek-V4.1-Flash is an efficient MoE foundation model with native multimodal vision understanding and 1M context.',
+      family: 'deepseek-v4',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: true,
+      releaseDate: '2026-09-11',
+      lastUpdated: '2026-09-11',
+      modalities: {
+        input: ['text', 'image'],
+        output: ['text'],
+      },
+    },
+  },
+  'deepseek-v4-1-flash': {
+    displayName: 'DeepSeek V4.1 Flash',
+    contextLength: 1000000,
+    maxOutputTokens: 8192,
+    metadata: {
+      description:
+        'DeepSeek-V4.1-Flash is an efficient MoE foundation model with native multimodal vision understanding and 1M context.',
+      family: 'deepseek-v4',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: true,
+      releaseDate: '2026-09-11',
+      lastUpdated: '2026-09-11',
+      modalities: {
+        input: ['text', 'image'],
+        output: ['text'],
+      },
+    },
+  },
   'deepseek-v4-flash': {
     displayName: 'DeepSeek V4 Flash',
     contextLength: 1000000,

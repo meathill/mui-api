@@ -22,6 +22,7 @@ import {
   callQwen,
   callXiaomiMiMo,
   callZai,
+  resolveOpenCodeSession,
 } from '../services/provider-dispatch';
 import { createProxyServices } from '../services/service-factory';
 import type { CloudflareBindings } from '../types';
@@ -80,28 +81,39 @@ openai.post('/chat/completions', async (c) => {
     // 计费/usage 解析用的 provider：anthropic（compat 端点）与 gemini（翻译层）
     // 返回的都是 OpenAI 形 usage，按 openai 解析
     let billingProvider = provider;
+    // OpenCode Go 及其 fallback 直连 provider 所需的 session 头
+    const clientSession = c.req.header('x-opencode-session') ?? c.req.header('x-session-id');
+    const userTrait = (c.get('userId') as string | undefined) ?? c.req.header('cf-connecting-ip');
+    const opencodeSession = await resolveOpenCodeSession(
+      clientSession ? { 'x-opencode-session': clientSession } : undefined,
+      userTrait,
+    );
+    const extraHeaders: Record<string, string> = {
+      'x-opencode-session': opencodeSession,
+    };
+
     if (provider === 'openai') {
       upstream = await callOpenAI(c.env, upstreamBody);
     } else if (provider === 'moonshot') {
-      upstream = await callMoonshot(c.env, upstreamBody);
+      upstream = await callMoonshot(c.env, upstreamBody, extraHeaders);
     } else if (provider === 'xiaomi-mimo') {
-      upstream = await callXiaomiMiMo(c.env, upstreamBody);
+      upstream = await callXiaomiMiMo(c.env, upstreamBody, extraHeaders);
     } else if (provider === 'deepseek') {
-      upstream = await callDeepSeek(c.env, upstreamBody);
+      upstream = await callDeepSeek(c.env, upstreamBody, extraHeaders);
     } else if (provider === 'opencode-go') {
-      upstream = await callOpenCodeGo(c.env, upstreamBody);
+      upstream = await callOpenCodeGo(c.env, upstreamBody, extraHeaders);
     } else if (provider === 'zai') {
-      upstream = await callZai(c.env, upstreamBody);
+      upstream = await callZai(c.env, upstreamBody, extraHeaders);
     } else if (provider === 'qwen') {
-      upstream = await callQwen(c.env, upstreamBody);
+      upstream = await callQwen(c.env, upstreamBody, extraHeaders);
     } else if (provider === 'minimax') {
-      upstream = await callMinimax(c.env, upstreamBody);
+      upstream = await callMinimax(c.env, upstreamBody, extraHeaders);
     } else if (provider === 'meta') {
-      upstream = await callMeta(c.env, upstreamBody);
+      upstream = await callMeta(c.env, upstreamBody, extraHeaders);
     } else if (provider === 'longcat') {
-      upstream = await callLongcat(c.env, upstreamBody);
+      upstream = await callLongcat(c.env, upstreamBody, extraHeaders);
     } else if (provider === 'hy') {
-      upstream = await callHy(c.env, upstreamBody);
+      upstream = await callHy(c.env, upstreamBody, extraHeaders);
     } else if (provider === 'google-ai-studio') {
       const unsupported = findUnsupportedChatFeature(body);
       if (unsupported) {

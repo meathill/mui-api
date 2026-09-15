@@ -543,6 +543,39 @@ export const SEED_MODELS: NewModel[] = [
   },
 
   // DeepSeek —— 直连 OpenAI 兼容接口
+  // DeepSeek V4.1 Flash（2026-09-11 发布）：原生多模态 MoE 架构，支持直接理解图片/附件
+  // 官方定价与 V4 Flash 一致（含视觉能力无额外加价）：输入 $0.14 / 输出 $0.28 每百万 tokens，Prompt Cache 命中按 2% 折扣计 $0.0028
+  {
+    id: 'deepseek-v4.1-flash',
+    provider: 'deepseek',
+    upstreamModelId: 'deepseek-v4.1-flash',
+    inputPrice: 0.14,
+    outputPrice: 0.28,
+    markupRate: 1,
+    cachedInputPrice: 0.0028,
+    cacheWritePrice: null,
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
+  // 别名支持 dash 形式：deepseek-v4-1-flash
+  {
+    id: 'deepseek-v4-1-flash',
+    provider: 'deepseek',
+    upstreamModelId: 'deepseek-v4.1-flash',
+    inputPrice: 0.14,
+    outputPrice: 0.28,
+    markupRate: 1,
+    cachedInputPrice: 0.0028,
+    cacheWritePrice: null,
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
   {
     id: 'deepseek-v4-flash',
     provider: 'deepseek',

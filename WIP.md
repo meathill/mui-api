@@ -1,5 +1,17 @@
 # WIP
 
+## 已完成：接入 DeepSeek V4.1 Flash 模型（2026-09-15）
+
+- ✅ 更新 `packages/app/src/db/seed.ts`（增加 `deepseek-v4.1-flash` 与兼容别名 `deepseek-v4-1-flash`）
+- ✅ 重新生成 `seed-models.sql` 并同步 `packages/dashboard/seed-models.sql`
+- ✅ 更新 `packages/app/e2e/setup.ts` 和 `packages/app/scripts/fetch-model-metadata.ts`
+- ✅ 更新 `packages/dashboard/src/app/[locale]/(marketing)/_components/models-section.tsx`（首页展示新卡片）
+- ✅ 实现 OpenCode Go 会话标识协议（强制注入 `x-opencode-session` Header，支持客户端透传与基于用户特征确定性派生）
+- ✅ 编写测试用例验证 `deepseek-v4.1-flash` 调度与计费解析（363 单测全过）
+- ✅ 生产 D1 数据库执行完成，清理 Cloudflare KV `models:catalog` 缓存
+- ✅ 撰写中文解读草稿 `docs/deepseek-v4-1-flash.md`（采用人民币标价对比）
+- ✅ 代码格式化（biome）、类型检查（tsc）、测试（vitest）与构建（vite/next）全量验证通过
+
 ## 已完成：评论组件 pin 升到 0.12.1（2026-09-07，上游 #45 已修复发版）
 
 - ✅ 4 处 URL 同步改 0.12.0 → 0.12.1：tsx cssUrl、tsx import()、remote-modules.d.ts、test vi.mock

@@ -1,4 +1,4 @@
-import { convertUsdTicksToInternalTokens, convertUsdToInternalTokens } from './grok-image';
+import { convertUsdTicksToInternalTokens, convertUsdToInternalTokens } from './grok-image.ts';
 
 export const GROK_VIDEO_DURATION_MIN = 1;
 export const GROK_VIDEO_DURATION_MAX = 15;
