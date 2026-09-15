@@ -109,6 +109,37 @@ export async function callOpenAIEndpoint(
   });
 }
 
+/**
+ * 基于用户特征（如 userId、IP）确定性生成稳定的 UUID 格式 Session ID。
+ */
+export async function generateSessionIdFromTrait(trait: string): Promise<string> {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(`opencode-session:${trait}`);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
+}
+
+/**
+ * 解析或生成必须的 x-opencode-session 头部。
+ * 若传入 headers 已含有该头（或常见别名 x-session-id）则直接复用；
+ * 否则若提供了 userTrait 则基于用户特征确定性生成，无特征时回退到随机 UUID。
+ */
+export async function resolveOpenCodeSession(headers?: Record<string, string>, userTrait?: string): Promise<string> {
+  const existing =
+    headers?.['x-opencode-session'] ||
+    headers?.['X-OpenCode-Session'] ||
+    headers?.['x-session-id'] ||
+    headers?.['X-Session-Id'];
+  if (existing) return existing;
+
+  if (userTrait) {
+    return generateSessionIdFromTrait(userTrait);
+  }
+  return crypto.randomUUID();
+}
+
 type OpenAICompatDirectConfig = {
   apiKey: string | undefined;
   apiKeyEnvName: string;
@@ -118,17 +149,26 @@ type OpenAICompatDirectConfig = {
 };
 
 /** OpenCode Go 订阅服务：直连 https://opencode.ai/zen/go/v1 端点 */
-export async function callOpenCodeGo(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+export async function callOpenCodeGo(
+  env: CloudflareBindings,
+  body: AnyBody,
+  extraHeaders?: Record<string, string>,
+): Promise<Response> {
   if (!env.OPENCODE_GO_API_KEY) {
     throw new Error('缺少 OPENCODE_GO_API_KEY，无法调用 OpenCode Go');
   }
 
+  const session = await resolveOpenCodeSession(extraHeaders);
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${env.OPENCODE_GO_API_KEY}`,
+    'Content-Type': 'application/json',
+    'x-opencode-session': session,
+    ...extraHeaders,
+  };
+
   return fetch(`${openCodeGoBaseURL(env)}/chat/completions`, {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${env.OPENCODE_GO_API_KEY}`,
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify(body),
   });
 }
@@ -138,9 +178,10 @@ async function callOpenAICompatDirect(
   env: CloudflareBindings,
   config: OpenAICompatDirectConfig,
   body: AnyBody,
+  extraHeaders?: Record<string, string>,
 ): Promise<Response> {
   if (config.allowOpenCodeGoFallback !== false && env.OPENCODE_GO_API_KEY) {
-    return callOpenCodeGo(env, body);
+    return callOpenCodeGo(env, body, extraHeaders);
   }
 
   if (config.apiKey) {
@@ -149,6 +190,7 @@ async function callOpenAICompatDirect(
       headers: {
         Authorization: `Bearer ${config.apiKey}`,
         'Content-Type': 'application/json',
+        ...extraHeaders,
       },
       body: JSON.stringify(body),
     });
@@ -158,7 +200,11 @@ async function callOpenAICompatDirect(
 }
 
 /** Xiaomi MiMo 直连 OpenAI 兼容 Chat Completions 接口，不经过 Cloudflare AI Gateway。 */
-export async function callXiaomiMiMo(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+export async function callXiaomiMiMo(
+  env: CloudflareBindings,
+  body: AnyBody,
+  extraHeaders?: Record<string, string>,
+): Promise<Response> {
   return callOpenAICompatDirect(
     env,
     {
@@ -168,11 +214,16 @@ export async function callXiaomiMiMo(env: CloudflareBindings, body: AnyBody): Pr
       providerLabel: 'Xiaomi MiMo',
     },
     body,
+    extraHeaders,
   );
 }
 
 /** Moonshot 直连 OpenAI 兼容 Chat Completions 接口，不经过 Cloudflare AI Gateway。 */
-export async function callMoonshot(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+export async function callMoonshot(
+  env: CloudflareBindings,
+  body: AnyBody,
+  extraHeaders?: Record<string, string>,
+): Promise<Response> {
   return callOpenAICompatDirect(
     env,
     {
@@ -182,11 +233,16 @@ export async function callMoonshot(env: CloudflareBindings, body: AnyBody): Prom
       providerLabel: 'Moonshot AI',
     },
     body,
+    extraHeaders,
   );
 }
 
 /** DeepSeek 直连 OpenAI 兼容 Chat Completions 接口，不经过 Cloudflare AI Gateway。 */
-export async function callDeepSeek(env: CloudflareBindings, body: AnyBody): Promise<Response> {
+export async function callDeepSeek(
+  env: CloudflareBindings,
+  body: AnyBody,
+  extraHeaders?: Record<string, string>,
+): Promise<Response> {
   return callOpenAICompatDirect(
     env,
     {
@@ -196,11 +252,17 @@ export async function callDeepSeek(env: CloudflareBindings, body: AnyBody): Prom
       providerLabel: 'DeepSeek',
     },
     body,
+    extraHeaders,
   );
 }
 
 /** 通用 OpenCode Go 直连（chat/completions 经 Go 订阅，不暴露上游） */
-async function callViaOpenCodeGo(env: CloudflareBindings, providerLabel: string, body: AnyBody): Promise<Response> {
+async function callViaOpenCodeGo(
+  env: CloudflareBindings,
+  providerLabel: string,
+  body: AnyBody,
+  extraHeaders?: Record<string, string>,
+): Promise<Response> {
   return callOpenAICompatDirect(
     env,
     {
@@ -211,26 +273,51 @@ async function callViaOpenCodeGo(env: CloudflareBindings, providerLabel: string,
       allowOpenCodeGoFallback: true,
     },
     body,
+    extraHeaders,
   );
 }
 
-export async function callZai(env: CloudflareBindings, body: AnyBody): Promise<Response> {
-  return callViaOpenCodeGo(env, 'Zhipu AI', body);
+export async function callZai(
+  env: CloudflareBindings,
+  body: AnyBody,
+  extraHeaders?: Record<string, string>,
+): Promise<Response> {
+  return callViaOpenCodeGo(env, 'Zhipu AI', body, extraHeaders);
 }
-export async function callQwen(env: CloudflareBindings, body: AnyBody): Promise<Response> {
-  return callViaOpenCodeGo(env, 'Qwen', body);
+export async function callQwen(
+  env: CloudflareBindings,
+  body: AnyBody,
+  extraHeaders?: Record<string, string>,
+): Promise<Response> {
+  return callViaOpenCodeGo(env, 'Qwen', body, extraHeaders);
 }
-export async function callMinimax(env: CloudflareBindings, body: AnyBody): Promise<Response> {
-  return callViaOpenCodeGo(env, 'MiniMax', body);
+export async function callMinimax(
+  env: CloudflareBindings,
+  body: AnyBody,
+  extraHeaders?: Record<string, string>,
+): Promise<Response> {
+  return callViaOpenCodeGo(env, 'MiniMax', body, extraHeaders);
 }
-export async function callMeta(env: CloudflareBindings, body: AnyBody): Promise<Response> {
-  return callViaOpenCodeGo(env, 'Meta', body);
+export async function callMeta(
+  env: CloudflareBindings,
+  body: AnyBody,
+  extraHeaders?: Record<string, string>,
+): Promise<Response> {
+  return callViaOpenCodeGo(env, 'Meta', body, extraHeaders);
 }
-export async function callLongcat(env: CloudflareBindings, body: AnyBody): Promise<Response> {
-  return callViaOpenCodeGo(env, 'LongCat', body);
+export async function callLongcat(
+  env: CloudflareBindings,
+  body: AnyBody,
+  extraHeaders?: Record<string, string>,
+): Promise<Response> {
+  return callViaOpenCodeGo(env, 'LongCat', body, extraHeaders);
 }
-export async function callHy(env: CloudflareBindings, body: AnyBody): Promise<Response> {
-  return callViaOpenCodeGo(env, 'Hy', body);
+export async function callHy(
+  env: CloudflareBindings,
+  body: AnyBody,
+  extraHeaders?: Record<string, string>,
+): Promise<Response> {
+  return callViaOpenCodeGo(env, 'Hy', body, extraHeaders);
 }
 
 /**

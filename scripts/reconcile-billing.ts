@@ -114,7 +114,7 @@ async function main() {
   }
 
   // 3. 模型表完整性（Grok/Claude/DeepSeek）
-  const qModels = `SELECT id, provider, input_price as inputPrice, output_price as outputPrice, markup_rate as markupRate, cached_input_price as cachedInputPrice, cache_write_price as cacheWritePrice FROM models WHERE id IN ('grok-4.6','grok-4.5','grok-4.3','claude-sonnet-4-6','claude-haiku-4-5','claude-opus-4-6','claude-opus-4-8','deepseek-v4-pro','deepseek-v4-flash') ORDER BY provider, id;`;
+  const qModels = `SELECT id, provider, input_price as inputPrice, output_price as outputPrice, markup_rate as markupRate, cached_input_price as cachedInputPrice, cache_write_price as cacheWritePrice FROM models WHERE id IN ('grok-4.6','grok-4.5','grok-4.3','claude-sonnet-4-6','claude-haiku-4-5','claude-opus-4-6','claude-opus-4-8','deepseek-v4-pro','deepseek-v4-flash','deepseek-v4.1-flash') ORDER BY provider, id;`;
   printSection('3. 模型表完整性（若缺行，billing-service 会回退 gpt-4o-mini 0.15/0.6 导致严重低估）');
   console.log(qModels);
   try {

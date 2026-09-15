@@ -1,6 +1,14 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { CloudflareBindings } from '../types';
-import { callDeepSeek, callGrokEndpoint, callMoonshot, callOpenCodeGo, callXiaomiMiMo } from './provider-dispatch';
+import {
+  callDeepSeek,
+  callGrokEndpoint,
+  callMoonshot,
+  callOpenCodeGo,
+  callXiaomiMiMo,
+  generateSessionIdFromTrait,
+  resolveOpenCodeSession,
+} from './provider-dispatch';
 
 function createEnv(overrides: Partial<CloudflareBindings> = {}): CloudflareBindings {
   return {
@@ -200,6 +208,40 @@ describe('callDeepSeek', () => {
       }),
     ).rejects.toThrow('缺少 DEEPSEEK_API_KEY 或 OPENCODE_GO_API_KEY');
   });
+
+  it('正确传递 deepseek-v4.1-flash 请求体与多模态消息', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => {
+      return Response.json({
+        id: 'chatcmpl-deepseek-v4-1',
+        object: 'chat.completion',
+        model: 'deepseek-v4.1-flash',
+        usage: { prompt_tokens: 15, completion_tokens: 30 },
+        choices: [{ index: 0, message: { role: 'assistant', content: 'image received' }, finish_reason: 'stop' }],
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const response = await callDeepSeek(createDeepSeekEnv(), {
+      model: 'deepseek-v4.1-flash',
+      messages: [
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: 'what is in this picture?' },
+            { type: 'image_url', image_url: { url: 'https://example.com/test.png' } },
+          ],
+        },
+      ],
+    });
+
+    expect(response.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [input, init] = fetchMock.mock.calls[0];
+    expect(input).toBe('https://api.deepseek.com/chat/completions');
+    const sentBody = JSON.parse(init?.body as string);
+    expect(sentBody.model).toBe('deepseek-v4.1-flash');
+    expect(sentBody.messages[0].content).toHaveLength(2);
+  });
 });
 
 describe('callOpenCodeGo', () => {
@@ -233,6 +275,22 @@ describe('callOpenCodeGo', () => {
     const headers = new Headers(init?.headers);
     expect(headers.get('authorization')).toBe('Bearer test-opencode-go-key');
     expect(headers.get('content-type')).toBe('application/json');
+    expect(headers.get('x-opencode-session')).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+  });
+
+  it('优先透传已有 x-opencode-session 头部', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => Response.json({ ok: true }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    await callOpenCodeGo(
+      createOpenCodeGoEnv(),
+      { model: 'kimi-k3', messages: [{ role: 'user', content: 'hello' }] },
+      { 'x-opencode-session': 'custom-session-uuid-1234' },
+    );
+
+    const [, init] = fetchMock.mock.calls[0];
+    const headers = new Headers(init?.headers);
+    expect(headers.get('x-opencode-session')).toBe('custom-session-uuid-1234');
   });
 
   it('支持通过 OPENCODE_GO_BASE_URL 覆盖接口端点地址', async () => {
@@ -255,6 +313,32 @@ describe('callOpenCodeGo', () => {
         messages: [{ role: 'user', content: 'hello' }],
       }),
     ).rejects.toThrow('缺少 OPENCODE_GO_API_KEY');
+  });
+});
+
+describe('resolveOpenCodeSession & generateSessionIdFromTrait', () => {
+  it('同一特征生成稳定一致的 UUID', async () => {
+    const session1 = await generateSessionIdFromTrait('user-123');
+    const session2 = await generateSessionIdFromTrait('user-123');
+    const session3 = await generateSessionIdFromTrait('user-456');
+
+    expect(session1).toBe(session2);
+    expect(session1).not.toBe(session3);
+    expect(session1).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
+  });
+
+  it('resolveOpenCodeSession 优先复用已有 header', async () => {
+    const fromDirect = await resolveOpenCodeSession({ 'x-opencode-session': 'my-custom-uuid' });
+    expect(fromDirect).toBe('my-custom-uuid');
+
+    const fromAlias = await resolveOpenCodeSession({ 'x-session-id': 'alias-session-uuid' });
+    expect(fromAlias).toBe('alias-session-uuid');
+  });
+
+  it('缺失 header 时由 userTrait 确定性派生', async () => {
+    const resolved = await resolveOpenCodeSession(undefined, 'user-xyz');
+    const expected = await generateSessionIdFromTrait('user-xyz');
+    expect(resolved).toBe(expected);
   });
 });
 

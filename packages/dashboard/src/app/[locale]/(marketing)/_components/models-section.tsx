@@ -23,7 +23,7 @@ export function ModelsSection() {
       name: 'DeepSeek',
       color:
         'bg-blue-500/10 text-blue-800 border border-blue-500/30 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-400/30',
-      models: ['DeepSeek V4 Flash', 'DeepSeek V4 Pro', 'DeepSeek V3', 'DeepSeek R1'],
+      models: ['DeepSeek V4.1 Flash', 'DeepSeek V4 Flash', 'DeepSeek V4 Pro', 'DeepSeek V3', 'DeepSeek R1'],
       description: t('deepseekDesc'),
     },
     {

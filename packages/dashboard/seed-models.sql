@@ -36,6 +36,8 @@ INSERT OR REPLACE INTO models (id, provider, upstream_model_id, input_price, out
   ('qwen3-30b', 'workers-ai', '@cf/qwen/qwen3-30b-a3b-fp8', 0.051, 0.335, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL),
   ('kimi-k2.6', 'workers-ai', '@cf/moonshotai/kimi-k2.6', 0.95, 4, 1, 0.16, NULL, NULL, NULL, NULL, NULL, NULL),
   ('kimi-k3', 'moonshot', 'kimi-k3', 3, 15, 1, 0.3, NULL, NULL, NULL, NULL, NULL, NULL),
+  ('deepseek-v4.1-flash', 'deepseek', 'deepseek-v4.1-flash', 0.14, 0.28, 1, 0.0028, NULL, NULL, NULL, NULL, NULL, NULL),
+  ('deepseek-v4-1-flash', 'deepseek', 'deepseek-v4.1-flash', 0.14, 0.28, 1, 0.0028, NULL, NULL, NULL, NULL, NULL, NULL),
   ('deepseek-v4-flash', 'deepseek', 'deepseek-v4-flash', 0.14, 0.28, 1, 0.0028, NULL, NULL, NULL, NULL, NULL, NULL),
   ('deepseek-v4-pro', 'deepseek', 'deepseek-v4-pro', 0.435, 0.87, 1, 0.003625, NULL, NULL, NULL, NULL, NULL, NULL),
   ('mimo-v2.5-pro', 'xiaomi-mimo', 'mimo-v2.5-pro', 1, 3, 1, 0.1, NULL, 256000, 2, 0.2, NULL, 6),
