@@ -80,6 +80,21 @@ await db.batch([
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('mimo-v2.5-pro', 'xiaomi-mimo', 'mimo-v2.5-pro', 1, 3, 1.2)",
   ),
   db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('mimo-v2.6-pro', 'xiaomi-mimo', 'mimo-v2.6-pro', 0.435, 0.87, 1.2, 0.0036)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('mimo-v2.6-flash', 'xiaomi-mimo', 'mimo-v2.6-flash', 0.14, 0.28, 1.2, 0.0028)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('gpt-6-sol', 'openai', 'gpt-6-sol', 2, 10, 1.2, 0.2)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('gpt-6-luna', 'openai', 'gpt-6-luna', 0.1, 0.5, 1.2, 0.01)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('claude-opus-5-5', 'anthropic', 'claude-opus-5-5', 4, 20, 1.2, 0.2)",
+  ),
+  db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('kimi-k3', 'moonshot', 'kimi-k3', 3, 15, 1.2, 0.3)",
   ),
   db.prepare(
