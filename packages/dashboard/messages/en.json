@@ -57,7 +57,7 @@
   },
   "models": {
     "title": "Route every major LLM through one API",
-    "subtitle": "Supporting OpenAI, Anthropic, DeepSeek, Moonshot AI, xAI, Zhipu GLM, Qwen, MiniMax, Meta and more — continuously expanding",
+    "subtitle": "Supporting OpenAI, Anthropic, DeepSeek, Moonshot AI, xAI, Zhipu GLM, Qwen, MiniMax, Xiaomi MiMo and more — continuously expanding",
     "openaiDesc": "The most powerful general model — code, reasoning, multimodal",
     "anthropicDesc": "Ultra-long context, excellent coding and analysis",
     "googleDesc": "Multimodal native, ultra-large context window",

@@ -1,5 +1,38 @@
 # WIP
 
+## 已完成：修复 GitHub Action CI dashboard e2e 测试失败（2026-09-24）
+
+- ✅ 排查与定位 CI 失败原因：
+  - `e2e/marketing.test.ts`：首页模型区此前将 Meta 替换为 Xiaomi MiMo（并接入 MiMo-V2.6、GPT-6 Sol 等），但测试用例仍断言 'Meta' 可见
+  - `e2e/public-pages.test.ts`：博客详情页 JSON-LD 引入 `@graph` 面包屑实体后，测试直接读取根对象的 `@type`，未展平 `@graph`
+  - `e2e/marketing.test.ts`：首次导航 `/blog/kimi-k3` 偶发因 dev 首次编译超时 5s 导致 flaky
+- ✅ 修复测试用例：
+  - 更新 `packages/dashboard/e2e/marketing.test.ts`：移除高频变动的具体模型名称断言，改为校验 Provider 卡片数量（9 个）与入口链接，避免模型更迭频繁破坏 CI
+  - 增强 `packages/dashboard/e2e/public-pages.test.ts` 中的 JSON-LD 解析，兼容 `@graph` 数组（与 `seo.test.ts` 对齐）
+  - 在 `playwright.config.ts` 配置 `expect: { timeout: 15_000 }`，并在详情页导航断言中增加超时冗余，消除 dev 首次编译导致的 flaky
+- ✅ 本地与 CI 验证：CI 已恢复全绿（Run ID: 35946472801），本地单测/e2e/格式化/类型检查均通过
+
+## 已完成：模型库与首页更新 & 同日三厂商解读文章中英双语发布（2026-09-23）
+
+- ✅ 清理本地已迁移草稿文件（`docs/claude-fable-5-1.md`、`docs/deepseek-v4-1-flash.md`、`docs/claude-prompt-cache-guide.md`、`docs/reconcile-billing.md` 以及新发布的 `docs/opus-5-5-gpt-6-sol-luna-mimo-2-6.md`）
+- ✅ 修订并完善中文文章：
+  - ✅ 小米 MiMo 定价改用官方人民币定价（输入 ¥1~¥3 / 输出 ¥2~¥6，UltraSpeed ¥30/¥60），不采用美元换算
+  - ✅ 收集并加入今日 X（Twitter）社区开发者的真实测试与反馈（CodeRabbit、Agent 开发者等）
+  - ✅ 去除正文中的所有分割线（`---`）与无必要括号注释
+- ✅ 英文版高质量翻译完成（严格对应中文审阅版结构与定价口径，无分割线，无括号注释）
+- ✅ 双语发布同步至 muicv CMS 生产环境：
+  - ✅ 更新中文文章（ID 198、版本 ID 240，同步最新删改与关联标签）
+  - ✅ 插入英文文章（ID 199、版本 ID 241，包含对应 tags、keywords、sources）
+  - ✅ REST API (`https://cms.muicv.com/api/articles`) 双语查询验证通过
+- ✅ 更新模型库基准数据与首页组件：
+  - ✅ `packages/app/src/db/seed.ts`：增加 `gpt-6-sol`、`gpt-6-luna`、`claude-opus-5-5`、`mimo-v2.6` 系列模型与别名
+  - ✅ 重新生成 `seed-models.sql` 并同步 `packages/dashboard/seed-models.sql`
+  - ✅ 更新 `packages/app/e2e/setup.ts` 补充测试种子行
+  - ✅ 更新首页 `packages/dashboard/src/app/[locale]/(marketing)/_components/models-section.tsx`，将小米 MiMo 加入首页 9 宫格，展示最新 2.6 系列
+  - ✅ 执行生产 D1 `mui-api` 模型入库（18 rows written）并清除 Cloudflare KV `models:catalog` 缓存
+- ✅ 清理临时同步脚本与 SQL 文件
+- ✅ 代码格式化（biome）、类型检查（tsc）、全量测试（363 + 171 tests passed）与静态页面生成（460 pages build）全部验证通过
+
 ## 已完成：接入 DeepSeek V4.1 Flash 模型（2026-09-15）
 
 - ✅ 更新 `packages/app/src/db/seed.ts`（增加 `deepseek-v4.1-flash` 与兼容别名 `deepseek-v4-1-flash`）

@@ -57,7 +57,7 @@
   },
   "models": {
     "title": "用一个 API 路由所有主流大模型",
-    "subtitle": "支持 OpenAI、Anthropic、DeepSeek、Moonshot AI、xAI、智谱 GLM、千问、MiniMax、Meta 等模型，持续扩展中",
+    "subtitle": "支持 OpenAI、Anthropic、DeepSeek、Moonshot AI、xAI、智谱 GLM、千问、MiniMax、小米 MiMo 等模型，持续扩展中",
     "openaiDesc": "最强通用模型，代码、推理、多模态",
     "anthropicDesc": "超长上下文，编程与分析能力出众",
     "googleDesc": "多模态原生，超大上下文窗口",

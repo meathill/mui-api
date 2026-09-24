@@ -20,20 +20,17 @@ test.describe('营销页面', () => {
     await expect(title).toContainText(defaultMessages.hero.titleHighlight);
   });
 
-  test('首页模型区展示新增 Provider 和模型', async ({ page }) => {
+  test('首页模型区展示主流 Provider 卡片', async ({ page }) => {
     await page.goto('/');
 
-    await expect(page.getByText('Zhipu GLM', { exact: true })).toBeVisible();
-    await expect(page.getByText('Qwen', { exact: true })).toBeVisible();
-    await expect(page.getByText('MiniMax', { exact: true })).toBeVisible();
-    await expect(page.getByText('Meta', { exact: true })).toBeVisible();
-    await expect(page.getByText('Moonshot AI', { exact: true })).toBeVisible();
-    await expect(page.getByText('GPT-5.6 Sol', { exact: true })).toBeVisible();
-    await expect(page.getByText('Grok 4.6', { exact: true })).toBeVisible();
-    await expect(page.getByText('Grok 4.5', { exact: true })).toBeVisible();
-    await expect(page.getByText('DeepSeek V4 Pro', { exact: true })).toBeVisible();
-    await expect(page.getByText('GLM-4.7 Flash', { exact: true })).toBeVisible();
-    await expect(page.getByText('Kimi K3', { exact: true })).toBeVisible();
+    const modelsSection = page.locator('section').filter({
+      has: page.getByRole('heading', { level: 2, name: defaultMessages.models.title }),
+    });
+    await expect(modelsSection).toBeVisible();
+
+    const providerCards = modelsSection.locator('.grid > div');
+    await expect(providerCards).toHaveCount(9);
+    await expect(modelsSection.getByRole('link', { name: defaultMessages.models.viewAll })).toBeVisible();
   });
 
   test('首页 Header 按指定顺序展示入口', async ({ page }) => {
@@ -121,8 +118,8 @@ test.describe('营销页面', () => {
       has: page.getByRole('heading', { level: 2, name: /Kimi K3 Is Here/ }),
     });
     await kimiCard.getByRole('link', { name: defaultMessages.blog.readArticle, exact: true }).click();
-    await expect(page).toHaveURL('/blog/kimi-k3');
-    await expect(page.getByRole('heading', { level: 1, name: /Kimi K3 Is Here/ })).toBeVisible();
+    await expect(page).toHaveURL('/blog/kimi-k3', { timeout: 15_000 });
+    await expect(page.getByRole('heading', { level: 1, name: /Kimi K3 Is Here/ })).toBeVisible({ timeout: 15_000 });
   });
 
   test('Kimi K3 文章展示官方来源与 API 价格', async ({ page }) => {

@@ -36,8 +36,10 @@ test.describe('公共内容页', () => {
     expect(response?.status()).toBe(200);
 
     await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-    const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
-    const entities = jsonLd.map((content) => JSON.parse(content) as { '@type'?: string });
+    const structuredData = (await page.locator('script[type="application/ld+json"]').allTextContents()).map(
+      (content) => JSON.parse(content) as { '@type'?: string; '@graph'?: Array<Record<string, unknown>> },
+    );
+    const entities = structuredData.flatMap((entry) => entry['@graph'] ?? [entry]);
     expect(entities.some((entity) => entity['@type'] === 'BlogPosting')).toBe(true);
   });
 

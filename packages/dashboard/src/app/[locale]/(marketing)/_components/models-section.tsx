@@ -9,14 +9,14 @@ export function ModelsSection() {
     {
       name: 'OpenAI',
       color: 'bg-[var(--brand-fluff)] text-[var(--brand-yellow-deep)] border border-[var(--brand-corgi)]',
-      models: ['GPT-6 Astra', 'GPT-5.6 Sol', 'GPT-5.6 Terra', 'GPT-5.6 Luna', 'GPT Image 2'],
+      models: ['GPT-6 Astra', 'GPT-6 Sol', 'GPT-6 Luna', 'GPT-5.6 Sol', 'GPT Image 2'],
       description: t('openaiDesc'),
     },
     {
       name: 'Anthropic',
       color:
         'bg-[#fadfd5] text-[#c44a32] border border-[var(--brand-tongue)] dark:bg-[#e8775a]/20 dark:text-[#ffb7a3] dark:border-[#e8775a]/30',
-      models: ['Claude Fable 5.1', 'Claude Opus 5', 'Claude Sonnet 5', 'Claude Haiku 4.5', 'Claude Opus 4.6'],
+      models: ['Claude Opus 5.5', 'Claude Fable 5.1', 'Claude Opus 5', 'Claude Sonnet 5', 'Claude Haiku 4.5'],
       description: t('anthropicDesc'),
     },
     {
@@ -61,11 +61,11 @@ export function ModelsSection() {
       description: t('minimaxDesc'),
     },
     {
-      name: 'Meta',
+      name: 'Xiaomi MiMo',
       color:
-        'bg-sky-500/10 text-sky-800 border border-sky-500/30 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-400/30',
-      models: ['Muse Spark 1.3', 'Muse Spark 1.2'],
-      description: t('metaDesc'),
+        'bg-orange-500/10 text-orange-800 border border-orange-500/30 dark:bg-orange-500/20 dark:text-orange-300 dark:border-orange-400/30',
+      models: ['MiMo-V2.6-Pro', 'MiMo-V2.6-Flash', 'MiMo-V2.6-UltraSpeed', 'MiMo-V2.5-Pro'],
+      description: t('mimoDesc'),
     },
   ];
 
