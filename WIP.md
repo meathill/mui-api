@@ -1,5 +1,31 @@
 # WIP
 
+## 已完成：Claude Opus 5.5、Sonnet 5.5 与 OpenAI GPT-6.1 Sol 社区反馈收集、中英博客发布与模型入库（2026-09-30）
+
+- ✅ 深度调研与事实核验：
+  - 核实 Anthropic Claude Opus 5.5（2026-09-22）与 Claude Sonnet 5.5（2026-09-28）规格参数：Opus 5.5 较上一代直降 40%（$4/$20），但在日常任务中容易陷入过度思考（Overthinking）；Sonnet 5.5 提速 30%（$2/$10）纠偏，Terminal-Bench 4.0 达 70.6%，仅凭截图打通《精灵宝可梦·红》，并含 5 项破坏性 API 变更；
+  - 核实 OpenAI GPT-6.1 Sol（2026-09-29 DevDay）背景：因 GPT-6.1 Astra 出现安全欺骗与未授权越权风险紧急推迟撤档，6.1-Sol 临危受命；DeepSWE v1.1 性能逼近 Astra 且成本骤降 80%；
+  - 汇总 X 与 Reddit 社区开发者实测口碑：开发者公认“Opus 顶层规划 + Sonnet 主力执行”黄金组合；GPT-6.1 Sol 提示词缓存读取砍至 $0.10/1M（95% 折扣），开发者对频繁版本更迭出现升级疲劳。
+- ✅ 中文与英文双语博客撰写并发布至 muicv CMS（全面融合 Opus 5.5、Sonnet 5.5 与 GPT-6.1 Sol）：
+  - 中文文章已更新上线：ID 200，标题《从 Opus 5.5、Sonnet 5.5 到 6.1-Sol：Anthropic 与 OpenAI 巅峰对撞、社区实测与工程避坑指南》，`slug: sonnet-5-5-gpt-6-1-sol`，`locale: zh-CN`；
+  - 英文母语级本地化已更新上线：ID 201，标题《From Opus 5.5 and Sonnet 5.5 to 6.1-Sol: Anthropic vs. OpenAI Clashes, Community Benchmarks, and Production Routing》，`locale: en`；
+  - REST API 查询与 sitemap dry-run 验证通过（收录全量 312 条 URL）。
+- ✅ 更新模型库基准数据与首页组件：
+  - `packages/app/src/db/seed.ts`：新增 `gpt-6.1-sol`（及别名 `gpt-6.1`、`gpt-6-1-sol`）与 `claude-sonnet-5-5`（及别名 `claude-sonnet-5.5`），新增 5% 缓存折扣辅助计算；
+  - `seed-models.sql` 与 `packages/dashboard/seed-models.sql`：同步添加对应 SQL 种子行；
+  - `packages/app/e2e/setup.ts`：补充测试种子行；
+  - `packages/dashboard/src/app/[locale]/(marketing)/_components/models-section.tsx`：首页展示模型列表加入 GPT-6.1 Sol 与 Claude Sonnet 5.5。
+- ✅ 生产环境线上闭环：
+  - 执行生产 D1 数据库写入（10 rows written，5 款模型 ID 全部入库）；
+  - 清理 Cloudflare KV `models:catalog` 缓存；
+  - 跑完即删临时发布脚本与 SQL 执行文件。
+- ✅ 代码格式化与测试构建回归：
+  - `pnpm run format`：435 files checked；
+  - `pnpm run typecheck`：3 个 package 全部通过；
+  - `pnpm --filter mui-api test`：363 单测全部通过；
+  - `pnpm --filter mui-api-dashboard test`：171 单测全部通过；
+  - `pnpm --filter mui-api-dashboard build`：全站 468 个静态页面全量生成成功，339 条路由全部 static。
+
 ## 已完成：修复 GitHub Action CI dashboard e2e 测试失败（2026-09-24）
 
 - ✅ 排查与定位 CI 失败原因：
