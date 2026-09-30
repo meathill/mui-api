@@ -62,6 +62,24 @@ function openaiLongContext(inputPrice: number, outputPrice: number) {
   };
 }
 
+/** GPT-6.1 Sol 起：cache read 深度折扣至 5% input（95% 优惠）；cache write 保持 1.25× uncached input */
+function openaiCache5Percent(inputPrice: number) {
+  return {
+    cachedInputPrice: round(inputPrice * 0.05),
+    cacheWritePrice: round(inputPrice * 1.25),
+  };
+}
+
+function openaiLongContext5Percent(inputPrice: number, outputPrice: number) {
+  return {
+    longContextThresholdTokens: 272_000,
+    longContextInputPrice: round(inputPrice * 2),
+    longContextCachedInputPrice: round(inputPrice * 2 * 0.05),
+    longContextCacheWritePrice: round(inputPrice * 2 * 1.25),
+    longContextOutputPrice: round(outputPrice * 1.5),
+  };
+}
+
 /** anthropic：cache_read ~10% input、cache_creation ~125% input */
 function anthropicCache(inputPrice: number) {
   return {
@@ -137,6 +155,39 @@ export const SEED_MODELS: NewModel[] = [
     markupRate: 1,
     ...openaiCacheWithWrite(10),
     ...openaiLongContext(10, 50),
+  },
+  // GPT-6.1 Sol（2026-09-29 发布）：DevDay 2026 压轴，缓存读大砍 95%（$0.10/1M）
+  // @see https://openai.com/index/gpt-6-1-sol/
+  {
+    id: 'gpt-6.1-sol',
+    provider: 'openai',
+    upstreamModelId: 'gpt-6.1-sol',
+    inputPrice: 2,
+    outputPrice: 10,
+    markupRate: 1,
+    ...openaiCache5Percent(2),
+    ...openaiLongContext5Percent(2, 10),
+  },
+  // 短名 alias：gpt-6.1 与 gpt-6-1-sol
+  {
+    id: 'gpt-6.1',
+    provider: 'openai',
+    upstreamModelId: 'gpt-6.1-sol',
+    inputPrice: 2,
+    outputPrice: 10,
+    markupRate: 1,
+    ...openaiCache5Percent(2),
+    ...openaiLongContext5Percent(2, 10),
+  },
+  {
+    id: 'gpt-6-1-sol',
+    provider: 'openai',
+    upstreamModelId: 'gpt-6.1-sol',
+    inputPrice: 2,
+    outputPrice: 10,
+    markupRate: 1,
+    ...openaiCache5Percent(2),
+    ...openaiLongContext5Percent(2, 10),
   },
   // GPT-6 Sol / Luna（2026-09-22 发布）：较上一代 GPT-5.6 降价 50%，全线赋予 90% 缓存折扣
   // @see https://openai.com/api/pricing
@@ -368,6 +419,39 @@ export const SEED_MODELS: NewModel[] = [
     outputPrice: 50,
     markupRate: 1,
     ...anthropicCache(10),
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
+  // Claude Sonnet 5.5（2026-09-28 发布）：30%+ 速度飞升，任务成本降 30%
+  // 官方定价：input $2 / output $10，缓存读 $0.20/1M（10%），写 $2.50/1M（1.25×）
+  {
+    id: 'claude-sonnet-5-5',
+    provider: 'anthropic',
+    upstreamModelId: 'claude-sonnet-5-5',
+    inputPrice: 2,
+    outputPrice: 10,
+    markupRate: 1,
+    cachedInputPrice: 0.2,
+    cacheWritePrice: 2.5,
+    longContextThresholdTokens: null,
+    longContextInputPrice: null,
+    longContextCachedInputPrice: null,
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: null,
+  },
+  // 别名支持 dot 形式：claude-sonnet-5.5
+  {
+    id: 'claude-sonnet-5.5',
+    provider: 'anthropic',
+    upstreamModelId: 'claude-sonnet-5-5',
+    inputPrice: 2,
+    outputPrice: 10,
+    markupRate: 1,
+    cachedInputPrice: 0.2,
+    cacheWritePrice: 2.5,
     longContextThresholdTokens: null,
     longContextInputPrice: null,
     longContextCachedInputPrice: null,

@@ -9,14 +9,14 @@ export function ModelsSection() {
     {
       name: 'OpenAI',
       color: 'bg-[var(--brand-fluff)] text-[var(--brand-yellow-deep)] border border-[var(--brand-corgi)]',
-      models: ['GPT-6 Astra', 'GPT-6 Sol', 'GPT-6 Luna', 'GPT-5.6 Sol', 'GPT Image 2'],
+      models: ['GPT-6 Astra', 'GPT-6.1 Sol', 'GPT-6 Sol', 'GPT-6 Luna', 'GPT-5.6 Sol'],
       description: t('openaiDesc'),
     },
     {
       name: 'Anthropic',
       color:
         'bg-[#fadfd5] text-[#c44a32] border border-[var(--brand-tongue)] dark:bg-[#e8775a]/20 dark:text-[#ffb7a3] dark:border-[#e8775a]/30',
-      models: ['Claude Opus 5.5', 'Claude Fable 5.1', 'Claude Opus 5', 'Claude Sonnet 5', 'Claude Haiku 4.5'],
+      models: ['Claude Opus 5.5', 'Claude Sonnet 5.5', 'Claude Fable 5.1', 'Claude Opus 5', 'Claude Sonnet 5'],
       description: t('anthropicDesc'),
     },
     {
