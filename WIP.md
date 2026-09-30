@@ -10,6 +10,14 @@
   - 中文文章已更新上线：ID 200，标题《从 Opus 5.5、Sonnet 5.5 到 6.1-Sol：Anthropic 与 OpenAI 巅峰对撞、社区实测与工程避坑指南》，`slug: sonnet-5-5-gpt-6-1-sol`，`locale: zh-CN`；
   - 英文母语级本地化已更新上线：ID 201，标题《From Opus 5.5 and Sonnet 5.5 to 6.1-Sol: Anthropic vs. OpenAI Clashes, Community Benchmarks, and Production Routing》，`locale: en`；
   - REST API 查询与 sitemap dry-run 验证通过（收录全量 312 条 URL）。
+- ✅ 全量多语言本土化翻译与发布上线（共 8 种语言全面就绪）：
+  - 日语（`ja`，ID 202）：《Opus 5.5、Sonnet 5.5 から GPT-6.1 Sol まで：Anthropic と OpenAI の頂上決戦、コミュニティ実測と本番ルーティング実践》
+  - 德语（`de`，ID 203）：《Von Opus 5.5 und Sonnet 5.5 bis 6.1-Sol: Anthropic vs. OpenAI, Community-Benchmarks und Production-Routing》
+  - 法语（`fr`，ID 204）：《D'Opus 5.5 et Sonnet 5.5 à 6.1-Sol : Le duel Anthropic-OpenAI, retours de la communauté et routage en production》
+  - 西班牙语（`es`，ID 205）：《De Opus 5.5 y Sonnet 5.5 a 6.1-Sol: Duelo entre Anthropic y OpenAI, pruebas reales y enrutamiento en producción》
+  - 葡萄牙语（`pt`，ID 206）：《De Opus 5.5 e Sonnet 5.5 a 6.1-Sol: O confronto Anthropic vs. OpenAI, testes práticos e roteamento em produção》
+  - 泰语（`th`，ID 207）：《จาก Opus 5.5 และ Sonnet 5.5 สู่ 6.1-Sol: ศึกดวลเดือด Anthropic ปะทะ OpenAI, ผลทดสอบจริง และแนวทาง Routing ในระดับ Production》
+  - 验证全量 8 种语言状态均达到 `published`，无分割线语法规范达标，跑完即清理临时发布脚本。
 - ✅ 更新模型库基准数据与首页组件：
   - `packages/app/src/db/seed.ts`：新增 `gpt-6.1-sol`（及别名 `gpt-6.1`、`gpt-6-1-sol`）与 `claude-sonnet-5-5`（及别名 `claude-sonnet-5.5`），新增 5% 缓存折扣辅助计算；
   - `seed-models.sql` 与 `packages/dashboard/seed-models.sql`：同步添加对应 SQL 种子行；
