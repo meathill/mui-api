@@ -284,7 +284,7 @@ D1_ERROR: Network connection lost.
 2. 对 `.next/prerender-manifest.json` 按 `compute` 字段分组：`static` 的活、`resuming`（PPR 运行时 resume）和 `blocking`（运行时整页渲染）的死。这个对照能一次性区分「渲染路径问题」和「数据源问题」。
 3. 反证数据源无辜：`/sitemap.xml` 当时同样跑 `'use cache'` + D1 却返回 200——Route Handler 不走 PPR 渲染路径。
 
-**当前方案**：公共 D1 查询用 `unstable_cache(fn, keyParts, { revalidate: 86400, tags })`（`src/lib/public-cache.ts` 定义常量），页面用 `export const dynamic = 'force-dynamic'`。缓存条目落在 OpenNext 的 R2 incremental cache 里。博客页已改为 muicv CMS 数据源 + `export const revalidate = 86400` 预渲染（见上文），不再受此事故影响；pricing 仍走 force-dynamic + D1。
+**当前方案**：公共 D1 查询用 `unstable_cache(fn, keyParts, { revalidate: 86400, tags })`（`src/lib/public-cache.ts` 定义常量），页面用 `export const dynamic = 'force-dynamic'`。博客页已改为 muicv CMS 数据源 + `export const revalidate = 86400` 预渲染（见上文），不再受此事故影响；pricing/models 仍走 force-dynamic + D1 快照（24h `unstable_cache`）。
 
 **不要给公共页加 Suspense 外壳**：外层 shell 一旦 flush，HTTP 状态就锁死在 200。`8991df5` 因此还引入了两个隐性问题——不存在的 slug 返回 200 + 404 页面（soft 404，会被搜索引擎当正常页收录），D1 出错时返回 200 + 骨架屏（Ahrefs 报告里的 `Is rendered page: false`）。`notFound()` 和数据读取都必须在任何 Suspense 边界之外完成，宁可整页 500 也不要 soft 200。
 
@@ -292,7 +292,9 @@ D1_ERROR: Network connection lost.
 
 **私有内容隔离**：Dashboard、Admin、OAuth 与相关 API 必须保持 request-time，页面用 `export const dynamic = 'force-dynamic'`，Route Handler 保留 `connection()`（该 API 不依赖 cacheComponents）。不能给用户内容加任何共享缓存。
 
-**OpenNext**：incremental cache 使用 R2 regional long-lived 模式并保留 Durable Object queue。不配 `tagCache`：代码里没有任何 `revalidateTag` / `revalidatePath` 调用，配上只会给每次缓存查找多一次 D1 往返，而且远端 `tag-cache` 库里并没有 `revalidations` 表（配上会每次报错）。将来真要做「后台一键刷新缓存」，需要同时加回 `NEXT_TAG_CACHE_D1` binding 并建好该表。远端 D1 资源本身不删除。
+**OpenNext**：incremental cache 自 2026-09-12（`e7f4785`）起为 `dummy`，R2 `site-cache` bucket 已摘除——流量小、D1 查询 <1ms 的前提下，dummy 的额外回源成本可忽略，省掉 R2 运维。代价：ISR 无 durable 持久化，新 CMS slug 在下次构建前每次按需渲染，pricing/models 快照每 isolate 冷启动重查一次 D1。恢复条件：博客发布频率上去或回源 CPU 成账单大头时，接回 `withRegionalCache(r2IncrementalCache, { mode: 'long-lived' })` + `NEXT_INC_CACHE_R2_BUCKET` 即可。`queue: doQueue` 在 dummy 下实际空转，保留只为恢复 R2 时即用。不配 `tagCache`：代码里没有任何 `revalidateTag` / `revalidatePath` 调用，配上只会给每次缓存查找多一次 D1 往返，而且远端 `tag-cache` 库里并没有 `revalidations` 表（配上会每次报错）。将来真要做「后台一键刷新缓存」，需要同时加回 `NEXT_TAG_CACHE_D1` binding 并建好该表。远端 D1 资源本身不删除。
+
+**Workers Cache（2026-10-03 已评估，不开）**：`workers/cache` 要求 `wrangler.jsonc` 配 `cache.enabled` + 响应带 `Cache-Control`，两边 Worker 都没配，是有意为之——app 全是带 `Authorization` 的 POST/SSE，按文档自动 BYPASS，命中率为零，开了只多交请求费；dashboard 的静态资源目前不经过 Worker、免费，开了反而开始计费，而 `force-dynamic` 页本来也不发可缓存的 `Cache-Control`。唯一可能受益的是博客 OG 图（`connection()` 动态、每次重算），但它是单 entrypoint 下的个例，不值得为它全局开缓存。
 
 **兼容性边界**：Next 16.3 已弃用 `middleware.ts`，但 OpenNext 尚未明确支持 Node Runtime `proxy.ts`，因此暂时保留 middleware，等其兼容性明确后再迁移。Worker 的 Node API/type surface 固定在最新 22.x，CI/build 仍使用 Node 24；不要为了消除 `pnpm outdated` 提示升级到 `@types/node` 26。
 
