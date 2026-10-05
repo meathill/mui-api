@@ -1,4 +1,4 @@
-import { GoogleAnalytics } from '@next/third-parties/google';
+import { DeferredGoogleAnalytics } from '@/components/analytics/deferred-google-analytics';
 import type { Metadata } from 'next';
 import { Fraunces, JetBrains_Mono, Nunito } from 'next/font/google';
 import { notFound } from 'next/navigation';
@@ -135,7 +135,7 @@ export default async function LocaleLayout({
           <ToastProvider position="bottom-right">{children}</ToastProvider>
         </NextIntlClientProvider>
       </body>
-      <GoogleAnalytics gaId="G-JLM9L0BTTV" />
+      <DeferredGoogleAnalytics gaId="G-JLM9L0BTTV" />
     </html>
   );
 }
