@@ -426,7 +426,8 @@ export const SEED_MODELS: NewModel[] = [
     longContextOutputPrice: null,
   },
   // Claude Sonnet 5.5（2026-09-28 发布）：30%+ 速度飞升，任务成本降 30%
-  // 官方定价：input $2 / output $10，缓存读 $0.20/1M（10%），写 $2.50/1M（1.25×）
+  // 官方定价：input $2 / output $10，写 $2.50/1M（1.25×）；
+  // 2026-10-07 伴随 Haiku 5.5 发布，缓存读单价降价 50% 至 $0.10/1M（5%）
   {
     id: 'claude-sonnet-5-5',
     provider: 'anthropic',
@@ -434,7 +435,7 @@ export const SEED_MODELS: NewModel[] = [
     inputPrice: 2,
     outputPrice: 10,
     markupRate: 1,
-    cachedInputPrice: 0.2,
+    cachedInputPrice: 0.1,
     cacheWritePrice: 2.5,
     longContextThresholdTokens: null,
     longContextInputPrice: null,
@@ -450,7 +451,7 @@ export const SEED_MODELS: NewModel[] = [
     inputPrice: 2,
     outputPrice: 10,
     markupRate: 1,
-    cachedInputPrice: 0.2,
+    cachedInputPrice: 0.1,
     cacheWritePrice: 2.5,
     longContextThresholdTokens: null,
     longContextInputPrice: null,
@@ -574,6 +575,41 @@ export const SEED_MODELS: NewModel[] = [
     longContextCachedInputPrice: null,
     longContextCacheWritePrice: null,
     longContextOutputPrice: null,
+  },
+  // Claude Haiku 5.5（2026-10-07 发布）：高通量、低延迟小模型，支持 Effort 调节，1M 上下文
+  // 官方阶梯定价：
+  // <= 100K tokens: input $0.10 / output $0.50，缓存读 $0.01/1M（10%），写 $0.125/1M（1.25×）
+  // > 100K tokens: input $0.50 / output $2.50，缓存读 $0.05/1M（10%），写 $0.625/1M（1.25×）
+  {
+    id: 'claude-haiku-5-5',
+    provider: 'anthropic',
+    upstreamModelId: 'claude-haiku-5-5',
+    inputPrice: 0.1,
+    outputPrice: 0.5,
+    markupRate: 1,
+    cachedInputPrice: 0.01,
+    cacheWritePrice: 0.125,
+    longContextThresholdTokens: 100_000,
+    longContextInputPrice: 0.5,
+    longContextCachedInputPrice: 0.05,
+    longContextCacheWritePrice: 0.625,
+    longContextOutputPrice: 2.5,
+  },
+  // 别名支持 dot 形式：claude-haiku-5.5
+  {
+    id: 'claude-haiku-5.5',
+    provider: 'anthropic',
+    upstreamModelId: 'claude-haiku-5-5',
+    inputPrice: 0.1,
+    outputPrice: 0.5,
+    markupRate: 1,
+    cachedInputPrice: 0.01,
+    cacheWritePrice: 0.125,
+    longContextThresholdTokens: 100_000,
+    longContextInputPrice: 0.5,
+    longContextCachedInputPrice: 0.05,
+    longContextCacheWritePrice: 0.625,
+    longContextOutputPrice: 2.5,
   },
   {
     id: 'claude-haiku-4-5',
