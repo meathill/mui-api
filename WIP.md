@@ -1,5 +1,25 @@
 # WIP
 
+## 进行中：集成 Claude Haiku 5.5、同步 Sonnet 5.5 缓存调价与撰写中文解读博文（2026-10-08）
+
+- [ ] 官方参数核实与规格确认：
+  - 核实 Claude Haiku 5.5（2026-10-07 发布，`claude-haiku-5-5`）核心指标：1M 上下文、128K 输出上限、支持 Effort 调节；
+  - 阶梯价格核对：<=100K 档位 $0.10/$0.50（降幅达 90%），Prompt Cache 读 $0.01 / 写 $0.125；>100K 档位 $0.50/$2.50；
+  - 配套价格核对：Claude Sonnet 5.5 提示词缓存读取降价 50%（$0.20 -> $0.10/1M）。
+- [ ] 本地模型种子与基准数据更新：
+  - 更新 `packages/app/src/db/seed.ts`：添加 `claude-haiku-5-5` 与 `claude-haiku-5.5`，更新 `claude-sonnet-5-5` 缓存读单价；
+  - 更新 `seed-models.sql` 与 `packages/dashboard/seed-models.sql`；
+  - 更新 `packages/app/e2e/setup.ts`；
+  - 更新 `packages/dashboard/src/app/[locale]/(marketing)/_components/models-section.tsx` 首页模型展示。
+- [ ] 补充与完善测试用例，确保模型映射、分发与计费测试覆盖。
+- [ ] 撰写高质量中文深度解读博客并发布到 muicv CMS（`site=muirouter`，`locale=zh-CN`，`status=published`）：
+  - 规格与价格阶梯对比表格、架构定位、同级/同家族对比、Effort 控制与推断经济学实操、生产级多级路由。
+- [ ] 生产环境线上闭环：
+  - 编写临时 D1 SQL 脚本并执行远程写入；
+  - 清理 Cloudflare KV `models:catalog` 缓存；
+  - 清理临时发布脚本与 SQL 脚本。
+- [ ] 代码格式化、类型检查与全量构建/测试回归验证。
+
 ## 已完成：Claude Opus 5.5、Sonnet 5.5 与 OpenAI GPT-6.1 Sol 社区反馈收集、中英博客发布与模型入库（2026-09-30）
 
 - ✅ 深度调研与事实核验：

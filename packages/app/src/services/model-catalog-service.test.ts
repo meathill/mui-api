@@ -154,4 +154,24 @@ describe('ModelCatalogService', () => {
     await Promise.all([service.getAll(), service.getAll(), service.getAll()]);
     expect(dbSpy).toHaveBeenCalledTimes(1);
   });
+
+  it('支持 dot/hyphen 别名互通（如 claude-haiku-5.5 <-> claude-haiku-5-5）', async () => {
+    const haiku = makeModel('claude-haiku-5-5', {
+      provider: 'anthropic',
+      upstreamModelId: 'claude-haiku-5-5',
+      inputPrice: 0.1,
+      outputPrice: 0.5,
+    });
+    const { kv } = makeMockKv([haiku]);
+    const { db } = makeMockDb([]);
+    const service = new ModelCatalogService(kv, db);
+
+    const foundByDot = await service.getById('claude-haiku-5.5');
+    expect(foundByDot).not.toBeNull();
+    expect(foundByDot?.id).toBe('claude-haiku-5-5');
+
+    const foundByHyphen = await service.getById('claude-haiku-5-5');
+    expect(foundByHyphen).not.toBeNull();
+    expect(foundByHyphen?.id).toBe('claude-haiku-5-5');
+  });
 });
