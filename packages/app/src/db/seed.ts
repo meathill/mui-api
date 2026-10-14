@@ -28,6 +28,14 @@ const NO_CACHE_NO_TIER = {
   longContextOutputPrice: null,
 } as const;
 
+const NO_LONG_CONTEXT = {
+  longContextThresholdTokens: null,
+  longContextInputPrice: null,
+  longContextCachedInputPrice: null,
+  longContextCacheWritePrice: null,
+  longContextOutputPrice: null,
+} as const;
+
 /** openai 系：cache 命中 ~10% input */
 function openaiCache(inputPrice: number) {
   return {
@@ -88,10 +96,10 @@ function anthropicCache(inputPrice: number) {
   };
 }
 
-/** gemini：cache 命中 ~25% input（保守取值，官方按模型而异） */
+/** gemini：cache 命中 ~10% input（官方按模型而异，大部分为 10%，Argon 单独为 5%） */
 function geminiCache(inputPrice: number) {
   return {
-    cachedInputPrice: round(inputPrice * 0.25),
+    cachedInputPrice: round(inputPrice * 0.1),
     cacheWritePrice: null,
   };
 }
@@ -317,7 +325,150 @@ export const SEED_MODELS: NewModel[] = [
   },
 
   // Google AI Studio (Gemini)
-  // Gemini 2.5 Pro：官方定价 <=200K 与 >200K 两档（input 1.25/2.5，output 10/15）
+  // Gemini 4 Argon（旗舰推理大模型，支持 1M tokens 长上下文生成与复杂多步骤智能体）：
+  // 官方 Standard 限时定价（2026-11-30 前）：input $2.00 / output $10.00，隐式缓存 $0.10（5% input）
+  {
+    id: 'gemini-4-argon',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-4-argon',
+    inputPrice: 2,
+    outputPrice: 10,
+    markupRate: 1,
+    cachedInputPrice: 0.1,
+    cacheWritePrice: null,
+    ...NO_LONG_CONTEXT,
+  },
+  // Gemini 3.8 Flash（高智力 Flash 模型，专为长程软件工程与企业级智能体工作流设计）：
+  // 官方 Standard 限时定价（2026-12-31 前）：input $0.75 / output $3.75，缓存读 $0.075（10% input）
+  {
+    id: 'gemini-3.8-flash',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-3.8-flash',
+    inputPrice: 0.75,
+    outputPrice: 3.75,
+    markupRate: 1,
+    ...geminiCache(0.75),
+    ...NO_LONG_CONTEXT,
+  },
+  // 别名支持 dash 形式：gemini-3-8-flash
+  {
+    id: 'gemini-3-8-flash',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-3.8-flash',
+    inputPrice: 0.75,
+    outputPrice: 3.75,
+    markupRate: 1,
+    ...geminiCache(0.75),
+    ...NO_LONG_CONTEXT,
+  },
+  // Gemini 3.6 Flash：
+  {
+    id: 'gemini-3.6-flash',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-3.6-flash',
+    inputPrice: 0.75,
+    outputPrice: 3.75,
+    markupRate: 1,
+    ...geminiCache(0.75),
+    ...NO_LONG_CONTEXT,
+  },
+  // 别名支持 dash 形式：gemini-3-6-flash
+  {
+    id: 'gemini-3-6-flash',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-3.6-flash',
+    inputPrice: 0.75,
+    outputPrice: 3.75,
+    markupRate: 1,
+    ...geminiCache(0.75),
+    ...NO_LONG_CONTEXT,
+  },
+  // Gemini 3.5 Flash-Lite：
+  {
+    id: 'gemini-3.5-flash-lite',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-3.5-flash-lite',
+    inputPrice: 0.3,
+    outputPrice: 2.5,
+    markupRate: 1,
+    ...geminiCache(0.3),
+    ...NO_LONG_CONTEXT,
+  },
+  // 别名支持 dash 形式：gemini-3-5-flash-lite
+  {
+    id: 'gemini-3-5-flash-lite',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-3.5-flash-lite',
+    inputPrice: 0.3,
+    outputPrice: 2.5,
+    markupRate: 1,
+    ...geminiCache(0.3),
+    ...NO_LONG_CONTEXT,
+  },
+  // Gemini 3.1 Pro Preview：
+  {
+    id: 'gemini-3.1-pro-preview',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-3.1-pro-preview',
+    inputPrice: 2,
+    outputPrice: 12,
+    markupRate: 1,
+    ...geminiCache(2),
+    longContextThresholdTokens: 200_000,
+    longContextInputPrice: 4,
+    longContextCachedInputPrice: round(4 * 0.1),
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: 18,
+  },
+  // 别名支持 dash 形式：gemini-3-1-pro-preview
+  {
+    id: 'gemini-3-1-pro-preview',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-3.1-pro-preview',
+    inputPrice: 2,
+    outputPrice: 12,
+    markupRate: 1,
+    ...geminiCache(2),
+    longContextThresholdTokens: 200_000,
+    longContextInputPrice: 4,
+    longContextCachedInputPrice: round(4 * 0.1),
+    longContextCacheWritePrice: null,
+    longContextOutputPrice: 18,
+  },
+  // Gemini 3.1 Flash-Lite：
+  {
+    id: 'gemini-3.1-flash-lite',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-3.1-flash-lite',
+    inputPrice: 0.25,
+    outputPrice: 1.5,
+    markupRate: 1,
+    ...geminiCache(0.25),
+    ...NO_LONG_CONTEXT,
+  },
+  // 别名支持 dash 形式：gemini-3-1-flash-lite
+  {
+    id: 'gemini-3-1-flash-lite',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-3.1-flash-lite',
+    inputPrice: 0.25,
+    outputPrice: 1.5,
+    markupRate: 1,
+    ...geminiCache(0.25),
+    ...NO_LONG_CONTEXT,
+  },
+  // Gemini 3 Flash：
+  {
+    id: 'gemini-3-flash',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-3-flash-preview',
+    inputPrice: 0.5,
+    outputPrice: 3,
+    markupRate: 1,
+    ...geminiCache(0.5),
+    ...NO_LONG_CONTEXT,
+  },
+  // Gemini 2.5 Pro：官方定价 <=200K 与 >200K 两档（input 1.25/2.5，output 10/15，cache 10%）
   {
     id: 'gemini-2.5-pro',
     provider: 'google-ai-studio',
@@ -328,7 +479,7 @@ export const SEED_MODELS: NewModel[] = [
     ...geminiCache(1.25),
     longContextThresholdTokens: 200_000,
     longContextInputPrice: 2.5,
-    longContextCachedInputPrice: round(2.5 * 0.25),
+    longContextCachedInputPrice: round(2.5 * 0.1),
     longContextCacheWritePrice: null,
     longContextOutputPrice: 15,
   },
@@ -340,11 +491,7 @@ export const SEED_MODELS: NewModel[] = [
     outputPrice: 2.5,
     markupRate: 1,
     ...geminiCache(0.3),
-    longContextThresholdTokens: null,
-    longContextInputPrice: null,
-    longContextCachedInputPrice: null,
-    longContextCacheWritePrice: null,
-    longContextOutputPrice: null,
+    ...NO_LONG_CONTEXT,
   },
   {
     id: 'gemini-2.5-flash-lite',
@@ -354,25 +501,7 @@ export const SEED_MODELS: NewModel[] = [
     outputPrice: 0.4,
     markupRate: 1,
     ...geminiCache(0.1),
-    longContextThresholdTokens: null,
-    longContextInputPrice: null,
-    longContextCachedInputPrice: null,
-    longContextCacheWritePrice: null,
-    longContextOutputPrice: null,
-  },
-  {
-    id: 'gemini-3-flash',
-    provider: 'google-ai-studio',
-    upstreamModelId: 'gemini-3-flash-preview',
-    inputPrice: 0.5,
-    outputPrice: 3,
-    markupRate: 1,
-    ...geminiCache(0.5),
-    longContextThresholdTokens: null,
-    longContextInputPrice: null,
-    longContextCachedInputPrice: null,
-    longContextCacheWritePrice: null,
-    longContextOutputPrice: null,
+    ...NO_LONG_CONTEXT,
   },
 
   // Anthropic (Claude) — 经 CF AI Gateway BYOK（ANTHROPIC_API_KEY 自付，不经 CF Unified Billing）；

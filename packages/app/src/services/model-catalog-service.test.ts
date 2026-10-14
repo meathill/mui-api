@@ -174,4 +174,37 @@ describe('ModelCatalogService', () => {
     expect(foundByHyphen).not.toBeNull();
     expect(foundByHyphen?.id).toBe('claude-haiku-5-5');
   });
+
+  it('支持 Google Gemini 新模型与 dot/hyphen 别名互通（如 gemini-3.8-flash <-> gemini-3-8-flash）', async () => {
+    const flash = makeModel('gemini-3.8-flash', {
+      provider: 'google-ai-studio',
+      upstreamModelId: 'gemini-3.8-flash',
+      inputPrice: 0.75,
+      outputPrice: 3.75,
+      cachedInputPrice: 0.075,
+    });
+    const argon = makeModel('gemini-4-argon', {
+      provider: 'google-ai-studio',
+      upstreamModelId: 'gemini-4-argon',
+      inputPrice: 2,
+      outputPrice: 10,
+      cachedInputPrice: 0.1,
+    });
+    const { kv } = makeMockKv([flash, argon]);
+    const { db } = makeMockDb([]);
+    const service = new ModelCatalogService(kv, db);
+
+    const foundByDot = await service.getById('gemini-3.8-flash');
+    expect(foundByDot).not.toBeNull();
+    expect(foundByDot?.id).toBe('gemini-3.8-flash');
+
+    const foundByHyphen = await service.getById('gemini-3-8-flash');
+    expect(foundByHyphen).not.toBeNull();
+    expect(foundByHyphen?.id).toBe('gemini-3.8-flash');
+
+    const foundArgon = await service.getById('gemini-4-argon');
+    expect(foundArgon).not.toBeNull();
+    expect(foundArgon?.id).toBe('gemini-4-argon');
+    expect(foundArgon?.cachedInputPrice).toBe(0.1);
+  });
 });

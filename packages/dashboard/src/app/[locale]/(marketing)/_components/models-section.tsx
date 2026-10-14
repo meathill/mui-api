@@ -54,11 +54,11 @@ export function ModelsSection() {
       description: t('qwenDesc'),
     },
     {
-      name: 'MiniMax',
+      name: 'Google',
       color:
-        'bg-teal-500/10 text-teal-800 border border-teal-500/30 dark:bg-teal-500/20 dark:text-teal-300 dark:border-teal-400/30',
-      models: ['MiniMax M3', 'MiniMax M2.7', 'MiniMax M2.5'],
-      description: t('minimaxDesc'),
+        'bg-[var(--brand-corgi)]/25 text-[var(--brand-ink)] border border-[var(--brand-yellow-deep)]/40 dark:bg-[var(--brand-yellow-warm)]/15 dark:text-[var(--brand-cream)] dark:border-[var(--brand-yellow-warm)]/30',
+      models: ['Gemini 4 Argon', 'Gemini 3.8 Flash', 'Gemini 3.5 Flash-Lite', 'Gemini 3.1 Pro', 'Gemini 2.5 Pro'],
+      description: t('googleDesc'),
     },
     {
       name: 'Xiaomi MiMo',
