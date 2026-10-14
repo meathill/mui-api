@@ -139,6 +139,17 @@ export class ModelCatalogService {
       model = all.find((m) => m.id === lastDot || m.upstreamModelId === lastDot);
       if (model) return model;
     }
+    // 中间段版本号 dot/hyphen 互换（如 gemini-3.8-flash <-> gemini-3-8-flash）
+    const midDot = id.replace(/-(\d+)-(\d+)-/g, '-$1.$2-');
+    if (midDot !== id) {
+      model = all.find((m) => m.id === midDot || m.upstreamModelId === midDot);
+      if (model) return model;
+    }
+    const midHyphen = id.replace(/-(\d+)\.(\d+)-/g, '-$1-$2-');
+    if (midHyphen !== id) {
+      model = all.find((m) => m.id === midHyphen || m.upstreamModelId === midHyphen);
+      if (model) return model;
+    }
     return null;
   }
 
