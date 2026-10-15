@@ -67,6 +67,8 @@ export async function generateMetadata({
     title: post.title,
     description: post.description,
     locale: resolvedLocale,
+    // 无译文的语言版仍可访问（正文显示原文 + 提示条），但 canonical / hreflang 收敛到原文语言。
+    translations: post.availableLocales,
     ogType: 'article',
     ogImage: getBlogPostOgImage(slug, resolvedLocale),
   });
@@ -93,6 +95,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ local
 async function BlogArticle({ locale, post, content }: { locale: Locale; post: LocalizedBlogPost; content: string }) {
   const t = await getTranslations({ locale, namespace: 'blog' });
   const blogLabel = t('metadata.title');
+  // JSON-LD 的 url 声明的是这篇内容的主 URL（原文语言版本），与 canonical 一致。
+  const canonicalUrl = `${SITE_URL}${getLocalizedPath(post.href, post.documentLocale)}`;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -103,8 +107,8 @@ async function BlogArticle({ locale, post, content }: { locale: Locale; post: Lo
         description: post.description,
         datePublished: post.publishedAt,
         dateModified: post.publishedAt,
-        url: `${SITE_URL}${getLocalizedPath(post.href, locale)}`,
-        mainEntityOfPage: `${SITE_URL}${getLocalizedPath(post.href, locale)}`,
+        url: canonicalUrl,
+        mainEntityOfPage: canonicalUrl,
         author: {
           '@type': 'Organization',
           name: 'MuiRouter',

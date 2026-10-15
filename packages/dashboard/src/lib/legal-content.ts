@@ -1,5 +1,5 @@
 import type { ComponentType } from 'react';
-import type { Locale } from '@/i18n/config';
+import { type Locale, locales } from '@/i18n/config';
 
 type LegalDoc = 'terms' | 'privacy' | 'about';
 type LegalModule = { default: ComponentType };
@@ -20,6 +20,12 @@ const loaders: Record<LegalDoc, Record<string, Loader>> = {
     zh: () => import('@/content/legal/about.zh.mdx'),
   },
 };
+
+/** 该法律文档真正有译文的语言（按 i18n 配置顺序，由 loader 表推导）。
+ *  metadata 据此收敛 canonical / hreflang：没有译文时语言版指向英文原文。 */
+export function getLegalDocLocales(doc: LegalDoc): Locale[] {
+  return locales.filter((locale) => loaders[doc][locale] !== undefined);
+}
 
 export async function getLegalContent(doc: LegalDoc, locale: Locale): Promise<ComponentType> {
   const byDoc = loaders[doc];

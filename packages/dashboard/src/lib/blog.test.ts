@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CmsBlogDocument } from './cms-blog-client';
-import { pickDocumentForLocale, toLocalizedBlogPost } from './blog';
+import { getDocumentLocales, pickDocumentForLocale, toLocalizedBlogPost } from './blog';
 
 function makeDocument(overrides: Partial<CmsBlogDocument> = {}): CmsBlogDocument {
   return {
@@ -26,6 +26,7 @@ describe('blog metadata helpers', () => {
       slug: 'codex-context-drift',
       href: '/blog/codex-context-drift',
       documentLocale: 'en',
+      availableLocales: ['en'],
       title: 'Codex Getting Worse Is Not Magic',
       description: 'Reduce errors, then reset context.',
       publishedAt: '2026-07-02',
@@ -34,6 +35,19 @@ describe('blog metadata helpers', () => {
       tags: ['Codex', 'AI coding'],
       sources: [{ label: 'Linux.do', url: 'https://linux.do/t/topic/2490104' }],
     });
+  });
+
+  it('availableLocales 记录真正有译文的语言，按 i18n 配置顺序排列', () => {
+    const group = [makeDocument({ locale: 'ja' }), makeDocument({ locale: 'zh' }), makeDocument({ locale: 'en' })];
+
+    expect(getDocumentLocales(group)).toEqual(['en', 'zh', 'ja']);
+    expect(toLocalizedBlogPost(group[1], getDocumentLocales(group)).availableLocales).toEqual(['en', 'zh', 'ja']);
+  });
+
+  it('getDocumentLocales 去重同语言文档（CMS 可能有多稿）', () => {
+    const group = [makeDocument({ locale: 'zh' }), makeDocument({ locale: 'zh' })];
+
+    expect(getDocumentLocales(group)).toEqual(['zh']);
   });
 
   it('falls back to publishedAt and estimates reading minutes when CMS omits them', () => {

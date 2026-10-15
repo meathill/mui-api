@@ -1,5 +1,5 @@
 import { unstable_cache } from 'next/cache';
-import { defaultLocale, type Locale } from '@/i18n/config';
+import { defaultLocale, type Locale, locales } from '@/i18n/config';
 import { BLOG_CONTENT_TAG, PUBLIC_CONTENT_REVALIDATE_SECONDS } from '@/lib/public-cache';
 import { isBuildTime, listPublishedCmsBlogDocuments, type CmsBlogDocument } from './cms-blog-client';
 
@@ -16,6 +16,8 @@ export type LocalizedBlogPost = {
   href: string;
   /** 实际命中文档的语言：回退时与请求 locale 不同，详情页据此显示「原文语言」提示条。 */
   documentLocale: Locale;
+  /** 该 slug 真正有译文的语言，按 i18n 配置顺序。metadata 据此收敛 canonical / hreflang。 */
+  availableLocales: readonly Locale[];
   title: string;
   description: string;
   publishedAt: string;
@@ -29,6 +31,8 @@ export type BlogSitemapPost = {
   slug: string;
   href: string;
   publishedAt: string;
+  /** 该 slug 真正有译文的语言；sitemap 只为这些语言收录 URL。 */
+  locales: readonly Locale[];
 };
 
 // CJK 按每分钟 350 字、拉丁词按每分钟 200 词粗估，仅用于 CMS 未填 readingMinutes 的文章。
@@ -48,11 +52,21 @@ export function pickDocumentForLocale(group: readonly CmsBlogDocument[], locale:
   );
 }
 
-export function toLocalizedBlogPost(document: CmsBlogDocument): LocalizedBlogPost {
+/** 同一 slug 下实际存在的语言，按 i18n 配置顺序（en → zh → …）。
+ *  用于 hreflang、canonical 落点与 sitemap 收录范围：没有译文的语言不该被声明成独立页面。 */
+export function getDocumentLocales(group: readonly CmsBlogDocument[]): Locale[] {
+  return locales.filter((locale) => group.some((document) => document.locale === locale));
+}
+
+export function toLocalizedBlogPost(
+  document: CmsBlogDocument,
+  availableLocales: readonly Locale[] = [document.locale],
+): LocalizedBlogPost {
   return {
     slug: document.slug,
     href: `/blog/${document.slug}`,
     documentLocale: document.locale,
+    availableLocales,
     title: document.title,
     description: document.description,
     publishedAt: document.publishedAt,
@@ -95,43 +109,43 @@ export async function getLocalizedBlogPosts(locale: Locale): Promise<LocalizedBl
   return [...groupsBySlug.values()]
     .map((group) => {
       const representative = pickDocumentForLocale(group, locale);
-      return representative ? toLocalizedBlogPost(representative) : null;
+      return representative ? toLocalizedBlogPost(representative, getDocumentLocales(group)) : null;
     })
     .filter((post): post is LocalizedBlogPost => post !== null)
     .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt) || a.slug.localeCompare(b.slug));
 }
 
-async function findCmsBlogDocument(slug: string, locale: Locale): Promise<CmsBlogDocument | null> {
+async function findCmsBlogGroup(slug: string): Promise<CmsBlogDocument[]> {
   const documents = await getCmsBlogDocuments();
-  return pickDocumentForLocale(
-    documents.filter((document) => document.slug === slug),
-    locale,
-  );
+  return documents.filter((document) => document.slug === slug);
 }
 
 export async function getLocalizedBlogPost(slug: string, locale: Locale): Promise<LocalizedBlogPost | null> {
-  const document = await findCmsBlogDocument(slug, locale);
-  return document ? toLocalizedBlogPost(document) : null;
+  const group = await findCmsBlogGroup(slug);
+  const document = pickDocumentForLocale(group, locale);
+  return document ? toLocalizedBlogPost(document, getDocumentLocales(group)) : null;
 }
 
 /** 详情页正文：返回该 locale（含回退）文章的 Markdown 原文。 */
 export async function getBlogContent(slug: string, locale: Locale): Promise<string | null> {
-  const document = await findCmsBlogDocument(slug, locale);
+  const document = pickDocumentForLocale(await findCmsBlogGroup(slug), locale);
   return document?.bodyMarkdown ?? null;
 }
 
 export async function getPublishedBlogSitemapPosts(): Promise<BlogSitemapPost[]> {
   const documents = await getCmsBlogDocuments();
-  const publishedAtBySlug = new Map<string, string>();
+  const groupsBySlug = new Map<string, CmsBlogDocument[]>();
   for (const document of documents) {
-    if (!publishedAtBySlug.has(document.slug)) {
-      publishedAtBySlug.set(document.slug, document.publishedAt);
-    }
+    const group = groupsBySlug.get(document.slug) ?? [];
+    group.push(document);
+    groupsBySlug.set(document.slug, group);
   }
 
-  return [...publishedAtBySlug.entries()].map(([slug, publishedAt]) => ({
+  // documents 已按 publishedAt 倒序，分组首条即该 slug 的最新文档。
+  return [...groupsBySlug.entries()].map(([slug, group]) => ({
     slug,
     href: `/blog/${slug}`,
-    publishedAt,
+    publishedAt: group[0].publishedAt,
+    locales: getDocumentLocales(group),
   }));
 }

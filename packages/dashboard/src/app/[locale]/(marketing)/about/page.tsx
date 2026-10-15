@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
-import { getLegalContent } from '@/lib/legal-content';
+import { getLegalContent, getLegalDocLocales } from '@/lib/legal-content';
 import { buildMetadata, getResolvedLocale } from '@/lib/seo';
 
 export function generateStaticParams() {
@@ -24,7 +24,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     resolved === 'zh'
       ? 'MuiRouter 的愿景：在每一个大模型之上做稳定透明的路由层。'
       : 'The vision behind MuiRouter: a stable routing layer for every LLM.';
-  return buildMetadata({ path: '/about', title, description, locale: resolved });
+  return buildMetadata({
+    path: '/about',
+    title,
+    description,
+    locale: resolved,
+    // 正文只有 en/zh 两套：其余语言页 canonical 指向英文原文。
+    translations: getLegalDocLocales('about'),
+  });
 }
 
 export default async function AboutPage({ params }: { params: Promise<{ locale: string }> }) {
