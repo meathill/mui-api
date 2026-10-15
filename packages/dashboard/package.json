@@ -13,7 +13,8 @@
     "test:e2e:prepare": "node scripts/prepare-e2e.ts",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
-    "submit:indexnow": "node scripts/submit-indexnow.ts"
+    "submit:indexnow": "node scripts/submit-indexnow.ts",
+    "check:cms-seo": "node scripts/check-cms-seo.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
