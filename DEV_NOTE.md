@@ -319,7 +319,7 @@ D1_ERROR: Network connection lost.
 - 译文集合的来源：博客用 `LocalizedBlogPost.availableLocales`（由同 slug 文档分组推导），法律页用 `legal-content.ts` 的 `getLegalDocLocales()`（由 MDX loader 表推导，加了 ja 译本就自动生效），contact / models 用 `BILINGUAL_CONTENT_LOCALES`。
 - **新增语言内容时**：`about`/`contacts` 等只有中英两套的页面，文案放在 `src/lib/page-meta.ts`（页面与测试共用一份来源），并把该语言加进对应常量；否则它会继续通过 canonical 指向英文版。
 - **文案硬约束**（`src/lib/meta-copy.test.ts` 会拦）：描述 ≥120 字符（Bing 判过短的阈值，CJK 也按字符数算；写入目标 120–160）、标题含 layout 模板 ` | MuiRouter` 后显示宽度 ≤65（CJK 按 2 计）、标题不再自带 `- MuiRouter`（品牌重复）。测试按命名约定自动发现 meta 面：顶层 `metadata` + 各 namespace 的 `metaTitle`/`metaDescription` 或 `.metadata.{title,description}`——新页面照这个约定写就自动被覆盖。
-- 博客描述来自 CMS articles 的 `summary` 字段（代码侧改不了，see `cms-blog-client.ts`），压缩/扩写要在 Payload 后台做；文章标题同理，且各语言共用同一份原文标题（由 canonical 收敛，不再重复收录）。
+- 博客描述来自 CMS articles 的 `summary` 字段（代码侧改不了，见 `cms-blog-client.ts`），扩写要在 Payload 后台做。文章标题同理，且**标题宽度普遍超标**：2026-10-15 复核 126 条已发布文档里有 114 条的「标题 + ` | MuiRouter`」超过 65 显示宽度（含中文标题）——代码侧不做截断（程序裁切会产出难读的标题），要么在后台压短，要么给 articles 集合加独立 `seoTitle` 字段，见 issue #15 评论。
 
 ### IndexNow 手动提交脚本（Bing 重新发现，issue #4）
 
