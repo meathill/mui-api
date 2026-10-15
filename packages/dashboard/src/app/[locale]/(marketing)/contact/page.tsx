@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
+import { getBilingualPageMeta } from '@/lib/page-meta';
 import { buildMetadata, BILINGUAL_CONTENT_LOCALES, getResolvedLocale } from '@/lib/seo';
 import { ContactForm } from './contact-form';
 
@@ -19,9 +20,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const resolved = getResolvedLocale(locale);
-  const title = resolved === 'zh' ? '联系我们 - MuiRouter' : 'Contact - MuiRouter';
-  const description =
-    resolved === 'zh' ? '联系 MuiRouter，支持邮箱与反馈表单。' : 'Contact MuiRouter via email or feedback form.';
+  const { title, description } = getBilingualPageMeta('contact', resolved);
   return buildMetadata({
     path: '/contact',
     title,

@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "高速 AI ゲートウェイ & MCP (Model Context Protocol) ルーター | OpenRouter 代替",
-    "description": "高性能 AI API ゲートウェイおよび MCP ルーター。ゼロ遅延で主要 LLM や MCP サーバーをシームレスにルーティング、負荷分散、キャッシュ。",
-    "ogTitle": "高速 AI ゲートウェイ & MCP (Model Context Protocol) ルーター | OpenRouter 代替"
+    "title": "高速 AI ゲートウェイ & MCP ルーター",
+    "description": "高性能 AI API ゲートウェイおよび MCP ルーター。ゼロ遅延で主要 LLM や MCP サーバーをシームレスにルーティング、負荷分散、キャッシュ。OpenAI、Claude、Gemini、Grok などを 1 つの API キーで呼び出し、トークン単位で課金します。",
+    "ogTitle": "高速 AI ゲートウェイ & MCP ルーター"
   },
   "header": {
     "login": "ログイン",
@@ -120,7 +120,7 @@
   "pricing": {
     "metadata": {
       "title": "AI モデル API の料金 — トークン単位の従量課金",
-      "description": "MuiRouter の AI API ルーターを通じた OpenAI、Claude、Gemini、Grok、MiMo 各モデルの透明なトークン単位の料金。サブスクリプションなし、シートなし — 使った分だけお支払いいただきます。"
+      "description": "MuiRouter の AI API ルーターを通じた OpenAI、Claude、Gemini、Grok、MiMo 各モデルの透明なトークン単位の料金。サブスクリプションなし、シートなし — 使った分だけお支払いいただきます。残高は無期限です。"
     },
     "eyebrow": "トークン単位の AI モデル料金",
     "title": "AI モデル API の料金",
@@ -188,7 +188,7 @@
   "blog": {
     "metadata": {
       "title": "ブログ",
-      "description": "AIモデルの更新、実用的なリリースノート、MuiRouterのプロダクトガイド。"
+      "description": "AI モデルの更新、実用的なリリースノート、MuiRouter のプロダクトガイド。新しいモデルの登場や価格改定、API の提供状況の変化が、1 つの接続を保ちたい開発チームにとって何を意味するのかを整理し、出典と実測値をもとに分かりやすく解説します。"
     },
     "eyebrow": "MuiRouter ブログ",
     "title": "ノイズの少ないAIモデル更新",
@@ -686,7 +686,7 @@
   },
   "mcp": {
     "metadata": {
-      "title": "MCP ルーター & サーバー：複数サーバー統合ルーティングと設定ガイド",
+      "title": "MCP ルーター & サーバー：統合ルーティング",
       "description": "Claude Desktop、Claude Code、Cursor、Cline を streamable-HTTP 経由で MuiRouter MCP ルーターに接続。デュアル Era プロトコル（2026-07-28 & legacy）対応、複数サーバー集約、ツールルーティング。"
     }
   },
@@ -1014,7 +1014,7 @@
     "ctaButton": "無料で始める"
   },
   "mcpRouter": {
-    "metaTitle": "MCP ルーター — Claude、Cursor、Cline を 1つの API に接続",
+    "metaTitle": "MCP ルーター — Claude / Cursor / Cline",
     "metaDescription": "MuiRouter は streamable-HTTP で MCP ルーターを提供：Claude Desktop、Claude Code、Cursor、Cline がご自身のキーで LLM 呼び出しを route し、残高・利用量の照会と画像生成ができます。",
     "eyebrow": "MCP ルーター",
     "title": "あなたの AI クライアントのための",
@@ -1084,7 +1084,7 @@
     "ctaButton": "無料で始める"
   },
   "claudeApiGateway": {
-    "metaTitle": "Claude API ゲートウェイ — 1つの API で Claude を、Anthropic アカウント不要",
+    "metaTitle": "Claude API ゲートウェイ — アカウント不要",
     "metaDescription": "MuiRouter のネイティブ /v1/messages エンドポイントまたは OpenAI 互換エンドポイントで Claude を呼び出せます。Claude Code と Anthropic SDK は Base URL を1つ変えるだけで動作——別途 Anthropic アカウント不要、1つの残高からトークン単位で課金。",
     "eyebrow": "Claude API ゲートウェイ",
     "title": "1つの API で Claude を",
@@ -1216,8 +1216,8 @@
     "ctaButton": "無料で始める"
   },
   "geminiApiGateway": {
-    "metaTitle": "Gemini API ゲートウェイ — 1つの API で Google の Gemini を",
-    "metaDescription": "既存の OpenAI 互換クライアントまたはネイティブパススルーで、MuiRouter 経由で Gemini を呼び出せます。ロングコンテキストの料金は自動調整され、同じキーで Claude・GPT・Grok にもアクセスできます。",
+    "metaTitle": "Gemini API ゲートウェイ — 1つのキーで",
+    "metaDescription": "既存の OpenAI 互換クライアントまたはネイティブパススルーで、MuiRouter 経由で Gemini を呼び出せます。ロングコンテキストの料金は自動調整され、同じキーで Claude・GPT・Grok にもアクセスできます。料金はトークン単位の従量制です。",
     "eyebrow": "Gemini API ゲートウェイ",
     "title": "1つの API で Gemini を",
     "titleHighlight": "呼び出す",
@@ -1283,7 +1283,7 @@
   },
   "grokApiGateway": {
     "metaTitle": "Grok API ゲートウェイ — 1つの API で xAI の Grok を",
-    "metaDescription": "Grok のチャット・画像生成・動画生成を1つの OpenAI 互換 API で呼び出せます。xAI SDK は不要——同じキーで Claude・GPT・Gemini にもアクセスでき、1つの残高からトークン単位で課金されます。",
+    "metaDescription": "Grok のチャット・画像生成・動画生成を1つの OpenAI 互換 API で呼び出せます。xAI SDK は不要——同じキーで Claude・GPT・Gemini にもアクセスでき、1つの残高からトークン単位で課金されます。サブスクリプションは不要です。",
     "eyebrow": "Grok API ゲートウェイ",
     "title": "1つの API で Grok を",
     "titleHighlight": "呼び出す",
@@ -1348,8 +1348,8 @@
     "ctaButton": "無料で始める"
   },
   "muirouterVsOpenrouter": {
-    "metaTitle": "MuiRouter vs OpenRouter — 料金・モデル・エッジデプロイ・MCP 比較",
-    "metaDescription": "MuiRouter と OpenRouter を、料金モデル、エッジゲートウェイ構成、複数プロバイダー統合ルーティング、ネイティブエンドポイント、BYOK 手数料、ネイティブ MCP プロトコル対応の観点で比較。",
+    "metaTitle": "MuiRouter vs OpenRouter — 料金とモデル比較",
+    "metaDescription": "MuiRouter と OpenRouter を、料金モデル、エッジゲートウェイ構成、複数プロバイダー統合ルーティング、ネイティブエンドポイント、BYOK 手数料、ネイティブ MCP プロトコル対応の観点で比較し、各項目に出典を明記しています。",
     "eyebrow": "MuiRouter vs OpenRouter",
     "title": "MuiRouter vs OpenRouter — ",
     "titleHighlight": "徹底比較",
@@ -1464,7 +1464,7 @@
   },
   "openrouterAlternatives": {
     "metaTitle": "OpenRouter の代替 — 4つの LLM ゲートウェイを比較",
-    "metaDescription": "OpenRouter の代替を探していますか？MuiRouter、LiteLLM、Portkey、Cloudflare AI Gateway がデプロイ形態、料金、モデルカタログ、ガバナンス機能でどう違うかを解説します。",
+    "metaDescription": "OpenRouter の代替を探していますか？MuiRouter、LiteLLM、Portkey、Cloudflare AI Gateway がデプロイ形態、料金、モデルカタログ、ガバナンス機能でどう違うかを解説し、用途別の選び方もまとめています。",
     "eyebrow": "OpenRouter の代替",
     "title": "OpenRouter の代替 — ",
     "titleHighlight": "4つを比較",
@@ -1763,7 +1763,7 @@
   "opencode": {
     "metadata": {
       "title": "opencode で MuiRouter を使う",
-      "description": "MuiRouter を opencode に接続：API キー 1 つで Claude、GPT、Gemini、Grok、Kimi、MiMo などを利用でき、サブスク不要のトークン従量課金です。"
+      "description": "MuiRouter を opencode に接続する手順：API キー 1 つで Claude、GPT、Gemini、Grok、Kimi、MiMo などを利用でき、サブスク不要のトークン従量課金です。設定は Base URL の書き換えだけです。"
     }
   },
   "opencodePage": {
@@ -1797,8 +1797,8 @@
     ]
   },
   "litellmVsMuirouter": {
-    "metaTitle": "LiteLLM vs MuiRouter — セルフホスト vs マネージド",
-    "metaDescription": "LiteLLM と MuiRouter をデプロイ、価格、互換性、運用面で比較。",
+    "metaTitle": "LiteLLM vs MuiRouter — 運用の違いを比較",
+    "metaDescription": "LiteLLM と MuiRouter を、デプロイ、価格、OpenAI 互換性、運用負荷の観点で比較します。自前でホストするプロキシか、マネージドなゲートウェイかの違いを整理し、どちらがどんなチームに向くのか、検討のポイントもまとめます。",
     "eyebrow": "LiteLLM vs MuiRouter",
     "title": "LiteLLM vs MuiRouter — ",
     "titleHighlight": "比較",

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
 import { getLegalContent, getLegalDocLocales } from '@/lib/legal-content';
+import { getBilingualPageMeta } from '@/lib/page-meta';
 import { buildMetadata, getResolvedLocale } from '@/lib/seo';
 
 export function generateStaticParams() {
@@ -19,11 +20,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const resolved = getResolvedLocale(locale);
-  const title = resolved === 'zh' ? '关于我们 - MuiRouter' : 'About - MuiRouter';
-  const description =
-    resolved === 'zh'
-      ? 'MuiRouter 的愿景：在每一个大模型之上做稳定透明的路由层。'
-      : 'The vision behind MuiRouter: a stable routing layer for every LLM.';
+  const { title, description } = getBilingualPageMeta('about', resolved);
   return buildMetadata({
     path: '/about',
     title,

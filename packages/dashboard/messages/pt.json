@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "Gateway de IA Rápido e MCP (Model Context Protocol) Router | Alternativa ao OpenRouter",
+    "title": "Gateway de IA rápido e roteador MCP",
     "description": "Gateway de API de IA e roteador MCP de alto desempenho. Roteie, equilibre a carga e faça cache de LLMs e servidores MCP sem sobrecarga de latência.",
-    "ogTitle": "Gateway de IA Rápido e MCP (Model Context Protocol) Router | Alternativa ao OpenRouter"
+    "ogTitle": "Gateway de IA rápido e roteador MCP"
   },
   "header": {
     "login": "Entrar",
@@ -188,7 +188,7 @@
   "blog": {
     "metadata": {
       "title": "Blog",
-      "description": "Atualizações de modelos de IA, notas práticas de lançamento e orientação de produto da MuiRouter."
+      "description": "Atualizações de modelos de IA, notas práticas de lançamento e orientação de produto da MuiRouter: o que cada novo modelo muda para quem quer uma integração estável."
     },
     "eyebrow": "Blog da MuiRouter",
     "title": "Atualizações de IA, sem ruído",
@@ -686,7 +686,7 @@
   },
   "mcp": {
     "metadata": {
-      "title": "MCP Router e Servidor: Guia de Roteamento Multi-Servidor e Integração",
+      "title": "Router e servidor MCP — guia de roteamento",
       "description": "Conecte Claude Desktop, Claude Code, Cursor e Cline ao MCP Router do MuiRouter via streamable-HTTP. Suporte dual-era de protocolo MCP (2026-07-28 e legacy), agregação multi-servidor e ferramentas integradas."
     }
   },
@@ -940,7 +940,7 @@
     "ctaButton": "Comece grátis"
   },
   "openaiCompatibleRouter": {
-    "metaTitle": "Router de API compatível com OpenAI — Altere o Base URL",
+    "metaTitle": "Router de API compatível com OpenAI",
     "metaDescription": "O MuiRouter é um router de API compatível com OpenAI. Aponte o Base URL do SDK OpenAI para o MuiRouter e roteie requisições para OpenAI, Claude, Gemini, Grok e MiMo sem reescrever código e com cobrança por token.",
     "eyebrow": "Router compatível com OpenAI",
     "title": "Roteamento compatível com OpenAI — ",
@@ -1014,7 +1014,7 @@
     "ctaButton": "Comece grátis"
   },
   "mcpRouter": {
-    "metaTitle": "Router MCP — Conecte Claude, Cursor e Cline a uma única API",
+    "metaTitle": "Router MCP — conecte Claude, Cursor e Cline",
     "metaDescription": "O MuiRouter expõe um router MCP via streamable-HTTP: Claude Desktop, Claude Code, Cursor e Cline roteiam chamadas LLM, consultam saldo e uso e geram imagens com a sua própria chave.",
     "eyebrow": "Router MCP",
     "title": "Um router e servidor MCP para ",
@@ -1084,7 +1084,7 @@
     "ctaButton": "Comece grátis"
   },
   "claudeApiGateway": {
-    "metaTitle": "Gateway API do Claude — Use o Claude com uma única API, sem conta na Anthropic",
+    "metaTitle": "Gateway API do Claude — sem conta Anthropic",
     "metaDescription": "Chame o Claude pelo endpoint nativo /v1/messages do MuiRouter ou pelo endpoint compatível com OpenAI. O Claude Code e o SDK da Anthropic funcionam trocando uma única Base URL — sem conta separada na Anthropic, pagamento por token a partir de um único saldo.",
     "eyebrow": "Gateway API do Claude",
     "title": "Use o Claude com ",
@@ -1150,7 +1150,7 @@
     "ctaButton": "Comece grátis"
   },
   "gptApiGateway": {
-    "metaTitle": "Gateway API do GPT — Use o GPT da OpenAI com uma única API",
+    "metaTitle": "Gateway API do GPT — uma única API",
     "metaDescription": "Chame o GPT pelos endpoints nativos OpenAI Chat Completions e Responses API do MuiRouter, com suporte ao Codex CLI. Uma única chave também alcança Claude, Gemini e Grok, cobrados por token a partir de um único saldo.",
     "eyebrow": "Gateway API do GPT",
     "title": "Use o GPT com ",
@@ -1216,7 +1216,7 @@
     "ctaButton": "Comece grátis"
   },
   "geminiApiGateway": {
-    "metaTitle": "Gateway API do Gemini — Use o Gemini do Google com uma única API",
+    "metaTitle": "Gateway API do Gemini — uma única API",
     "metaDescription": "Chame o Gemini pelo MuiRouter usando seu cliente compatível com OpenAI já existente ou passthrough nativo. O preço de contexto longo se adapta automaticamente, e uma única chave também alcança Claude, GPT e Grok.",
     "eyebrow": "Gateway API do Gemini",
     "title": "Use o Gemini com ",
@@ -1282,7 +1282,7 @@
     "ctaButton": "Comece grátis"
   },
   "grokApiGateway": {
-    "metaTitle": "Gateway API do Grok — Use o Grok da xAI com uma única API",
+    "metaTitle": "Gateway API do Grok — uma única API",
     "metaDescription": "Chame o chat e a geração de imagens e vídeo do Grok por meio de uma única API compatível com OpenAI. Não precisa do SDK da xAI — uma única chave também alcança Claude, GPT e Gemini, cobrados por token a partir de um único saldo.",
     "eyebrow": "Gateway API do Grok",
     "title": "Use o Grok com ",
@@ -1348,7 +1348,7 @@
     "ctaButton": "Comece grátis"
   },
   "muirouterVsOpenrouter": {
-    "metaTitle": "MuiRouter vs OpenRouter — Comparativo de preços, modelos, Edge deployment e MCP",
+    "metaTitle": "MuiRouter vs OpenRouter — preços, modelos",
     "metaDescription": "Compare o MuiRouter e o OpenRouter em modelo de preços, gateway Edge, roteamento multi-provedor, endpoints nativos, taxas BYOK e suporte nativo ao protocolo MCP.",
     "eyebrow": "MuiRouter vs OpenRouter",
     "title": "MuiRouter vs OpenRouter — ",
@@ -1466,7 +1466,7 @@
     "ctaButton": "Comece grátis"
   },
   "openrouterAlternatives": {
-    "metaTitle": "Alternativas ao OpenRouter — 4 gateways LLM comparados",
+    "metaTitle": "Alternativas ao OpenRouter — 4 gateways comparados",
     "metaDescription": "Procurando alternativas ao OpenRouter? Veja como o MuiRouter, o LiteLLM, o Portkey e o Cloudflare AI Gateway diferem em implantação, preços, catálogo de modelos e governança.",
     "eyebrow": "Alternativas ao OpenRouter",
     "title": "Alternativas ao OpenRouter — ",
@@ -1809,8 +1809,8 @@
     ]
   },
   "litellmVsMuirouter": {
-    "metaTitle": "LiteLLM vs MuiRouter — Proxy auto-hospedado vs gateway gerenciado",
-    "metaDescription": "Compare LiteLLM e MuiRouter em implantação, preço, compatibilidade e operação.",
+    "metaTitle": "LiteLLM vs MuiRouter — proxy ou gerenciado",
+    "metaDescription": "Compare LiteLLM e MuiRouter em implantação, preço, compatibilidade com OpenAI e esforço de operação: proxy auto-hospedado ou gateway gerenciado.",
     "eyebrow": "LiteLLM vs MuiRouter",
     "title": "LiteLLM vs MuiRouter — ",
     "titleHighlight": "comparados",

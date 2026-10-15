@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "高性能 AI 网关与 MCP (Model Context Protocol) 路由 | OpenRouter 替代方案",
-    "description": "高性能 AI API 网关与 MCP 路由器。零延迟开销无缝路由、负载均衡与缓存主流 LLM 及 MCP 服务器，统一按 token 计费。",
-    "ogTitle": "高性能 AI 网关与 MCP (Model Context Protocol) 路由 | OpenRouter 替代方案"
+    "title": "高性能 AI 网关与 MCP 路由",
+    "description": "高性能 AI API 网关与 MCP 路由器：零延迟开销无缝路由、负载均衡与缓存主流 LLM 及 MCP 服务器，一个 Key 调用 OpenAI、Claude、Gemini、Grok 等模型，按 token 统一计费，无订阅费、无席位费。",
+    "ogTitle": "高性能 AI 网关与 MCP 路由"
   },
   "header": {
     "login": "登录",
@@ -120,7 +120,7 @@
   "pricing": {
     "metadata": {
       "title": "AI 模型 API 价格——按 token 计费",
-      "description": "通过 MuiRouter AI API 路由，透明展示 OpenAI、Claude、Gemini、Grok 和 MiMo 模型的按 token 计费价格。无订阅，无席位费——用多少付多少。"
+      "description": "通过 MuiRouter AI API 路由，透明展示 OpenAI、Claude、Gemini、Grok 和 MiMo 等模型的按 token 单价，输入、缓存命中与输出分列。无订阅、无席位费，充值后按实际用量扣费，余额永不过期，价格与原厂公开价一致。"
     },
     "eyebrow": "按 token 计费的 AI 模型价格",
     "title": "AI 模型 API 价格",
@@ -188,7 +188,7 @@
   "blog": {
     "metadata": {
       "title": "博客",
-      "description": "AI 模型更新、实用发布解读与 MuiRouter 产品指南。"
+      "description": "AI 模型更新、实用发布解读与 MuiRouter 产品指南：新模型上线、价格调整与 API 可用性变化，以及这些变化对「一次接入、长期稳定」的开发团队意味着什么。每篇文章都给出可查证的来源与实测量级，并标注价格调整与上游停服的风险，供你评估。"
     },
     "eyebrow": "MuiRouter 博客",
     "title": "少点噪音，多点有用的 AI 模型更新",
@@ -692,7 +692,7 @@
   },
   "mcpServer": {
     "metaTitle": "什么是 MCP 服务器？开发者指南",
-    "metaDescription": "了解什么是 MCP 服务器、什么时候需要它，以及 MCP 服务器、MCP 路由器和 AI/LLM 网关的关系。MuiRouter 为 Claude、Cursor 和 Cline 托管 streamable-HTTP 的 MCP 服务器。",
+    "metaDescription": "了解什么是 MCP 服务器、什么时候需要它，以及 MCP 服务器、MCP 路由器和 AI/LLM 网关之间的关系。MuiRouter 为 Claude Desktop、Claude Code、Cursor 和 Cline 托管 streamable-HTTP 的 MCP 服务器，无需自建基础设施。",
     "eyebrow": "MCP 服务器指南",
     "title": "什么是 MCP 服务器？",
     "intro": "模型上下文协议（MCP）是一个开放标准，让 AI 应用通过统一的接口连接外部数据和工具。MCP 服务器就是通过该协议暴露这些工具的组件——本文介绍它是什么、什么时候需要它，以及 MCP 服务器、路由器和 AI 网关之间的关系。",
@@ -1015,7 +1015,7 @@
   },
   "mcpRouter": {
     "metaTitle": "MCP 路由——用一个 API 连接 Claude、Cursor 与 Cline",
-    "metaDescription": "MuiRouter 通过 streamable-HTTP 提供 MCP 路由：Claude Desktop、Claude Code、Cursor 和 Cline 用自己的 Key 路由 LLM 调用、查询余额与用量、生成图像。",
+    "metaDescription": "MuiRouter 通过 streamable-HTTP 提供 MCP 路由：Claude Desktop、Claude Code、Cursor 和 Cline 用自己的 Key 路由 LLM 调用、查询余额与用量、生成图像，无需自己维护任何基础设施。",
     "eyebrow": "MCP 路由",
     "title": "面向你 AI 客户端的 ",
     "titleHighlight": "MCP 路由与服务器",
@@ -1084,7 +1084,7 @@
     "ctaButton": "免费开始"
   },
   "claudeApiGateway": {
-    "metaTitle": "Claude API 网关——一个 API 调用 Claude，无需 Anthropic 账号",
+    "metaTitle": "Claude API 网关——一个 Key 调用 Claude",
     "metaDescription": "通过 MuiRouter 原生 /v1/messages 端点或 OpenAI 兼容端点调用 Claude。Claude Code 和 Anthropic SDK 只需改一个 Base URL 即可接入——无需单独的 Anthropic 账号，一个钱包按 token 计费。",
     "eyebrow": "Claude API 网关",
     "title": "一个 API ",
@@ -1217,7 +1217,7 @@
   },
   "geminiApiGateway": {
     "metaTitle": "Gemini API 网关——一个 API 调用 Google 的 Gemini",
-    "metaDescription": "用你现有的 OpenAI 兼容客户端或原生透传，通过 MuiRouter 调用 Gemini。长上下文自动按对应价格计费，同一个 Key 还能调用 Claude、GPT 和 Grok。",
+    "metaDescription": "用你现有的 OpenAI 兼容客户端或原生透传，通过 MuiRouter 调用 Gemini。长上下文自动按对应档位计费，同一个 Key 还能调用 Claude、GPT 和 Grok，所有消耗都在一个钱包里按 token 结算，无需海外账号。",
     "eyebrow": "Gemini API 网关",
     "title": "一个 API ",
     "titleHighlight": "调用 Gemini",
@@ -1283,7 +1283,7 @@
   },
   "grokApiGateway": {
     "metaTitle": "Grok API 网关——一个 API 调用 xAI 的 Grok",
-    "metaDescription": "通过一个 OpenAI 兼容 API 调用 Grok 的聊天、生图和生视频能力。不需要 xAI SDK——同一个 Key 还能调用 Claude、GPT 和 Gemini，一个钱包按 token 计费。",
+    "metaDescription": "通过一个 OpenAI 兼容 API 调用 Grok 的聊天、生图和生视频能力，不需要 xAI SDK。同一个 Key 还能调用 Claude、GPT 和 Gemini，所有消耗都在一个钱包里按 token 计费，随时可查用量明细，无需海外信用卡。",
     "eyebrow": "Grok API 网关",
     "title": "一个 API ",
     "titleHighlight": "调用 Grok",
@@ -1348,8 +1348,8 @@
     "ctaButton": "免费开始"
   },
   "muirouterVsOpenrouter": {
-    "metaTitle": "MuiRouter vs OpenRouter——定价、模型、边缘部署与 MCP 对比",
-    "metaDescription": "对比 MuiRouter 和 OpenRouter 的计价方式、边缘网关部署、多提供商切换、原生 provider 端点、BYOK 费率及原生 MCP 协议支持——数据均标注来源。",
+    "metaTitle": "MuiRouter vs OpenRouter：定价与模型对比",
+    "metaDescription": "对比 MuiRouter 和 OpenRouter 的计价方式、边缘网关部署、多提供商路由、原生 provider 端点、BYOK 费率与原生 MCP 协议支持：逐项列出差异并标注数据来源，方便你按自己的场景判断该选哪一个，而不是只看营销话术和排名。",
     "eyebrow": "MuiRouter vs OpenRouter",
     "title": "MuiRouter vs OpenRouter——",
     "titleHighlight": "正面对比",
@@ -1458,7 +1458,7 @@
   },
   "openrouterAlternatives": {
     "metaTitle": "OpenRouter 替代品——4 个 LLM 网关对比",
-    "metaDescription": "在找 OpenRouter 替代品？看看 MuiRouter、LiteLLM、Portkey 和 Cloudflare AI Gateway 在部署方式、计价、模型覆盖和治理功能上的差异。",
+    "metaDescription": "在找 OpenRouter 替代品？对比 MuiRouter、LiteLLM、Portkey 和 Cloudflare AI Gateway 在部署方式、计价、模型覆盖与治理能力上的差异，按你的使用场景挑合适的方案，并说明各自适合怎样的团队。",
     "eyebrow": "OpenRouter 替代品",
     "title": "OpenRouter 替代品——",
     "titleHighlight": "4 个对比",
@@ -1548,7 +1548,7 @@
   },
   "bestLlmGateway": {
     "metaTitle": "2026 最佳 LLM 网关——5 个选项对比",
-    "metaDescription": "在找最适合的 LLM 网关？看看 MuiRouter、OpenRouter、LiteLLM、Portkey 和 Cloudflare AI Gateway 在部署方式、计价、模型覆盖和适用场景上的真实差异。",
+    "metaDescription": "在找最适合的 LLM 网关？对比 MuiRouter、OpenRouter、LiteLLM、Portkey 和 Cloudflare AI Gateway 在部署方式、计价、模型覆盖与适用场景上的真实差异，给出选型建议，并说明各自的取舍，不做没有依据的排名。",
     "eyebrow": "2026 最佳 LLM 网关",
     "title": "2026 年 LLM 网关",
     "titleHighlight": "怎么选",
@@ -1725,7 +1725,7 @@
   "opencode": {
     "metadata": {
       "title": "在 opencode 中使用 MuiRouter",
-      "description": "把 MuiRouter 接入 opencode：一个 API Key 即可调用 Claude、GPT、Gemini、Grok、Kimi、MiMo 等全部模型，按 token 计费，无订阅。"
+      "description": "把 MuiRouter 接入 opencode：一个 API Key 即可调用 Claude、GPT、Gemini、Grok、Kimi、MiMo 等全部模型，按 token 计费、无订阅，配置只需改写 Base URL 一行，原生与 OpenAI 兼容端点都能用。"
     }
   },
   "opencodePage": {
@@ -1760,7 +1760,7 @@
   },
   "litellmVsMuirouter": {
     "metaTitle": "LiteLLM vs MuiRouter——自建代理与托管网关对比",
-    "metaDescription": "对比 LiteLLM 与 MuiRouter 的部署方式、计价、OpenAI 兼容性与运维负担——自建代理 vs 托管、OpenAI 兼容、带原生 provider 端点的网关。",
+    "metaDescription": "对比 LiteLLM 与 MuiRouter 的部署方式、计价、OpenAI 兼容性与运维负担：自建代理还是托管服务，是否需要自己维护基础设施，以及原生 provider 端点、MCP 支持与故障排查成本上的差异，帮你判断哪种方式更省心、更划算。",
     "eyebrow": "LiteLLM vs MuiRouter",
     "title": "LiteLLM vs MuiRouter——",
     "titleHighlight": "对比",

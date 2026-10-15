@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "AI Gateway ความเร็วสูง & MCP (Model Context Protocol) Router | ทางเลือกแทน OpenRouter",
+    "title": "AI Gateway ความเร็วสูง & MCP Router",
     "description": "AI API Gateway และเราเตอร์ MCP ประสิทธิภาพสูง กำหนดเส้นทาง กระจายโหลด และแคช LLM รวมถึงเซิร์ฟเวอร์ MCP อย่างราบรื่นโดยไม่มีค่าความหน่วงส่วนเกิน",
-    "ogTitle": "AI Gateway ความเร็วสูง & MCP (Model Context Protocol) Router | ทางเลือกแทน OpenRouter"
+    "ogTitle": "AI Gateway ความเร็วสูง & MCP Router"
   },
   "header": {
     "login": "เข้าสู่ระบบ",
@@ -188,7 +188,7 @@
   "blog": {
     "metadata": {
       "title": "บล็อก",
-      "description": "อัปเดตโมเดล AI บันทึกการเปิดตัวที่ใช้งานได้จริง และคำแนะนำผลิตภัณฑ์ MuiRouter"
+      "description": "อัปเดตโมเดล AI บันทึกการเปิดตัวที่ใช้งานได้จริง และคำแนะนำผลิตภัณฑ์ MuiRouter ว่าการเปิดตัวแต่ละรุ่นหมายถึงอะไรสำหรับทีมที่ต้องการการเชื่อมต่อที่มั่นคง"
     },
     "eyebrow": "บล็อก MuiRouter",
     "title": "อัปเดตโมเดล AI แบบไม่รก",
@@ -686,7 +686,7 @@
   },
   "mcp": {
     "metadata": {
-      "title": "MCP Router & Server: คู่มือการกำหนดเส้นทางหลายเซิร์ฟเวอร์และการเชื่อมต่อ",
+      "title": "MCP Router & Server — คู่มือกำหนดเส้นทาง",
       "description": "เชื่อมต่อ Claude Desktop, Claude Code, Cursor และ Cline เข้ากับ MCP Router ของ MuiRouter ผ่าน streamable-HTTP รองรับมาตรฐานโปรโตคอล MCP แบบ Dual-Era (2026-07-28 และ legacy) พร้อมการรวมหลายเซิร์ฟเวอร์"
     }
   },
@@ -862,7 +862,7 @@
     "ctaButton": "เริ่มฟรี"
   },
   "llmRouter": {
-    "metaTitle": "เราเตอร์ LLM — API เดียวสำหรับ OpenAI, Claude และ Gemini",
+    "metaTitle": "เราเตอร์ LLM — API เดียว ทุกโมเดล",
     "metaDescription": "MuiRouter คือเราเตอร์ LLM ที่รวม OpenAI, Anthropic Claude, Google Gemini, xAI Grok และ MiMo ไว้หลัง API ที่รองรับ OpenAI ตัวเดียว สลับโมเดลด้วยการเปลี่ยนสตริงเดียว คิดเงินตามโทเค็น ไม่ต้องสมัครสมาชิก",
     "eyebrow": "เราเตอร์ LLM",
     "title": "เราเตอร์ LLM เดียวสำหรับ",
@@ -1014,7 +1014,7 @@
     "ctaButton": "เริ่มฟรี"
   },
   "mcpRouter": {
-    "metaTitle": "เราเตอร์ MCP — เชื่อมต่อ Claude, Cursor และ Cline ด้วย API เดียว",
+    "metaTitle": "MCP Router — เชื่อมต่อ Claude, Cursor, Cline",
     "metaDescription": "MuiRouter ให้บริการเราเตอร์ MCP แบบ streamable-HTTP: Claude Desktop, Claude Code, Cursor และ Cline route การเรียก LLM ตรวจสอบยอดเงินและการใช้งาน และสร้างรูปภาพด้วยคีย์ของคุณเอง",
     "eyebrow": "เราเตอร์ MCP",
     "title": "เราเตอร์และเซิร์ฟเวอร์ MCP สำหรับ",
@@ -1084,7 +1084,7 @@
     "ctaButton": "เริ่มฟรี"
   },
   "claudeApiGateway": {
-    "metaTitle": "Claude API Gateway — ใช้ Claude ผ่าน API เดียว ไม่ต้องมีบัญชี Anthropic",
+    "metaTitle": "Claude API Gateway — ไม่ต้องมีบัญชี Anthropic",
     "metaDescription": "เรียก Claude ผ่านเอนด์พอยต์ดั้งเดิม /v1/messages ของ MuiRouter หรือเอนด์พอยต์ที่รองรับ OpenAI Claude Code และ Anthropic SDK ใช้งานได้แค่เปลี่ยน Base URL เดียว — ไม่ต้องมีบัญชี Anthropic แยก จ่ายตามโทเค็นจากยอดเงินเดียว",
     "eyebrow": "Claude API Gateway",
     "title": "ใช้ Claude ผ่าน",
@@ -1216,7 +1216,7 @@
     "ctaButton": "เริ่มฟรี"
   },
   "geminiApiGateway": {
-    "metaTitle": "Gemini API Gateway — ใช้ Gemini ของ Google ผ่าน API เดียว",
+    "metaTitle": "Gemini API Gateway — ใช้ Gemini ผ่าน API เดียว",
     "metaDescription": "เรียก Gemini ผ่าน MuiRouter ด้วยไคลเอนต์ที่รองรับ OpenAI ที่คุณมีอยู่แล้ว หรือผ่าน native passthrough ราคาสำหรับ context ยาวปรับอัตโนมัติ และคีย์เดียวยังเรียก Claude, GPT และ Grok ได้",
     "eyebrow": "Gemini API Gateway",
     "title": "ใช้ Gemini ผ่าน",
@@ -1348,7 +1348,7 @@
     "ctaButton": "เริ่มฟรี"
   },
   "muirouterVsOpenrouter": {
-    "metaTitle": "MuiRouter vs OpenRouter — เปรียบเทียบราคา โมเดล การดีพลอย Edge และ MCP",
+    "metaTitle": "MuiRouter vs OpenRouter — ราคาและโมเดล",
     "metaDescription": "เปรียบเทียบ MuiRouter และ OpenRouter ในด้านโมเดลราคา การติดตั้ง Edge Gateway การกำหนดเส้นทางหลายผู้ให้บริการ เอนด์พอยต์ดั้งเดิม ค่าธรรมเนียม BYOK และการรองรับโปรโตคอล MCP",
     "eyebrow": "MuiRouter vs OpenRouter",
     "title": "MuiRouter vs OpenRouter — ",
@@ -1777,8 +1777,8 @@
     ]
   },
   "litellmVsMuirouter": {
-    "metaTitle": "LiteLLM vs MuiRouter — Self-Hosted vs Managed",
-    "metaDescription": "เปรียบเทียบ LiteLLM และ MuiRouter ด้านการติดตั้ง ราคา ความเข้ากันได้ และการดำเนินงาน",
+    "metaTitle": "LiteLLM vs MuiRouter — เลือกแบบไหนดี",
+    "metaDescription": "เปรียบเทียบ LiteLLM และ MuiRouter ด้านการติดตั้ง ราคา ความเข้ากันได้กับ OpenAI และภาระการดูแลระบบ ระหว่างพร็อกซีที่โฮสต์เองกับเกตเวย์แบบจัดการให้",
     "eyebrow": "LiteLLM vs MuiRouter",
     "title": "LiteLLM vs MuiRouter — ",
     "titleHighlight": "เทียบกัน",
