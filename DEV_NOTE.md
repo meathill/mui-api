@@ -292,7 +292,7 @@ D1_ERROR: Network connection lost.
 
 **私有内容隔离**：Dashboard、Admin、OAuth 与相关 API 必须保持 request-time，页面用 `export const dynamic = 'force-dynamic'`，Route Handler 保留 `connection()`（该 API 不依赖 cacheComponents）。不能给用户内容加任何共享缓存。
 
-**OpenNext**：incremental cache 自 2026-09-12（`e7f4785`）起为 `dummy`，R2 `site-cache` bucket 已摘除——流量小、D1 查询 <1ms 的前提下，dummy 的额外回源成本可忽略，省掉 R2 运维。代价：ISR 无 durable 持久化，新 CMS slug 在下次构建前每次按需渲染，pricing/models 快照每 isolate 冷启动重查一次 D1。恢复条件：博客发布频率上去或回源 CPU 成账单大头时，接回 `withRegionalCache(r2IncrementalCache, { mode: 'long-lived' })` + `NEXT_INC_CACHE_R2_BUCKET` 即可。`queue: doQueue` 在 dummy 下实际空转，保留只为恢复 R2 时即用。不配 `tagCache`：代码里没有任何 `revalidateTag` / `revalidatePath` 调用，配上只会给每次缓存查找多一次 D1 往返，而且远端 `tag-cache` 库里并没有 `revalidations` 表（配上会每次报错）。将来真要做「后台一键刷新缓存」，需要同时加回 `NEXT_TAG_CACHE_D1` binding 并建好该表。远端 D1 资源本身不删除。
+**OpenNext**：incremental cache **2026-09-12（`e7f4785`）曾改为 `dummy`，2026-10-15（issue #14）已接回 R2**。dummy 期间的代价比当时评估的更重：预渲染 HTML 不从边缘出，**每个请求都在 Worker 里重新渲染**，实测 `/mcp-router`、`/ai-router` TTFB 2–3s、`x-nextjs-cache` 恒为 `MISS`，移动端 LCP 因此到 5s（Core Web Vitals 直接失败）。现在配置为 `withRegionalCache(r2IncrementalCache, { mode: 'long-lived' })` + `wrangler.jsonc` 的 `NEXT_INC_CACHE_R2_BUCKET` → `site-cache`：预渲染产物先走 Cache API（区域级），未命中再读 R2，都不命中才在 Worker 渲染并回写。回退方式：把 `incrementalCache` 改回 `'dummy'` 并摘掉 R2 绑定。`queue: doQueue` 只在有 durable 增量缓存时才有意义。不配 `tagCache`：代码里没有任何 `revalidateTag` / `revalidatePath` 调用，配上只会给每次缓存查找多一次 D1 往返，而且远端 `tag-cache` 库里并没有 `revalidations` 表（配上会每次报错）。将来真要做「后台一键刷新缓存」，需要同时加回 `NEXT_TAG_CACHE_D1` binding 并建好该表。远端 D1 资源本身不删除。
 
 **Workers Cache（2026-10-03 已评估，不开）**：`workers/cache` 要求 `wrangler.jsonc` 配 `cache.enabled` + 响应带 `Cache-Control`，两边 Worker 都没配，是有意为之——app 全是带 `Authorization` 的 POST/SSE，按文档自动 BYPASS，命中率为零，开了只多交请求费；dashboard 的静态资源目前不经过 Worker、免费，开了反而开始计费，而 `force-dynamic` 页本来也不发可缓存的 `Cache-Control`。唯一可能受益的是博客 OG 图（`connection()` 动态、每次重算），但它是单 entrypoint 下的个例，不值得为它全局开缓存。
 
@@ -309,6 +309,17 @@ D1_ERROR: Network connection lost.
 - 营销文案不再硬编码：`/mcp` 页此前对全部语言硬编码中文，已抽到 `mcpPage` namespace 并补齐 8 语言（代码块/endpoint/curl 保持字面，动态值用 ICU 占位符 `{url}`/`{header}`/`{path}`）。
 
 **度量**：上线后 28 天窗口在 GSC 看 `ai router`/`router ai` 排名上行、Material UI 式曝光下降、承载页 CTR 上升（按 `dimensions=query,page` 排查蚕食）。
+
+### 无译文页面的 canonical 与 meta 文案约束（issue #15）
+
+**背景**：Bing 判 muirouter.com「大量同文不同 URL」——同一 slug 在 7 个语言前缀下渲染同一份英文内容且各自自指 canonical；法律页（about/privacy/terms/contact）与模型目录只有 en+zh 文案，其余 6 语言同样自指。同时 Bing 报首页 title 过长、38 个页面描述 <120 字符。
+
+**决策**：
+- `buildMetadata` 新增 `translations`（该 path 真正有译文的语言集合）。无译文的语言页**保持 200 可访问**（正文照旧回退 + 提示条），但 canonical / `og:url` / `og:locale` 收敛到**原文语言版本**（`getPrimaryLocale`：按 `config.locales` 顺序取第一个，en 优先，中文先行文章落到 zh），hreflang 只列有译文的语言，`x-default` 指向主语言。sitemap 同样只为有译文的语言收录 URL。
+- 译文集合的来源：博客用 `LocalizedBlogPost.availableLocales`（由同 slug 文档分组推导），法律页用 `legal-content.ts` 的 `getLegalDocLocales()`（由 MDX loader 表推导，加了 ja 译本就自动生效），contact / models 用 `BILINGUAL_CONTENT_LOCALES`。
+- **新增语言内容时**：`about`/`contacts` 等只有中英两套的页面，文案放在 `src/lib/page-meta.ts`（页面与测试共用一份来源），并把该语言加进对应常量；否则它会继续通过 canonical 指向英文版。
+- **文案硬约束**（`src/lib/meta-copy.test.ts` 会拦）：描述 ≥120 字符（Bing 判过短的阈值，CJK 也按字符数算；写入目标 120–160）、标题含 layout 模板 ` | MuiRouter` 后显示宽度 ≤65（CJK 按 2 计）、标题不再自带 `- MuiRouter`（品牌重复）。测试按命名约定自动发现 meta 面：顶层 `metadata` + 各 namespace 的 `metaTitle`/`metaDescription` 或 `.metadata.{title,description}`——新页面照这个约定写就自动被覆盖。
+- 博客描述来自 CMS articles 的 `summary` 字段（代码侧改不了，see `cms-blog-client.ts`），压缩/扩写要在 Payload 后台做；文章标题同理，且各语言共用同一份原文标题（由 canonical 收敛，不再重复收录）。
 
 ### IndexNow 手动提交脚本（Bing 重新发现，issue #4）
 

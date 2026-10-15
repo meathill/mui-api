@@ -39,6 +39,13 @@
   "images": {
     "binding": "IMAGES"
   },
+  "r2_buckets": [
+    {
+      // OpenNext 增量缓存：预渲染 HTML / ISR 产物落在这里，issue #14 重新接回（见 open-next.config.ts）。
+      "binding": "NEXT_INC_CACHE_R2_BUCKET",
+      "bucket_name": "site-cache"
+    }
+  ],
   "migrations": [
     {
       "tag": "v1",
