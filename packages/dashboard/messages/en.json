@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "Fast AI Gateway & Model Context Protocol (MCP) Router | OpenRouter Alternative",
+    "title": "Fast AI Gateway & MCP Router",
     "description": "High-performance AI API gateway and MCP router. Seamlessly route, load-balance, and cache LLMs and MCP servers with zero latency overhead.",
-    "ogTitle": "Fast AI Gateway & Model Context Protocol (MCP) Router | OpenRouter Alternative"
+    "ogTitle": "Fast AI Gateway & MCP Router"
   },
   "header": {
     "login": "Login",
@@ -188,7 +188,7 @@
   "blog": {
     "metadata": {
       "title": "Blog",
-      "description": "AI model updates, practical launch notes, and MuiRouter product guidance."
+      "description": "AI model updates, practical launch notes, and MuiRouter product guidance — what each new model means for teams that want one stable integration."
     },
     "eyebrow": "MuiRouter Blog",
     "title": "AI model updates, without the noise",
@@ -686,7 +686,7 @@
   },
   "mcp": {
     "metadata": {
-      "title": "MCP Router & Server: Multi-Server Routing & Integration Guide",
+      "title": "MCP Router & Server — Multi-Server Routing Guide",
       "description": "Connect Claude Desktop, Claude Code, Cursor, and Cline to the MuiRouter MCP Router over streamable-HTTP. Dual-era MCP protocol support (2026-07-28 & legacy), multi-server aggregation, and balance/tools routing."
     }
   },
@@ -1014,7 +1014,7 @@
     "ctaButton": "Start free"
   },
   "mcpRouter": {
-    "metaTitle": "MCP Router — Connect Claude, Cursor & Cline to One API",
+    "metaTitle": "MCP Router — Connect Claude, Cursor & Cline",
     "metaDescription": "MuiRouter exposes an MCP router over streamable-HTTP: Claude Desktop, Claude Code, Cursor and Cline route LLM calls, query balance and usage, and generate images with your own key.",
     "eyebrow": "MCP Router",
     "title": "An MCP router and server for ",
@@ -1084,7 +1084,7 @@
     "ctaButton": "Start free"
   },
   "claudeApiGateway": {
-    "metaTitle": "Claude API Gateway — Use Claude via One API, No Anthropic Account Needed",
+    "metaTitle": "Claude API Gateway — One Key, No Anthropic Account",
     "metaDescription": "Call Claude through MuiRouter's native /v1/messages endpoint or the OpenAI-compatible endpoint. Claude Code and the Anthropic SDK work by changing one Base URL — no separate Anthropic account, pay per token from one wallet.",
     "eyebrow": "Claude API Gateway",
     "title": "Use Claude via ",
@@ -1348,7 +1348,7 @@
     "ctaButton": "Start free"
   },
   "muirouterVsOpenrouter": {
-    "metaTitle": "MuiRouter vs OpenRouter — Pricing, Models, Deployment & MCP Comparison",
+    "metaTitle": "MuiRouter vs OpenRouter — Pricing & Models",
     "metaDescription": "Compare MuiRouter and OpenRouter across pricing models, edge deployment, multi-provider routing, native endpoints, BYOK fees, and native MCP protocol support.",
     "eyebrow": "MuiRouter vs OpenRouter",
     "title": "MuiRouter vs OpenRouter — ",
@@ -1803,7 +1803,7 @@
     ]
   },
   "litellmVsMuirouter": {
-    "metaTitle": "LiteLLM vs MuiRouter — Self-Hosted vs Managed LLM Gateway",
+    "metaTitle": "LiteLLM vs MuiRouter — Managed vs Self-Hosted",
     "metaDescription": "Compare LiteLLM and MuiRouter on deployment model, pricing, OpenAI compatibility and operational overhead — self-hosted proxy you run vs managed, OpenAI-compatible gateway with native provider endpoints.",
     "eyebrow": "LiteLLM vs MuiRouter",
     "title": "LiteLLM vs MuiRouter — ",

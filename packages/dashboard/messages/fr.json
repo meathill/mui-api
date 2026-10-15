@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "Passerelle IA Rapide & Routeur MCP (Model Context Protocol) | Alternative à OpenRouter",
+    "title": "Passerelle IA rapide & routeur MCP",
     "description": "Passerelle API IA et routeur MCP haute performance. Acheminez, équilibrez la charge et mettez en cache les LLM et serveurs MCP sans surcharge de latence.",
-    "ogTitle": "Passerelle IA Rapide & Routeur MCP (Model Context Protocol) | Alternative à OpenRouter"
+    "ogTitle": "Passerelle IA rapide & routeur MCP"
   },
   "header": {
     "login": "Connexion",
@@ -119,7 +119,7 @@
   },
   "pricing": {
     "metadata": {
-      "title": "Tarification des API de modèles IA — paiement au token",
+      "title": "Tarification des API de modèles IA",
       "description": "Tarification transparente au token pour les modèles OpenAI, Claude, Gemini, Grok et MiMo via le routeur d'API IA MuiRouter. Sans abonnement, sans licence par siège — payez uniquement ce que vous utilisez."
     },
     "eyebrow": "Tarification au token des modèles IA",
@@ -188,7 +188,7 @@
   "blog": {
     "metadata": {
       "title": "Blog",
-      "description": "Actualités des modèles IA, notes de lancement pratiques et conseils produit MuiRouter."
+      "description": "Actualités des modèles IA, notes de lancement pratiques et conseils produit MuiRouter : ce que chaque nouveau modèle change pour une intégration unique et stable."
     },
     "eyebrow": "Blog MuiRouter",
     "title": "Les mises à jour IA, sans le bruit",
@@ -686,7 +686,7 @@
   },
   "mcp": {
     "metadata": {
-      "title": "Routeur & Serveur MCP : Guide de Routage Multi-Serveurs et d'Intégration",
+      "title": "Routeur & serveur MCP — guide de routage",
       "description": "Connectez Claude Desktop, Claude Code, Cursor et Cline au routeur MCP MuiRouter via streamable-HTTP. Support protocolaire dual-era (2026-07-28 et legacy), agrégation multi-serveurs et outils intégrés."
     }
   },
@@ -862,7 +862,7 @@
     "ctaButton": "Commencer gratuitement"
   },
   "llmRouter": {
-    "metaTitle": "Routeur LLM — une seule API pour OpenAI, Claude et Gemini",
+    "metaTitle": "Routeur LLM — une API, tous les modèles",
     "metaDescription": "MuiRouter est un routeur LLM qui unifie OpenAI, Anthropic Claude, Google Gemini, xAI Grok et MiMo derrière une seule API compatible OpenAI. Changez de modèle en modifiant une seule chaîne, payez au token, sans abonnement.",
     "eyebrow": "Routeur LLM",
     "title": "Un seul routeur LLM pour ",
@@ -1014,7 +1014,7 @@
     "ctaButton": "Commencer gratuitement"
   },
   "mcpRouter": {
-    "metaTitle": "Routeur MCP — Connectez Claude, Cursor et Cline à une seule API",
+    "metaTitle": "Routeur MCP — Claude, Cursor et Cline, une API",
     "metaDescription": "MuiRouter expose un routeur MCP en streamable-HTTP : Claude Desktop, Claude Code, Cursor et Cline routent les appels LLM, consultent solde et utilisation et génèrent des images avec votre propre clé.",
     "eyebrow": "Routeur MCP",
     "title": "Un routeur et serveur MCP pour ",
@@ -1084,7 +1084,7 @@
     "ctaButton": "Commencer gratuitement"
   },
   "claudeApiGateway": {
-    "metaTitle": "Passerelle API Claude — Utilisez Claude via une seule API, sans compte Anthropic",
+    "metaTitle": "Passerelle API Claude — sans compte Anthropic",
     "metaDescription": "Appelez Claude via l'endpoint natif /v1/messages de MuiRouter ou l'endpoint compatible OpenAI. Claude Code et le SDK Anthropic fonctionnent en changeant une seule Base URL — sans compte Anthropic séparé, paiement au token depuis un seul solde.",
     "eyebrow": "Passerelle API Claude",
     "title": "Utilisez Claude via ",
@@ -1150,7 +1150,7 @@
     "ctaButton": "Commencer gratuitement"
   },
   "gptApiGateway": {
-    "metaTitle": "Passerelle API GPT — Utilisez le GPT d'OpenAI via une seule API",
+    "metaTitle": "Passerelle API GPT — une seule API",
     "metaDescription": "Appelez GPT via les endpoints natifs OpenAI Chat Completions et Responses API de MuiRouter, avec prise en charge de Codex CLI. Une seule clé donne aussi accès à Claude, Gemini et Grok, facturés au token depuis un seul solde.",
     "eyebrow": "Passerelle API GPT",
     "title": "Utilisez GPT via ",
@@ -1216,7 +1216,7 @@
     "ctaButton": "Commencer gratuitement"
   },
   "geminiApiGateway": {
-    "metaTitle": "Passerelle API Gemini — Utilisez le Gemini de Google via une seule API",
+    "metaTitle": "Passerelle API Gemini — une seule API",
     "metaDescription": "Appelez Gemini via MuiRouter avec votre client compatible OpenAI existant ou en passthrough natif. La tarification longue contexte s'adapte automatiquement, et une seule clé donne aussi accès à Claude, GPT et Grok.",
     "eyebrow": "Passerelle API Gemini",
     "title": "Utilisez Gemini via ",
@@ -1282,7 +1282,7 @@
     "ctaButton": "Commencer gratuitement"
   },
   "grokApiGateway": {
-    "metaTitle": "Passerelle API Grok — Utilisez le Grok de xAI via une seule API",
+    "metaTitle": "Passerelle API Grok — une seule API",
     "metaDescription": "Appelez le chat, la génération d'images et de vidéos de Grok via une seule API compatible OpenAI. Aucun SDK xAI requis — une seule clé donne aussi accès à Claude, GPT et Gemini, facturés au token depuis un seul solde.",
     "eyebrow": "Passerelle API Grok",
     "title": "Utilisez Grok via ",
@@ -1348,7 +1348,7 @@
     "ctaButton": "Commencer gratuitement"
   },
   "muirouterVsOpenrouter": {
-    "metaTitle": "MuiRouter vs OpenRouter — Comparatif tarifs, modèles, déploiement Edge et MCP",
+    "metaTitle": "MuiRouter vs OpenRouter — prix et modèles",
     "metaDescription": "Comparez MuiRouter et OpenRouter sur la tarification, le déploiement sur passerelle Edge, le routage multi-fournisseurs, les endpoints natifs, les frais BYOK et le support MCP natif.",
     "eyebrow": "MuiRouter vs OpenRouter",
     "title": "MuiRouter vs OpenRouter — ",
@@ -1466,7 +1466,7 @@
     "ctaButton": "Commencer gratuitement"
   },
   "openrouterAlternatives": {
-    "metaTitle": "Alternatives à OpenRouter — 4 passerelles LLM comparées",
+    "metaTitle": "Alternatives à OpenRouter — comparatif",
     "metaDescription": "Vous cherchez des alternatives à OpenRouter ? Découvrez en quoi MuiRouter, LiteLLM, Portkey et Cloudflare AI Gateway diffèrent sur le déploiement, la tarification, le catalogue de modèles et la gouvernance.",
     "eyebrow": "Alternatives à OpenRouter",
     "title": "Alternatives à OpenRouter — ",
@@ -1573,7 +1573,7 @@
     "ctaButton": "Commencer gratuitement"
   },
   "bestLlmGateway": {
-    "metaTitle": "Meilleure passerelle LLM en 2026 — 5 options comparées",
+    "metaTitle": "Meilleure passerelle LLM en 2026",
     "metaDescription": "Vous cherchez la meilleure passerelle LLM ? Découvrez en quoi MuiRouter, OpenRouter, LiteLLM, Portkey et Cloudflare AI Gateway diffèrent réellement sur le déploiement, la tarification, le catalogue de modèles et le cas d'usage.",
     "eyebrow": "Meilleure passerelle LLM 2026",
     "title": "La meilleure passerelle LLM en ",
@@ -1809,8 +1809,8 @@
     ]
   },
   "litellmVsMuirouter": {
-    "metaTitle": "LiteLLM vs MuiRouter — Proxy auto-hébergé vs passerelle managée",
-    "metaDescription": "Comparez LiteLLM et MuiRouter sur le déploiement, le prix, la compatibilité et l'exploitation.",
+    "metaTitle": "LiteLLM vs MuiRouter — proxy ou managé",
+    "metaDescription": "Comparez LiteLLM et MuiRouter sur le déploiement, le prix, la compatibilité OpenAI et l'exploitation : proxy auto-hébergé ou passerelle managée avec endpoints natifs.",
     "eyebrow": "LiteLLM vs MuiRouter",
     "title": "LiteLLM vs MuiRouter — ",
     "titleHighlight": "comparés",

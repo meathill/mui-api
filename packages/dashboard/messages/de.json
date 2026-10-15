@@ -1,8 +1,8 @@
 {
   "metadata": {
-    "title": "Schnelles KI-Gateway & MCP (Model Context Protocol) Router | OpenRouter Alternative",
+    "title": "Schnelles KI-Gateway & MCP-Router",
     "description": "Hochleistungsfähiges KI-API-Gateway und MCP-Router. Nahtloses Routing, Lastenausgleich und Caching für LLMs und MCP-Server ohne Latenz-Overhead.",
-    "ogTitle": "Schnelles KI-Gateway & MCP (Model Context Protocol) Router | OpenRouter Alternative"
+    "ogTitle": "Schnelles KI-Gateway & MCP-Router"
   },
   "header": {
     "login": "Anmelden",
@@ -188,7 +188,7 @@
   "blog": {
     "metadata": {
       "title": "Blog",
-      "description": "KI-Modellupdates, praktische Launch-Notizen und MuiRouter Produktleitfäden."
+      "description": "KI-Modellupdates, praktische Launch-Notizen und MuiRouter-Produktleitfäden: was jedes neue Modell für Teams mit einer stabilen Integration bedeutet."
     },
     "eyebrow": "MuiRouter Blog",
     "title": "KI-Modellupdates ohne Rauschen",
@@ -686,7 +686,7 @@
   },
   "mcp": {
     "metadata": {
-      "title": "MCP-Router & Server: Multi-Server Routing & Integrationsleitfaden",
+      "title": "MCP-Router & -Server — Routing-Leitfaden",
       "description": "Verbinde Claude Desktop, Claude Code, Cursor und Cline über streamable-HTTP mit dem MuiRouter MCP-Router. Dual-Era MCP-Protokollunterstützung (2026-07-28 & Legacy), Multi-Server-Aggregation und Guthaben-/Tool-Routing."
     }
   },
@@ -1014,7 +1014,7 @@
     "ctaButton": "Kostenlos starten"
   },
   "mcpRouter": {
-    "metaTitle": "MCP-Router — Claude, Cursor und Cline über eine API verbinden",
+    "metaTitle": "MCP-Router — Claude, Cursor und Cline verbinden",
     "metaDescription": "MuiRouter stellt einen MCP-Router über streamable-HTTP bereit: Claude Desktop, Claude Code, Cursor und Cline routen LLM-Aufrufe, fragen Guthaben und Nutzung ab und erzeugen Bilder mit Ihrem eigenen Schlüssel.",
     "eyebrow": "MCP-Router",
     "title": "Ein MCP-Router und -Server für ",
@@ -1084,7 +1084,7 @@
     "ctaButton": "Kostenlos starten"
   },
   "claudeApiGateway": {
-    "metaTitle": "Claude-API-Gateway — Claude über eine API nutzen, ganz ohne Anthropic-Konto",
+    "metaTitle": "Claude-API-Gateway — ohne Anthropic-Konto",
     "metaDescription": "Rufen Sie Claude über den nativen /v1/messages-Endpunkt von MuiRouter oder den OpenAI-kompatiblen Endpunkt auf. Claude Code und das Anthropic-SDK funktionieren durch Ändern einer einzigen Base URL — ohne separates Anthropic-Konto, Abrechnung pro Token aus einem Guthaben.",
     "eyebrow": "Claude-API-Gateway",
     "title": "Claude nutzen über ",
@@ -1216,7 +1216,7 @@
     "ctaButton": "Kostenlos starten"
   },
   "geminiApiGateway": {
-    "metaTitle": "Gemini-API-Gateway — Googles Gemini über eine API nutzen",
+    "metaTitle": "Gemini-API-Gateway — eine API genügt",
     "metaDescription": "Rufen Sie Gemini über MuiRouter mit Ihrem bestehenden OpenAI-kompatiblen Client oder nativem Passthrough auf. Long-Context-Preise passen sich automatisch an, und ein Schlüssel erreicht auch Claude, GPT und Grok.",
     "eyebrow": "Gemini-API-Gateway",
     "title": "Gemini nutzen über ",
@@ -1348,7 +1348,7 @@
     "ctaButton": "Kostenlos starten"
   },
   "muirouterVsOpenrouter": {
-    "metaTitle": "MuiRouter vs OpenRouter — Vergleich von Preisen, Modellen, Edge-Deployment & MCP",
+    "metaTitle": "MuiRouter vs OpenRouter — Preise & Modelle",
     "metaDescription": "Vergleichen Sie MuiRouter und OpenRouter bei Preismodell, Edge-Gateway-Bereitstellung, Multi-Provider-Routing, nativen Endpunkten, BYOK-Gebühren und nativer MCP-Protokollunterstützung.",
     "eyebrow": "MuiRouter vs OpenRouter",
     "title": "MuiRouter vs OpenRouter — ",
@@ -1806,8 +1806,8 @@
     ]
   },
   "litellmVsMuirouter": {
-    "metaTitle": "LiteLLM vs MuiRouter — Selbst gehostet vs verwaltet",
-    "metaDescription": "Vergleiche LiteLLM und MuiRouter bei Deployment, Preis, Kompatibilität und Betrieb.",
+    "metaTitle": "LiteLLM vs MuiRouter — welche Lösung?",
+    "metaDescription": "Vergleiche LiteLLM und MuiRouter bei Deployment, Preis, OpenAI-Kompatibilität und Betriebsaufwand: selbst gehosteter Proxy oder managed Gateway.",
     "eyebrow": "LiteLLM vs MuiRouter",
     "title": "LiteLLM vs MuiRouter — ",
     "titleHighlight": "im Vergleich",
