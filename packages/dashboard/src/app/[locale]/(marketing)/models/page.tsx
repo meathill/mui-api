@@ -5,7 +5,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { type Model, models } from '@/db/app-schema';
 import { getDb } from '@/lib/db';
 import { PRICING_MODELS_TAG, PUBLIC_CONTENT_REVALIDATE_SECONDS } from '@/lib/public-cache';
-import { buildMetadata, getResolvedLocale } from '@/lib/seo';
+import { buildMetadata, BILINGUAL_CONTENT_LOCALES, getResolvedLocale } from '@/lib/seo';
 import { ModelsCatalog } from './models-catalog';
 
 export const dynamic = 'force-dynamic';
@@ -21,6 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         ? 'MuiRouter 支持的全部模型，按厂商分组，含原厂定价与上下文信息。'
         : 'Full catalog of models supported by MuiRouter, grouped by provider with list pricing.',
     locale: resolvedLocale,
+    // 页面文案只有中英两套：其余语言页 canonical 指向英文版。
+    translations: BILINGUAL_CONTENT_LOCALES,
   });
 }
 

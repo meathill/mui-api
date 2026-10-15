@@ -24,6 +24,7 @@ describe('sitemap', () => {
       slug: 'codex-context-drift',
       href: '/blog/codex-context-drift',
       publishedAt: '2026-07-02',
+      locales: ['en', 'zh'],
     },
   ]);
   const urls = entries.map((entry) => entry.url);
@@ -85,6 +86,32 @@ describe('sitemap', () => {
       expect(langs).toContain(locale);
     }
     expect(langs).toContain('x-default');
+  });
+
+  it('博客文章只为有译文的语言收录 URL，hreflang 同步收敛（issue #15）', () => {
+    expect(urls).toContain('https://muirouter.com/blog/codex-context-drift');
+    expect(urls).toContain('https://muirouter.com/zh/blog/codex-context-drift');
+    for (const locale of ['fr', 'es', 'pt', 'de', 'th', 'ja']) {
+      expect(urls).not.toContain(`https://muirouter.com/${locale}/blog/codex-context-drift`);
+    }
+
+    const zhPost = entries.find((entry) => entry.url === 'https://muirouter.com/zh/blog/codex-context-drift');
+    const langs = Object.keys(zhPost?.alternates?.languages ?? {});
+    expect(langs).toEqual(['en', 'zh', 'x-default']);
+    expect(zhPost?.alternates?.languages?.['x-default']).toBe('https://muirouter.com/blog/codex-context-drift');
+  });
+
+  it('法律与联系页只收录 en+zh，其余语言不进 sitemap（issue #15）', () => {
+    for (const path of ['/about', '/contact', '/privacy', '/terms']) {
+      expect(urls).toContain(`https://muirouter.com${path}`);
+      expect(urls).toContain(`https://muirouter.com/zh${path}`);
+      for (const locale of ['fr', 'es', 'pt', 'de', 'th', 'ja']) {
+        expect(urls).not.toContain(`https://muirouter.com/${locale}${path}`);
+      }
+    }
+
+    const zhAbout = entries.find((entry) => entry.url === 'https://muirouter.com/zh/about');
+    expect(Object.keys(zhAbout?.alternates?.languages ?? {})).toEqual(['en', 'zh', 'x-default']);
   });
 });
 

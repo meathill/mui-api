@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
-import { getLegalContent } from '@/lib/legal-content';
+import { getLegalContent, getLegalDocLocales } from '@/lib/legal-content';
 import { buildMetadata, getResolvedLocale } from '@/lib/seo';
 
 export function generateStaticParams() {
@@ -24,7 +24,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     resolved === 'zh'
       ? 'MuiRouter 使用协议，包含计费、退款策略与合规说明。'
       : 'MuiRouter Terms of Service, including billing and refund policy.';
-  return buildMetadata({ path: '/terms', title, description, locale: resolved });
+  return buildMetadata({
+    path: '/terms',
+    title,
+    description,
+    locale: resolved,
+    translations: getLegalDocLocales('terms'),
+  });
 }
 
 export default async function TermsPage({ params }: { params: Promise<{ locale: string }> }) {

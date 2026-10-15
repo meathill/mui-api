@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { setRequestLocale } from 'next-intl/server';
-import { getLegalContent } from '@/lib/legal-content';
+import { getLegalContent, getLegalDocLocales } from '@/lib/legal-content';
 import { buildMetadata, getResolvedLocale } from '@/lib/seo';
 
 export function generateStaticParams() {
@@ -24,7 +24,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     resolved === 'zh'
       ? 'MuiRouter 隐私政策，了解我们如何收集与使用数据。'
       : 'MuiRouter Privacy Policy — how we collect and use data.';
-  return buildMetadata({ path: '/privacy', title, description, locale: resolved });
+  return buildMetadata({
+    path: '/privacy',
+    title,
+    description,
+    locale: resolved,
+    translations: getLegalDocLocales('privacy'),
+  });
 }
 
 export default async function PrivacyPage({ params }: { params: Promise<{ locale: string }> }) {

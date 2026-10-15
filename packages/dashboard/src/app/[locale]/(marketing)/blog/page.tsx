@@ -80,7 +80,8 @@ async function BlogPosts({ locale }: { locale: ReturnType<typeof getResolvedLoca
       description: post.description,
       datePublished: post.publishedAt,
       dateModified: post.publishedAt,
-      url: `${SITE_URL}${getLocalizedPath(post.href, locale)}`,
+      // 无译文的文章用原文语言 URL 声明，与详情页 canonical 保持一致。
+      url: `${SITE_URL}${getLocalizedPath(post.href, post.documentLocale)}`,
       author: { '@type': 'Organization', name: 'MuiRouter' },
       publisher: {
         '@type': 'Organization',
