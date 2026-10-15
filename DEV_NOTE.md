@@ -319,7 +319,8 @@ D1_ERROR: Network connection lost.
 - 译文集合的来源：博客用 `LocalizedBlogPost.availableLocales`（由同 slug 文档分组推导），法律页用 `legal-content.ts` 的 `getLegalDocLocales()`（由 MDX loader 表推导，加了 ja 译本就自动生效），contact / models 用 `BILINGUAL_CONTENT_LOCALES`。
 - **新增语言内容时**：`about`/`contacts` 等只有中英两套的页面，文案放在 `src/lib/page-meta.ts`（页面与测试共用一份来源），并把该语言加进对应常量；否则它会继续通过 canonical 指向英文版。
 - **文案硬约束**（`src/lib/meta-copy.test.ts` 会拦）：描述 ≥120 字符（Bing 判过短的阈值，CJK 也按字符数算；写入目标 120–160）、标题含 layout 模板 ` | MuiRouter` 后显示宽度 ≤65（CJK 按 2 计）、标题不再自带 `- MuiRouter`（品牌重复）。测试按命名约定自动发现 meta 面：顶层 `metadata` + 各 namespace 的 `metaTitle`/`metaDescription` 或 `.metadata.{title,description}`——新页面照这个约定写就自动被覆盖。
-- 博客描述来自 CMS articles 的 `summary` 字段（代码侧改不了，见 `cms-blog-client.ts`），扩写要在 Payload 后台做。文章标题同理，且**标题宽度普遍超标**：2026-10-15 复核 126 条已发布文档里有 114 条的「标题 + ` | MuiRouter`」超过 65 显示宽度（含中文标题）——代码侧不做截断（程序裁切会产出难读的标题），要么在后台压短，要么给 articles 集合加独立 `seoTitle` 字段，见 issue #15 评论。
+- 博客标题与描述有两套文案，别再混用：`title` / `summary` 是读者可见的 H1 与摘要，`seoTitle` / `seoDescription` 只进 `<title>` 与 meta description（`cms-blog-client.ts` 读取，缺失才回退）。**`seoTitle` 不带品牌后缀**（`title.template` 会追加 ` | MuiRouter`，代码里也有 `stripBrandSuffix` 兜底），且「seoTitle + ` | MuiRouter`」显示宽度 ≤65（CJK 计 2）；`seoDescription` 120–160 字符。2026-10-15 已按此规则把 126 篇文档的 114 条 seoTitle 与 23 条 seoDescription 全部改写入库（muicv D1 `articles`，回滚脚本当时留在 /tmp），发新文章时按 `.agents/skills/model-pricing-and-announcement/SKILL.md` 第五步的约束直接写对。
+- 改 CMS 文案只能走 Payload 后台或 D1：`articles` 集合没有对外写接口，MCP 工具只覆盖 `posts`。急用时可直接 `wrangler d1 execute muicv --remote --file=...`（表 `articles`，列 `seo_title` / `seo_description`，站点过滤 `site='muirouter'`；注意 `versions.drafts` 会另存 `_articles_v`，直改主表不会留下版本记录）。改完站点侧要等下一次构建或 24h ISR 过期才可见。
 
 ### IndexNow 手动提交脚本（Bing 重新发现，issue #4）
 

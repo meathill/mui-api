@@ -2,11 +2,10 @@
 
 ## 已完成：SEO 修复（issue #14 LCP + issue #15 描述/语言回落），2026-10-15
 
-- 代码与配置已上线（`1287c93`、`be18b0e`、`13928c5`），线上复核通过，汇总见 issue #14 / #15 评论。
-- 长期结论已并入 `DEV_NOTE.md`：缓存决策段（R2 增量缓存为何接回、如何回退）与「无译文页面的 canonical 与 meta 文案约束」小节。
-- 遗留（用户侧）：
-  - **muirouter CMS**：19 条 zh-CN / ja 文章 `summary` 仍 <120 字符（清单见 issue #15 评论），改完等 Bing 重扫再关 issue。
-  - **PSI 复查**：PSI API 无 key 时对本机出口 429，`/mcp-router` 移动端官方分数待浏览器复查后回填 issue #14。
+- 代码与配置已上线（`1287c93`、`be18b0e`、`13928c5`、`e7f6123`），线上复核通过，汇总见 issue #14 / #15 评论。
+- CMS 侧也一并做完（用户授权直接改）：muicv D1 `articles` 表 121 行更新——114 条 `seoTitle` 压到含品牌后缀 ≤65 显示宽度、23 条 `seoDescription` 补到 120–160 字符；博客页改为优先读这两个字段（缺失回退 `title` / `summary`）。
+- 长期结论已并入 `DEV_NOTE.md`：缓存决策段（R2 增量缓存为何接回、如何回退）、「无译文页面的 canonical 与 meta 文案约束」小节，以及 CMS 两套文案的字段分工与直改 D1 的做法。发布新文章的字段约束写进 `.agents/skills/model-pricing-and-announcement/SKILL.md` 第五步。
+- 遗留（用户侧）：**PSI 复查**——PSI API 无 key 时对本机出口 429，`/mcp-router` 移动端官方分数待浏览器复查后回填 issue #14。
 
 ## 待办 / 后续规划
 

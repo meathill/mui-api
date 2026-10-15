@@ -86,7 +86,9 @@ WHERE id IN ('<model-id>', '<model-alias>');
 - `sources`：`[{ label, url }]` 官方定价页与公告链接；`sourcePublishedAt`：官方公告日期
 - `readingMinutes`：按正文字数估算（CJK 350 字/分钟 + 拉丁 200 词/分钟）
 - `publishedAt`：发布日期（ISO）；`status: "published"`；`author: "MuiRouter"`
-- `seoTitle` / `seoDescription`：搜索引擎标题与 120~160 字描述
+- `seoTitle` / `seoDescription`：搜索引擎专用文案（issue #15 起博客页会读这两个字段，缺失才回退 `title` / `summary`）。两条硬约束，写之前先算好：
+  - `seoTitle`：**不含品牌后缀**（页面 `title.template` 会自动追加 ` | MuiRouter`），且「seoTitle + ` | MuiRouter`」的显示宽度 **≤65**（CJK 按 2 计，即中文标题 ≤26 个汉字、英文 ≤53 字符）。长标题的压法：先取冒号/破折号前的主标题，仍超宽再从尾部按分句丢片段，别停在半个动词/介词上。
+  - `seoDescription`：**120–160 字符**（Bing 把 <120 判为过短；CJK 也按字符数算）。`summary` 是给读者看的 80~150 字摘要，两者用途不同、都要填。
 
 发布后站点侧 24h 内自然生效（`unstable_cache` 天级，无 webhook）；急发就手动跑：
 
