@@ -15,7 +15,14 @@ import type { Locale } from '@/i18n/config';
 import { Link } from '@/i18n/navigation';
 import { getBlogContent, getLocalizedBlogPost, getPublishedBlogSitemapPosts, type LocalizedBlogPost } from '@/lib/blog';
 import { buildBreadcrumbEntity } from '@/lib/json-ld';
-import { buildMetadata, getBlogPostOgImage, getLocalizedPath, getResolvedLocale, SITE_URL } from '@/lib/seo';
+import {
+  buildMetadata,
+  getBlogPostOgImage,
+  getLocalizedPath,
+  getResolvedLocale,
+  SITE_URL,
+  stripBrandSuffix,
+} from '@/lib/seo';
 
 // 文章元数据与正文来自 muicv CMS（lib/blog.ts 内 unstable_cache 做天级缓存）；
 // 构建期走公网 URL 预渲染默认 locale 的文章页，其余 locale 按需 ISR。
@@ -64,8 +71,10 @@ export async function generateMetadata({
 
   return buildMetadata({
     path: post.href,
-    title: post.title,
-    description: post.description,
+    // <title> 与 meta description 用 CMS 的 SEO 专用文案（issue #15）：文章标题常常远超
+    // SERP 的 65 显示宽度，可见的 H1 / 摘要仍用 post.title / post.description。
+    title: post.seoTitle ? stripBrandSuffix(post.seoTitle) : post.title,
+    description: post.seoDescription ?? post.description,
     locale: resolvedLocale,
     // 无译文的语言版仍可访问（正文显示原文 + 提示条），但 canonical / hreflang 收敛到原文语言。
     translations: post.availableLocales,

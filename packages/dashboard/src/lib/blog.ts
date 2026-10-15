@@ -20,6 +20,9 @@ export type LocalizedBlogPost = {
   availableLocales: readonly Locale[];
   title: string;
   description: string;
+  /** 搜索引擎专用文案；为空时 metadata 回退到 title / description。 */
+  seoTitle: string | null;
+  seoDescription: string | null;
   publishedAt: string;
   sourcePublishedAt: string;
   readingMinutes: number;
@@ -69,6 +72,8 @@ export function toLocalizedBlogPost(
     availableLocales,
     title: document.title,
     description: document.description,
+    seoTitle: document.seoTitle,
+    seoDescription: document.seoDescription,
     publishedAt: document.publishedAt,
     sourcePublishedAt: document.sourcePublishedAt ?? document.publishedAt,
     readingMinutes: document.readingMinutes ?? estimateReadingMinutes(document.bodyMarkdown),

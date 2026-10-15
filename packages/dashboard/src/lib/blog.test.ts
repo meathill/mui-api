@@ -8,6 +8,9 @@ function makeDocument(overrides: Partial<CmsBlogDocument> = {}): CmsBlogDocument
     locale: 'en',
     title: 'Codex Getting Worse Is Not Magic',
     description: 'Reduce errors, then reset context.',
+    seoTitle: 'Codex Getting Worse Is Not Magic',
+    seoDescription:
+      'Why Codex output drifts and how reducing errors, then resetting context, keeps long agent runs usable.',
     bodyMarkdown: 'Body text for the article.',
     tags: ['Codex', 'AI coding'],
     sources: [{ label: 'Linux.do', url: 'https://linux.do/t/topic/2490104' }],
@@ -29,6 +32,9 @@ describe('blog metadata helpers', () => {
       availableLocales: ['en'],
       title: 'Codex Getting Worse Is Not Magic',
       description: 'Reduce errors, then reset context.',
+      seoTitle: 'Codex Getting Worse Is Not Magic',
+      seoDescription:
+        'Why Codex output drifts and how reducing errors, then resetting context, keeps long agent runs usable.',
       publishedAt: '2026-07-02',
       sourcePublishedAt: '2026-06-28',
       readingMinutes: 4,

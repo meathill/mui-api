@@ -10,6 +10,7 @@ import {
   getResolvedLocale,
   SITE_NAME,
   SITE_URL,
+  stripBrandSuffix,
 } from './seo';
 
 describe('getLocalizedPath', () => {
@@ -72,6 +73,24 @@ describe('getResolvedLocale', () => {
   it('非法 locale 回退到默认语言', () => {
     expect(getResolvedLocale('xx')).toBe(defaultLocale);
     expect(getResolvedLocale('')).toBe(defaultLocale);
+  });
+});
+
+describe('stripBrandSuffix', () => {
+  it('去掉 CMS 自带的各种品牌后缀，避免与 layout 模板重复', () => {
+    expect(stripBrandSuffix('GPT-6 Astra 深度解析 - MuiRouter')).toBe('GPT-6 Astra 深度解析');
+    expect(stripBrandSuffix('Grok 4.6 发布 | MuiRouter')).toBe('Grok 4.6 发布');
+    expect(stripBrandSuffix('Kimi K3 — MuiRouter')).toBe('Kimi K3');
+    expect(stripBrandSuffix('Kimi K3 - muirouter')).toBe('Kimi K3');
+  });
+
+  it('标题中间的 MuiRouter 不动（品牌是对比主体）', () => {
+    expect(stripBrandSuffix('LiteLLM vs MuiRouter 对比')).toBe('LiteLLM vs MuiRouter 对比');
+    expect(stripBrandSuffix('MuiRouter vs OpenRouter — 定价对比')).toBe('MuiRouter vs OpenRouter — 定价对比');
+  });
+
+  it('没有后缀时原样返回', () => {
+    expect(stripBrandSuffix('GPT-6 Astra Is Here')).toBe('GPT-6 Astra Is Here');
   });
 });
 

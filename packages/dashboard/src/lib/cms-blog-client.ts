@@ -78,6 +78,8 @@ type CmsArticleRaw = {
   slug?: unknown;
   status?: unknown;
   summary?: unknown;
+  seoTitle?: unknown;
+  seoDescription?: unknown;
   bodyMarkdown?: unknown;
   tags?: unknown;
   sources?: unknown;
@@ -92,6 +94,10 @@ export type CmsBlogDocument = {
   locale: Locale;
   title: string;
   description: string;
+  /** 搜索引擎专用文案（issue #15）：为空时回退到 title / description；只在 metadata 用，
+   *  列表与详情页的可见标题、摘要仍用 title / description。 */
+  seoTitle: string | null;
+  seoDescription: string | null;
   bodyMarkdown: string;
   tags: string[];
   sources: Array<{ label: string; url: string }>;
@@ -170,6 +176,8 @@ export function parseCmsBlogDocument(value: unknown): CmsBlogDocument | null {
     locale,
     title,
     description,
+    seoTitle: readString(doc.seoTitle),
+    seoDescription: readString(doc.seoDescription),
     bodyMarkdown,
     tags: readStringList(doc.tags),
     sources: readSourceList(doc.sources),
