@@ -66,6 +66,13 @@ export function getResolvedLocale(locale: string): Locale {
   return locales.includes(locale as Locale) ? (locale as Locale) : defaultLocale;
 }
 
+/** 去掉标题结尾的品牌后缀（` - MuiRouter` / ` | MuiRouter`）。
+ *  CMS 的 seoTitle 有时自带品牌，而根 layout 的 title.template 已经会追加 ` | MuiRouter`，
+ *  不去掉就会渲染成「… - MuiRouter | MuiRouter」。 */
+export function stripBrandSuffix(title: string): string {
+  return title.replace(/\s*[-|—]\s*MuiRouter\s*$/i, '').trim();
+}
+
 interface BuildMetadataOptions {
   path: string;
   title: string;

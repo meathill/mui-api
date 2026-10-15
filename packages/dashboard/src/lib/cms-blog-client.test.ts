@@ -10,6 +10,9 @@ function makeArticleDoc(overrides: Record<string, unknown> = {}): Record<string,
     slug: 'gpt-5-6',
     status: 'published',
     summary: 'Pricing and benchmark notes for the GPT-5.6 family.',
+    seoTitle: 'GPT-5.6 Is Here: Sol, Terra, Luna',
+    seoDescription:
+      'OpenAI ships the GPT-5.6 family with per-token pricing, cache discounts and long-context tiers, now routable through MuiRouter.',
     bodyMarkdown: '# GPT-5.6\n\nBody text.',
     tags: [{ value: 'GPT' }, { value: '调价' }],
     keywords: [{ value: 'gpt-5-6' }],
@@ -34,6 +37,9 @@ describe('parseCmsBlogDocument', () => {
       locale: 'zh',
       title: 'GPT-5.6 is now generally available',
       description: 'Pricing and benchmark notes for the GPT-5.6 family.',
+      seoTitle: 'GPT-5.6 Is Here: Sol, Terra, Luna',
+      seoDescription:
+        'OpenAI ships the GPT-5.6 family with per-token pricing, cache discounts and long-context tiers, now routable through MuiRouter.',
       bodyMarkdown: '# GPT-5.6\n\nBody text.',
       tags: ['GPT', '调价'],
       sources: [{ label: 'OpenAI', url: 'https://openai.com/blog' }],
@@ -41,6 +47,13 @@ describe('parseCmsBlogDocument', () => {
       readingMinutes: 4,
       publishedAt: '2026-07-10',
     });
+  });
+
+  it('缺 seoTitle / seoDescription 时落为 null，供 metadata 回退到 title / summary', () => {
+    const doc = parseCmsBlogDocument(makeArticleDoc({ seoTitle: undefined, seoDescription: '   ' }));
+
+    expect(doc?.seoTitle).toBeNull();
+    expect(doc?.seoDescription).toBeNull();
   });
 
   it('缺失的 readingMinutes 与 sourcePublishedAt 落为 null', () => {
