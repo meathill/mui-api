@@ -242,6 +242,31 @@ describe('callDeepSeek', () => {
     expect(sentBody.model).toBe('deepseek-v4.1-flash');
     expect(sentBody.messages[0].content).toHaveLength(2);
   });
+
+  it('正确传递 deepseek-v4.1-flash-1017 快照模型请求体', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => {
+      return Response.json({
+        id: 'chatcmpl-deepseek-v4-1-1017',
+        object: 'chat.completion',
+        model: 'deepseek-v4.1-flash-1017',
+        usage: { prompt_tokens: 10, completion_tokens: 20 },
+        choices: [{ index: 0, message: { role: 'assistant', content: '1017 snapshot ready' }, finish_reason: 'stop' }],
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const response = await callDeepSeek(createDeepSeekEnv(), {
+      model: 'deepseek-v4.1-flash-1017',
+      messages: [{ role: 'user', content: 'hello' }],
+    });
+
+    expect(response.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [input, init] = fetchMock.mock.calls[0];
+    expect(input).toBe('https://api.deepseek.com/chat/completions');
+    const sentBody = JSON.parse(init?.body as string);
+    expect(sentBody.model).toBe('deepseek-v4.1-flash-1017');
+  });
 });
 
 describe('callOpenCodeGo', () => {
