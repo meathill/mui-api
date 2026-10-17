@@ -61,6 +61,8 @@ INSERT OR REPLACE INTO models (id, provider, upstream_model_id, input_price, out
   ('kimi-k3', 'moonshot', 'kimi-k3', 3, 15, 1, 0.3, NULL, NULL, NULL, NULL, NULL, NULL),
   ('deepseek-v4.1-flash', 'deepseek', 'deepseek-v4.1-flash', 0.14, 0.28, 1, 0.0028, NULL, NULL, NULL, NULL, NULL, NULL),
   ('deepseek-v4-1-flash', 'deepseek', 'deepseek-v4.1-flash', 0.14, 0.28, 1, 0.0028, NULL, NULL, NULL, NULL, NULL, NULL),
+  ('deepseek-v4.1-flash-1017', 'deepseek', 'deepseek-v4.1-flash-1017', 0.14, 0.28, 1, 0.0028, NULL, NULL, NULL, NULL, NULL, NULL),
+  ('deepseek-v4-1-flash-1017', 'deepseek', 'deepseek-v4.1-flash-1017', 0.14, 0.28, 1, 0.0028, NULL, NULL, NULL, NULL, NULL, NULL),
   ('deepseek-v4-flash', 'deepseek', 'deepseek-v4-flash', 0.14, 0.28, 1, 0.0028, NULL, NULL, NULL, NULL, NULL, NULL),
   ('deepseek-v4-pro', 'deepseek', 'deepseek-v4-pro', 0.435, 0.87, 1, 0.003625, NULL, NULL, NULL, NULL, NULL, NULL),
   ('mimo-v2.6-pro', 'xiaomi-mimo', 'mimo-v2.6-pro', 0.435, 0.87, 1, 0.0036, NULL, NULL, NULL, NULL, NULL, NULL),

@@ -70,7 +70,7 @@ const MANUAL_METADATA: Record<string, Omit<Resolved, 'model' | 'source'>> = {
       structuredOutput: true,
       openWeights: true,
       releaseDate: '2026-09-11',
-      lastUpdated: '2026-09-11',
+      lastUpdated: '2026-10-17',
       modalities: {
         input: ['text', 'image'],
         output: ['text'],
@@ -92,7 +92,51 @@ const MANUAL_METADATA: Record<string, Omit<Resolved, 'model' | 'source'>> = {
       structuredOutput: true,
       openWeights: true,
       releaseDate: '2026-09-11',
-      lastUpdated: '2026-09-11',
+      lastUpdated: '2026-10-17',
+      modalities: {
+        input: ['text', 'image'],
+        output: ['text'],
+      },
+    },
+  },
+  'deepseek-v4.1-flash-1017': {
+    displayName: 'DeepSeek V4.1 Flash (1017 Snapshot)',
+    contextLength: 1000000,
+    maxOutputTokens: 8192,
+    metadata: {
+      description:
+        'DeepSeek-V4.1-Flash-1017 is an optimized snapshot delivering Pareto improvements in performance and cost, enhanced instruction adherence, and self-feedback RL capabilities.',
+      family: 'deepseek-v4',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: true,
+      releaseDate: '2026-10-17',
+      lastUpdated: '2026-10-17',
+      modalities: {
+        input: ['text', 'image'],
+        output: ['text'],
+      },
+    },
+  },
+  'deepseek-v4-1-flash-1017': {
+    displayName: 'DeepSeek V4.1 Flash (1017 Snapshot)',
+    contextLength: 1000000,
+    maxOutputTokens: 8192,
+    metadata: {
+      description:
+        'DeepSeek-V4.1-Flash-1017 is an optimized snapshot delivering Pareto improvements in performance and cost, enhanced instruction adherence, and self-feedback RL capabilities.',
+      family: 'deepseek-v4',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: true,
+      releaseDate: '2026-10-17',
+      lastUpdated: '2026-10-17',
       modalities: {
         input: ['text', 'image'],
         output: ['text'],
