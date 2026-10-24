@@ -1,5 +1,15 @@
 # WIP
 
+## 已完成：Kimi K3.1 Pro 发布解读博客与模型支持（2026-10-24）
+
+- [x] 核对官方发布信息（X 官方推文、技术博客、API 定价与上下文规格）：2.8T MoE 3T 级开源权重（11/04 开源）、1M 上下文、代码/3D 建模 CAD/金融分析全面突破、幻觉降低 65%、API 降价 33.3%（输入 $2/M、输出 $10/M、缓存命中 $0.2/M）。
+- [x] 撰写中文深度技术解读博客，严格遵循 issue #15 SEO 约束（seoTitle 显示宽度 34 ≤ 65、seoDescription 152 字符在 120-160 字符区间）。
+- [x] 同步 MuiRouter 模型目录与基准数据：在 `seed.ts`、`seed-models.sql`、`packages/dashboard/seed-models.sql`、`fetch-model-metadata.ts` 中补充 `kimi-k3.1-pro` 与 `kimi-k3.1-pro-highspeed`（及别名）。
+- [x] 编写测试用例验证新模型在 Moonshot 分发调度中的正确解析（`provider-dispatch.test.ts` 24/24 通过）。
+- [x] 调用 muicv CMS 接口发布中文博文（ID 211，`site=muirouter`，`locale=zh-CN`，`slug=kimi-k3-1-pro-released`，`status=published`），并运行 `check:cms-seo` 验证 0 违规。
+- [x] 编写一次性生产 SQL 脚本并在生产 D1 执行写入 4 行数据，成功清理 Cloudflare KV `models:catalog` 缓存，清理临时脚本。
+- [x] 执行全套回归测试（格式化、类型检查、单测 367+256 全部通过、生产构建通过且 365 条路由全为 static）。
+
 ## 已完成：DeepSeek-V4.1-Flash-1017 升级解读博客与模型支持（2026-10-17）
 
 - [x] 核对官方发布信息（X 官方推文、HF 权重页面、基准测试分数与特性）：小版本大飞跃、帕累托改进（性能增强 + 输出更短更省）、系统指令遵循、自反馈 RL 驱动的 0 到 1 许愿式编程、官方生态框架协同。
@@ -20,6 +30,7 @@
 
 ## 待办 / 后续规划
 
+- **Kimi K3.1 Pro 多语言博文翻译**：中文版已于 2026-10-24 首发上线（ID 211，`kimi-k3-1-pro-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。
 - **DeepSeek-V4.1-Flash-1017 多语言博文翻译**：中文版已于 2026-10-17 首发上线（ID 210，`deepseek-v4-1-flash-1017-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。
 - **Gemini 4 Argon 与 3.8 Flash 多语言博文翻译**：中文版已于 2026-10-14 首发上线（ID 209，`gemini-4-argon-3-8-flash-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。
 - **Claude Haiku 5.5 多语言博文翻译**：中文版已于 2026-10-08 首发上线（ID 208，`claude-haiku-5-5-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。
