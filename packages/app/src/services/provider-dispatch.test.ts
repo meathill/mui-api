@@ -85,6 +85,27 @@ describe('callMoonshot', () => {
     expect(JSON.parse(String(init?.body))).toEqual(body);
   });
 
+  it('直连 Moonshot Chat Completions 并原样透传 Kimi K3.1 Pro 参数', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => Response.json({ ok: true }));
+    vi.stubGlobal('fetch', fetchMock);
+    const body = {
+      model: 'kimi-k3.1-pro',
+      temperature: 1.0,
+      top_p: 0.95,
+      messages: [{ role: 'user', content: 'hello kimi k3.1 pro' }],
+    };
+
+    await callMoonshot(createMoonshotEnv(), body);
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [input, init] = fetchMock.mock.calls[0];
+    expect(input).toBe('https://api.moonshot.ai/v1/chat/completions');
+    expect(init?.method).toBe('POST');
+    const headers = new Headers(init?.headers);
+    expect(headers.get('authorization')).toBe('Bearer test-moonshot-key');
+    expect(JSON.parse(String(init?.body))).toEqual(body);
+  });
+
   it('支持通过 MOONSHOT_BASE_URL 覆盖接口地址', async () => {
     const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => Response.json({ ok: true }));
     vi.stubGlobal('fetch', fetchMock);
@@ -123,6 +144,37 @@ describe('callMoonshot', () => {
     expect(callInput).toBe('https://opencode.ai/zen/go/v1/chat/completions');
     const headers = new Headers(callInit?.headers);
     expect(headers.get('authorization')).toBe('Bearer test-opencode-go-key');
+  });
+
+  it('配置了 OPENCODE_GO_API_KEY 时，Kimi K3.1 Pro 直接使用 OpenCode Go API 端点分发', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => {
+      return Response.json({
+        id: 'chatcmpl-opencode-go-direct',
+        object: 'chat.completion',
+        model: 'kimi-k3.1-pro',
+        choices: [{ index: 0, message: { role: 'assistant', content: 'opencode go success' }, finish_reason: 'stop' }],
+      });
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    const response = await callMoonshot(
+      createMoonshotEnv({ MOONSHOT_API_KEY: 'test-moonshot-key', OPENCODE_GO_API_KEY: 'test-opencode-go-key' }),
+      {
+        model: 'kimi-k3.1-pro',
+        messages: [{ role: 'user', content: 'hello k3.1 pro' }],
+      },
+    );
+
+    expect(response.status).toBe(200);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [callInput, callInit] = fetchMock.mock.calls[0];
+    expect(callInput).toBe('https://opencode.ai/zen/go/v1/chat/completions');
+    const headers = new Headers(callInit?.headers);
+    expect(headers.get('authorization')).toBe('Bearer test-opencode-go-key');
+    expect(JSON.parse(String(callInit?.body))).toEqual({
+      model: 'kimi-k3.1-pro',
+      messages: [{ role: 'user', content: 'hello k3.1 pro' }],
+    });
   });
 
   it('缺少 MOONSHOT_API_KEY 时在请求前明确失败', async () => {

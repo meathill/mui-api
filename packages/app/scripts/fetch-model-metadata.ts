@@ -165,6 +165,94 @@ const MANUAL_METADATA: Record<string, Omit<Resolved, 'model' | 'source'>> = {
       },
     },
   },
+  'kimi-k3.1-pro': {
+    displayName: 'Kimi K3.1 Pro',
+    contextLength: 1048576,
+    maxOutputTokens: 131072,
+    metadata: {
+      description:
+        'Kimi K3.1 Pro is a 3T-class open-weight MoE model (2.8T total / 104B active) with 1M context, state-of-the-art coding across game engines, parametric 3D CAD modeling, and grounded financial reasoning.',
+      family: 'kimi-k3',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: true,
+      releaseDate: '2026-10-23',
+      lastUpdated: '2026-10-23',
+      modalities: {
+        input: ['text', 'image', 'video'],
+        output: ['text'],
+      },
+    },
+  },
+  'kimi-k3-1-pro': {
+    displayName: 'Kimi K3.1 Pro',
+    contextLength: 1048576,
+    maxOutputTokens: 131072,
+    metadata: {
+      description:
+        'Kimi K3.1 Pro is a 3T-class open-weight MoE model (2.8T total / 104B active) with 1M context, state-of-the-art coding across game engines, parametric 3D CAD modeling, and grounded financial reasoning.',
+      family: 'kimi-k3',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: true,
+      releaseDate: '2026-10-23',
+      lastUpdated: '2026-10-23',
+      modalities: {
+        input: ['text', 'image', 'video'],
+        output: ['text'],
+      },
+    },
+  },
+  'kimi-k3.1-pro-highspeed': {
+    displayName: 'Kimi K3.1 Pro Highspeed',
+    contextLength: 1048576,
+    maxOutputTokens: 131072,
+    metadata: {
+      description:
+        'Kimi K3.1 Pro Highspeed delivers 2-3x faster response speeds with full K3.1 Pro capabilities for highly interactive agent workflows.',
+      family: 'kimi-k3',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: true,
+      releaseDate: '2026-10-23',
+      lastUpdated: '2026-10-23',
+      modalities: {
+        input: ['text', 'image', 'video'],
+        output: ['text'],
+      },
+    },
+  },
+  'kimi-k3-1-pro-highspeed': {
+    displayName: 'Kimi K3.1 Pro Highspeed',
+    contextLength: 1048576,
+    maxOutputTokens: 131072,
+    metadata: {
+      description:
+        'Kimi K3.1 Pro Highspeed delivers 2-3x faster response speeds with full K3.1 Pro capabilities for highly interactive agent workflows.',
+      family: 'kimi-k3',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: true,
+      releaseDate: '2026-10-23',
+      lastUpdated: '2026-10-23',
+      modalities: {
+        input: ['text', 'image', 'video'],
+        output: ['text'],
+      },
+    },
+  },
 };
 
 interface ModelsDevEntry {
