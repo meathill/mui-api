@@ -197,6 +197,29 @@ export const SEED_MODELS: NewModel[] = [
     ...openaiCache5Percent(2),
     ...openaiLongContext5Percent(2, 10),
   },
+  // GPT-6.1 Terra（2026-10-26 发布）：超高性价比，API 标准价格较 GPT-5.6 Terra 与 GPT-6.1 Sol 减半，专精视觉推断与 Computer Use
+  // @see https://openai.com/index/gpt-6-1-terra/
+  {
+    id: 'gpt-6.1-terra',
+    provider: 'openai',
+    upstreamModelId: 'gpt-6.1-terra',
+    inputPrice: 1,
+    outputPrice: 5,
+    markupRate: 1,
+    ...openaiCache5Percent(1),
+    ...openaiLongContext5Percent(1, 5),
+  },
+  // 短名 alias：gpt-6-1-terra
+  {
+    id: 'gpt-6-1-terra',
+    provider: 'openai',
+    upstreamModelId: 'gpt-6.1-terra',
+    inputPrice: 1,
+    outputPrice: 5,
+    markupRate: 1,
+    ...openaiCache5Percent(1),
+    ...openaiLongContext5Percent(1, 5),
+  },
   // GPT-6 Sol / Luna（2026-09-22 发布）：较上一代 GPT-5.6 降价 50%，全线赋予 90% 缓存折扣
   // @see https://openai.com/api/pricing
   {

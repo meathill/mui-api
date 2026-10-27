@@ -4,6 +4,7 @@ import {
   callDeepSeek,
   callGrokEndpoint,
   callMoonshot,
+  callOpenAIEndpoint,
   callOpenCodeGo,
   callXiaomiMiMo,
   generateSessionIdFromTrait,
@@ -538,5 +539,34 @@ describe('callGrokEndpoint', () => {
     expect(input).toBe('https://gateway.ai.cloudflare.com/v1/test-account/test-gateway/grok/v1/videos/request-1');
     expect(init?.method).toBe('GET');
     expect(init?.body).toBeUndefined();
+  });
+});
+
+describe('callOpenAIEndpoint', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('直连 OpenAI Endpoint 并透传 gpt-6.1-terra 请求', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => Response.json({ ok: true }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const body = JSON.stringify({
+      model: 'gpt-6.1-terra',
+      messages: [{ role: 'user', content: 'test gpt-6.1-terra' }],
+    });
+
+    await callOpenAIEndpoint({ OPENAI_API_KEY: 'test-openai-key' } as CloudflareBindings, '/chat/completions', body, {
+      'content-type': 'application/json',
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [input, init] = fetchMock.mock.calls[0];
+    expect(input).toBe('https://api.openai.com/v1/chat/completions');
+    expect(init?.method).toBe('POST');
+    const headers = new Headers(init?.headers);
+    expect(headers.get('authorization')).toBe('Bearer test-openai-key');
+    expect(headers.get('content-type')).toBe('application/json');
+    expect(init?.body).toBe(body);
   });
 });
