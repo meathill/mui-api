@@ -262,7 +262,23 @@ D1_ERROR: Network connection lost.
 - locale 回退链「请求 locale → en → 第一可用」，与旧 D1 `pickTranslation` 语义一致；gpt-6-astra 这类「中文先行」文章在所有语言下仍显示原文版。详情页按 `documentLocale !== 请求 locale` 显示「暂无译文」提示条（2026-09-06）。
 - 运行期 CMS 返回空列表视为故障：`loadCmsBlogDocuments` 抛错让 `unstable_cache` 保留旧值，也不把空结果缓存一整天；构建期允许为空，详情页 `generateStaticParams` 返回 `[]` 降级按需 ISR，不阻断构建。
 
-**发文流程**：在 muicv CMS 后台（或 MCP `upsert_article`，`site=muirouter`）新建文档、填齐 summary / seoTitle / seoDescription / sources，置为 published；站点 24h 内自然生效，急发就手动跑 IndexNow。新增文章/语言不再需要动本仓库。
+**发文流程与缓存刷新机制（无需修改业务代码）**：
+- 在 muicv CMS 后台（或 MCP `upsert_article`，`site=muirouter`）新建文档、填齐 summary / seoTitle / seoDescription / sources，置为 published；新增文章/语言本身不需要修改仓库代码。
+- 博文列表走 24h `unstable_cache`，若需立刻同步最新文章上线，提供三种无需修改 TypeScript 代码的刷新方式：
+  1. **方案 A（无需重新构建，线上秒级生效）**：在 Cloudflare Dashboard（Worker Settings -> Variables）中修改环境变量 `BLOG_CACHE_VERSION`（例如修改为新版本或当天日期），保存并部署后 Worker 运行时通过 `getCloudflareContext().env` 动态读取，缓存键立即失效回源 CMS。
+  2. **方案 B（改配置文件变量）**：修改 `packages/dashboard/wrangler.jsonc` 中的 `vars.BLOG_CACHE_VERSION`（可改为具体版本号，或设为 `"auto"`）。设为 `"auto"` 时每次构建会自动关联 Build ID / Commit SHA。
+  3. **方案 C（构建期环境变量 / 重跑构建）**：在 Cloudflare Workers Builds 构建变量或命令行指定 `BLOG_CACHE_VERSION=xxx` 或 `CONTENT_VERSION=xxx` 执行构建；或在配置为 `"auto"` 时在 Cloudflare 控制台直接点击「Retry deployment」重跑构建即可。
+
+### 数据库迁移（D1 / Drizzle）与数据回填原则
+
+**严格区分 Schema 迁移（DDL）与数据管理（DML）**：
+- **`packages/shared-db/drizzle/*.sql` 仅且只用于表结构变更**（如 `CREATE TABLE`、`ALTER TABLE`、`DROP TABLE`、`CREATE INDEX` 等）。
+- **严禁将数据回填、运营数据调整作为 Drizzle Migration 提交**：
+  - 例如模型价格调整、模型元数据回填（`display_name`、`context_length`、`metadata_json`）等，属于业务数据操作。
+  - 混入 migration 会导致历史迁移文件持续膨胀、不可逆修改风险，以及新环境初始化跑迁移时执行大量不必要的 UPDATE。
+- **数据初始化与变更标准路径**：
+  1. **种子数据（Seed）**：基础模型数据维护在 `packages/app/src/db/seed.ts` 与 `seed-models.sql` 中，生成 SQL 采用 `INSERT INTO ... VALUES ... ON CONFLICT(id) DO UPDATE SET ...` 语法，避免覆盖已有元数据列。
+  2. **数据回填与批量更新**：存放于 `packages/app/scripts/sql/`（如 `backfill-model-metadata.sql`），或作为一次性临时脚本存放于 `scripts/`，通过 `wrangler d1 execute DB --local/--remote --file=...` 独立执行。
 
 ### 博客评论组件（Awesome Comment）远程加载与已知坑
 
@@ -496,15 +512,23 @@ API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0）
 - **每次加模型或调价后要重跑生成器并再提一次 PR**。models.dev 是静态 TOML + PR，没有让 provider 自助同步的机制，这是它的固有成本。
 - 本机没有 bun 跑不了上游的 `script/validate.ts`；替代校验是用 python `tomllib` 解析全部产物 + 比对已合并条目的字段集合。
 
-### 模型元数据从哪来
+### 模型元数据从哪来与更新脚本规范
 
 `models` 表的 `display_name` / `context_length` / `max_output_tokens` / `metadata_json` 由 `packages/app/scripts/fetch-model-metadata.ts` 从 models.dev 的 `api.json` 回填——我们转售的模型在那边基本都有第一方条目，抄元数据、价格用自己的，比手写靠谱。
 
 几个容易踩的点：
 - 匹配索引要**同时按完整 key 和裸名建**：workers-ai 的 `upstreamModelId` 是 `@cf/qwen/qwen3-30b-a3b-fp8` 这种完整名，只按裸名会漏。
 - 必须**优先取第一方 provider 的条目**。同一模型名在几十个转售商下都有条目，但只有原厂的能力标记和上下文长度可信。
-- 回填脚本用 `basic` 投影读 D1（只取 `id/provider/upstream_model_id`）——它按定义要在元数据列还没建起来的库上跑，拿全投影会直接 SQLITE_ERROR。
-- **生成 migration 要用 `--remote`**。本地 D1 常年落后于生产（seed 改了但没重新灌），按本地生成会静默漏掉最新模型。
+- **更新模型的脚本跑完即删，不入仓库**：数据回填或调价生成的 SQL 脚本（如 `temp-*.sql`）执行完成后直接删除，不作为 migration 也不提交进 git 仓库。
+- **只有 seed 保留完整记录**：全量模型的结构、定价与元数据完整保存在 `seed-models.sql`、`packages/dashboard/seed-models.sql` 以及 `packages/app/src/db/seed.ts` 中，便于将来新建项目或本地恢复全量数据。
+
+### 博客缓存控制机制
+
+前台博客列表与详情页的 `unstable_cache` 预渲染缓存**统一只由 `BLOG_CACHE_VERSION` 一个变量控制**，不引入多余变量与不可控的自动时间戳：
+1. **配置文件**：修改 `packages/dashboard/wrangler.jsonc` 中的 `vars.BLOG_CACHE_VERSION`（如升级至 `"v5"`）。
+2. **线上环境变量**：在 Cloudflare Dashboard Worker 环境变量中覆盖 `BLOG_CACHE_VERSION`。
+发布新博文后若需即时刷新前台缓存，只需更新该变量重新部署即可，无需修改任何 TypeScript 代码。
+
 
 ### models.dev 提交的两个硬约束（首次 PR 踩过）
 

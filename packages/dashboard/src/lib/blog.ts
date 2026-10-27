@@ -1,3 +1,4 @@
+import { getCloudflareContext } from '@opennextjs/cloudflare';
 import { unstable_cache } from 'next/cache';
 import { defaultLocale, type Locale, locales } from '@/i18n/config';
 import { BLOG_CONTENT_TAG, PUBLIC_CONTENT_REVALIDATE_SECONDS } from '@/lib/public-cache';
@@ -97,9 +98,33 @@ async function loadCmsBlogDocuments(): Promise<CmsBlogDocument[]> {
   return documents;
 }
 
-function getCmsBlogDocuments(): Promise<CmsBlogDocument[]> {
-  // v3：bump 键让 unstable_cache 立即失效并拉取 CMS 最新发布的博文。
-  return unstable_cache(loadCmsBlogDocuments, ['cms-blog-documents-v3'], PUBLIC_CONTENT_CACHE_OPTIONS)();
+/**
+ * 获取当前博文缓存版本。
+ *
+ * 全局统一使用 BLOG_CACHE_VERSION 一个变量控制：
+ * 1. 运行时环境变量：在 Cloudflare Dashboard（Worker Settings -> Variables）中修改 BLOG_CACHE_VERSION，线上即时生效。
+ * 2. 配置文件变量：修改 packages/dashboard/wrangler.jsonc 中的 vars.BLOG_CACHE_VERSION。
+ * 3. 构建期环境变量：在 CI 或命令行指定 BLOG_CACHE_VERSION。
+ */
+export async function getBlogCacheVersion(): Promise<string> {
+  if (!isBuildTime() && process.env.NODE_ENV !== 'development') {
+    try {
+      const { env } = await getCloudflareContext({ async: true });
+      const runtimeVersion = env.BLOG_CACHE_VERSION;
+      if (typeof runtimeVersion === 'string' && runtimeVersion.trim()) {
+        return runtimeVersion.trim();
+      }
+    } catch {
+      // 非 Cloudflare Worker 运行时（如本地测试或纯 Node 环境）忽略
+    }
+  }
+
+  return process.env.BLOG_CACHE_VERSION?.trim() || 'v4';
+}
+
+async function getCmsBlogDocuments(): Promise<CmsBlogDocument[]> {
+  const version = await getBlogCacheVersion();
+  return unstable_cache(loadCmsBlogDocuments, [`cms-blog-documents-${version}`], PUBLIC_CONTENT_CACHE_OPTIONS)();
 }
 
 export async function getLocalizedBlogPosts(locale: Locale): Promise<LocalizedBlogPost[]> {

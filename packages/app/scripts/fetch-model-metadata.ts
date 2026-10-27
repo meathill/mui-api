@@ -1,16 +1,15 @@
 /**
- * 从 models.dev 回填模型元数据，产出一份 UPDATE migration。
+ * 从 models.dev 回填模型元数据，产出一份独立的数据回填 SQL 脚本。
  *
- * 为什么能这么干：我们转售的绝大多数模型（claude-* / gpt-* / gemini-* / mimo-* …）
- * 在 models.dev 上都已有第一方条目，context 长度、能力标记、模态、发布日期都是现成的。
- * 抄元数据、价格用我们自己的，比手写 30+ 份规格靠谱得多。
+ * 注意：数据库迁移（packages/shared-db/drizzle/）仅针对 Schema 结构变更（DDL）。
+ * 数据回填（DML）属于数据运维范畴，不作为 migration 文件，而是生成独立 SQL 脚本按需执行。
  *
  * 用法：
  *   node scripts/fetch-model-metadata.ts --dry-run     # 只打印匹配情况，不写文件
- *   node scripts/fetch-model-metadata.ts               # 生成 0024 migration
+ *   node scripts/fetch-model-metadata.ts               # 生成 packages/app/scripts/sql/backfill-model-metadata.sql
  *   node scripts/fetch-model-metadata.ts --remote      # 模型清单取自生产 D1（默认本地）
  *
- * 只读外网 + 读 D1 + 写本地 SQL 文件，不写数据库；migration 由人工执行。
+ * 只读外网 + 读 D1 + 写本地 SQL 文件，不写数据库；SQL 由人工或 CI 按需独立执行。
  */
 
 import fs from 'node:fs';
@@ -24,7 +23,7 @@ import {
 import { type D1Model, loadModelsFromD1, repoRoot } from './lib/d1-models.ts';
 
 const MODELS_DEV_API = 'https://models.dev/api.json';
-const MIGRATION_SLUG = 'backfill_model_metadata';
+const DEFAULT_OUTPUT_SQL_PATH = path.join(repoRoot, 'temp-backfill-metadata.sql');
 
 /**
  * 第一方 provider 优先级：同一个模型名在几十个转售商下都有条目，但只有原厂
@@ -453,10 +452,10 @@ function sqlString(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
 }
 
-function buildMigration(resolved: Resolved[]): string {
+function buildBackfillSql(resolved: Resolved[]): string {
   const header = [
     '-- 回填模型对外元数据，数据来自 models.dev（第一方 provider 条目优先）。',
-    '-- 由 packages/app/scripts/fetch-model-metadata.ts 生成，不要手改；',
+    '-- 由 packages/app/scripts/fetch-model-metadata.ts 生成，属于独立数据回填脚本，不要作为 Drizzle migration。',
     '-- 要更新请重跑脚本并 review diff。',
     '--',
     '-- 只回填 display_name / context_length / max_output_tokens / metadata_json 四列，',
@@ -475,27 +474,6 @@ function buildMigration(resolved: Resolved[]): string {
   });
 
   return `${header}${statements.join('\n\n')}\n`;
-}
-
-/**
- * 找下一个可用的 migration 序号。之前这里是硬编码文件名——脚本设计上要能重跑
- * （见头部注释「维护：每次加模型/调价后重跑」），硬编码名字意味着第二次跑会原地
- * 覆盖第一次生成的文件；如果那个文件已经在生产跑过，覆盖了也不会被重新应用
- * （wrangler 按文件名去重），改动就这么静默丢失。扫目录取最大序号 + 1，
- * 每次重跑都是一份新 migration。
- */
-function nextMigrationPath(): string {
-  const drizzleDir = path.join(repoRoot, 'packages', 'shared-db', 'drizzle');
-  const existing = fs
-    .readdirSync(drizzleDir)
-    .map((name) => name.match(/^(\d{4})_/))
-    .filter((match): match is RegExpMatchArray => match !== null)
-    .map((match) => Number(match[1]));
-  const next = (existing.length > 0 ? Math.max(...existing) : 0) + 1;
-  const fileName = `${String(next).padStart(4, '0')}_${MIGRATION_SLUG}.sql`;
-  const target = path.join(drizzleDir, fileName);
-  if (fs.existsSync(target)) throw new Error(`${target} 已存在，扫描逻辑有 bug，不能覆盖`);
-  return target;
 }
 
 async function main(): Promise<void> {
@@ -550,10 +528,20 @@ async function main(): Promise<void> {
     return;
   }
 
-  const target = nextMigrationPath();
-  fs.writeFileSync(target, buildMigration(resolved), 'utf8');
-  console.log(`\n已写入 ${path.relative(repoRoot, target)}（${resolved.length} 条 UPDATE）`);
-  console.log('请 review 后执行：pnpm --filter @muirouter/shared-db db:migrate:local');
+  const targetDir = path.dirname(DEFAULT_OUTPUT_SQL_PATH);
+  if (!fs.existsSync(targetDir)) {
+    fs.mkdirSync(targetDir, { recursive: true });
+  }
+  fs.writeFileSync(DEFAULT_OUTPUT_SQL_PATH, buildBackfillSql(resolved), 'utf8');
+  console.log(`\n已写入临时文件 ${path.relative(repoRoot, DEFAULT_OUTPUT_SQL_PATH)}（${resolved.length} 条 UPDATE）`);
+  console.log('数据回填独立执行（跑完即删，不入仓库，仅 seed 会保留完整记录）：');
+  console.log(
+    '  本地：pnpm --filter @muirouter/shared-db exec wrangler d1 execute DB --local --persist-to="../../.wrangler/state" --file="temp-backfill-metadata.sql"',
+  );
+  console.log(
+    '  线上：pnpm --filter @muirouter/shared-db exec wrangler d1 execute DB --remote --file="temp-backfill-metadata.sql"',
+  );
+  console.log('  注意：执行完成后请立即删除临时文件 temp-backfill-metadata.sql');
 }
 
 await main();
