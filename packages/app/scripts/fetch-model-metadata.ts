@@ -297,6 +297,63 @@ const MANUAL_METADATA: Record<string, Omit<Resolved, 'model' | 'source'>> = {
       },
     },
   },
+  'mimo-v2.5-flash': {
+    displayName: 'MiMo-V2.5-Flash',
+    contextLength: 262144,
+    maxOutputTokens: 8192,
+    metadata: {
+      description: 'Xiaomi MiMo 2.5 Flash lightweight high-speed model with 256K context',
+      family: 'mimo-v2.5',
+      attachment: true,
+      reasoning: false,
+      toolCall: true,
+      openWeights: false,
+      releaseDate: '2026-05-15',
+      lastUpdated: '2026-05-15',
+      modalities: {
+        input: ['text', 'image'],
+        output: ['text'],
+      },
+    },
+  },
+  'mimo-v2-omni': {
+    displayName: 'MiMo-V2-Omni',
+    contextLength: 262144,
+    maxOutputTokens: 8192,
+    metadata: {
+      description: 'Xiaomi MiMo 2 Omni multimodal foundation model supporting audio, image, and text',
+      family: 'mimo-v2',
+      attachment: true,
+      reasoning: false,
+      toolCall: true,
+      openWeights: false,
+      releaseDate: '2026-04-20',
+      lastUpdated: '2026-04-20',
+      modalities: {
+        input: ['text', 'image', 'audio'],
+        output: ['text'],
+      },
+    },
+  },
+  'mimo-v2-tts': {
+    displayName: 'MiMo-V2-TTS',
+    contextLength: 8192,
+    maxOutputTokens: 8192,
+    metadata: {
+      description: 'Xiaomi MiMo 2 TTS voice synthesis model',
+      family: 'mimo-v2',
+      attachment: false,
+      reasoning: false,
+      toolCall: false,
+      openWeights: false,
+      releaseDate: '2026-04-20',
+      lastUpdated: '2026-04-20',
+      modalities: {
+        input: ['text'],
+        output: ['audio'],
+      },
+    },
+  },
 };
 
 interface ModelsDevEntry {

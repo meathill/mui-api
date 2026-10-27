@@ -37,9 +37,23 @@ function formatPrice(v: number | null): string {
   return priceFmt.format(v);
 }
 
-export function ModelsCatalog({ sections }: { sections: ProviderSection[] }) {
+function getModelUpdateDate(model: Model): string {
+  if (model.metadataJson) {
+    try {
+      const parsed = JSON.parse(model.metadataJson);
+      if (typeof parsed?.lastUpdated === 'string') return parsed.lastUpdated;
+      if (typeof parsed?.releaseDate === 'string') return parsed.releaseDate;
+    } catch {
+      // 忽略非法 JSON
+    }
+  }
+  return '';
+}
+
+export function ModelsCatalog({ sections, locale = 'zh' }: { sections: ProviderSection[]; locale?: string }) {
   const [query, setQuery] = useState('');
   const [providerFilter, setProviderFilter] = useState<string>('all');
+  const isZh = locale === 'zh';
 
   const providers = useMemo(() => sections.map((s) => s.provider), [sections]);
 
@@ -54,6 +68,7 @@ export function ModelsCatalog({ sections }: { sections: ProviderSection[] }) {
           return (
             m.id.toLowerCase().includes(q) ||
             m.provider.toLowerCase().includes(q) ||
+            (m.displayName ?? '').toLowerCase().includes(q) ||
             (m.upstreamModelId ?? '').toLowerCase().includes(q)
           );
         }),
@@ -70,7 +85,7 @@ export function ModelsCatalog({ sections }: { sections: ProviderSection[] }) {
           <input
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="搜索模型 ID / Provider"
+            placeholder={isZh ? '搜索模型 ID / 名称 / 厂商' : 'Search Model ID / Name / Provider'}
             className="h-9 w-64 rounded-md border border-input bg-background px-3 text-sm outline-none focus:ring-2 focus:ring-ring"
           />
           <select
@@ -78,7 +93,7 @@ export function ModelsCatalog({ sections }: { sections: ProviderSection[] }) {
             onChange={(e) => setProviderFilter(e.target.value)}
             className="h-9 rounded-md border border-input bg-background px-3 text-sm"
           >
-            <option value="all">全部厂商</option>
+            <option value="all">{isZh ? '全部厂商' : 'All Providers'}</option>
             {providers.map((p) => (
               <option key={p} value={p}>
                 {providerLabels[p] ?? p}
@@ -86,7 +101,7 @@ export function ModelsCatalog({ sections }: { sections: ProviderSection[] }) {
             ))}
           </select>
         </div>
-        <p className="text-sm text-muted-foreground">筛选结果：{total} 个模型</p>
+        <p className="text-sm text-muted-foreground">{isZh ? `筛选结果：${total} 个模型` : `Found: ${total} models`}</p>
       </div>
 
       <div className="space-y-8">
@@ -104,23 +119,41 @@ export function ModelsCatalog({ sections }: { sections: ProviderSection[] }) {
               <table className="w-full text-sm">
                 <thead className="text-left text-muted-foreground">
                   <tr className="border-b border-border">
-                    <th className="px-4 py-2 font-medium">模型 ID</th>
-                    <th className="px-4 py-2 font-medium text-right">输入 / 1M</th>
-                    <th className="px-4 py-2 font-medium text-right">缓存输入</th>
-                    <th className="px-4 py-2 font-medium text-right">输出 / 1M</th>
-                    <th className="px-4 py-2 font-medium">上游 ID</th>
+                    <th className="px-4 py-2 font-medium">{isZh ? '模型 ID / 名称' : 'Model ID / Name'}</th>
+                    <th className="px-4 py-2 font-medium">{isZh ? '更新时间' : 'Updated'}</th>
+                    <th className="px-4 py-2 font-medium text-right">{isZh ? '输入 / 1M' : 'Input / 1M'}</th>
+                    <th className="px-4 py-2 font-medium text-right">{isZh ? '缓存输入' : 'Cached Input'}</th>
+                    <th className="px-4 py-2 font-medium text-right">{isZh ? '输出 / 1M' : 'Output / 1M'}</th>
+                    <th className="px-4 py-2 font-medium">{isZh ? '上游 ID' : 'Upstream ID'}</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {section.models.map((m) => (
-                    <tr key={m.id} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
-                      <td className="px-4 py-2 font-mono text-xs">{m.id}</td>
-                      <td className="px-4 py-2 text-right">{formatPrice(m.inputPrice)}</td>
-                      <td className="px-4 py-2 text-right">{formatPrice(m.cachedInputPrice)}</td>
-                      <td className="px-4 py-2 text-right">{formatPrice(m.outputPrice)}</td>
-                      <td className="px-4 py-2 font-mono text-xs text-muted-foreground">{m.upstreamModelId ?? '-'}</td>
-                    </tr>
-                  ))}
+                  {section.models.map((m) => {
+                    const updateDate = getModelUpdateDate(m);
+                    return (
+                      <tr key={m.id} className="border-b border-border/60 last:border-0 hover:bg-muted/40">
+                        <td className="px-4 py-2">
+                          {m.displayName ? (
+                            <div className="flex flex-col">
+                              <span className="font-medium text-xs text-foreground">{m.displayName}</span>
+                              <span className="font-mono text-[11px] text-muted-foreground">{m.id}</span>
+                            </div>
+                          ) : (
+                            <span className="font-mono text-xs">{m.id}</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-2 font-mono text-xs text-muted-foreground whitespace-nowrap">
+                          {updateDate || '-'}
+                        </td>
+                        <td className="px-4 py-2 text-right">{formatPrice(m.inputPrice)}</td>
+                        <td className="px-4 py-2 text-right">{formatPrice(m.cachedInputPrice)}</td>
+                        <td className="px-4 py-2 text-right">{formatPrice(m.outputPrice)}</td>
+                        <td className="px-4 py-2 font-mono text-xs text-muted-foreground">
+                          {m.upstreamModelId ?? '-'}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

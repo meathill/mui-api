@@ -206,7 +206,7 @@ async function queryPricingSnapshot(): Promise<PricingSnapshot> {
   };
 }
 
-const loadPricingSnapshot = unstable_cache(queryPricingSnapshot, ['pricing-snapshot'], {
+const loadPricingSnapshot = unstable_cache(queryPricingSnapshot, ['pricing-snapshot-v2'], {
   revalidate: PUBLIC_CONTENT_REVALIDATE_SECONDS,
   tags: [PRICING_MODELS_TAG],
 });
