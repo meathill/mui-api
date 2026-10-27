@@ -198,7 +198,7 @@
   --popover: var(--brand-paper);
   --popover-foreground: var(--brand-ink);
   --primary: var(--brand-yellow);
-  --primary-foreground: var(--brand-ink);
+  --primary-foreground: #231b14;
   --secondary: var(--brand-fluff);
   --secondary-foreground: var(--brand-ink);
   --muted: var(--brand-paper-deep);
@@ -227,7 +227,7 @@
   --sidebar-accent-foreground: var(--brand-ink);
   --sidebar-border: var(--brand-rule-strong);
   --sidebar-primary: var(--brand-yellow);
-  --sidebar-primary-foreground: var(--brand-ink);
+  --sidebar-primary-foreground: #231b14;
   --sidebar-ring: var(--brand-yellow);
 
   --shadow-press-yellow: 0 3px 0 0 #8a6814;
