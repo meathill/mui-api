@@ -7,6 +7,8 @@ INSERT OR REPLACE INTO models (id, provider, upstream_model_id, input_price, out
   ('gpt-6.1-sol', 'openai', 'gpt-6.1-sol', 2, 10, 1, 0.1, 2.5, 272000, 4, 0.2, 5, 15),
   ('gpt-6.1', 'openai', 'gpt-6.1-sol', 2, 10, 1, 0.1, 2.5, 272000, 4, 0.2, 5, 15),
   ('gpt-6-1-sol', 'openai', 'gpt-6.1-sol', 2, 10, 1, 0.1, 2.5, 272000, 4, 0.2, 5, 15),
+  ('gpt-6.1-terra', 'openai', 'gpt-6.1-terra', 1, 5, 1, 0.05, 1.25, 272000, 2, 0.1, 2.5, 7.5),
+  ('gpt-6-1-terra', 'openai', 'gpt-6.1-terra', 1, 5, 1, 0.05, 1.25, 272000, 2, 0.1, 2.5, 7.5),
   ('gpt-6-sol', 'openai', 'gpt-6-sol', 2, 10, 1, 0.2, 2.5, 272000, 4, 0.4, 5, 15),
   ('gpt-6', 'openai', 'gpt-6-sol', 2, 10, 1, 0.2, 2.5, 272000, 4, 0.4, 5, 15),
   ('gpt-6-luna', 'openai', 'gpt-6-luna', 0.1, 0.5, 1, 0.01, 0.125, 272000, 0.2, 0.02, 0.25, 0.75),

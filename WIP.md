@@ -1,5 +1,15 @@
 # WIP
 
+## 已完成：OpenAI GPT-6.1 Terra 发布解读博客与模型接入（2026-10-27）
+
+- [x] 核对官方发布信息（X 官方推文、技术博客、API 定价与规格）：视觉推断与 Computer Use 突破、Agents' Last Exam 比肩 GPT-6 Astra 且 token 成本仅 1/10、速度快 3 倍、API 价格较 GPT-5.6 Terra 和 GPT-6.1 Sol 腰斩（输入 $1/M、输出 $5/M、缓存命中 $0.05/M、缓存写入 $1.25/M，1.1M 上下文）。
+- [x] 同步 MuiRouter 模型目录与基准数据：在 `packages/app/src/db/seed.ts`、`seed-models.sql`、`packages/dashboard/seed-models.sql`、`packages/app/scripts/fetch-model-metadata.ts` 中补充 `gpt-6.1-terra` 与短别名 `gpt-6-1-terra`。
+- [x] 编写测试用例验证新模型在分发调度与目录服务中的正确解析与单测通过（`provider-dispatch.test.ts` 26/26 通过）。
+- [x] 撰写中文深度技术解读博客，严格遵循 issue #15 SEO 约束（seoTitle 显示宽度 35 ≤ 65、seoDescription 153 字符在 120-160 字符区间）。
+- [x] 调用 muicv CMS 接口发布中文博文（ID 215，`site=muirouter`，`locale=zh-CN`，`slug=gpt-6-1-terra-released`，`status=published`），并运行 `check:cms-seo` 验证 0 违规。
+- [x] 编写一次性生产 SQL 脚本并在生产 D1 执行写入 4 行数据，清理 Cloudflare KV `models:catalog` 缓存，清理临时脚本。
+- [x] 执行全套回归测试（格式化、类型检查、单测 369+256 全部通过、生产构建验证）。
+
 ## 已完成：Kimi K3.1 Pro 发布解读博客与模型支持（2026-10-24）
 
 - [x] 核对官方发布信息（X 官方推文、技术博客、API 定价与上下文规格）：2.8T MoE 3T 级开源权重（11/04 开源）、1M 上下文、代码/3D 建模 CAD/金融分析全面突破、幻觉降低 65%、API 降价 33.3%（输入 $2/M、输出 $10/M、缓存命中 $0.2/M）。

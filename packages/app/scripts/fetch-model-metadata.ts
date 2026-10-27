@@ -253,6 +253,50 @@ const MANUAL_METADATA: Record<string, Omit<Resolved, 'model' | 'source'>> = {
       },
     },
   },
+  'gpt-6.1-terra': {
+    displayName: 'GPT-6.1 Terra',
+    contextLength: 1100000,
+    maxOutputTokens: 131072,
+    metadata: {
+      description:
+        'GPT-6.1 Terra is a cost-intelligence frontier model delivering fast, highly capable visual reasoning and Computer Use at 50% lower API pricing.',
+      family: 'gpt-6',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: false,
+      releaseDate: '2026-10-26',
+      lastUpdated: '2026-10-26',
+      modalities: {
+        input: ['text', 'image'],
+        output: ['text'],
+      },
+    },
+  },
+  'gpt-6-1-terra': {
+    displayName: 'GPT-6.1 Terra',
+    contextLength: 1100000,
+    maxOutputTokens: 131072,
+    metadata: {
+      description:
+        'GPT-6.1 Terra is a cost-intelligence frontier model delivering fast, highly capable visual reasoning and Computer Use at 50% lower API pricing.',
+      family: 'gpt-6',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: false,
+      releaseDate: '2026-10-26',
+      lastUpdated: '2026-10-26',
+      modalities: {
+        input: ['text', 'image'],
+        output: ['text'],
+      },
+    },
+  },
 };
 
 interface ModelsDevEntry {
