@@ -12,10 +12,14 @@ description: 当上游 AI 厂商调价或发布新模型时，规范化执行模
 ## 核心原则
 
 1. **查证第一，数据精确**：必须从官方定价页、公告博客或官方社交媒体账号（X 等）获取最准确的官方原价与新价格（包括标准输入、标准输出、Prompt Caching 读取与写入倍率等）。
-2. **价格变更不生成 Drizzle 迁移文件**：模型价格属于动态运营数据，**不要在 `packages/shared-db/drizzle/` 生成迁移文件**。统一使用**一次性 SQL 脚本 + 修改 Seed 数据**的模式。
+2. **数据库迁移仅限 Schema 结构变更，数据回填/更新脚本跑完即删，不入仓库**：
+   - `packages/shared-db/drizzle/` 的迁移文件（DDL）**仅且只用于表结构变化**（创建表、增删字段、索引等）。
+   - 模型定价、元数据回填（`fetch-model-metadata.ts` 等产出的临时 SQL 文件，如 `temp-*.sql`）属于动态运营数据，**严禁在 `packages/shared-db/drizzle/` 生成迁移文件，也严禁提交进代码仓库**。跑完 D1 后必须立即删除。
+   - **只有 seed 保留完整记录**（`seed-models.sql` / `packages/dashboard/seed-models.sql` / `packages/app/src/db/seed.ts`），以便于将来新建项目与本地重建数据库。
 3. **博客内容全部走 muicv CMS**：博客正文与元数据（含标题、摘要、tags、sources、readingMinutes）存 muicv Payload CMS 的 `articles` 集合（`site=muirouter`），本仓库**不再维护** `content/blog/*.mdx`、`blog-content.ts` 与 D1 博客表（2026-09 已迁移）。发布用 MCP 工具 `upsert_article`（或 muicv CMS 后台）。
-4. **先中文审查，后多语翻译**：先撰写高质量中文版并发布（`locale=zh-CN`），待用户审查批准后，再逐语言补发其他 7 种（en, de, fr, es, pt, th, ja）。
-5. **线上变更闭环**：执行一次性 SQL 写 D1（仅模型价格）-> 清理 Cloudflare KV `models:catalog` 缓存 -> 验证无误后立即删除临时脚本。
+4. **单变量精确控制博客缓存**：前台博客缓存统一仅由 `BLOG_CACHE_VERSION` 一个变量控制。急需刷新前台预渲染缓存时，只需修改 `packages/dashboard/wrangler.jsonc` 中的 `vars.BLOG_CACHE_VERSION`（如升级版本号）或在 Cloudflare Worker Settings 调整该环境变量重跑部署即可，无需修改任何 TypeScript 代码。
+5. **先中文审查，后多语翻译**：先撰写高质量中文版并发布（`locale=zh-CN`），待用户审查批准后，再逐语言补发其他 7 种（en, de, fr, es, pt, th, ja）。
+6. **线上变更闭环**：执行一次性 SQL 写 D1 -> 清理 Cloudflare KV `models:catalog` 缓存 -> 验证无误后立即删除临时脚本。
 
 ---
 

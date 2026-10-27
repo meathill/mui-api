@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CmsBlogDocument } from './cms-blog-client';
-import { getDocumentLocales, pickDocumentForLocale, toLocalizedBlogPost } from './blog';
+import { getBlogCacheVersion, getDocumentLocales, pickDocumentForLocale, toLocalizedBlogPost } from './blog';
 
 function makeDocument(overrides: Partial<CmsBlogDocument> = {}): CmsBlogDocument {
   return {
@@ -83,5 +83,27 @@ describe('blog metadata helpers', () => {
     expect(zhOnly.documentLocale).toBe('zh');
     // en 请求回退命中 zh 文档时，documentLocale 与请求 locale 不同 → 详情页提示「暂无译文」
     expect(pickDocumentForLocale([makeDocument({ locale: 'zh' })], 'en')?.locale).toBe('zh');
+  });
+
+  describe('getBlogCacheVersion', () => {
+    it('优先从 process.env.BLOG_CACHE_VERSION 读取', async () => {
+      const original = process.env.BLOG_CACHE_VERSION;
+      process.env.BLOG_CACHE_VERSION = 'v-custom-123';
+      try {
+        expect(await getBlogCacheVersion()).toBe('v-custom-123');
+      } finally {
+        process.env.BLOG_CACHE_VERSION = original;
+      }
+    });
+
+    it('无自定义环境变量时回退到默认版本 v4', async () => {
+      const originalBlog = process.env.BLOG_CACHE_VERSION;
+      delete (process.env as Record<string, string | undefined>).BLOG_CACHE_VERSION;
+      try {
+        expect(await getBlogCacheVersion()).toBe('v4');
+      } finally {
+        (process.env as Record<string, string | undefined>).BLOG_CACHE_VERSION = originalBlog;
+      }
+    });
   });
 });

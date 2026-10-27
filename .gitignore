@@ -8,3 +8,4 @@ dist/
 .pnpm-store/
 .zcode/
 blog-export.json
+temp-*.sql

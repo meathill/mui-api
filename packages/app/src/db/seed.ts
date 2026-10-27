@@ -1518,7 +1518,12 @@ export function generateSeedSQL(): string {
     .map((row) => `  (${row})`)
     .join(',\n');
 
-  return `INSERT OR REPLACE INTO models (${cols.join(', ')}) VALUES\n${values};`;
+  const updateCols = cols
+    .filter((col) => col !== 'id')
+    .map((col) => `  ${col} = excluded.${col}`)
+    .join(',\n');
+
+  return `INSERT INTO models (${cols.join(', ')}) VALUES\n${values}\nON CONFLICT(id) DO UPDATE SET\n${updateCols};`;
 }
 
 function nullable(v: number | null | undefined): string {
