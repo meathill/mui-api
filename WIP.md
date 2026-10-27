@@ -1,5 +1,14 @@
 # WIP
 
+## 已完成：博客详情页与全局样式修复（Mermaid、JSON 渲染、Dark Mode 按钮、表格宽屏展示，2026-10-27）
+
+- [x] 修复 Dark Mode 按钮字体颜色：在 `packages/dashboard/src/app/globals.css` 中将 `.dark` 下 `--primary-foreground` 和 `--sidebar-primary-foreground` 修正为深墨色 `#231b14`，消除明亮黄色按钮上的白字低对比度问题。
+- [x] 修复 Markdown 代码块与 JSON 渲染问题：在 `packages/dashboard/src/components/marketing/markdown-renderer.tsx` 中拆分 inline code 与 block code，移除 block code 中被误加的 inline pill 样式，使用品牌暗色代码块风格，并为 JSON 代码块增加结构化语法高亮。
+- [x] 优化文章表格排版与宽屏扩展：允许表格和宽幅元素在阅读流中扩展至 1.5x–1.67x 正文宽度（`max-w-6xl lg:max-w-7xl`），表头设置 `whitespace-nowrap`，彻底消除大屏幕下被窄栏挤压产生的横向滚动条。
+- [x] 修复 Mermaid 渲染逻辑并更新 CMS 博文：`MarkdownRenderer` 强化 Mermaid 提取与图表容错；直连远程 D1 `muicv` 数据库将 `gpt-6-1-terra-released` 博文（ID 215 及 `_articles_v`）3.1 节的 ASCII 字符画转换为标准 `flowchart TD` Mermaid 语法。
+- [x] 编写并补充单元测试，验证 Markdown 代码块、JSON 高亮、Mermaid 与宽表格渲染，全量回归测试（typecheck、format、test 全部 100% 通过）。
+
+
 ## 已完成：OpenAI GPT-6.1 Terra 发布解读博客与模型接入（2026-10-27）
 
 - [x] 核对官方发布信息（X 官方推文、技术博客、API 定价与规格）：视觉推断与 Computer Use 突破、Agents' Last Exam 比肩 GPT-6 Astra 且 token 成本仅 1/10、速度快 3 倍、API 价格较 GPT-5.6 Terra 和 GPT-6.1 Sol 腰斩（输入 $1/M、输出 $5/M、缓存命中 $0.05/M、缓存写入 $1.25/M，1.1M 上下文）。

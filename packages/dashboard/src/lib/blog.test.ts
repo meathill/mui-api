@@ -96,11 +96,11 @@ describe('blog metadata helpers', () => {
       }
     });
 
-    it('无自定义环境变量时回退到默认版本 v4', async () => {
+    it('无自定义环境变量时回退到默认版本 v5', async () => {
       const originalBlog = process.env.BLOG_CACHE_VERSION;
       delete (process.env as Record<string, string | undefined>).BLOG_CACHE_VERSION;
       try {
-        expect(await getBlogCacheVersion()).toBe('v4');
+        expect(await getBlogCacheVersion()).toBe('v5');
       } finally {
         (process.env as Record<string, string | undefined>).BLOG_CACHE_VERSION = originalBlog;
       }

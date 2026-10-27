@@ -138,8 +138,8 @@ async function BlogArticle({ locale, post, content }: { locale: Locale; post: Lo
   return (
     <article className="bg-background">
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <div className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
-        <Breadcrumb className="text-sm">
+      <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20 lg:max-w-7xl">
+        <Breadcrumb className="text-sm max-w-3xl">
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink href={getLocalizedPath('/', locale)}>{t('breadcrumbHome')}</BreadcrumbLink>
@@ -180,7 +180,7 @@ async function BlogArticle({ locale, post, content }: { locale: Locale; post: Lo
           </div>
         </header>
 
-        <div className="mt-12 max-w-3xl">
+        <div className="mt-12">
           <MarkdownRenderer content={content} />
         </div>
 

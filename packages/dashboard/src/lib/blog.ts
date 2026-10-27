@@ -119,7 +119,7 @@ export async function getBlogCacheVersion(): Promise<string> {
     }
   }
 
-  return process.env.BLOG_CACHE_VERSION?.trim() || 'v4';
+  return process.env.BLOG_CACHE_VERSION?.trim() || 'v5';
 }
 
 async function getCmsBlogDocuments(): Promise<CmsBlogDocument[]> {
