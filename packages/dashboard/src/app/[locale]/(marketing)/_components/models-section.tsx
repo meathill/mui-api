@@ -9,7 +9,7 @@ export function ModelsSection() {
     {
       name: 'OpenAI',
       color: 'bg-[var(--brand-fluff)] text-[var(--brand-yellow-deep)] border border-[var(--brand-corgi)]',
-      models: ['GPT-6 Astra', 'GPT-6.1 Sol', 'GPT-6 Sol', 'GPT-6 Luna', 'GPT-5.6 Sol'],
+      models: ['GPT-6 Astra', 'GPT-6.1 Sol', 'GPT-6.1 Terra', 'GPT-6 Sol', 'GPT-6 Luna'],
       description: t('openaiDesc'),
     },
     {
@@ -30,7 +30,7 @@ export function ModelsSection() {
       name: 'Moonshot AI',
       color:
         'bg-cyan-500/10 text-cyan-800 border border-cyan-500/30 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-400/30',
-      models: ['Kimi K3', 'Kimi K2.7 Code', 'Kimi K2.6', 'Kimi K2'],
+      models: ['Kimi K3.1 Pro', 'Kimi K3', 'Kimi K2.7 Code', 'Kimi K2.6', 'Kimi K2'],
       description: t('moonshotDesc'),
     },
     {
