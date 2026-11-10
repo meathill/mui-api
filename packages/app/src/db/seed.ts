@@ -96,6 +96,14 @@ function anthropicCache(inputPrice: number) {
   };
 }
 
+/** anthropic Fable 5.1/5.2：cache_read 2.5% input、cache_creation ~125% input */
+function anthropicCache2_5Percent(inputPrice: number) {
+  return {
+    cachedInputPrice: round(inputPrice * 0.025),
+    cacheWritePrice: round(inputPrice * 1.25),
+  };
+}
+
 /** gemini：cache 命中 ~10% input（官方按模型而异，大部分为 10%，Argon 单独为 5%） */
 function geminiCache(inputPrice: number) {
   return {
@@ -529,6 +537,29 @@ export const SEED_MODELS: NewModel[] = [
 
   // Anthropic (Claude) — 经 CF AI Gateway BYOK（ANTHROPIC_API_KEY 自付，不经 CF Unified Billing）；
   // upstreamModelId 用 Anthropic 规范连字符 ID（已 smoke 实测 CF 原生端点可用）。markupRate 1：按原厂价直通，不加价。
+  // Claude Fable 5.2（2026-11-09 发布）：Mythos 级底座、超难数学与科学突破、长程 Agent 协同（1000+ 子 Agent 8 天）。
+  // 输出速度提升 30%，基础 input $8 / output $40（较 5.1 降 20%）；prompt caching 读单价 $0.20/1M（2.5%），写单价 $10.00/1M（1.25× input）。
+  {
+    id: 'claude-fable-5-2',
+    provider: 'anthropic',
+    upstreamModelId: 'claude-fable-5-2',
+    inputPrice: 8,
+    outputPrice: 40,
+    markupRate: 1,
+    ...anthropicCache2_5Percent(8),
+    ...NO_LONG_CONTEXT,
+  },
+  // 别名支持 dot 形式：claude-fable-5.2
+  {
+    id: 'claude-fable-5.2',
+    provider: 'anthropic',
+    upstreamModelId: 'claude-fable-5-2',
+    inputPrice: 8,
+    outputPrice: 40,
+    markupRate: 1,
+    ...anthropicCache2_5Percent(8),
+    ...NO_LONG_CONTEXT,
+  },
   // Claude Fable 5.1（2026-09-01 发布）：Mythos 级底座，基础 input $10 / output $50；
   // prompt caching 读单价 $0.25/1M（相比 Fable 5 降价 75%），写单价 $12.50/1M（1.25× input）。
   {
