@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { CloudflareBindings } from '../types';
 import {
+  callAnthropic,
+  callAnthropicCompat,
   callDeepSeek,
   callGrokEndpoint,
   callMoonshot,
@@ -568,5 +570,61 @@ describe('callOpenAIEndpoint', () => {
     expect(headers.get('authorization')).toBe('Bearer test-openai-key');
     expect(headers.get('content-type')).toBe('application/json');
     expect(init?.body).toBe(body);
+  });
+});
+
+describe('callAnthropicCompat', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('转发 claude-fable-5.2 时将点号归一化为连字符并加上 anthropic/ 前缀', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => Response.json({ ok: true }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const env = {
+      CF_ACCOUNT_ID: 'test-account',
+      CF_GATEWAY_ID: 'test-gateway',
+      CF_AIG_TOKEN: 'test-aig-token',
+    } as CloudflareBindings;
+
+    await callAnthropicCompat(env, 'claude-fable-5.2', {
+      messages: [{ role: 'user', content: 'test fable 5.2' }],
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [input, init] = fetchMock.mock.calls[0];
+    expect(String(input)).toContain('/compat/chat/completions');
+    const sentBody = JSON.parse(String(init?.body)) as { model: string };
+    expect(sentBody.model).toBe('anthropic/claude-fable-5-2');
+  });
+});
+
+describe('callAnthropic', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('调用 Anthropic Messages 原生端点时将 claude-fable-5.2 归一化为连字符 ID', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => Response.json({ ok: true }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const env = {
+      CF_ACCOUNT_ID: 'test-account',
+      CF_GATEWAY_ID: 'test-gateway',
+      CF_AIG_TOKEN: 'test-aig-token',
+    } as CloudflareBindings;
+
+    await callAnthropic(env, {
+      model: 'claude-fable-5.2',
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: 'test fable 5.2 messages' }],
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [input, init] = fetchMock.mock.calls[0];
+    expect(String(input)).toContain('/anthropic/v1/messages');
+    const sentBody = JSON.parse(String(init?.body)) as { model: string };
+    expect(sentBody.model).toBe('claude-fable-5-2');
   });
 });

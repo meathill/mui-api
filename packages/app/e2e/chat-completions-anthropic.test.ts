@@ -48,4 +48,42 @@ describe('POST /v1/chat/completions —— Claude 经 compat 端点（Gateway + 
       expect(userData?.balance).toBeLessThan(10);
     });
   });
+
+  it('claude-fable-5.2 别名正确映射至 anthropic/claude-fable-5-2 并扣费', async () => {
+    const userId = `test-claude-fable-5-2-${Date.now()}`;
+    const billKey = await seedApiKey(userId, 10);
+
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      Response.json({
+        id: 'chatcmpl-fable-5-2',
+        object: 'chat.completion',
+        created: 1,
+        model: 'claude-fable-5-2',
+        usage: { prompt_tokens: 1000, completion_tokens: 500 },
+        choices: [{ index: 0, message: { role: 'assistant', content: 'fable 5.2 response' }, finish_reason: 'stop' }],
+      }),
+    );
+    vi.stubGlobal('fetch', fetchMock);
+
+    const res = await SELF.fetch('http://localhost/v1/chat/completions', {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${billKey}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-fable-5.2',
+        messages: [{ role: 'user', content: 'hello fable 5.2' }],
+      }),
+    });
+
+    expect(res.status).toBe(200);
+
+    const [url, init] = fetchMock.mock.calls[0];
+    expect(String(url)).toContain('/compat/chat/completions');
+    const sentBody = JSON.parse(String(init?.body)) as { model: string };
+    expect(sentBody.model).toBe('anthropic/claude-fable-5-2');
+
+    await vi.waitFor(async () => {
+      const userData = await env.KV.get<{ balance: number }>(`user:${userId}`, 'json');
+      expect(userData?.balance).toBeLessThan(10);
+    });
+  });
 });

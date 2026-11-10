@@ -98,6 +98,12 @@ await db.batch([
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('claude-sonnet-5-5', 'anthropic', 'claude-sonnet-5-5', 2, 10, 1.2, 0.1)",
   ),
   db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price, cache_write_price) VALUES ('claude-fable-5-2', 'anthropic', 'claude-fable-5-2', 8, 40, 1, 0.2, 10)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price, cache_write_price) VALUES ('claude-fable-5.2', 'anthropic', 'claude-fable-5-2', 8, 40, 1, 0.2, 10)",
+  ),
+  db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('claude-haiku-5-5', 'anthropic', 'claude-haiku-5-5', 0.1, 0.5, 1.2, 0.01)",
   ),
   db.prepare(

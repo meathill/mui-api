@@ -296,6 +296,50 @@ const MANUAL_METADATA: Record<string, Omit<Resolved, 'model' | 'source'>> = {
       },
     },
   },
+  'claude-fable-5-2': {
+    displayName: 'Claude Fable 5.2',
+    contextLength: 1000000,
+    maxOutputTokens: 128000,
+    metadata: {
+      description:
+        'Claude model for daunting technical challenges, advanced reasoning, and long-horizon autonomous agentic workflows',
+      family: 'claude-fable',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: false,
+      structuredOutput: true,
+      openWeights: false,
+      releaseDate: '2026-11-09',
+      lastUpdated: '2026-11-09',
+      modalities: {
+        input: ['text', 'image', 'pdf'],
+        output: ['text'],
+      },
+    },
+  },
+  'claude-fable-5.2': {
+    displayName: 'Claude Fable 5.2',
+    contextLength: 1000000,
+    maxOutputTokens: 128000,
+    metadata: {
+      description:
+        'Claude model for daunting technical challenges, advanced reasoning, and long-horizon autonomous agentic workflows',
+      family: 'claude-fable',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: false,
+      structuredOutput: true,
+      openWeights: false,
+      releaseDate: '2026-11-09',
+      lastUpdated: '2026-11-09',
+      modalities: {
+        input: ['text', 'image', 'pdf'],
+        output: ['text'],
+      },
+    },
+  },
   'mimo-v2.5-flash': {
     displayName: 'MiMo-V2.5-Flash',
     contextLength: 262144,

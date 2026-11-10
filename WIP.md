@@ -1,5 +1,15 @@
 # WIP
 
+## 已完成：Anthropic Claude Fable 5.2 接入与发布解读博客（2026-11-10）
+
+- [x] 核对官方发布信息（Anthropic 官方公告、API 定价与规格）：Mythos 级底座、超难数学与科学突破、长程 Agent 协同（1000+ 子 Agent 连续 8 天）、输出速度提升 30%、可选 Fast Mode（2.5x 速度）、API 降价 20%（输入 $8/M、输出 $40/M、缓存命中 $0.20/M 即 2.5%、缓存写入 $10.00/M 即 1.25×，1M 上下文，128k 最大输出）。
+- [x] 同步 MuiRouter 模型目录与基准数据：在 `packages/app/src/db/seed.ts`、`seed-models.sql`、`packages/dashboard/seed-models.sql`、`packages/app/scripts/fetch-model-metadata.ts`、`packages/app/e2e/setup.ts` 中补充 `claude-fable-5-2` 与短别名 `claude-fable-5.2`。
+- [x] 编写测试用例验证新模型在分发调度与归一化逻辑中的正确解析与单测通过（`provider-dispatch.test.ts` 28/28、`chat-completions-anthropic.test.ts` 2/2 通过）。
+- [x] 撰写中文深度技术解读博客，严格遵循 issue #15 SEO 约束（seoTitle 显示宽度 50 ≤ 65、seoDescription 151 字符在 120-160 字符区间）。
+- [x] 调用 muicv CMS 接口发布中文博文（ID 217，`site=muirouter`，`locale=zh-CN`，`slug=claude-fable-5-2-released`，`status=published`），并运行 `check:cms-seo` 验证 0 违规。
+- [x] 执行生产 D1 种子数据同步（`seed-models.sql` 写入 104 行），清理 Cloudflare KV `models:catalog` 缓存；升级 `BLOG_CACHE_VERSION` 至 `v6`，并执行 IndexNow 提交 281 条 URL。
+- [x] 执行全套回归测试（格式化、类型检查、单测 371+261 全部通过、生产构建通过且 381 条路由全为 static）。
+
 ## 已完成：注册页模板主标题语义 H1 修复（Issue #16，2026-11-10）
 
 - [x] 针对注册页主标题语义编写测试用例（`packages/dashboard/src/app/[locale]/(marketing)/register/page.test.tsx` 组件单测，覆盖语义与翻译；更新 `packages/dashboard/e2e/auth.test.ts` 与 `packages/dashboard/e2e/seo.test.ts`）。
