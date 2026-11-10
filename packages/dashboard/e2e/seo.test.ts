@@ -79,6 +79,14 @@ test.describe('SEO', () => {
       const h2Count = await page.locator('h2').count();
       expect(h2Count).toBeGreaterThanOrEqual(3);
     });
+
+    test('注册页在各代表语言（默认、es、zh）均有且仅有一个语义 h1 标题', async ({ page }) => {
+      for (const path of ['/register', '/es/register', '/zh/register']) {
+        await page.goto(path);
+        const h1s = page.locator('h1');
+        await expect(h1s).toHaveCount(1);
+      }
+    });
   });
 
   test.describe('SEO 文件', () => {

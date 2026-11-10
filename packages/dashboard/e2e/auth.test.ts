@@ -21,7 +21,7 @@ test.describe('登录页面', () => {
 test.describe('注册页面', () => {
   test('注册页可访问且包含表单', async ({ page }) => {
     await page.goto('/register');
-    await expect(page.locator('h2')).toContainText(defaultMessages.register.title);
+    await expect(page.locator('h1')).toContainText(defaultMessages.register.title);
     await expect(page.getByPlaceholder(defaultMessages.register.emailPlaceholder)).toBeVisible();
     await expect(page.getByPlaceholder(defaultMessages.register.passwordPlaceholder)).toBeVisible();
     await expect(page.getByPlaceholder(defaultMessages.register.confirmPasswordPlaceholder)).toBeVisible();
