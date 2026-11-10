@@ -1,5 +1,13 @@
 # WIP
 
+## 已完成：注册页模板主标题语义 H1 修复（Issue #16，2026-11-10）
+
+- [x] 针对注册页主标题语义编写测试用例（`packages/dashboard/src/app/[locale]/(marketing)/register/page.test.tsx` 组件单测，覆盖语义与翻译；更新 `packages/dashboard/e2e/auth.test.ts` 与 `packages/dashboard/e2e/seo.test.ts`）。
+- [x] 修改 `packages/dashboard/src/app/[locale]/(marketing)/register/page.tsx`，将 `<h2 className="text-xl font-bold text-center mb-5">{t('title')}</h2>` 调整为 `h1`，保留原有类名、样式与文案翻译。
+- [x] 运行测试套件验证全部测试通过（vitest 组件测试 32 个文件 261 项测试全过、Playwright 23 项 E2E 测试全过）。
+- [x] 运行类型检查、代码格式化与生产构建验证（`pnpm run typecheck`、`pnpm run format`、`pnpm --dir packages/dashboard run build` 518 个页面全部预渲染为 static，实测生成的 `es/register.html`、`zh/register.html` 等包含唯一语义 h1）。
+- [x] 清理并归档文档，执行阶段性 git 提交。
+
 ## 已完成：博客详情页与全局样式修复（Mermaid、JSON 渲染、Dark Mode 按钮、表格宽屏展示，2026-10-27）
 
 - [x] 修复 Dark Mode 按钮字体颜色：在 `packages/dashboard/src/app/globals.css` 中将 `.dark` 下 `--primary-foreground` 和 `--sidebar-primary-foreground` 修正为深墨色 `#231b14`，消除明亮黄色按钮上的白字低对比度问题。

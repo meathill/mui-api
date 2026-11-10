@@ -81,7 +81,7 @@ export default function RegisterPage() {
           aria-hidden
           priority
         />
-        <h2 className="text-xl font-bold text-center mb-5">{t('title')}</h2>
+        <h1 className="text-xl font-bold text-center mb-5">{t('title')}</h1>
 
         <SocialLoginButtons />
 
