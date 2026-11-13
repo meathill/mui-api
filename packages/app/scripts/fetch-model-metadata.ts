@@ -340,6 +340,52 @@ const MANUAL_METADATA: Record<string, Omit<Resolved, 'model' | 'source'>> = {
       },
     },
   },
+  'gemini-4-carbon': {
+    displayName: 'Gemini 4 Carbon',
+    contextLength: 1048576,
+    maxOutputTokens: 65536,
+    metadata: {
+      description:
+        "Google's frontier reasoning flagship designed for long-horizon autonomous agents, deep deduction, and cybersecurity defense",
+      family: 'gemini',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: false,
+      knowledge: '2026-03',
+      releaseDate: '2026-11-12',
+      lastUpdated: '2026-11-12',
+      modalities: {
+        input: ['text', 'image', 'video', 'audio', 'pdf'],
+        output: ['text'],
+      },
+    },
+  },
+  'gemini-4-hydrogen': {
+    displayName: 'Gemini 4 Hydrogen',
+    contextLength: 1048576,
+    maxOutputTokens: 65536,
+    metadata: {
+      description:
+        "Google's high-speed, highly-efficient reasoning model replacing the Flash line, purpose-built for everyday coding, web apps, and multi-step agentic workflows",
+      family: 'gemini-hydrogen',
+      attachment: true,
+      reasoning: true,
+      toolCall: true,
+      temperature: true,
+      structuredOutput: true,
+      openWeights: false,
+      knowledge: '2026-03',
+      releaseDate: '2026-11-12',
+      lastUpdated: '2026-11-12',
+      modalities: {
+        input: ['text', 'image', 'video', 'audio', 'pdf'],
+        output: ['text'],
+      },
+    },
+  },
   'mimo-v2.5-flash': {
     displayName: 'MiMo-V2.5-Flash',
     contextLength: 262144,

@@ -9,3 +9,4 @@ dist/
 .zcode/
 blog-export.json
 temp-*.sql
+drafts/
