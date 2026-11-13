@@ -1,5 +1,24 @@
 # WIP
 
+## 已完成：Google Gemini 4 Carbon 与 Hydrogen 接入并发布解读博客（2026-11-13）
+
+- [x] 核对官方发布信息与 API 规格：
+  - Gemini 4 Carbon（`gemini-4-carbon`）：输入 $2.00/M、输出 $10.00/M、缓存命中 $0.10/M（95% 优惠），1M 上下文，最强深度推演与安全防御。
+  - Gemini 4 Hydrogen（`gemini-4-hydrogen`）：输入 $1.50/M、输出 $7.50/M、缓存命中 $0.075/M（95% 优惠），1M 上下文，Flash 系列官方替代者，超快推理与高性价比 Agent 工作流。
+- [x] 同步基准种子数据：在 `packages/app/src/db/seed.ts`、`seed-models.sql`、`packages/dashboard/seed-models.sql`、`packages/app/e2e/setup.ts` 中补充 `gemini-4-carbon` 与 `gemini-4-hydrogen`。
+- [x] 维护元数据规范：在 `packages/app/scripts/fetch-model-metadata.ts` 中补充 `gemini-4-carbon` 与 `gemini-4-hydrogen` 的能力元数据。
+- [x] 首页 9 宫格模型精选同步：在 `packages/dashboard/src/app/[locale]/(marketing)/_components/models-section.tsx` 中为 Anthropic 补充 `Claude Fable 5.2`，为 Google 补充 `Gemini 4 Carbon` 与 `Gemini 4 Hydrogen`。
+- [x] 修复 Playwright E2E（`public-pages.test.ts`）因博文标题匹配导致的 strict mode violation。
+- [x] 补充单元测试：在 `packages/app/src/services/model-catalog-service.test.ts` 中增加 `gemini-4-carbon` 与 `gemini-4-hydrogen` 目录查询与解析单测。
+- [x] 生产 D1 数据库写入与元数据补充：写入 `gemini-4-carbon` 与 `gemini-4-hydrogen`，清理 Cloudflare KV `models:catalog` 缓存。
+- [x] 撰写中文深度技术解读博客，融入 Fable 5.2 深度思维过拟合启示并压缩 20% 篇幅，严格遵循 issue #15 SEO 约束（seoTitle 显示宽度 34 ≤ 65、seoDescription 125 字符在 120-160 字符区间）。
+- [x] 调用 muicv CMS 接口发布中文博文（ID 218，`site=muirouter`，`locale=zh-CN`，`slug=gemini-4-carbon-released`，`status=published`），运行 `check:cms-seo` 验证 0 违规。
+- [x] 升级 `packages/dashboard/wrangler.jsonc` 中 `vars.BLOG_CACHE_VERSION` 至 `v7`，执行 IndexNow 提交 282 条 URL（状态码 200）。
+- [x] 运行全套质量门禁（typecheck、format、全量单测 371+261 项全绿）。
+
+
+
+
 ## 已完成：Anthropic Claude Fable 5.2 接入与发布解读博客（2026-11-10）
 
 - [x] 核对官方发布信息（Anthropic 官方公告、API 定价与规格）：Mythos 级底座、超难数学与科学突破、长程 Agent 协同（1000+ 子 Agent 连续 8 天）、输出速度提升 30%、可选 Fast Mode（2.5x 速度）、API 降价 20%（输入 $8/M、输出 $40/M、缓存命中 $0.20/M 即 2.5%、缓存写入 $10.00/M 即 1.25×，1M 上下文，128k 最大输出）。
@@ -67,6 +86,8 @@
 
 ## 待办 / 后续规划
 
+- **Gemini 4 Carbon 多语言博文翻译**：中文版已于 2026-11-12 首发上线（ID 218，`gemini-4-carbon-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。
+- **Claude Fable 5.2 多语言博文翻译**：中文版已于 2026-11-10 首发上线（ID 217，`claude-fable-5-2-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。
 - **Kimi K3.1 Pro 多语言博文翻译**：中文版已于 2026-10-24 首发上线（ID 211，`kimi-k3-1-pro-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。
 - **DeepSeek-V4.1-Flash-1017 多语言博文翻译**：中文版已于 2026-10-17 首发上线（ID 210，`deepseek-v4-1-flash-1017-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。
 - **Gemini 4 Argon 与 3.8 Flash 多语言博文翻译**：中文版已于 2026-10-14 首发上线（ID 209，`gemini-4-argon-3-8-flash-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。

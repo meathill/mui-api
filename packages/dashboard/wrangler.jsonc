@@ -76,6 +76,6 @@
     "GITHUB_CLIENT_ID": "Ov23liArbpaCvUyzy7di",
     "GOOGLE_CLIENT_ID": "553490336811-mmarli7qmgmcsllqbrs9bnr116pj145o.apps.googleusercontent.com",
     "MIMO_BASE_URL": "https://token-plan-cn.xiaomimimo.com/v1",
-    "BLOG_CACHE_VERSION": "v6"
+    "BLOG_CACHE_VERSION": "v7"
   }
 }

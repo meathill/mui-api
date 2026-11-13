@@ -356,6 +356,32 @@ export const SEED_MODELS: NewModel[] = [
   },
 
   // Google AI Studio (Gemini)
+  // Gemini 4 Carbon（Google 最强深度推理前沿旗舰，专为长程智能体与网络安全攻防设计）：
+  // 官方 Standard 限时定价（2026-11-30 前）：input $2.00 / output $10.00，隐式缓存 $0.10（5% input）
+  {
+    id: 'gemini-4-carbon',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-4-carbon',
+    inputPrice: 2,
+    outputPrice: 10,
+    markupRate: 1,
+    cachedInputPrice: 0.1,
+    cacheWritePrice: null,
+    ...NO_LONG_CONTEXT,
+  },
+  // Gemini 4 Hydrogen（Flash 系列官方替代者，超快速度与高性价比 Agent 工作流）：
+  // input $1.50 / output $7.50，隐式缓存 $0.075（5% input）
+  {
+    id: 'gemini-4-hydrogen',
+    provider: 'google-ai-studio',
+    upstreamModelId: 'gemini-4-hydrogen',
+    inputPrice: 1.5,
+    outputPrice: 7.5,
+    markupRate: 1,
+    cachedInputPrice: 0.075,
+    cacheWritePrice: null,
+    ...NO_LONG_CONTEXT,
+  },
   // Gemini 4 Argon（旗舰推理大模型，支持 1M tokens 长上下文生成与复杂多步骤智能体）：
   // 官方 Standard 限时定价（2026-11-30 前）：input $2.00 / output $10.00，隐式缓存 $0.10（5% input）
   {

@@ -137,6 +137,12 @@ await db.batch([
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate) VALUES ('gemini-2.5-flash', 'google-ai-studio', 'gemini-2.5-flash', 0.3, 2.5, 1.2)",
   ),
   db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('gemini-4-carbon', 'google-ai-studio', 'gemini-4-carbon', 2, 10, 1, 0.1)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('gemini-4-hydrogen', 'google-ai-studio', 'gemini-4-hydrogen', 1.5, 7.5, 1, 0.075)",
+  ),
+  db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('gemini-4-argon', 'google-ai-studio', 'gemini-4-argon', 2, 10, 1, 0.1)",
   ),
   db.prepare(

@@ -190,7 +190,21 @@ describe('ModelCatalogService', () => {
       outputPrice: 10,
       cachedInputPrice: 0.1,
     });
-    const { kv } = makeMockKv([flash, argon]);
+    const carbon = makeModel('gemini-4-carbon', {
+      provider: 'google-ai-studio',
+      upstreamModelId: 'gemini-4-carbon',
+      inputPrice: 2,
+      outputPrice: 10,
+      cachedInputPrice: 0.1,
+    });
+    const hydrogen = makeModel('gemini-4-hydrogen', {
+      provider: 'google-ai-studio',
+      upstreamModelId: 'gemini-4-hydrogen',
+      inputPrice: 1.5,
+      outputPrice: 7.5,
+      cachedInputPrice: 0.075,
+    });
+    const { kv } = makeMockKv([flash, argon, carbon, hydrogen]);
     const { db } = makeMockDb([]);
     const service = new ModelCatalogService(kv, db);
 
@@ -206,5 +220,15 @@ describe('ModelCatalogService', () => {
     expect(foundArgon).not.toBeNull();
     expect(foundArgon?.id).toBe('gemini-4-argon');
     expect(foundArgon?.cachedInputPrice).toBe(0.1);
+
+    const foundCarbon = await service.getById('gemini-4-carbon');
+    expect(foundCarbon).not.toBeNull();
+    expect(foundCarbon?.id).toBe('gemini-4-carbon');
+    expect(foundCarbon?.cachedInputPrice).toBe(0.1);
+
+    const foundHydrogen = await service.getById('gemini-4-hydrogen');
+    expect(foundHydrogen).not.toBeNull();
+    expect(foundHydrogen?.id).toBe('gemini-4-hydrogen');
+    expect(foundHydrogen?.cachedInputPrice).toBe(0.075);
   });
 });

@@ -16,7 +16,7 @@ export function ModelsSection() {
       name: 'Anthropic',
       color:
         'bg-[#fadfd5] text-[#c44a32] border border-[var(--brand-tongue)] dark:bg-[#e8775a]/20 dark:text-[#ffb7a3] dark:border-[#e8775a]/30',
-      models: ['Claude Opus 5.5', 'Claude Sonnet 5.5', 'Claude Haiku 5.5', 'Claude Fable 5.1', 'Claude Opus 5'],
+      models: ['Claude Fable 5.2', 'Claude Opus 5.5', 'Claude Sonnet 5.5', 'Claude Haiku 5.5', 'Claude Fable 5.1'],
       description: t('anthropicDesc'),
     },
     {
@@ -57,7 +57,7 @@ export function ModelsSection() {
       name: 'Google',
       color:
         'bg-[var(--brand-corgi)]/25 text-[var(--brand-ink)] border border-[var(--brand-yellow-deep)]/40 dark:bg-[var(--brand-yellow-warm)]/15 dark:text-[var(--brand-cream)] dark:border-[var(--brand-yellow-warm)]/30',
-      models: ['Gemini 4 Argon', 'Gemini 3.8 Flash', 'Gemini 3.5 Flash-Lite', 'Gemini 3.1 Pro', 'Gemini 2.5 Pro'],
+      models: ['Gemini 4 Carbon', 'Gemini 4 Argon', 'Gemini 4 Hydrogen', 'Gemini 3.8 Flash', 'Gemini 3.5 Flash-Lite'],
       description: t('googleDesc'),
     },
     {

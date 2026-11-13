@@ -20,7 +20,7 @@ test.describe('公共内容页', () => {
     // 文章卡片是 <article>，骨架屏没有；数量 > 0 才说明 D1 查询真的跑通了
     await expect(page.locator('article').first()).toBeVisible();
     expect(await page.locator('article').count()).toBeGreaterThan(0);
-    await expect(page.getByRole('heading', { level: 2, name: /Kimi K3/ })).toBeVisible();
+    await expect(page.getByRole('heading', { level: 2, name: /Kimi K3/ }).first()).toBeVisible();
   });
 
   test('Pricing 渲染出真实价格表，而不是骨架屏', async ({ page }) => {
