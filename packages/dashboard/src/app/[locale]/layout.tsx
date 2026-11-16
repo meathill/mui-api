@@ -1,3 +1,4 @@
+import { DeferredClarity } from '@/components/analytics/deferred-clarity';
 import { DeferredGoogleAnalytics } from '@/components/analytics/deferred-google-analytics';
 import type { Metadata } from 'next';
 import { Fraunces, JetBrains_Mono, Nunito } from 'next/font/google';
@@ -136,6 +137,7 @@ export default async function LocaleLayout({
         </NextIntlClientProvider>
       </body>
       <DeferredGoogleAnalytics gaId="G-JLM9L0BTTV" />
+      <DeferredClarity clarityId="zdtar6qu9k" />
     </html>
   );
 }
