@@ -86,6 +86,15 @@ await db.batch([
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('mimo-v2.6-flash', 'xiaomi-mimo', 'mimo-v2.6-flash', 0.14, 0.28, 1.2, 0.0028)",
   ),
   db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price, cache_write_price) VALUES ('gpt-6.2-astra', 'openai', 'gpt-6.2-astra', 8, 40, 1, 0.4, 10)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price, cache_write_price) VALUES ('gpt-6.2-sol', 'openai', 'gpt-6.2-sol', 2, 10, 1, 0.1, 2.5)",
+  ),
+  db.prepare(
+    "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price, cache_write_price) VALUES ('gpt-6.2', 'openai', 'gpt-6.2-sol', 2, 10, 1, 0.1, 2.5)",
+  ),
+  db.prepare(
     "INSERT OR IGNORE INTO models (id, provider, upstream_model_id, input_price, output_price, markup_rate, cached_input_price) VALUES ('gpt-6.1-sol', 'openai', 'gpt-6.1-sol', 2, 10, 1.2, 0.1)",
   ),
   db.prepare(

@@ -9,7 +9,7 @@ export function ModelsSection() {
     {
       name: 'OpenAI',
       color: 'bg-[var(--brand-fluff)] text-[var(--brand-yellow-deep)] border border-[var(--brand-corgi)]',
-      models: ['GPT-6 Astra', 'GPT-6.1 Sol', 'GPT-6.1 Terra', 'GPT-6 Sol', 'GPT-6 Luna'],
+      models: ['GPT-6.2 Astra', 'GPT-6.2 Sol', 'GPT-6.1 Terra', 'GPT-6.1 Sol', 'GPT-6 Astra'],
       description: t('openaiDesc'),
     },
     {
@@ -23,14 +23,14 @@ export function ModelsSection() {
       name: 'DeepSeek',
       color:
         'bg-blue-500/10 text-blue-800 border border-blue-500/30 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-400/30',
-      models: ['DeepSeek V4.1 Flash', 'DeepSeek V4 Flash', 'DeepSeek V4 Pro', 'DeepSeek V3', 'DeepSeek R1'],
+      models: ['DeepSeek V4.1 Flash', 'DeepSeek V4 Pro', 'DeepSeek V3', 'DeepSeek R1'],
       description: t('deepseekDesc'),
     },
     {
       name: 'Moonshot AI',
       color:
         'bg-cyan-500/10 text-cyan-800 border border-cyan-500/30 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-400/30',
-      models: ['Kimi K3.1 Pro', 'Kimi K3', 'Kimi K2.7 Code', 'Kimi K2.6', 'Kimi K2'],
+      models: ['Kimi K3.1 Pro', 'Kimi K3', 'Kimi K2.7 Code'],
       description: t('moonshotDesc'),
     },
     {
@@ -50,7 +50,7 @@ export function ModelsSection() {
       name: 'Qwen',
       color:
         'bg-amber-500/10 text-amber-800 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-400/30',
-      models: ['Qwen3.8 Max', 'Qwen3.7 Max', 'Qwen3.7 Plus', 'Qwen3-30B'],
+      models: ['Qwen3.8 Max', 'Qwen3.7 Max', 'Qwen3.7 Plus'],
       description: t('qwenDesc'),
     },
     {
@@ -64,7 +64,7 @@ export function ModelsSection() {
       name: 'Xiaomi MiMo',
       color:
         'bg-orange-500/10 text-orange-800 border border-orange-500/30 dark:bg-orange-500/20 dark:text-orange-300 dark:border-orange-400/30',
-      models: ['MiMo-V2.6-Pro', 'MiMo-V2.6-Flash', 'MiMo-V2.6-UltraSpeed', 'MiMo-V2.5-Pro'],
+      models: ['MiMo-V2.6-Pro', 'MiMo-V2.6-Flash', 'MiMo-V2.6-UltraSpeed'],
       description: t('mimoDesc'),
     },
   ];
