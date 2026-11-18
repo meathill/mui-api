@@ -231,4 +231,52 @@ describe('ModelCatalogService', () => {
     expect(foundHydrogen?.id).toBe('gemini-4-hydrogen');
     expect(foundHydrogen?.cachedInputPrice).toBe(0.075);
   });
+
+  it('支持 OpenAI GPT-6.2 Astra / Sol 与短别名及 dot/hyphen 互通', async () => {
+    const astra = makeModel('gpt-6.2-astra', {
+      provider: 'openai',
+      upstreamModelId: 'gpt-6.2-astra',
+      inputPrice: 8,
+      outputPrice: 40,
+      cachedInputPrice: 0.4,
+      cacheWritePrice: 10,
+    });
+    const sol = makeModel('gpt-6.2-sol', {
+      provider: 'openai',
+      upstreamModelId: 'gpt-6.2-sol',
+      inputPrice: 2,
+      outputPrice: 10,
+      cachedInputPrice: 0.1,
+      cacheWritePrice: 2.5,
+    });
+    const shortAlias = makeModel('gpt-6.2', {
+      provider: 'openai',
+      upstreamModelId: 'gpt-6.2-sol',
+      inputPrice: 2,
+      outputPrice: 10,
+      cachedInputPrice: 0.1,
+      cacheWritePrice: 2.5,
+    });
+    const { kv } = makeMockKv([astra, sol, shortAlias]);
+    const { db } = makeMockDb([]);
+    const service = new ModelCatalogService(kv, db);
+
+    const foundAstra = await service.getById('gpt-6.2-astra');
+    expect(foundAstra?.id).toBe('gpt-6.2-astra');
+    expect(foundAstra?.cachedInputPrice).toBe(0.4);
+
+    const foundAstraHyphen = await service.getById('gpt-6-2-astra');
+    expect(foundAstraHyphen?.id).toBe('gpt-6.2-astra');
+
+    const foundSol = await service.getById('gpt-6.2-sol');
+    expect(foundSol?.id).toBe('gpt-6.2-sol');
+    expect(foundSol?.cachedInputPrice).toBe(0.1);
+
+    const foundSolHyphen = await service.getById('gpt-6-2-sol');
+    expect(foundSolHyphen?.id).toBe('gpt-6.2-sol');
+
+    const foundShort = await service.getById('gpt-6.2');
+    expect(foundShort?.id).toBe('gpt-6.2');
+    expect(foundShort?.upstreamModelId).toBe('gpt-6.2-sol');
+  });
 });

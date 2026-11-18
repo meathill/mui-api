@@ -142,28 +142,6 @@ const MANUAL_METADATA: Record<string, Omit<Resolved, 'model' | 'source'>> = {
       },
     },
   },
-  'deepseek-v4-flash': {
-    displayName: 'DeepSeek V4 Flash',
-    contextLength: 1000000,
-    maxOutputTokens: 8192,
-    metadata: {
-      description:
-        'DeepSeek-V4-Flash is a high-efficiency 284B MoE model (13B active) with 1M context, optimized for coding and reasoning.',
-      family: 'deepseek-v4',
-      attachment: false,
-      reasoning: true,
-      toolCall: true,
-      temperature: true,
-      structuredOutput: true,
-      openWeights: true,
-      releaseDate: '2026-07-31',
-      lastUpdated: '2026-07-31',
-      modalities: {
-        input: ['text'],
-        output: ['text'],
-      },
-    },
-  },
   'kimi-k3.1-pro': {
     displayName: 'Kimi K3.1 Pro',
     contextLength: 1048576,
@@ -382,44 +360,6 @@ const MANUAL_METADATA: Record<string, Omit<Resolved, 'model' | 'source'>> = {
       lastUpdated: '2026-11-12',
       modalities: {
         input: ['text', 'image', 'video', 'audio', 'pdf'],
-        output: ['text'],
-      },
-    },
-  },
-  'mimo-v2.5-flash': {
-    displayName: 'MiMo-V2.5-Flash',
-    contextLength: 262144,
-    maxOutputTokens: 8192,
-    metadata: {
-      description: 'Xiaomi MiMo 2.5 Flash lightweight high-speed model with 256K context',
-      family: 'mimo-v2.5',
-      attachment: true,
-      reasoning: false,
-      toolCall: true,
-      openWeights: false,
-      releaseDate: '2026-05-15',
-      lastUpdated: '2026-05-15',
-      modalities: {
-        input: ['text', 'image'],
-        output: ['text'],
-      },
-    },
-  },
-  'mimo-v2-omni': {
-    displayName: 'MiMo-V2-Omni',
-    contextLength: 262144,
-    maxOutputTokens: 8192,
-    metadata: {
-      description: 'Xiaomi MiMo 2 Omni multimodal foundation model supporting audio, image, and text',
-      family: 'mimo-v2',
-      attachment: true,
-      reasoning: false,
-      toolCall: true,
-      openWeights: false,
-      releaseDate: '2026-04-20',
-      lastUpdated: '2026-04-20',
-      modalities: {
-        input: ['text', 'image', 'audio'],
         output: ['text'],
       },
     },

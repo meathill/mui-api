@@ -571,6 +571,27 @@ describe('callOpenAIEndpoint', () => {
     expect(headers.get('content-type')).toBe('application/json');
     expect(init?.body).toBe(body);
   });
+
+  it('直连 OpenAI Endpoint 并透传 gpt-6.2-astra 与 gpt-6.2-sol 请求', async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) => Response.json({ ok: true }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    for (const model of ['gpt-6.2-astra', 'gpt-6.2-sol']) {
+      const body = JSON.stringify({
+        model,
+        input: [{ role: 'user', content: `test ${model}` }],
+      });
+
+      await callOpenAIEndpoint({ OPENAI_API_KEY: 'test-openai-key' } as CloudflareBindings, '/responses', body, {
+        'content-type': 'application/json',
+      });
+    }
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock.mock.calls[0][0]).toBe('https://api.openai.com/v1/responses');
+    expect(JSON.parse(String(fetchMock.mock.calls[0][1]?.body))).toMatchObject({ model: 'gpt-6.2-astra' });
+    expect(JSON.parse(String(fetchMock.mock.calls[1][1]?.body))).toMatchObject({ model: 'gpt-6.2-sol' });
+  });
 });
 
 describe('callAnthropicCompat', () => {

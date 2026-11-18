@@ -1,5 +1,20 @@
 # WIP
 
+## 已完成：OpenAI GPT-6.2 Sol / Astra 接入、退役模型清理与解读博客发布（2026-11-18）
+
+- [x] 核对官方发布信息与 API 规格：
+  - `gpt-6.2-astra`（含别名 `gpt-6-2-astra`）：输入 $8.00/M、输出 $40.00/M（较 GPT-6 Astra 降价 20%）、缓存命中 $0.40/M（5%，降价 60%）、缓存写入 $10.00/M（1.25×），1.05M 上下文 / 922K 最大输入 / 128K 最大输出，知识截止 2026-05-18。
+  - `gpt-6.2-sol`（含别名 `gpt-6.2`、`gpt-6-2-sol`）：输入 $2.00/M、输出 $10.00/M、缓存命中 $0.10/M（5%）、缓存写入 $2.50/M（1.25×），1.05M 上下文 / 922K 最大输入 / 128K 最大输出，知识截止 2026-06-01；均延续 272K 长上下文 2×/1.5× 计费规则。
+- [x] 退役模型盘点与清理（共清理 35 条 D1 冗余/退役记录，种子库收敛至 82 行）：
+  - 清理 6 条 D1 孤儿脏数据（`gpt-5.4`、`gpt-5.5`、`gemini-3.1-flash-lite-preview`、`gemini-3.5-flash`、`grok-4`、`grok-build-0.1`）。
+  - 清理 29 条上游已废弃、即将停服或被完全替代且近 30 天零调用的模型：OpenAI（`gpt-5`、`gpt-5-mini`、`gpt-5-nano`、`gpt-4.1`、`gpt-4o-mini`）、Google（`gemini-2.5-pro`、`gemini-2.5-flash`、`gemini-2.5-flash-lite`、`gemini-3.6-flash`、`gemini-3-6-flash`）、Anthropic（`claude-fable-5`、`claude-opus-4-6`/`4-7`/`4-8`、`claude-sonnet-4-6`、`claude-haiku-4-5`）、Workers AI（`qwen3-30b`、`kimi-k2.6`）、DeepSeek（`deepseek-v4-flash`、`deepseek-v4-flash-vision-exp`）、Xiaomi MiMo（`mimo-v2.5-pro`、`mimo-v2-pro`、`mimo-v2.5`、`mimo-v2-omni`、`mimo-v2.5-flash`）、MiniMax（`minimax-m2.5`、`minimax-m2.7`）、GLM/Qwen 旧版（`glm-5.1`、`qwen3.6-plus`）。
+  - 注：`gpt-4o` 定于 2027-01-14 停服，但近 30 天仍有 192 次生产调用及多个示例引用，本次暂保留。
+- [x] 同步基准种子数据与首页精选：更新 `packages/app/src/db/seed.ts`、`seed-models.sql`、`packages/dashboard/seed-models.sql`、`packages/app/e2e/setup.ts`、`packages/app/scripts/fetch-model-metadata.ts` 与 `packages/dashboard/src/app/[locale]/(marketing)/_components/models-section.tsx`。
+- [x] 补充单元测试：在 `packages/app/src/services/model-catalog-service.test.ts` 与 `packages/app/src/services/provider-dispatch.test.ts` 中增加 `gpt-6.2-astra` / `gpt-6.2-sol` / `gpt-6.2` 解析及 `/v1/responses` 透传单测。
+- [x] 生产 D1 同步与缓存刷新：写入 GPT-6.2 系列、删除 35 条退役/孤儿记录、回填 82 条元数据并删除临时 SQL 脚本，清除 Cloudflare KV `models:catalog` 缓存。
+- [x] 撰写并发布中文解读博客到 muicv CMS（ID 219，`site=muirouter`，`locale=zh-CN`，`slug=gpt-6-2-astra-sol-released`，`status=published`），通过 `check:cms-seo`（0 违规），升级 `BLOG_CACHE_VERSION` 至 `v8`，提交 IndexNow（283 条 URL，状态码 200）。
+- [x] 运行全套质量门禁：format（448 files）、typecheck（3 packages）、单测（373 + 261 全绿）、生产构建（405 条预渲染路由全部 static）。
+
 ## 已完成：Google Gemini 4 Carbon 与 Hydrogen 接入并发布解读博客（2026-11-13）
 
 - [x] 核对官方发布信息与 API 规格：
@@ -86,6 +101,7 @@
 
 ## 待办 / 后续规划
 
+- **GPT-6.2 Astra 与 Sol 多语言博文翻译**：中文版已于 2026-11-18 首发上线（ID 219，`gpt-6-2-astra-sol-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。
 - **Gemini 4 Carbon 多语言博文翻译**：中文版已于 2026-11-12 首发上线（ID 218，`gemini-4-carbon-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。
 - **Claude Fable 5.2 多语言博文翻译**：中文版已于 2026-11-10 首发上线（ID 217，`claude-fable-5-2-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。
 - **Kimi K3.1 Pro 多语言博文翻译**：中文版已于 2026-10-24 首发上线（ID 211，`kimi-k3-1-pro-released`）。待用户审阅批准后，按规范跟进其余 7 种语言（en/ja/de/fr/es/pt/th）的母语级翻译发布。
