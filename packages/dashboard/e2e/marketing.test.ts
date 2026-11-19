@@ -20,7 +20,7 @@ test.describe('营销页面', () => {
     await expect(title).toContainText(defaultMessages.hero.titleHighlight);
   });
 
-  test('首页模型区展示主流 Provider 卡片', async ({ page }) => {
+  test('首页模型区展示主流 Provider 卡片，整卡可点击深链到 models 页', async ({ page }) => {
     await page.goto('/');
 
     const modelsSection = page.locator('section').filter({
@@ -28,9 +28,28 @@ test.describe('营销页面', () => {
     });
     await expect(modelsSection).toBeVisible();
 
-    const providerCards = modelsSection.locator('.grid > div');
+    // Issue #17：卡片是真实链接，点击直达 /models?provider=<id>
+    const providerCards = modelsSection.locator('.grid > a');
     await expect(providerCards).toHaveCount(9);
+    await expect(providerCards.first()).toHaveAttribute('href', /\/models\?provider=/);
     await expect(modelsSection.getByRole('link', { name: defaultMessages.models.viewAll })).toBeVisible();
+
+    await modelsSection.getByRole('link', { name: /OpenAI/ }).click();
+    await expect(page).toHaveURL(/\/models\?provider=openai/);
+    await expect(page.locator('select').first()).toHaveValue('openai');
+    // 模型 ID 与上游 ID 两列同文本，strict 模式下取 first
+    await expect(page.getByRole('cell', { name: 'e2e-openai-chat', exact: true }).first()).toBeVisible();
+  });
+
+  test('models 页 ?provider= 深链预选厂商筛选，未知值回落全部', async ({ page }) => {
+    await page.goto('/models?provider=moonshot');
+    await expect(page.locator('select').first()).toHaveValue('moonshot');
+    await expect(page.getByRole('cell', { name: 'kimi-k3', exact: true }).first()).toBeVisible();
+    await expect(page.getByRole('cell', { name: 'e2e-openai-chat', exact: true })).toHaveCount(0);
+
+    await page.goto('/models?provider=not-a-provider');
+    await expect(page.locator('select').first()).toHaveValue('all');
+    await expect(page.getByRole('cell', { name: 'e2e-openai-chat', exact: true }).first()).toBeVisible();
   });
 
   test('首页 Header 按指定顺序展示入口', async ({ page }) => {

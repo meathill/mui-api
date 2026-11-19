@@ -50,9 +50,18 @@ function getModelUpdateDate(model: Model): string {
   return '';
 }
 
-export function ModelsCatalog({ sections, locale = 'zh' }: { sections: ProviderSection[]; locale?: string }) {
+export function ModelsCatalog({
+  sections,
+  locale = 'zh',
+  initialProvider = 'all',
+}: {
+  sections: ProviderSection[];
+  locale?: string;
+  /** 由页面 searchParams 校验后传入，首页卡片深链进来时预选厂商筛选 */
+  initialProvider?: string;
+}) {
   const [query, setQuery] = useState('');
-  const [providerFilter, setProviderFilter] = useState<string>('all');
+  const [providerFilter, setProviderFilter] = useState<string>(initialProvider);
   const isZh = locale === 'zh';
 
   const providers = useMemo(() => sections.map((s) => s.provider), [sections]);

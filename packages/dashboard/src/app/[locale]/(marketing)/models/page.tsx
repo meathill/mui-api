@@ -120,12 +120,22 @@ const loadAllModels = unstable_cache(queryAllModels, ['models-catalog-v2'], {
   tags: [PRICING_MODELS_TAG],
 });
 
-export default async function ModelsPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function ModelsPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ locale: string }>;
+  searchParams: Promise<{ provider?: string }>;
+}) {
   const { locale } = await params;
+  const { provider } = await searchParams;
   setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: 'models' });
   const sections = await loadAllModels();
   const total = sections.reduce((acc, s) => acc + s.models.length, 0);
+  // 首页模型卡片深链进来时预选厂商筛选；未知值一律回落 all
+  const knownProviders = new Set(sections.map((s) => s.provider));
+  const initialProvider = provider && knownProviders.has(provider) ? provider : 'all';
 
   return (
     <div className="container mx-auto px-6 py-10">
@@ -138,7 +148,7 @@ export default async function ModelsPage({ params }: { params: Promise<{ locale:
         </p>
         <p className="mt-2 text-sm text-muted-foreground">{t('footnote')}</p>
       </div>
-      <ModelsCatalog sections={sections} locale={locale} />
+      <ModelsCatalog sections={sections} locale={locale} initialProvider={initialProvider} />
     </div>
   );
 }

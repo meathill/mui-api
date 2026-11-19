@@ -5,14 +5,17 @@ import { Link } from '@/i18n/navigation';
 export function ModelsSection() {
   const t = useTranslations('models');
 
+  // id 与 models 页 ModelsCatalog 的 provider key 对齐，卡片点击深链到 /models?provider=<id>
   const providers = [
     {
+      id: 'openai',
       name: 'OpenAI',
       color: 'bg-[var(--brand-fluff)] text-[var(--brand-yellow-deep)] border border-[var(--brand-corgi)]',
       models: ['GPT-6.2 Astra', 'GPT-6.2 Sol', 'GPT-6.1 Terra', 'GPT-6.1 Sol', 'GPT-6 Astra'],
       description: t('openaiDesc'),
     },
     {
+      id: 'anthropic',
       name: 'Anthropic',
       color:
         'bg-[#fadfd5] text-[#c44a32] border border-[var(--brand-tongue)] dark:bg-[#e8775a]/20 dark:text-[#ffb7a3] dark:border-[#e8775a]/30',
@@ -20,6 +23,7 @@ export function ModelsSection() {
       description: t('anthropicDesc'),
     },
     {
+      id: 'deepseek',
       name: 'DeepSeek',
       color:
         'bg-blue-500/10 text-blue-800 border border-blue-500/30 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-400/30',
@@ -27,6 +31,7 @@ export function ModelsSection() {
       description: t('deepseekDesc'),
     },
     {
+      id: 'moonshot',
       name: 'Moonshot AI',
       color:
         'bg-cyan-500/10 text-cyan-800 border border-cyan-500/30 dark:bg-cyan-500/20 dark:text-cyan-300 dark:border-cyan-400/30',
@@ -34,12 +39,14 @@ export function ModelsSection() {
       description: t('moonshotDesc'),
     },
     {
+      id: 'grok',
       name: 'xAI',
       color: 'bg-[var(--brand-ink)] text-[var(--brand-cream)] border border-[var(--brand-ink-soft)]',
       models: ['Grok 4.6', 'Grok 4.5', 'Grok 4.3', 'Grok Imagine Image'],
       description: t('grokDesc'),
     },
     {
+      id: 'zai',
       name: 'Zhipu GLM',
       color:
         'bg-violet-500/10 text-violet-800 border border-violet-500/30 dark:bg-violet-500/20 dark:text-violet-300 dark:border-violet-400/30',
@@ -47,6 +54,7 @@ export function ModelsSection() {
       description: t('zaiDesc'),
     },
     {
+      id: 'qwen',
       name: 'Qwen',
       color:
         'bg-amber-500/10 text-amber-800 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-400/30',
@@ -54,6 +62,7 @@ export function ModelsSection() {
       description: t('qwenDesc'),
     },
     {
+      id: 'google-ai-studio',
       name: 'Google',
       color:
         'bg-[var(--brand-corgi)]/25 text-[var(--brand-ink)] border border-[var(--brand-yellow-deep)]/40 dark:bg-[var(--brand-yellow-warm)]/15 dark:text-[var(--brand-cream)] dark:border-[var(--brand-yellow-warm)]/30',
@@ -61,6 +70,7 @@ export function ModelsSection() {
       description: t('googleDesc'),
     },
     {
+      id: 'xiaomi-mimo',
       name: 'Xiaomi MiMo',
       color:
         'bg-orange-500/10 text-orange-800 border border-orange-500/30 dark:bg-orange-500/20 dark:text-orange-300 dark:border-orange-400/30',
@@ -79,9 +89,10 @@ export function ModelsSection() {
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {providers.map((provider) => (
-            <div
+            <Link
               key={provider.name}
-              className="rounded-lg border border-border bg-card p-5 hover:border-[var(--brand-yellow-deep)] hover:shadow-[0_2px_0_0_var(--brand-yellow-deep)] transition-all"
+              href={`/models?provider=${provider.id}`}
+              className="block select-none rounded-lg border border-border bg-card p-5 hover:border-[var(--brand-yellow-deep)] hover:shadow-[0_2px_0_0_var(--brand-yellow-deep)] transition-all"
             >
               <div className="mb-3">
                 <span
@@ -101,7 +112,7 @@ export function ModelsSection() {
                   </span>
                 ))}
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
