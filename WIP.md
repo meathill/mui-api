@@ -1,14 +1,14 @@
 # WIP
 
-## 进行中：Clarity 巡检 UX 问题修复（issues #17–#20，2026-11-19）
+## 已完成：Clarity 巡检 UX 问题修复（issues #17–#20，2026-11-19 全部关闭）
 
-代码已完成并通过全套回归（vitest 264、e2e 49、typecheck、format、build 405 路由全 static），分四个 commit 落在本地 master（fb7f4d0 → f95d66e → a4c5bab → 9f12a95）。待用户确认后再：push → 部署（营销页静态输出，需完整 opennext build + deploy 才生效）→ issues 评论并关闭。
+代码修复 → 全套回归通过（vitest 264、e2e 49、typecheck、format、build 405 路由全 static）→ push 自动触发 Workers Builds 部署 → 生产 curl 验证四个修复特征全部生效 → issues #17–#20 已评论（含 Clarity 证据与验证结论）并关闭。
 
-- [x] **#17（P1）模型卡片不可点击**：models-section 整卡改 `<Link>` 跳 `/models?provider={id}`；models 页读取 searchParams 传 `initialProvider`（未知值回落 all）。e2e 卡片选择器 div→a 并新增深链用例。
-- [x] **#18（P1）静态文案被当可交互**：核查确认文案是「展示」而非「展开」，无隐藏交互设计。pricing 标题区/SummaryPanel/补充说明 + ai-router 特性卡片加 `select-none`；不做单位切换控件（无需求）。
-- [x] **#19（P1）移动端页头折 4 行**：`md` 以下隐藏内联导航，新增 `HeaderMobileNav`（受控 Sheet 抽屉，链接保持纯 `<a>` 语义——SheetClose 会强加 role=button 故弃用），登录 CTA 常驻右侧；`header.menu` 补 8 语言翻译；新增组件测试 3 项。
-- [x] **#20（P2）hydration 前 dead click**：核查确认 logo / 导航已是真实 `<a>`（next-intl Link SSR 输出锚点），预 hydration 点击可原生跳转，回放里的"无响应"实为首页自跳转视觉无变化 + HeaderAuthCta 占位块不可点。改进：HeaderAuthCta SSR 游客优先渲染真实登录锚点，fetch 确认已登录再切换"进入控制台"（已登录用户有短暂登录闪现，权衡后接受）。web-vitals RUM 观测未做（可选项，留待观察）。
-- [ ] 待确认后：push origin/master → 部署 → issues #17–#20 评论修复与验证证据 → 关闭。
+- **#17** models-section 整卡改 `<Link>` 深链 `/models?provider={id}`，models 页 searchParams 预选厂商筛选（fb7f4d0）。
+- **#18** 核查确认「统一按 USD/1M tokens 展示」无隐藏展开交互；pricing 标题区/SummaryPanel/补充说明 + ai-router 特性卡片加 `select-none`（f95d66e）。
+- **#19** `md` 以下汉堡 + Sheet 抽屉（链接保持纯 `<a>` 语义，SheetClose 会强加 role=button 故弃用），登录 CTA 常驻；`header.menu` 补 8 语言（a4c5bab）。
+- **#20** 核查确认 logo/导航本就是真实 `<a>`；死区主因是 HeaderAuthCta 的 loading 占位块，改 SSR 游客优先渲染登录锚点（9f12a95）。
+- 遗留观察项：issue #21（抖音渠道秒退）为观察项未处理；下次 Clarity 巡检复核移动端 320–480px 体验与 dead click 比例变化。
 
 ## 已完成：OpenAI GPT-6.2 Sol / Astra 接入、退役模型清理与解读博客发布（2026-11-18）
 
