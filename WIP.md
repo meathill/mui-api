@@ -1,5 +1,15 @@
 # WIP
 
+## 进行中：Clarity 巡检 UX 问题修复（issues #17–#20，2026-11-19）
+
+代码已完成并通过全套回归（vitest 264、e2e 49、typecheck、format、build 405 路由全 static），分四个 commit 落在本地 master（fb7f4d0 → f95d66e → a4c5bab → 9f12a95）。待用户确认后再：push → 部署（营销页静态输出，需完整 opennext build + deploy 才生效）→ issues 评论并关闭。
+
+- [x] **#17（P1）模型卡片不可点击**：models-section 整卡改 `<Link>` 跳 `/models?provider={id}`；models 页读取 searchParams 传 `initialProvider`（未知值回落 all）。e2e 卡片选择器 div→a 并新增深链用例。
+- [x] **#18（P1）静态文案被当可交互**：核查确认文案是「展示」而非「展开」，无隐藏交互设计。pricing 标题区/SummaryPanel/补充说明 + ai-router 特性卡片加 `select-none`；不做单位切换控件（无需求）。
+- [x] **#19（P1）移动端页头折 4 行**：`md` 以下隐藏内联导航，新增 `HeaderMobileNav`（受控 Sheet 抽屉，链接保持纯 `<a>` 语义——SheetClose 会强加 role=button 故弃用），登录 CTA 常驻右侧；`header.menu` 补 8 语言翻译；新增组件测试 3 项。
+- [x] **#20（P2）hydration 前 dead click**：核查确认 logo / 导航已是真实 `<a>`（next-intl Link SSR 输出锚点），预 hydration 点击可原生跳转，回放里的"无响应"实为首页自跳转视觉无变化 + HeaderAuthCta 占位块不可点。改进：HeaderAuthCta SSR 游客优先渲染真实登录锚点，fetch 确认已登录再切换"进入控制台"（已登录用户有短暂登录闪现，权衡后接受）。web-vitals RUM 观测未做（可选项，留待观察）。
+- [ ] 待确认后：push origin/master → 部署 → issues #17–#20 评论修复与验证证据 → 关闭。
+
 ## 已完成：OpenAI GPT-6.2 Sol / Astra 接入、退役模型清理与解读博客发布（2026-11-18）
 
 - [x] 核对官方发布信息与 API 规格：
