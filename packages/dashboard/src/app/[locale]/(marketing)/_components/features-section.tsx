@@ -22,7 +22,7 @@ export function FeaturesSection({ title, features }: FeaturesSectionProps) {
           {features.map((item, index) => {
             const Icon = FEATURE_ICONS[index % FEATURE_ICONS.length];
             return (
-              <div key={item.title} className="flex gap-4 rounded-lg border border-border bg-card p-5">
+              <div key={item.title} className="flex select-none gap-4 rounded-lg border border-border bg-card p-5">
                 <div className="shrink-0 flex h-10 w-10 items-center justify-center rounded-md bg-[var(--brand-fluff)] border border-[var(--brand-corgi)]">
                   <Icon size={20} className="text-[var(--brand-yellow-deep)]" />
                 </div>

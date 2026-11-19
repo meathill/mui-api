@@ -232,7 +232,7 @@ export default async function PricingPage({ params }: { params: Promise<{ locale
             <Badge variant="outline" className="w-fit">
               {t('eyebrow')}
             </Badge>
-            <div className="space-y-4">
+            <div className="select-none space-y-4">
               <h1 className="max-w-3xl text-4xl font-bold tracking-tight text-foreground sm:text-5xl">{t('title')}</h1>
               <p className="max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">{t('subtitle')}</p>
             </div>
@@ -328,7 +328,7 @@ async function PricingCards({ locale }: { locale: string }) {
 
       <div className="mt-10 rounded-3xl border border-border/80 bg-muted/30 p-6 sm:p-8">
         <h2 className="text-xl font-semibold tracking-tight text-foreground">{t('notesTitle')}</h2>
-        <div className="mt-4 grid gap-4 text-sm leading-6 text-muted-foreground sm:grid-cols-3">
+        <div className="mt-4 grid select-none gap-4 text-sm leading-6 text-muted-foreground sm:grid-cols-3">
           <p>{t('scopeNotice')}</p>
           <p>{t('referenceNotice', { date: generatedAt })}</p>
           <p>{t('billingNotice')}</p>
