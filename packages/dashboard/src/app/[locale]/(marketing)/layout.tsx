@@ -3,6 +3,7 @@ import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { PawIcon } from '@/components/brand/paw-icon';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { HeaderAuthCta } from '@/components/marketing/header-auth-cta';
+import { HeaderMobileNav } from '@/components/marketing/header-mobile-nav';
 import { HeaderNav } from '@/components/marketing/header-nav';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Link } from '@/i18n/navigation';
@@ -26,7 +27,7 @@ export default async function MarketingLayout({
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="container mx-auto flex min-h-14 flex-wrap items-center gap-2 px-4 py-3 sm:px-6">
+        <div className="container mx-auto flex min-h-14 items-center gap-2 px-4 py-3 sm:px-6">
           <Link href="/" className="flex items-center gap-2 font-heading text-xl font-bold tracking-tight">
             <Image
               src="/brand/mui-mark.png"
@@ -39,8 +40,12 @@ export default async function MarketingLayout({
             />
             MuiRouter
           </Link>
-          <nav className="flex flex-1 flex-wrap items-center gap-1 sm:gap-1">
-            <HeaderNav />
+          {/* issue #19：md 以下桌面导航折叠进抽屉，汉堡紧跟 logo；登录 CTA 常驻右侧 */}
+          <HeaderMobileNav />
+          <nav className="flex flex-1 items-center gap-1">
+            <div className="hidden items-center gap-1 md:flex">
+              <HeaderNav />
+            </div>
             <span className="min-w-4 flex-1" aria-hidden="true" />
             <HeaderAuthCta />
           </nav>
