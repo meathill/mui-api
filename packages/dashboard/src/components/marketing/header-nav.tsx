@@ -5,9 +5,10 @@ import { useTranslations } from 'next-intl';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/menu';
 import { Link } from '@/i18n/navigation';
 
-type NavLink = { href: string; labelKey: string; fallback: string };
+export type NavLink = { href: string; labelKey: string; fallback: string };
 
-const PRODUCTS: NavLink[] = [
+// 桌面下拉导航与移动端抽屉导航（header-mobile-nav.tsx）共用同一份链接数据
+export const PRODUCTS: NavLink[] = [
   { href: '/ai-router', labelKey: 'aiRouter', fallback: 'AI Router' },
   { href: '/llm-router', labelKey: 'llmRouter', fallback: 'LLM Router' },
   { href: '/openai-compatible-router', labelKey: 'openaiCompatibleRouter', fallback: 'OpenAI-Compatible' },
@@ -16,14 +17,14 @@ const PRODUCTS: NavLink[] = [
   { href: '/opencode', labelKey: 'opencode', fallback: 'opencode' },
 ];
 
-const GATEWAYS: NavLink[] = [
+export const GATEWAYS: NavLink[] = [
   { href: '/claude-api-gateway', labelKey: 'claudeGateway', fallback: 'Claude Gateway' },
   { href: '/gpt-api-gateway', labelKey: 'gptGateway', fallback: 'GPT Gateway' },
   { href: '/gemini-api-gateway', labelKey: 'geminiGateway', fallback: 'Gemini Gateway' },
   { href: '/grok-api-gateway', labelKey: 'grokGateway', fallback: 'Grok Gateway' },
 ];
 
-const COMPARE: NavLink[] = [
+export const COMPARE: NavLink[] = [
   { href: '/muirouter-vs-openrouter', labelKey: 'muirouterVsOpenrouter', fallback: 'MuiRouter vs OpenRouter' },
   { href: '/litellm-vs-muirouter', labelKey: 'litellmVsMuirouter', fallback: 'LiteLLM vs MuiRouter' },
   { href: '/openrouter-alternatives', labelKey: 'openrouterAlternatives', fallback: 'OpenRouter Alternatives' },
