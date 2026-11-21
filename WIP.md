@@ -1,5 +1,30 @@
 # WIP
 
+## 已完成：充值流失排查 + 漏斗埋点 + 余额区交互升级（issue #23，2026-11-21 已关闭）
+
+背景：香港高意向用户两次充值未完成（Clarity 会话 167ty30），取消原因只有 `?topUp=cancelled` 一个可见信号；余额「$0.00」卡片被点击两次无响应（dead click）。
+
+- [x] `src/lib/analytics.ts` 埋点封装（`trackEvent`/`setCustomTag`：Clarity + GA4 gtag stub），Clarity 延迟加载导致 hydration 事件丢失的坑用待发队列 + `DeferredClarity` 的 `onReady` flush 解决；6 项单测
+- [x] `app/page.tsx` 接入漏斗事件：`topup_checkout_started`（+`setCustomTag('topup_amount')`）/ `topup_returned_success` / `topup_completed` / `topup_cancelled`（两条取消路径）/ `topup_checkout_failed` / `topup_balance_card_clicked` / `topup_add_credit_clicked`
+- [x] 余额卡整体可点（stretched button，滚动到充值卡 + 1.5s 高亮，select-none + hover/focus 反馈）；金额旁「充值」按钮弹金额选择框（新组件 `components/top-up-dialog.tsx`，4 项组件测试）；8 语言 i18n 补 `addCredit`/`dialogTitle`/`balanceCardAria`
+- [x] `scripts/check-stripe-topup.ts` 只读核对脚本（时间窗 checkout sessions + 账户 payment method 配置 + PaymentIntent 最后错误）；用受限 key（需 checkout_session_read / payment_intent_read / pmc 读权限）跑出结论
+- [x] **Stripe 结论**：找到该用户两条 $10 Session（08:57:46 / 08:59:30 UTC），均 expired/unpaid、无 PaymentIntent、无 last_payment_error；会话内已展示 card + alipay + link + wechat_pay——「缺支付方式」「卡被拒」均排除，根因指向结账页摩擦（与 #22 加载慢叠加），转 #22 承接
+- [x] 回归全绿：format、typecheck（3 包）、vitest 274、build 405 路由全 static；压平提交 b936fdb 并 push，构建 success
+- [x] 埋点封装用法与 flush 决策已并入 DEV_NOTE.md「关键模式」；#23 已评论结论并关闭
+- 后续观察：Clarity `topup_*` 漏斗积累数据后复核流失位置；若结账页放弃仍高再考虑档位/币种呈现优化
+
+## 已完成：Clarity 巡检 UX 问题修复（issues #17–#20，2026-11-19 全部关闭）
+
+## 已完成：Clarity 巡检 UX 问题修复（issues #17–#20，2026-11-19 全部关闭）
+
+代码修复 → 全套回归通过（vitest 264、e2e 49、typecheck、format、build 405 路由全 static）→ push 自动触发 Workers Builds 部署 → 生产 curl 验证四个修复特征全部生效 → issues #17–#20 已评论（含 Clarity 证据与验证结论）并关闭。
+
+- **#17** models-section 整卡改 `<Link>` 深链 `/models?provider={id}`，models 页 searchParams 预选厂商筛选（fb7f4d0）。
+- **#18** 核查确认「统一按 USD/1M tokens 展示」无隐藏展开交互；pricing 标题区/SummaryPanel/补充说明 + ai-router 特性卡片加 `select-none`（f95d66e）。
+- **#19** `md` 以下汉堡 + Sheet 抽屉（链接保持纯 `<a>` 语义，SheetClose 会强加 role=button 故弃用），登录 CTA 常驻；`header.menu` 补 8 语言（a4c5bab）。
+- **#20** 核查确认 logo/导航本就是真实 `<a>`；死区主因是 HeaderAuthCta 的 loading 占位块，改 SSR 游客优先渲染登录锚点（9f12a95）。
+- 遗留观察项：issue #21（抖音渠道秒退）为观察项未处理；下次 Clarity 巡检复核移动端 320–480px 体验与 dead click 比例变化。
+
 ## 已完成：OpenAI GPT-6.2 Sol / Astra 接入、退役模型清理与解读博客发布（2026-11-18）
 
 - [x] 核对官方发布信息与 API 规格：
