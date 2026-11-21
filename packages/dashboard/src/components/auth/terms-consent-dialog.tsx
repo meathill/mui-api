@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -14,29 +14,18 @@ import {
 } from '@/components/ui/dialog';
 import { signOut } from '@/lib/auth-client';
 
-export function TermsConsentDialog() {
-  const [open, setOpen] = useState(false);
+interface TermsConsentDialogProps {
+  needsReconsent: boolean;
+}
+
+export function TermsConsentDialog({ needsReconsent }: TermsConsentDialogProps) {
+  // 初始值只在首次挂载生效：SSR 由 layout 传入（issue #22 去掉挂载时 GET 请求）。
+  // POST 成功后本地关闭，router.refresh() 引发的重渲染不会重新弹出。
+  const [open, setOpen] = useState(needsReconsent);
   const [agreed, setAgreed] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch('/api/user/accept-terms', { credentials: 'same-origin' })
-      .then((res) => {
-        if (!res.ok) return null;
-        return res.json() as Promise<{ needsReconsent?: boolean }>;
-      })
-      .then((data) => {
-        if (cancelled || !data) return;
-        if (data.needsReconsent) setOpen(true);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
 
   async function handleAgree() {
     if (!agreed) {

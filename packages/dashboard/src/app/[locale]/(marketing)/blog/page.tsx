@@ -55,6 +55,7 @@ export default async function BlogPage({ params }: { params: Promise<{ locale: s
             <p className="mt-2 max-w-2xl text-base leading-7 text-muted-foreground">{t('ctaDescription')}</p>
           </div>
           <Link
+            prefetch={false}
             href="/register"
             className="inline-flex min-h-11 w-fit shrink-0 items-center whitespace-nowrap rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
@@ -101,7 +102,7 @@ async function BlogPosts({ locale }: { locale: ReturnType<typeof getResolvedLoca
             <span>{t('readingTime', { minutes: post.readingMinutes })}</span>
           </div>
           <h2 className="mt-4 text-2xl font-semibold tracking-tight text-card-foreground sm:text-3xl">
-            <Link href={post.href} className="hover:text-primary">
+            <Link prefetch={false} href={post.href} className="hover:text-primary">
               {post.title}
             </Link>
           </h2>
@@ -117,6 +118,7 @@ async function BlogPosts({ locale }: { locale: ReturnType<typeof getResolvedLoca
             ))}
           </div>
           <Link
+            prefetch={false}
             href={post.href}
             className="mt-7 inline-flex min-h-11 items-center rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >

@@ -77,6 +77,7 @@ function DrawerLink({
 }) {
   return (
     <Link
+      prefetch={false}
       href={href as never}
       onClick={onNavigate}
       className="block rounded-lg px-3 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted"

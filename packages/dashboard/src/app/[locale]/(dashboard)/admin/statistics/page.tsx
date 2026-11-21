@@ -189,7 +189,11 @@ export default function StatisticsPage() {
                     <TableRow key={row.userId}>
                       <TableCell className="text-xs">
                         {row.userId ? (
-                          <Link href={`/admin/users/${row.userId}`} className="text-primary hover:underline">
+                          <Link
+                            prefetch={false}
+                            href={`/admin/users/${row.userId}`}
+                            className="text-primary hover:underline"
+                          >
                             {row.email || row.userId}
                           </Link>
                         ) : (

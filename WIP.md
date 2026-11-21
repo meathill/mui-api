@@ -1,5 +1,21 @@
 # WIP
 
+## 已完成：Google 登录后进控制台 14 秒修复（issue #22，2026-11-21 已关闭）
+
+Clarity 回放（会话 167ty30）实测新用户 Google OAuth 后 /zh/app 首屏 14s。排查结论：callback 是 better-auth 库内逻辑（2 次 Google 外网往返 + D1 三表写入，不可插桩）；可优化的是外层——多跳 307 重定向、SSR 阻塞 D1 session 查询、hydration 后 3 个 API 各自重复查 D1（无 cookieCache）、零观测、加载期只有一行文本。目标：登录 → 控制台可交互 ≤ 3s。
+
+- [x] 观测先行：dashboard 开 observability（wrangler.jsonc），新建 `src/lib/request-timing.ts`，打点 auth handler / (dashboard) layout getSession / `GET /api/user`、`GET /api/user/keys`
+- [x] better-auth `session.cookieCache`（maxAge 60s）：首屏 4 次 D1 session 查询 → 1 次；条款/admin 滞后窗口收窄到 60s
+- [x] 登录落地 URL 带 locale（social-login-buttons）：zh 用户直达 `/zh/app`，省 307 一跳；login/register 的 next-intl router 本就 locale-aware 无需改
+- [x] 条款检查去请求化：TermsConsentDialog 删挂载 GET、改 layout SSR 传 `needsReconsent` prop（复用 `legal.needsReconsent`）；POST 改走 `auth.api.updateUser`（同步 session 并刷新 cookieCache，避免同意后重弹）；首屏请求 3 → 2
+- [x] /app 首屏「加载中...」文本换骨架屏（ui/skeleton.tsx 组合，与卡片 grid 同构，aria-busy）
+- [x] TermsConsentDialog 组件测试 6 项 + 全量回归：vitest 280、e2e 49、typecheck 3 包、format、build 405 路由全 static
+- [x] DEV_NOTE.md 记 cookieCache trade off 与「user 表写入必须走 updateUser」规范；TODO.md 记 `listUserApiKeys` KV 全量 list 扩展性隐患
+- [x] 压平提交（81378ee 代码 + 9570077 文档）推送 master，Workers Builds 构建成功；线上 curl 冒烟通过，wrangler tail 确认 `[dashboard-timing]` 打点已输出
+- [x] 用户实测联动验证（tail 51 条请求）：cookieCache 生效（已登录 layout getSession 0ms）；**头号嫌疑坐实一半——每个新 isolate 首请求 ≈1s**（静态页 959ms、首个 API 1048ms，热启动后 15–93ms），14s 是登录回跳链路多跳冷启动的叠加；callback 请求被 tail 抽样丢掉两次，耗时待 Workers Logs 后台查
+- [x] 用户实测反馈追加修复（392cad8）：登出按钮加 disabled + Spinner（sign-out wall 590ms 无反馈）；22 文件 56 处 Link 加 `prefetch={false}`（实测进站打出 8 个并发 `_rsc` prefetch 各撞 ~500ms 冷启动），登录/注册互跳与 header 登录 CTA 保留
+- [x] issue #22 已评论归档并关闭。后续 Clarity 巡检复核登录回放首屏耗时 + observability 后台 `[dashboard-timing]` 历史分布；冷启动如仍是大头再评估 Worker 预热等解法（本项转长期观察，不挂 issue）
+
 ## 已完成：充值流失排查 + 漏斗埋点 + 余额区交互升级（issue #23，2026-11-21 已关闭）
 
 背景：香港高意向用户两次充值未完成（Clarity 会话 167ty30），取消原因只有 `?topUp=cancelled` 一个可见信号；余额「$0.00」卡片被点击两次无响应（dead click）。
@@ -12,8 +28,6 @@
 - [x] 回归全绿：format、typecheck（3 包）、vitest 274、build 405 路由全 static；压平提交 b936fdb 并 push，构建 success
 - [x] 埋点封装用法与 flush 决策已并入 DEV_NOTE.md「关键模式」；#23 已评论结论并关闭
 - 后续观察：Clarity `topup_*` 漏斗积累数据后复核流失位置；若结账页放弃仍高再考虑档位/币种呈现优化
-
-## 已完成：Clarity 巡检 UX 问题修复（issues #17–#20，2026-11-19 全部关闭）
 
 ## 已完成：Clarity 巡检 UX 问题修复（issues #17–#20，2026-11-19 全部关闭）
 

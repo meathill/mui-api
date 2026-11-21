@@ -28,7 +28,11 @@ export default async function MarketingLayout({
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container mx-auto flex min-h-14 items-center gap-2 px-4 py-3 sm:px-6">
-          <Link href="/" className="flex items-center gap-2 font-heading text-xl font-bold tracking-tight">
+          <Link
+            prefetch={false}
+            href="/"
+            className="flex items-center gap-2 font-heading text-xl font-bold tracking-tight"
+          >
             <Image
               src="/brand/mui-mark.png"
               alt=""
@@ -61,32 +65,36 @@ export default async function MarketingLayout({
               </p>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/ai-router" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/ai-router" className="hover:text-foreground transition-colors">
                     {ft('aiRouter')}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/llm-router" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/llm-router" className="hover:text-foreground transition-colors">
                     {ft('llmRouter')}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/openai-compatible-router" className="hover:text-foreground transition-colors">
+                  <Link
+                    prefetch={false}
+                    href="/openai-compatible-router"
+                    className="hover:text-foreground transition-colors"
+                  >
                     {ft('openaiCompatibleRouter')}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/mcp-router" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/mcp-router" className="hover:text-foreground transition-colors">
                     {ft('mcpRouter')}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/mcp-server" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/mcp-server" className="hover:text-foreground transition-colors">
                     {ft('mcpServer')}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/opencode" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/opencode" className="hover:text-foreground transition-colors">
                     {ft('opencode')}
                   </Link>
                 </li>
@@ -98,32 +106,32 @@ export default async function MarketingLayout({
               </p>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/claude-api-gateway" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/claude-api-gateway" className="hover:text-foreground transition-colors">
                     {t.has('claudeGateway') ? t('claudeGateway') : 'Claude Gateway'}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/gpt-api-gateway" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/gpt-api-gateway" className="hover:text-foreground transition-colors">
                     {t.has('gptGateway') ? t('gptGateway') : 'GPT Gateway'}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/gemini-api-gateway" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/gemini-api-gateway" className="hover:text-foreground transition-colors">
                     {t.has('geminiGateway') ? t('geminiGateway') : 'Gemini Gateway'}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/grok-api-gateway" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/grok-api-gateway" className="hover:text-foreground transition-colors">
                     {t.has('grokGateway') ? t('grokGateway') : 'Grok Gateway'}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/mcp" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/mcp" className="hover:text-foreground transition-colors">
                     {ft('mcp')}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/pricing" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/pricing" className="hover:text-foreground transition-colors">
                     {ft('pricing')}
                   </Link>
                 </li>
@@ -135,22 +143,34 @@ export default async function MarketingLayout({
               </p>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/muirouter-vs-openrouter" className="hover:text-foreground transition-colors">
+                  <Link
+                    prefetch={false}
+                    href="/muirouter-vs-openrouter"
+                    className="hover:text-foreground transition-colors"
+                  >
                     {t.has('muirouterVsOpenrouter') ? t('muirouterVsOpenrouter') : 'MuiRouter vs OpenRouter'}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/litellm-vs-muirouter" className="hover:text-foreground transition-colors">
+                  <Link
+                    prefetch={false}
+                    href="/litellm-vs-muirouter"
+                    className="hover:text-foreground transition-colors"
+                  >
                     {t.has('litellmVsMuirouter') ? t('litellmVsMuirouter') : 'LiteLLM vs MuiRouter'}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/openrouter-alternatives" className="hover:text-foreground transition-colors">
+                  <Link
+                    prefetch={false}
+                    href="/openrouter-alternatives"
+                    className="hover:text-foreground transition-colors"
+                  >
                     {ft('openrouterAlternatives')}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/best-llm-gateway" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/best-llm-gateway" className="hover:text-foreground transition-colors">
                     {ft('bestLlmGateway')}
                   </Link>
                 </li>
@@ -167,27 +187,27 @@ export default async function MarketingLayout({
               </p>
               <ul className="space-y-2">
                 <li>
-                  <Link href="/terms" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/terms" className="hover:text-foreground transition-colors">
                     {t.has('terms') ? t('terms') : 'Terms'}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/privacy" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/privacy" className="hover:text-foreground transition-colors">
                     {t.has('privacy') ? t('privacy') : 'Privacy'}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/about" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/about" className="hover:text-foreground transition-colors">
                     {t.has('about') ? t('about') : 'About'}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/contact" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/contact" className="hover:text-foreground transition-colors">
                     {t.has('contact') ? t('contact') : 'Contact'}
                   </Link>
                 </li>
                 <li>
-                  <Link href="/blog" className="hover:text-foreground transition-colors">
+                  <Link prefetch={false} href="/blog" className="hover:text-foreground transition-colors">
                     {ft('blog')}
                   </Link>
                 </li>

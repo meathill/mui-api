@@ -10,6 +10,7 @@ import { TopUpDialog } from '@/components/top-up-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import { useAsyncResource } from '@/hooks/use-async-resource';
 import { setCustomTag, trackEvent } from '@/lib/analytics';
 import { type FreeQuotaStatus, type TopUpSessionResult, userApi } from '@/lib/api';
@@ -30,9 +31,21 @@ interface HomeData {
 
 const EMPTY_HOME_DATA: HomeData = { balance: 0, keyCount: 0, freeQuota: null };
 
+// 与真实概览卡同构的骨架占位：加载期间替代原先一行「加载中...」文本（issue #22）
+function DashboardCardSkeleton() {
+  return (
+    <Card className="p-6">
+      <div className="mb-4 flex items-center gap-3">
+        <Skeleton className="h-9 w-9 rounded-lg" />
+        <Skeleton className="h-4 w-20" />
+      </div>
+      <Skeleton className="h-9 w-28" />
+    </Card>
+  );
+}
+
 export default function DashboardHome() {
   const t = useTranslations('dashboard');
-  const tc = useTranslations('common');
   const te = useTranslations('errors');
   const locale = useLocale();
   const pathname = usePathname();
@@ -220,7 +233,16 @@ export default function DashboardHome() {
   }
 
   if (loading) {
-    return <p className="text-muted-foreground">{tc('loading')}</p>;
+    return (
+      <div aria-busy="true" aria-live="polite">
+        <PageHeader eyebrow="Dashboard · Overview" title={t('title')} />
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <DashboardCardSkeleton key={index} />
+          ))}
+        </div>
+      </div>
+    );
   }
 
   if (error) {

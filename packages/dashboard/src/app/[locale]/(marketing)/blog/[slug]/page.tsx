@@ -211,6 +211,7 @@ async function BlogArticle({ locale, post, content }: { locale: Locale; post: Lo
             <p className="mt-2 text-base leading-7 text-muted-foreground">{t('articleCtaDescription')}</p>
           </div>
           <Link
+            prefetch={false}
             href="/register"
             className="inline-flex min-h-11 w-fit shrink-0 items-center whitespace-nowrap rounded-lg bg-primary px-5 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >

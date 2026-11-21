@@ -35,6 +35,7 @@ export function HeroSection() {
 
         <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
+            prefetch={false}
             href="/register"
             className="press inline-flex h-12 items-center gap-2 rounded-lg border-2 border-[#3a2e23] bg-[var(--brand-yellow)] px-8 text-base font-semibold text-[#3a2e23] shadow-[0_3px_0_0_#3a2e23] hover:shadow-[0_4px_0_0_#3a2e23] active:shadow-[0_1px_0_0_#3a2e23]"
           >
@@ -42,6 +43,7 @@ export function HeroSection() {
             <ArrowRight size={18} />
           </Link>
           <Link
+            prefetch={false}
             href="/pricing"
             className="press-ink inline-flex h-12 items-center rounded-lg border-2 border-[var(--brand-ink)] bg-[var(--brand-cream)] px-8 text-base font-semibold text-[var(--brand-ink)]"
           >
@@ -51,6 +53,7 @@ export function HeroSection() {
 
         <div className="mt-4">
           <Link
+            prefetch={false}
             href="/ai-router"
             className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
           >

@@ -33,7 +33,7 @@ export function UserUsageSection({ userId }: UserUsageSectionProps) {
     <section className="mb-6">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="font-medium">{t('sectionUsage')}</h3>
-        <Link href={`/admin/usage?userId=${userId}`} className="text-sm text-primary hover:underline">
+        <Link prefetch={false} href={`/admin/usage?userId=${userId}`} className="text-sm text-primary hover:underline">
           {t('viewAll')}
         </Link>
       </div>

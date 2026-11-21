@@ -2,6 +2,10 @@
 
 长期待办，按发现时间倒序排列；开工前先读，避免与已评估过的事项重复盘点。
 
+## 控制台性能（2026-11-21 排查 issue #22 时发现）
+
+- **`listUserApiKeys` 全量 KV list**（`packages/dashboard/src/lib/kv.ts`）：实现是 `kv.list({ prefix: 'apikey:' })` 列出全命名空间再按 userId 过滤，API Key 总量上千后会拖慢首屏 `GET /api/user/keys`。届时改为按 userId 维护 key 索引（如 `user:{userId}:keys` 前缀集合或 D1 索引表），避免全量遍历。
+
 ## 计费与模型目录（2026-09-05 接入 GPT-6 Astra 时发现）
 
 - ~~`service_tier` fast/priority 未参与计费~~：已于同日修复——计费按上游回显的 `service_tier` 应用倍率（fast/priority 2×、flex 0.5×），usage_logs.tier 扩展 fast/flex 变体。

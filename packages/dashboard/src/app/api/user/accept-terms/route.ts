@@ -1,7 +1,6 @@
-import { eq } from 'drizzle-orm';
+import { headers } from 'next/headers';
 import { connection, NextResponse } from 'next/server';
-import { user } from '@/db/schema';
-import { getDb } from '@/lib/db';
+import { getAuth } from '@/lib/auth';
 import { CURRENT_PRIVACY_VERSION, CURRENT_TERMS_VERSION } from '@/lib/legal';
 import { getSession } from '@/lib/session';
 
@@ -12,38 +11,20 @@ export async function POST() {
     return NextResponse.json({ error: '未登录' }, { status: 401 });
   }
   try {
-    const db = await getDb();
-    await db
-      .update(user)
-      .set({
+    // 走 better-auth updateUser 而非直接 drizzle update：它会同步 session 记录并刷新
+    // cookieCache，避免同意后 60s 内刷新页面时 SSR 还拿到旧 session 重弹弹窗（issue #22）。
+    const auth = await getAuth();
+    await auth.api.updateUser({
+      body: {
         acceptedTermsAt: new Date(),
         acceptedTermsVersion: CURRENT_TERMS_VERSION,
         acceptedPrivacyVersion: CURRENT_PRIVACY_VERSION,
-        updatedAt: new Date(),
-      })
-      .where(eq(user.id, sessionUser.id));
+      },
+      headers: await headers(),
+    });
     return NextResponse.json({ ok: true });
   } catch (error) {
     console.error('POST /api/user/accept-terms 错误:', error);
     return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
   }
-}
-
-export async function GET() {
-  await connection();
-  const { user: sessionUser } = await getSession();
-  if (!sessionUser) {
-    return NextResponse.json({ error: '未登录' }, { status: 401 });
-  }
-  return NextResponse.json({
-    acceptedTermsAt: sessionUser.acceptedTermsAt ?? null,
-    acceptedTermsVersion: sessionUser.acceptedTermsVersion ?? null,
-    acceptedPrivacyVersion: sessionUser.acceptedPrivacyVersion ?? null,
-    currentTermsVersion: CURRENT_TERMS_VERSION,
-    currentPrivacyVersion: CURRENT_PRIVACY_VERSION,
-    needsReconsent:
-      !sessionUser.acceptedTermsAt ||
-      sessionUser.acceptedTermsVersion !== CURRENT_TERMS_VERSION ||
-      sessionUser.acceptedPrivacyVersion !== CURRENT_PRIVACY_VERSION,
-  });
 }

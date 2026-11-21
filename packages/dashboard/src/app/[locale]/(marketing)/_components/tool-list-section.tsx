@@ -49,6 +49,7 @@ export function ToolListSection({ title, entries, copy }: ToolListSectionProps) 
                   </h3>
                   {entry.isMuiRouter ? (
                     <Link
+                      prefetch={false}
                       href="/register"
                       className="inline-flex items-center gap-1 text-sm font-medium text-[var(--brand-yellow-deep)] hover:underline"
                     >

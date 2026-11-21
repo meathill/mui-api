@@ -15,8 +15,10 @@ import {
 } from '@phosphor-icons/react';
 import Image from 'next/image';
 import { useTranslations } from 'next-intl';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import { Spinner } from '@/components/ui/spinner';
 import { Link, usePathname } from '@/i18n/navigation';
 import { signOut } from '@/lib/auth-client';
 import { cn } from '@/lib/utils';
@@ -55,14 +57,21 @@ interface AppSidebarProps {
 export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
   const pathname = usePathname();
   const t = useTranslations('sidebar');
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(`${href}/`);
   }
 
   async function handleSignOut() {
-    await signOut();
-    window.location.href = '/login';
+    if (isSigningOut) return;
+    setIsSigningOut(true);
+    try {
+      await signOut();
+    } finally {
+      // 无论如何都离开控制台：signOut 失败时本地登录态也已不可信
+      window.location.href = '/login';
+    }
   }
 
   return (
@@ -88,6 +97,7 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
           const IconComponent = item.icon;
           return (
             <Link
+              prefetch={false}
               key={item.href}
               href={item.href}
               className={cn(
@@ -112,6 +122,7 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
               const IconComponent = item.icon;
               return (
                 <Link
+                  prefetch={false}
                   key={item.href}
                   href={item.href}
                   className={cn(
@@ -136,8 +147,8 @@ export function AppSidebar({ user, isAdmin }: AppSidebarProps) {
             <p className="text-sm font-medium truncate">{user.name}</p>
             <p className="text-xs text-muted-foreground truncate">{user.email}</p>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleSignOut} title={t('signOut')}>
-            <SignOut size={16} />
+          <Button variant="ghost" size="icon" onClick={handleSignOut} disabled={isSigningOut} title={t('signOut')}>
+            {isSigningOut ? <Spinner className="size-4" /> : <SignOut size={16} />}
           </Button>
         </div>
       </div>

@@ -28,7 +28,7 @@ export default function UserDetailPage() {
   return (
     <div>
       <div className="mb-3">
-        <Link href="/admin/users" className="text-sm text-primary hover:underline">
+        <Link prefetch={false} href="/admin/users" className="text-sm text-primary hover:underline">
           {t('backToList')}
         </Link>
       </div>

@@ -66,6 +66,16 @@ D1_ERROR: Network connection lost.
 
 **修复**：新增 `packages/shared-db/src/d1-retry.ts` 的 `withD1Retry()`，包一层 `prepare/bind/run/all/raw/first/batch`（`batch()` 需要用 `WeakMap` 反解出真实的 `D1PreparedStatement` 再传给底层 `d1.batch()`，因为包装出来的壳对象不能直接喂给 workerd 的原生实现）。用白名单（而非黑名单）判断是否值得重试：只匹配已知的瞬时性错误特征（`overloaded`/`internal error`/`network`/`timeout`），约束/schema 类错误（`constraint failed`/`no such table`/`no such column`/`syntax error`）明确排除、不重试——这次的真实样本命中 `/network/i`，验证了分类逻辑。`packages/dashboard/src/lib/db.ts` 的 `getDb()` 和 `packages/app/src/db/index.ts` 的 `createDb()` 都接入了这层包装，因为两边都用同一个 D1 库、同一个 Sessions API 用法。
 
+### better-auth session cookieCache 与 user 表写入规范（issue #22）
+
+2026-11-21 排查「Google 登录后进控制台 14s」（Clarity 回放 167ty30）时落地。
+
+**决策**：better-auth 开启 `session.cookieCache`（`maxAge: 60`）。session 校验结果缓存在签名 cookie 里，OAuth 回调后首屏（layout SSR + 3 个 API）原本 4 次 D1 session 查询降为 1 次。maxAge 只取 60s 而非官方默认 5 分钟，是为了把缓存窗口内的滞后收窄：admin 权限、条款状态在 cookieCache 有效期内最多滞后 60s。余额/并发走 KV 镜像，不受影响。
+
+**连带规范：凡更新 user 表的写入必须走 `auth.api.updateUser`，不要直接 drizzle update user 表**。直接写库绕过 better-auth，既不会同步 session 表记录，也不会失效/刷新 cookieCache——表现为写入后 60s 内 SSR 仍拿到旧 session（accept-terms 场景就是同意后刷新页面重弹弹窗）。updateUser 会同时更新 session 记录并 Set-Cookie 新缓存。`POST /api/user/accept-terms` 已按此改造。
+
+**观测配套**：`src/lib/request-timing.ts` 输出 `[dashboard-timing]` 前缀日志，打点 auth handler（覆盖 OAuth callback 的 Google 往返与 D1 写入）、dashboard layout getSession、`GET /api/user`、`GET /api/user/keys`；≥3s 自动升级 warn。dashboard 的 observability 已开启（Workers Logs），事后可按前缀过滤查真实用户耗时分布。
+
 ### 异步计费（waitUntil）
 
 **决策**：计费在响应返回后异步执行，不阻塞 API 响应。
