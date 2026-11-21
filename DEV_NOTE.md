@@ -475,6 +475,13 @@ D1_ERROR: Network connection lost.
 
 API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0），返回 402 而非 401。避免数据不一致导致误判为未授权。
 
+### 前端埋点统一走 analytics.ts（issue #23）
+
+- 入口只有 `packages/dashboard/src/lib/analytics.ts` 的 `trackEvent(name, props?)`（Clarity 事件 + GA4 带参）与 `setCustomTag(key, value)`（Clarity 会话标签），不要直接调 `window.clarity` / `gtag`。
+- 关键坑：Clarity 由 DeferredClarity 推迟到 `window.load` 才注入，而 hydration 阶段触发的事件（如 Stripe 回跳的 `topup_cancelled`）先于脚本就绪。analytics.ts 内置待发队列，`DeferredClarity` 的 `<Script onReady>` 调 `flushAnalyticsQueue()` 补发。如果日后拆分或替换 Clarity 挂载逻辑，必须保留这个 flush 时机。
+- GA4 用官方 gtag stub 模式（`dataLayer.push(arguments)`），gtag.js 加载后自动重放历史消息，无需 flush。
+- 新增埋点事件名保持 `topup_*` 前缀语义（漏斗：`topup_checkout_started → topup_returned_success → topup_completed`，旁路 `topup_cancelled / topup_checkout_failed`），Clarity 漏斗按事件名建。
+
 ## 环境配置
 
 ### 必需的 Secrets

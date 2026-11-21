@@ -1,17 +1,20 @@
 'use client';
 
 import { formatBalance } from '@muirouter/shared-db/money';
-import { ChartBar, CreditCard, Gift, Key, Wallet } from '@phosphor-icons/react';
+import { ChartBar, CreditCard, Gift, Key, Plus, Wallet } from '@phosphor-icons/react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
+import { TopUpDialog } from '@/components/top-up-dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useAsyncResource } from '@/hooks/use-async-resource';
+import { setCustomTag, trackEvent } from '@/lib/analytics';
 import { type FreeQuotaStatus, type TopUpSessionResult, userApi } from '@/lib/api';
 import { TOP_UP_AMOUNTS } from '@/lib/top-up';
+import { cn } from '@/lib/utils';
 
 interface TopUpNotice {
   description: string;
@@ -37,7 +40,10 @@ export default function DashboardHome() {
   const searchParams = useSearchParams();
   const [topUpAmountLoading, setTopUpAmountLoading] = useState<number | null>(null);
   const [topUpNotice, setTopUpNotice] = useState<TopUpNotice | null>(null);
+  const [isTopUpDialogOpen, setTopUpDialogOpen] = useState(false);
+  const [isTopUpCardHighlighted, setTopUpCardHighlighted] = useState(false);
   const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const fetchHomeData = useCallback(async (): Promise<HomeData> => {
     const [profileRes, keysRes] = await Promise.all([userApi.getProfile(), userApi.getKeys()]);
@@ -59,6 +65,7 @@ export default function DashboardHome() {
     const sessionId = searchParams.get('session_id');
 
     if (topUp === 'cancelled') {
+      trackEvent('topup_cancelled');
       setTopUpNotice({
         title: t('topUp.cancelledTitle'),
         description: t('topUp.cancelledDesc'),
@@ -71,6 +78,9 @@ export default function DashboardHome() {
     if (topUp !== 'success' || !sessionId) {
       return;
     }
+
+    // 已回到成功落地页，与 topup_completed（确认到账）分开度量，能看出 webhook 延迟或提前离开的比例
+    trackEvent('topup_returned_success');
 
     const checkoutSessionId = sessionId;
     let disposed = false;
@@ -133,11 +143,32 @@ export default function DashboardHome() {
 
     try {
       const result = await userApi.createTopUpCheckout(amount, locale);
+      trackEvent('topup_checkout_started', { amount });
+      setCustomTag('topup_amount', String(amount));
       window.location.href = result.url;
     } catch (e) {
+      trackEvent('topup_checkout_failed', { amount });
       setFailedNotice(e instanceof Error ? e.message : te('topUpFailed'));
       setTopUpAmountLoading(null);
     }
+  }
+
+  /** 余额卡整体可点：滚到充值卡并短暂高亮，承接"点余额想充值"的直觉（issue #23 dead click） */
+  function handleBalanceCardClick() {
+    trackEvent('topup_balance_card_clicked', { balance });
+    document.getElementById('topup-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    if (highlightTimerRef.current) {
+      clearTimeout(highlightTimerRef.current);
+    }
+    setTopUpCardHighlighted(true);
+    highlightTimerRef.current = setTimeout(() => setTopUpCardHighlighted(false), 1500);
+  }
+
+  /** 「充值」按钮：弹金额选择框，是比滚动更直接的充值入口 */
+  function handleAddCreditClick() {
+    trackEvent('topup_add_credit_clicked', { balance });
+    setTopUpDialogOpen(true);
   }
 
   async function pollTopUpSession(sessionId: string, disposed: boolean) {
@@ -149,6 +180,7 @@ export default function DashboardHome() {
       }
 
       if (result.status === 'credited') {
+        trackEvent('topup_completed', { amount: result.amount });
         setData((current) => ({ ...current, balance: result.balanceAfter ?? current.balance }));
         setSuccessNotice(result);
         setTopUpAmountLoading(null);
@@ -164,6 +196,7 @@ export default function DashboardHome() {
       }
 
       if (result.status === 'cancelled') {
+        trackEvent('topup_cancelled');
         setTopUpNotice({
           title: t('topUp.cancelledTitle'),
           description: t('topUp.cancelledDesc'),
@@ -208,14 +241,33 @@ export default function DashboardHome() {
       )}
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3 xl:grid-cols-4">
-        <Card className="p-6">
+        {/* select-none：余额数字易被当作可点区域误选（issue #23 dead click）；整卡可点跳充值区 */}
+        <Card className="group cursor-pointer select-none p-6 transition-colors hover:border-primary/50 group-focus-visible:ring-2 group-focus-visible:ring-primary/50">
           <div className="mb-2 flex items-center gap-3">
             <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary/10">
               <Wallet size={18} className="text-primary" weight="duotone" />
             </div>
             <span className="text-sm text-muted-foreground">{t('balance')}</span>
           </div>
-          <p className="font-heading text-3xl font-bold tracking-tight">${formatBalance(balance)}</p>
+          <div className="flex items-center justify-between gap-3">
+            <p className="font-heading text-3xl font-bold tracking-tight">${formatBalance(balance)}</p>
+            <Button
+              size="sm"
+              variant="outline"
+              className="relative z-10"
+              onClick={handleAddCreditClick}
+              disabled={topUpAmountLoading !== null}
+            >
+              <Plus size={14} />
+              {t('topUp.addCredit')}
+            </Button>
+          </div>
+          <button
+            type="button"
+            className="absolute inset-0"
+            aria-label={t('topUp.balanceCardAria')}
+            onClick={handleBalanceCardClick}
+          />
         </Card>
 
         <Card className="p-6">
@@ -257,7 +309,7 @@ export default function DashboardHome() {
         )}
       </div>
 
-      <Card className="mt-8 p-6">
+      <Card id="topup-card" className={cn('mt-8 p-6', isTopUpCardHighlighted && 'ring-2 ring-primary/40')}>
         <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           <div className="space-y-2">
             <div className="flex items-center gap-3">
@@ -301,6 +353,13 @@ export default function DashboardHome() {
           </p>
         </div>
       </Card>
+
+      <TopUpDialog
+        open={isTopUpDialogOpen}
+        pendingAmount={topUpAmountLoading}
+        onOpenChange={setTopUpDialogOpen}
+        onTopUp={handleTopUp}
+      />
     </div>
   );
 }
