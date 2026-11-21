@@ -1,6 +1,6 @@
 # WIP
 
-## 进行中：Google 登录后进控制台 14 秒（issue #22，2026-11-21 修复完成，待部署验证）
+## 已完成：Google 登录后进控制台 14 秒修复（issue #22，2026-11-21 已关闭）
 
 Clarity 回放（会话 167ty30）实测新用户 Google OAuth 后 /zh/app 首屏 14s。排查结论：callback 是 better-auth 库内逻辑（2 次 Google 外网往返 + D1 三表写入，不可插桩）；可优化的是外层——多跳 307 重定向、SSR 阻塞 D1 session 查询、hydration 后 3 个 API 各自重复查 D1（无 cookieCache）、零观测、加载期只有一行文本。目标：登录 → 控制台可交互 ≤ 3s。
 
@@ -14,7 +14,7 @@ Clarity 回放（会话 167ty30）实测新用户 Google OAuth 后 /zh/app 首�
 - [x] 压平提交（81378ee 代码 + 9570077 文档）推送 master，Workers Builds 构建成功；线上 curl 冒烟通过，wrangler tail 确认 `[dashboard-timing]` 打点已输出
 - [x] 用户实测联动验证（tail 51 条请求）：cookieCache 生效（已登录 layout getSession 0ms）；**头号嫌疑坐实一半——每个新 isolate 首请求 ≈1s**（静态页 959ms、首个 API 1048ms，热启动后 15–93ms），14s 是登录回跳链路多跳冷启动的叠加；callback 请求被 tail 抽样丢掉两次，耗时待 Workers Logs 后台查
 - [x] 用户实测反馈追加修复（392cad8）：登出按钮加 disabled + Spinner（sign-out wall 590ms 无反馈）；22 文件 56 处 Link 加 `prefetch={false}`（实测进站打出 8 个并发 `_rsc` prefetch 各撞 ~500ms 冷启动），登录/注册互跳与 header 登录 CTA 保留
-- [ ] 等待验证（不再主动实测）：Clarity 未来登录回放看首屏数据 + observability 后台 `[dashboard-timing]` 历史分布；达标 ≤3s 后关闭 issue #22；冷启动如坐实再评估 Worker 预热等解法
+- [x] issue #22 已评论归档并关闭。后续 Clarity 巡检复核登录回放首屏耗时 + observability 后台 `[dashboard-timing]` 历史分布；冷启动如仍是大头再评估 Worker 预热等解法（本项转长期观察，不挂 issue）
 
 ## 已完成：充值流失排查 + 漏斗埋点 + 余额区交互升级（issue #23，2026-11-21 已关闭）
 
