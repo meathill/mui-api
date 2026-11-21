@@ -259,7 +259,7 @@ export default function UsersPage() {
 
       {/* 充值记录链接 */}
       <div className="mb-4">
-        <Link href="/admin/recharge" className="text-sm text-primary hover:underline">
+        <Link prefetch={false} href="/admin/recharge" className="text-sm text-primary hover:underline">
           {t('viewRechargeHistory')}
         </Link>
       </div>

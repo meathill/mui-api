@@ -82,6 +82,7 @@ export function RouterLanding({
           <p className="mt-4 text-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto">{t('intro')}</p>
           <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
+              prefetch={false}
               href="/register"
               className="press inline-flex h-12 items-center gap-2 rounded-lg border-2 border-[#3a2e23] bg-[var(--brand-yellow)] px-8 text-base font-semibold text-[#3a2e23] shadow-[0_3px_0_0_#3a2e23] hover:shadow-[0_4px_0_0_#3a2e23] active:shadow-[0_1px_0_0_#3a2e23]"
             >
@@ -89,6 +90,7 @@ export function RouterLanding({
               <ArrowRight size={18} />
             </Link>
             <Link
+              prefetch={false}
               href="/pricing"
               className="press-ink inline-flex h-12 items-center rounded-lg border-2 border-[var(--brand-ink)] bg-[var(--brand-cream)] px-8 text-base font-semibold text-[var(--brand-ink)]"
             >
@@ -131,6 +133,7 @@ export function RouterLanding({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {related.map((link) => (
               <Link
+                prefetch={false}
                 key={link.href}
                 href={link.href}
                 className="group inline-flex items-center justify-between gap-2 rounded-lg border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition-colors hover:border-[var(--brand-corgi)] hover:text-[var(--brand-yellow-deep)]"
@@ -149,6 +152,7 @@ export function RouterLanding({
           <p className="mt-3 text-lg text-muted-foreground leading-relaxed">{t('ctaDescription')}</p>
           <div className="mt-6">
             <Link
+              prefetch={false}
               href="/register"
               className="press inline-flex h-12 items-center gap-2 rounded-lg border-2 border-[#3a2e23] bg-[var(--brand-yellow)] px-8 text-base font-semibold text-[#3a2e23] shadow-[0_3px_0_0_#3a2e23] hover:shadow-[0_4px_0_0_#3a2e23] active:shadow-[0_1px_0_0_#3a2e23]"
             >

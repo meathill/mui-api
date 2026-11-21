@@ -1,6 +1,7 @@
 import { generateApiKey, getKeyPrefix, hashApiKey } from '@muirouter/shared-db/crypto';
 import { connection, NextResponse } from 'next/server';
 import { deleteApiKey, getApiKeyMetadata, getKV, getUserData, listUserApiKeys, storeApiKey } from '@/lib/kv';
+import { withTiming } from '@/lib/request-timing';
 import { getSession } from '@/lib/session';
 import { createWalletUser, getWallet } from '@/lib/wallet-do';
 
@@ -10,19 +11,21 @@ import { createWalletUser, getWallet } from '@/lib/wallet-do';
 export async function GET() {
   await connection();
 
-  try {
-    const { user } = await getSession();
-    if (!user) {
-      return NextResponse.json({ error: '未登录' }, { status: 401 });
-    }
+  return withTiming('GET /api/user/keys', async () => {
+    try {
+      const { user } = await getSession();
+      if (!user) {
+        return NextResponse.json({ error: '未登录' }, { status: 401 });
+      }
 
-    const kv = await getKV();
-    const keys = await listUserApiKeys(kv, user.id);
-    return NextResponse.json({ keys });
-  } catch (error) {
-    console.error('GET /api/user/keys 错误:', error);
-    return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
-  }
+      const kv = await getKV();
+      const keys = await listUserApiKeys(kv, user.id);
+      return NextResponse.json({ keys });
+    } catch (error) {
+      console.error('GET /api/user/keys 错误:', error);
+      return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
+    }
+  });
 }
 
 /**

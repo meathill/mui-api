@@ -40,7 +40,7 @@ export function UsageLogTable({ logs, userMap, showUserColumn = true }: UsageLog
               {showUserColumn && (
                 <TableCell className="text-xs" title={log.userId || ''}>
                   {log.userId ? (
-                    <Link href={`/admin/users/${log.userId}`} className="text-primary hover:underline">
+                    <Link prefetch={false} href={`/admin/users/${log.userId}`} className="text-primary hover:underline">
                       {userMap?.get(log.userId) || `${log.userId.slice(0, 8)}...`}
                     </Link>
                   ) : (

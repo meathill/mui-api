@@ -142,6 +142,7 @@ export default async function McpServerPage({ params }: { params: Promise<{ loca
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           {related.map((link) => (
             <Link
+              prefetch={false}
               key={link.href}
               href={link.href}
               className="group inline-flex items-center justify-between gap-2 rounded-lg border border-border bg-card px-5 py-3 text-sm font-medium text-foreground transition-colors hover:border-[var(--brand-corgi)] hover:text-[var(--brand-yellow-deep)]"

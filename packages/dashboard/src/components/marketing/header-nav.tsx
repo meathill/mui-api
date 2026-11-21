@@ -41,7 +41,7 @@ function NavDropdown({ label, items }: { label: string; items: NavLink[] }) {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="min-w-56">
         {items.map((item) => (
-          <DropdownMenuItem key={item.href} render={<Link href={item.href as never} />}>
+          <DropdownMenuItem key={item.href} render={<Link prefetch={false} href={item.href as never} />}>
             {t.has(item.labelKey) ? t(item.labelKey) : item.fallback}
           </DropdownMenuItem>
         ))}
@@ -59,18 +59,21 @@ export function HeaderNav() {
       <NavDropdown label={t.has('gateways') ? t('gateways') : 'Gateways'} items={GATEWAYS} />
       <NavDropdown label={t.has('compare') ? t('compare') : 'Compare'} items={COMPARE} />
       <Link
+        prefetch={false}
         href="/pricing"
         className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
       >
         {t('pricing')}
       </Link>
       <Link
+        prefetch={false}
         href="/mcp"
         className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
       >
         {t('mcp')}
       </Link>
       <Link
+        prefetch={false}
         href="/blog"
         className="inline-flex h-9 items-center rounded-lg px-3 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
       >

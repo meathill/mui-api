@@ -85,7 +85,7 @@ export default async function OpencodePage({ params }: { params: Promise<{ local
         <CodeBlock>{CONFIG_SNIPPET}</CodeBlock>
         <p className="text-sm text-muted-foreground leading-relaxed mt-3">
           {t('configNote')}{' '}
-          <Link href="/pricing" className="text-primary hover:underline">
+          <Link prefetch={false} href="/pricing" className="text-primary hover:underline">
             {t('pricingLink')}
           </Link>
         </p>
@@ -112,7 +112,11 @@ export default async function OpencodePage({ params }: { params: Promise<{ local
         <ul className="space-y-2">
           {related.map((item) => (
             <li key={item.href}>
-              <Link href={item.href} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+              <Link
+                prefetch={false}
+                href={item.href}
+                className="inline-flex items-center gap-1 text-sm text-primary hover:underline"
+              >
                 {item.label}
                 <ArrowUpRight className="h-3 w-3" />
               </Link>

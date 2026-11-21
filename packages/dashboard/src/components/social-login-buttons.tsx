@@ -1,9 +1,10 @@
 'use client';
 
 import { GithubLogo } from '@phosphor-icons/react';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { routing } from '@/i18n/routing';
 import { signIn } from '@/lib/auth-client';
 
 function GoogleIcon({ className }: { className?: string }) {
@@ -22,15 +23,21 @@ type Provider = 'github' | 'google';
 export function SocialLoginButtons() {
   const t = useTranslations('login');
   const te = useTranslations('errors');
+  const locale = useLocale();
   const [loadingProvider, setLoadingProvider] = useState<Provider | null>(null);
   const [error, setError] = useState('');
+
+  // OAuth 回调 302 的落地页直接带上 locale 前缀，避免 next-intl middleware 再 307 一跳（issue #22）。
+  // callbackURL 是 better-auth 参数而非 next-intl 导航，需按 localePrefix: 'as-needed' 自己拼。
+  const dashboardPath =
+    locale === routing.defaultLocale && routing.localePrefix === 'as-needed' ? '/app' : `/${locale}/app`;
 
   async function handleSocialLogin(provider: Provider) {
     setError('');
     setLoadingProvider(provider);
     const result = await signIn.social({
       provider,
-      callbackURL: '/app',
+      callbackURL: dashboardPath,
     });
     if (result.error) {
       setError(result.error.message || te('loginFailedRetry'));

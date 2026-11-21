@@ -53,7 +53,7 @@
     }
   ],
   "observability": {
-    "enabled": false
+    "enabled": true
   },
   "placement": {
     "mode": "smart"

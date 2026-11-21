@@ -90,6 +90,7 @@ export function ModelsSection() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {providers.map((provider) => (
             <Link
+              prefetch={false}
               key={provider.name}
               href={`/models?provider=${provider.id}`}
               className="block select-none rounded-lg border border-border bg-card p-5 hover:border-[var(--brand-yellow-deep)] hover:shadow-[0_2px_0_0_var(--brand-yellow-deep)] transition-all"
@@ -118,6 +119,7 @@ export function ModelsSection() {
 
         <div className="mt-8 flex flex-col items-center gap-3">
           <Link
+            prefetch={false}
             href="/models"
             className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--brand-yellow-deep)] hover:text-[var(--brand-ink)] transition-colors"
           >

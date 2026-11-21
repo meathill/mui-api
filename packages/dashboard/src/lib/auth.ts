@@ -18,6 +18,14 @@ export async function getAuth() {
       schema,
     }),
     secret: env.BETTER_AUTH_SECRET,
+    // session 校验结果缓存在签名 cookie 里，避免 OAuth 回调后首屏 4 个请求各自重复查 D1（issue #22）。
+    // maxAge 只取 60s（官方默认 5 分钟），把条款状态 / admin 权限的滞后窗口收窄到一分钟内。
+    session: {
+      cookieCache: {
+        enabled: true,
+        maxAge: 60,
+      },
+    },
     baseURL: process.env.NODE_ENV === 'development' ? 'http://localhost:3035' : env.BETTER_AUTH_URL,
     trustedOrigins: ['http://localhost:3035', env.NEXT_PUBLIC_SITE_URL].filter(Boolean),
     user: {

@@ -107,7 +107,11 @@ export function UserTable({
                 <Button
                   variant="ghost"
                   size="xs"
-                  render={<Link href={`/admin/users/${user.userId}`}>{t('viewDetail')}</Link>}
+                  render={
+                    <Link prefetch={false} href={`/admin/users/${user.userId}`}>
+                      {t('viewDetail')}
+                    </Link>
+                  }
                 />
                 <Button variant="ghost" size="xs" onClick={() => onEdit(user)}>
                   {t('edit')}
