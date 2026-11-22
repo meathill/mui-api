@@ -54,6 +54,8 @@ pnpm --dir packages/shared-db run db:migrate:prod
 - `BASE_URL`
 - `FROM_EMAIL`
 
+部署守卫：`packages/app/wrangler.jsonc` 的 `secrets.required`（`CF_AIG_TOKEN` / `RESEND_API_KEY` / `ADMIN_EMAIL`）在部署时校验这三个关键 secret 必须已存在，缺失会直接失败——新增「缺了就跑不起来」的 secret 时记得同步更新该清单。
+
 ### 可选 secrets
 
 - `RESEND_API_KEY`

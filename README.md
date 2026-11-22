@@ -48,4 +48,5 @@ pnpm --dir packages/dashboard test       # 前端单元测试（vitest）
 - [DEV_NOTE.md](DEV_NOTE.md) — 架构决策、计费定价矩阵、框架坑与约定
 - [TESTING.md](TESTING.md) — 测试运行指南
 - [DEPLOYMENT.md](DEPLOYMENT.md) — 部署流程
-- [muirouter-spec.md](muirouter-spec.md) — 第三方接入规范（PAT / OAuth 2.0）
+
+第三方（OAuth 2.0 / PAT）接入规范已随 OAuth 功能沉淀到代码与线上页面（`/opencode`、`/mcp-server`），仓库内不再单独维护 spec 文档。

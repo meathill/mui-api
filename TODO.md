@@ -16,13 +16,12 @@
 排查方法见仓库记忆 `mui-api-e2e-service-coverage`：必须同时查 `src` 与 `e2e` 两个目录，避免漏数已有覆盖。以下均已按此方法核实为真实缺口。
 
 > 2026-09-05 维护轮次已覆盖：`routes/oauth.ts` 路由层（token/revoke 全分支单测）、dashboard `lib/kv.ts`（内存 KV 假实现全函数覆盖），已从下列清单移除。
+>
+> 2026-11-22 维护轮次已覆盖：`routes/admin/spending.ts`（7 端点全分支单测）、`routes/admin/users.ts`（list/user/set-concurrency/sync-wallet-mirror 单测）、`routes/admin/models.ts`（CRUD 全分支单测），已从下列清单移除。
 
 ### packages/app 路由层
 
 - `routes/providers.ts`：`/providers/:provider/*` 原生透传代理路由层无测试（底层 credential 注入、usage 解析各自有单测，但路由自身的流式/非流式分支、计费胶水代码无测试）
-- `routes/admin/spending.ts`：7 个端点里 6 个无测试——`POST /set-spending-limit`、`GET /global-config`、`POST /global-config`、`GET /usage`、`GET /spending-stats`、`GET /recharge-logs`（只有 `POST /unsuspend-user` 有覆盖）
-- `routes/admin/users.ts`：`POST /set-concurrency`、`GET /user` 无测试
-- `routes/admin/models.ts`：`PUT /:id`、`DELETE /:id` 无测试
 - `routes/webhooks.ts`：`POST /webhooks/stripe` 路由层薄封装无测试（业务逻辑 `handleStripeWebhook` 本身在 `stripe-service.test.ts` 覆盖良好，风险较低）
 
 ### packages/dashboard

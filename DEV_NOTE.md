@@ -245,6 +245,12 @@ D1_ERROR: Network connection lost.
 
 **节点切换（2026-08-02）**：`MIMO_BASE_URL` 从 `token-plan-sgp.xiaomimimo.com` 切到 `token-plan-cn.xiaomimimo.com`，原因是国内续订的 standard 方案价格更低。`packages/app` 与 `packages/dashboard` 两处 `wrangler.jsonc` 需保持同步，对应 e2e 断言（`packages/app/e2e/chat-completions.test.ts`）已同步更新为 cn。
 
+### OpenCode Go 订阅直连与会话标识协议
+
+**订阅优先语义**：配置 `OPENCODE_GO_API_KEY` 后，OpenAI 兼容直连链路（`provider-dispatch.ts` 的 `callOpenAICompatDirect`）会**优先走 OpenCode Go 订阅端点** `https://opencode.ai/zen/go/v1`，而不是各自官方 API——即 Moonshot / Xiaomi MiMo / DeepSeek 在配置了订阅 key 时实际出口是订阅池，`MOONSHOT_API_KEY` 等退化为订阅不可用时的兜底。`zai` / `qwen` / `minimax` / `meta` / `longcat` / `hy` / `opencode-go` 这些 provider 则只经订阅端点（`callViaOpenCodeGo`），没有官方直连路径。排查「为什么配了官方 key 还走别处」先看这里；要强制某 provider 不走订阅，给它的 `OpenAICompatDirectConfig` 传 `allowOpenCodeGoFallback: false`。
+
+**会话标识（`x-opencode-session`）**：订阅端点要求每个请求带稳定会话头，用于上游按会话聚合/分流。解析优先级（`resolveOpenCodeSession`）：客户端带来的 `x-opencode-session` / `x-session-id` 头 → 基于用户特征（登录 `userId`，未登录取 `cf-connecting-ip`）做 `SHA-256("opencode-session:" + trait)` 截断拼成 UUID v4 形状的**确定性 ID**（同一用户/同一 IP 永远同一会话）→ 都没有时随机 UUID。会话头在 `routes/openai.ts` 对所有上述 provider 统一注入，provider 内部不重复解析。**注意**：这是会话归属标识、不是鉴权；不要把「每次请求生成新 UUID」当修复手段——那会把一个用户的连续对话拆成无数上游会话，破坏订阅侧按会话计的语义。
+
 ### Route Handler（route.tsx）不会自动继承祖先 layout 的 generateStaticParams
 
 **背景**：`og-image/route.tsx` 长期被 Next.js 当作全动态路由处理，即使 `[locale]/layout.tsx` 早已声明了 `generateStaticParams()`。根因是 Next.js 内部按文件类型走两条不同的静态参数收集路径：`page.tsx` 用 `collectAppPageSegments`，会遍历整条 loader 树，因此自动拿到祖先 layout 声明的 `generateStaticParams`；`route.tsx` 用 `collectAppRouteSegments`，只读取路由文件自身的导出，不继承任何祖先声明。结果是所有 `[locale]/.../route.tsx` 只要没有自己单独声明 `generateStaticParams`，就会一直是动态路由，每次请求都现算、不进静态缓存——这条路由曾因此导致 og:image 抓取超时（Twitter/Facebook 卡片完全不带图，2.9~6.5s 无缓存响应，修复后降到几毫秒）。
@@ -474,7 +480,7 @@ D1_ERROR: Network connection lost.
 **背景**：2026-09 有用户调 Claude 缓存零命中、烧钱快，Anthropic 发邮件提醒。排查（2026-09-03）确认三条入口对缓存的支持结构性不同：
 
 - `/v1/messages`（原生）：body 仅改写 model 字段，`cache_control` 完整透传，能否命中取决于客户端写法
-- `/v1/chat/completions` → CF 网关 compat 端点：**OpenAI 格式没有 `cache_control` 的位置，结构性无法用缓存**（OpenAI 是自动缓存、Anthropic 必须显式断点，从 OpenAI SDK 迁来的客户必踩）；已写 `docs/claude-prompt-cache-guide.md` 引导迁到 `/v1/messages`
+- `/v1/chat/completions` → CF 网关 compat 端点：**OpenAI 格式没有 `cache_control` 的位置，结构性无法用缓存**（OpenAI 是自动缓存、Anthropic 必须显式断点，从 OpenAI SDK 迁来的客户必踩）；需引导客户迁到 `/v1/messages`（原 `docs/claude-prompt-cache-guide.md` 已随 docs/ 目录清理删除，结论保留在本节）
 - `/providers/anthropic/*`（裸透传）：完全透传
 
 **决策与修复**：
@@ -561,7 +567,7 @@ API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0）
 - 匹配索引要**同时按完整 key 和裸名建**：workers-ai 的 `upstreamModelId` 是 `@cf/qwen/qwen3-30b-a3b-fp8` 这种完整名，只按裸名会漏。
 - 必须**优先取第一方 provider 的条目**。同一模型名在几十个转售商下都有条目，但只有原厂的能力标记和上下文长度可信。
 - **更新模型的脚本跑完即删，不入仓库**：数据回填或调价生成的 SQL 脚本（如 `temp-*.sql`）执行完成后直接删除，不作为 migration 也不提交进 git 仓库。
-- **只有 seed 保留完整记录**：全量模型的结构、定价与元数据完整保存在 `seed-models.sql`、`packages/dashboard/seed-models.sql` 以及 `packages/app/src/db/seed.ts` 中，便于将来新建项目或本地恢复全量数据。
+- **只有 seed 保留完整记录**：全量模型的结构、定价与元数据完整保存在 `seed-models.sql`、`packages/dashboard/seed-models.sql` 以及 `packages/app/src/db/seed.ts` 中，便于将来新建项目或本地恢复全量数据。2026-11-22 维护轮次起 `seed.ts` 已拆分为 `src/db/seed/` 目录（helpers.ts + 按 provider 分文件：openai / google / anthropic / grok / workers-ai / moonshot / xiaomi-mimo / others），`seed.ts` 只做聚合与 `generateSeedSQL()`；接入新模型时改对应 provider 文件。**注意**：这些文件会被 `scripts/print-seed-sql.ts` 用纯 Node 执行，相互导入必须带 `.ts` 扩展名（值导入），type-only import 不受限。
 
 ### 博客缓存控制机制
 

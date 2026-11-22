@@ -7,6 +7,10 @@
  * - anthropic       → @anthropic-ai/sdk + AI Gateway 原生端点（CF_AIG_TOKEN + Stored Keys，官方 SDK）
  * - grok            → fetch + AI Gateway 原生 grok 端点（xAI key 以 CF Gateway Stored Keys 形式配置，本服务不持有）
  * - workers-ai      → env.AI.run + gateway option
+ *
+ * 拆分结构：
+ *  - 网关 / 直连 base URL 计算：./provider-base-urls.ts
+ *  - OpenCode Go 订阅端点与会话标识：./opencode-go.ts
  */
 
 import Anthropic from '@anthropic-ai/sdk';
@@ -19,52 +23,33 @@ import {
   toOpenAIChatCompletion,
   translateChatRequest,
 } from './gemini-compat';
+import { callOpenCodeGo } from './opencode-go';
+import {
+  aiGatewayBase,
+  anthropicGatewayBase,
+  compatGatewayBase,
+  deepseekBaseURL,
+  moonshotBaseURL,
+  openAIDirectBaseURL,
+  openAIGatewayBase,
+  openCodeGoBaseURL,
+  xiaomiMiMoBaseURL,
+} from './provider-base-urls';
+
+// 保持原 import 路径兼容：base URL 与 OpenCode Go 的符号仍从本模块导出
+export {
+  anthropicGatewayBase,
+  compatGatewayBase,
+  deepseekBaseURL,
+  openAIDirectBaseURL,
+  openAIGatewayBase,
+  openCodeGoBaseURL,
+  moonshotBaseURL,
+  xiaomiMiMoBaseURL,
+} from './provider-base-urls';
+export { callOpenCodeGo, generateSessionIdFromTrait, resolveOpenCodeSession } from './opencode-go';
 
 type AnyBody = Record<string, unknown>;
-const MOONSHOT_DEFAULT_BASE_URL = 'https://api.moonshot.ai/v1';
-const XIAOMI_MIMO_DEFAULT_BASE_URL = 'https://api.xiaomimimo.com/v1';
-const DEEPSEEK_DEFAULT_BASE_URL = 'https://api.deepseek.com';
-const OPENCODE_GO_DEFAULT_BASE_URL = 'https://opencode.ai/zen/go/v1';
-
-function aiGatewayBase(env: CloudflareBindings, provider: string): string {
-  return `https://gateway.ai.cloudflare.com/v1/${env.CF_ACCOUNT_ID}/${env.CF_GATEWAY_ID}/${provider}`;
-}
-
-export function openAIGatewayBase(env: CloudflareBindings): string {
-  return aiGatewayBase(env, 'openai');
-}
-
-export function openAIDirectBaseURL(env: CloudflareBindings): string {
-  return trimTrailingSlashes(env.OPENAI_BASE_URL ?? 'https://api.openai.com/v1');
-}
-
-export function anthropicGatewayBase(env: CloudflareBindings): string {
-  return aiGatewayBase(env, 'anthropic');
-}
-
-export function compatGatewayBase(env: CloudflareBindings): string {
-  return aiGatewayBase(env, 'compat');
-}
-
-function trimTrailingSlashes(value: string): string {
-  return value.replace(/\/+$/, '');
-}
-
-export function xiaomiMiMoBaseURL(env: CloudflareBindings): string {
-  return trimTrailingSlashes(env.MIMO_BASE_URL ?? XIAOMI_MIMO_DEFAULT_BASE_URL);
-}
-
-export function moonshotBaseURL(env: CloudflareBindings): string {
-  return trimTrailingSlashes(env.MOONSHOT_BASE_URL ?? MOONSHOT_DEFAULT_BASE_URL);
-}
-
-export function deepseekBaseURL(env: CloudflareBindings): string {
-  return trimTrailingSlashes(env.DEEPSEEK_BASE_URL ?? DEEPSEEK_DEFAULT_BASE_URL);
-}
-
-export function openCodeGoBaseURL(env: CloudflareBindings): string {
-  return trimTrailingSlashes(env.OPENCODE_GO_BASE_URL ?? OPENCODE_GO_DEFAULT_BASE_URL);
-}
 
 /** OpenAI SDK 调用，优先直连（OPENAI_API_KEY），缺 key 时回退 AI Gateway */
 export async function callOpenAI(env: CloudflareBindings, body: AnyBody): Promise<Response> {
@@ -109,37 +94,6 @@ export async function callOpenAIEndpoint(
   });
 }
 
-/**
- * 基于用户特征（如 userId、IP）确定性生成稳定的 UUID 格式 Session ID。
- */
-export async function generateSessionIdFromTrait(trait: string): Promise<string> {
-  const encoder = new TextEncoder();
-  const data = encoder.encode(`opencode-session:${trait}`);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  const hex = hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-  return `${hex.slice(0, 8)}-${hex.slice(8, 12)}-4${hex.slice(13, 16)}-a${hex.slice(17, 20)}-${hex.slice(20, 32)}`;
-}
-
-/**
- * 解析或生成必须的 x-opencode-session 头部。
- * 若传入 headers 已含有该头（或常见别名 x-session-id）则直接复用；
- * 否则若提供了 userTrait 则基于用户特征确定性生成，无特征时回退到随机 UUID。
- */
-export async function resolveOpenCodeSession(headers?: Record<string, string>, userTrait?: string): Promise<string> {
-  const existing =
-    headers?.['x-opencode-session'] ||
-    headers?.['X-OpenCode-Session'] ||
-    headers?.['x-session-id'] ||
-    headers?.['X-Session-Id'];
-  if (existing) return existing;
-
-  if (userTrait) {
-    return generateSessionIdFromTrait(userTrait);
-  }
-  return crypto.randomUUID();
-}
-
 type OpenAICompatDirectConfig = {
   apiKey: string | undefined;
   apiKeyEnvName: string;
@@ -147,31 +101,6 @@ type OpenAICompatDirectConfig = {
   providerLabel: string;
   allowOpenCodeGoFallback?: boolean;
 };
-
-/** OpenCode Go 订阅服务：直连 https://opencode.ai/zen/go/v1 端点 */
-export async function callOpenCodeGo(
-  env: CloudflareBindings,
-  body: AnyBody,
-  extraHeaders?: Record<string, string>,
-): Promise<Response> {
-  if (!env.OPENCODE_GO_API_KEY) {
-    throw new Error('缺少 OPENCODE_GO_API_KEY，无法调用 OpenCode Go');
-  }
-
-  const session = await resolveOpenCodeSession(extraHeaders);
-  const headers: Record<string, string> = {
-    Authorization: `Bearer ${env.OPENCODE_GO_API_KEY}`,
-    'Content-Type': 'application/json',
-    'x-opencode-session': session,
-    ...extraHeaders,
-  };
-
-  return fetch(`${openCodeGoBaseURL(env)}/chat/completions`, {
-    method: 'POST',
-    headers,
-    body: JSON.stringify(body),
-  });
-}
 
 /** 直连 OpenAI 兼容 Chat Completions 接口的公共骨架（在配置了 OPENCODE_GO_API_KEY 时优先使用 OpenCode Go API 端点）。 */
 async function callOpenAICompatDirect(
