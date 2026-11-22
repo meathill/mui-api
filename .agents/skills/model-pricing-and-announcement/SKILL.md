@@ -1,4 +1,5 @@
 ---
+
 name: model-pricing-and-announcement
 description: 当上游 AI 厂商调价或发布新模型时，规范化执行模型调价、种子库同步、一次性 D1 脚本执行与中文博客发布流程
 ---
@@ -71,6 +72,7 @@ WHERE id IN ('<model-id>', '<model-alias>');
 直接撰写 Markdown 正文（不落盘到本仓库，最后通过 `upsert_article` 发布）。
 
 **文章结构规范**：
+
 1. **背景引言**：交代官方发布/降价的具体时间、背景和涉及模型；
 2. **调价细节表格**：用 GFM 表格清晰呈现新旧价格对比、降幅百分比、同家族模型价格梯度对比；
 3. **深度战略与技术解读**：
@@ -106,18 +108,22 @@ pnpm --dir packages/dashboard run submit:indexnow                # 实际提交
 ### 第六步：测试回归与收尾
 
 1. **执行远程 D1 价格脚本**：
+
    ```bash
    pnpm --filter mui-api exec wrangler d1 execute mui-api --remote --file=../../scripts/update-<model-slug>-price.sql
    ```
 2. **清理 Cloudflare KV 缓存**：
+
    ```bash
    pnpm --filter mui-api exec wrangler kv key delete --binding KV "models:catalog" --remote
    ```
 3. **清理临时 SQL 文件**：
+
    ```bash
    rm scripts/update-<model-slug>-price.sql
    ```
 4. **测试与质量回归**：
+
    ```bash
    pnpm run format
    pnpm run typecheck

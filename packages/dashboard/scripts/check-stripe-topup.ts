@@ -90,7 +90,7 @@ async function main() {
   };
 
   const stripe = new Stripe(secretKey, {
-    apiVersion: '2026-07-29.dahlia',
+    apiVersion: '2026-11-18.endive',
     appInfo: { name: 'mui-dashboard' },
     maxNetworkRetries: 2,
   });

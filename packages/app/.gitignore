@@ -33,3 +33,7 @@ lerna-debug.log*
 # misc
 .DS_Store
 coverage/
+
+# generated types
+worker-configuration.d.ts
+cloudflare-env.d.ts

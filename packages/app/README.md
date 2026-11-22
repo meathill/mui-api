@@ -72,14 +72,15 @@ pnpm dev
 
 ### 管理员接口
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | `/admin/set-concurrency` | 设置用户最大并发数 |
+| 方法 | 路径                        | 说明                                             |
+| ---- | --------------------------- | ------------------------------------------------ |
+| POST | `/admin/set-concurrency`    | 设置用户最大并发数                               |
 | POST | `/admin/sync-wallet-mirror` | 把 KV 展示镜像刷新为 WalletDO 权威账本（运维用） |
 
 充值请使用 dashboard 管理后台（写入 recharge_logs 流水并记录操作者）。
 
 **镜像同步示例**：
+
 ```bash
 curl -X POST http://localhost:5173/admin/sync-wallet-mirror \
   -H "X-Admin-Secret: your-secret" \
@@ -89,16 +90,17 @@ curl -X POST http://localhost:5173/admin/sync-wallet-mirror \
 
 ### OpenAI 兼容接口
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| POST | `/v1/chat/completions` | Chat Completions（支持 Kimi K3 视觉/推理/Tools 与流式；MiMo TTS 也通过此接口透传 `audio` 参数） |
-| POST | `/v1/responses` | Responses API（仅支持 openai provider；用于 OpenAI Codex CLI 等使用新版 wire format 的客户端） |
-| POST | `/v1/images/generations` | 图片生成（支持 openai / grok provider） |
-| POST | `/v1/videos/generations` | 提交 Grok 视频生成任务，返回 `request_id` |
-| GET | `/v1/videos/:request_id` | 查询本人视频任务；完成时幂等结算预占费用 |
-| GET | `/v1/models` | 列出可用模型 |
+| 方法 | 路径                     | 说明                                                                                            |
+| ---- | ------------------------ | ----------------------------------------------------------------------------------------------- |
+| POST | `/v1/chat/completions`   | Chat Completions（支持 Kimi K3 视觉/推理/Tools 与流式；MiMo TTS 也通过此接口透传 `audio` 参数） |
+| POST | `/v1/responses`          | Responses API（仅支持 openai provider；用于 OpenAI Codex CLI 等使用新版 wire format 的客户端）  |
+| POST | `/v1/images/generations` | 图片生成（支持 openai / grok provider）                                                         |
+| POST | `/v1/videos/generations` | 提交 Grok 视频生成任务，返回 `request_id`                                                       |
+| GET  | `/v1/videos/:request_id` | 查询本人视频任务；完成时幂等结算预占费用                                                        |
+| GET  | `/v1/models`             | 列出可用模型                                                                                    |
 
 **调用示例**：
+
 ```bash
 curl http://localhost:5173/v1/chat/completions \
   -H "Authorization: Bearer sk-gw-xxx" \
@@ -110,6 +112,7 @@ curl http://localhost:5173/v1/chat/completions \
 ```
 
 **Codex CLI 接入示例**（`~/.codex/config.toml`；`base_url` 不带 `/responses` 后缀，Codex 会按 `wire_api` 自动追加，且不会展开 `base_url` 里的环境变量，需要写字面值）：
+
 ```toml
 model_provider = "mui-api"
 model = "gpt-4o"
@@ -123,10 +126,10 @@ wire_api = "responses"
 
 ### 领卡接口
 
-| 方法 | 路径 | 说明 |
-|------|------|------|
-| GET | `/claim?token=xxx` | 领卡页面 |
-| POST | `/api/claim` | Token 换取 API Key |
+| 方法 | 路径               | 说明               |
+| ---- | ------------------ | ------------------ |
+| GET  | `/claim?token=xxx` | 领卡页面           |
+| POST | `/api/claim`       | Token 换取 API Key |
 
 ## 计费规则
 

@@ -81,9 +81,6 @@ Clarity 回放（会话 167ty30）实测新用户 Google OAuth 后 /zh/app 首�
 - [x] 升级 `packages/dashboard/wrangler.jsonc` 中 `vars.BLOG_CACHE_VERSION` 至 `v7`，执行 IndexNow 提交 282 条 URL（状态码 200）。
 - [x] 运行全套质量门禁（typecheck、format、全量单测 371+261 项全绿）。
 
-
-
-
 ## 已完成：Anthropic Claude Fable 5.2 接入与发布解读博客（2026-11-10）
 
 - [x] 核对官方发布信息（Anthropic 官方公告、API 定价与规格）：Mythos 级底座、超难数学与科学突破、长程 Agent 协同（1000+ 子 Agent 连续 8 天）、输出速度提升 30%、可选 Fast Mode（2.5x 速度）、API 降价 20%（输入 $8/M、输出 $40/M、缓存命中 $0.20/M 即 2.5%、缓存写入 $10.00/M 即 1.25×，1M 上下文，128k 最大输出）。
@@ -109,7 +106,6 @@ Clarity 回放（会话 167ty30）实测新用户 Google OAuth 后 /zh/app 首�
 - [x] 优化文章表格排版与宽屏扩展：允许表格和宽幅元素在阅读流中扩展至 1.5x–1.67x 正文宽度（`max-w-6xl lg:max-w-7xl`），表头设置 `whitespace-nowrap`，彻底消除大屏幕下被窄栏挤压产生的横向滚动条。
 - [x] 修复 Mermaid 渲染逻辑并更新 CMS 博文：`MarkdownRenderer` 强化 Mermaid 提取与图表容错；直连远程 D1 `muicv` 数据库将 `gpt-6-1-terra-released` 博文（ID 215 及 `_articles_v`）3.1 节的 ASCII 字符画转换为标准 `flowchart TD` Mermaid 语法。
 - [x] 编写并补充单元测试，验证 Markdown 代码块、JSON 高亮、Mermaid 与宽表格渲染，全量回归测试（typecheck、format、test 全部 100% 通过）。
-
 
 ## 已完成：OpenAI GPT-6.1 Terra 发布解读博客与模型接入（2026-10-27）
 

@@ -43,7 +43,7 @@ describe('POST /v1/messages（Anthropic 原生）', () => {
     expect(body.error.message).toContain('Claude');
   });
 
-  it('透传 Claude 响应，按 Anthropic 原生 usage 扣费，经 Gateway + 官方 SDK（x-api-key=CF_AIG_TOKEN）', async () => {
+  it('透传 Claude 响应，按 Anthropic 原生 usage 扣费，经 Gateway + 官方 SDK（Authorization=Bearer CF_AIG_TOKEN）', async () => {
     const userId = `test-msg-bill-${Date.now()}`;
     const billKey = await seedApiKey(userId, 10);
 
@@ -74,12 +74,12 @@ describe('POST /v1/messages（Anthropic 原生）', () => {
     const body = await res.json<{ content: Array<{ text: string }> }>();
     expect(body.content[0].text).toBe('pong');
 
-    // 上游经官方 Anthropic SDK + Gateway：url 含 /anthropic/v1/messages，x-api-key=CF_AIG_TOKEN
+    // 上游经官方 Anthropic SDK v1 + Gateway：url 含 /anthropic/v1/messages，Authorization=Bearer CF_AIG_TOKEN
     const [url, init] = fetchMock.mock.calls[0];
     expect(String(url)).toContain('/anthropic/v1/messages');
     const h = new Headers(init?.headers);
-    expect(h.get('x-api-key')).toBe('test-token');
-    expect(h.get('authorization')).toBeNull();
+    expect(h.get('authorization')).toBe('Bearer test-token');
+    expect(h.get('x-api-key')).toBeNull();
 
     // 异步计费扣减余额
     await vi.waitFor(async () => {

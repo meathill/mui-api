@@ -12,11 +12,11 @@ OpenAI 兼容的 AI / LLM / MCP 路由网关：一个 API Key 接入多家模型
 
 pnpm monorepo，三个 package 共享同一套 Cloudflare D1 / KV：
 
-| 目录 | 角色 | 技术栈 |
-|------|------|--------|
-| [`packages/app`](packages/app/README.md) | API 网关（后端） | Cloudflare Workers · Hono · D1 · KV · Durable Object · Resend |
-| [`packages/dashboard`](packages/dashboard/README.md) | 控制台 + 营销站（前端） | Next.js 16 · better-auth · Base UI · Tailwind 4 · next-intl |
-| `packages/shared-db` | 共享 Drizzle schema 与 migration | Drizzle ORM · Cloudflare D1 |
+| 目录                                                 | 角色                             | 技术栈                                                        |
+| ---------------------------------------------------- | -------------------------------- | ------------------------------------------------------------- |
+| [`packages/app`](packages/app/README.md)             | API 网关（后端）                 | Cloudflare Workers · Hono · D1 · KV · Durable Object · Resend |
+| [`packages/dashboard`](packages/dashboard/README.md) | 控制台 + 营销站（前端）          | Next.js 16 · better-auth · Base UI · Tailwind 4 · next-intl   |
+| `packages/shared-db`                                 | 共享 Drizzle schema 与 migration | Drizzle ORM · Cloudflare D1                                   |
 
 ## 快速开始
 

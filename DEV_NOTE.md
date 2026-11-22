@@ -9,6 +9,7 @@
 **决策**：优先用 CF AI Gateway Stored Keys 管理受支持 Provider 的凭证；Moonshot AI、Xiaomi MiMo 等直连 Provider 则使用 Worker secrets，具体分流见「AI Provider 路由分发」。
 
 **原因**：
+
 - 集中化凭证管理，Provider Key 不暴露在代码或环境变量中
 - Gateway 路径只需 `CF_AIG_TOKEN`，由 CF Gateway 负责路由到正确的 Provider
 - 支持两种代理模式：`compat`（OpenAI 兼容）和 `native`（Provider 原生端点）
@@ -18,13 +19,14 @@
 
 **决策**：用户配置和展示镜像放 KV，并发准入 / 钱包账本放 Durable Object，持久化/可查询数据放 D1。
 
-| 存储 | 用途 | 原因 |
-|------|------|------|
-| KV | `user:{userId}` 记录的只读展示镜像、API Key hash 验证、花费统计 | 每次请求都要读，需要亚 60ms 延迟；由 `WalletDO`/`ConcurrencyLimiterDO` 写回，业务代码不再直接写 |
-| Durable Object | `ConcurrencyLimiterDO`：每用户活跃 lease、并发准入、过期清理；`WalletDO`：余额/免费额度/暂停状态/metadata 的唯一写者 | 同一用户状态天然串行，避免并发读改写丢更新（详见下面「钱包账本迁移到 Durable Object」） |
-| D1 | 用户账户、使用日志、模型定价、花费限额、better-auth 表 | 需要 SQL 查询、聚合、关联 |
+| 存储           | 用途                                                                                                                 | 原因                                                                                            |
+| -------------- | -------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| KV             | `user:{userId}` 记录的只读展示镜像、API Key hash 验证、花费统计                                                      | 每次请求都要读，需要亚 60ms 延迟；由 `WalletDO`/`ConcurrencyLimiterDO` 写回，业务代码不再直接写 |
+| Durable Object | `ConcurrencyLimiterDO`：每用户活跃 lease、并发准入、过期清理；`WalletDO`：余额/免费额度/暂停状态/metadata 的唯一写者 | 同一用户状态天然串行，避免并发读改写丢更新（详见下面「钱包账本迁移到 Durable Object」）         |
+| D1             | 用户账户、使用日志、模型定价、花费限额、better-auth 表                                                               | 需要 SQL 查询、聚合、关联                                                                       |
 
 **KV Key 命名约定**：
+
 - `user:{userId}` — 用户数据（余额、并发等），只读镜像，唯一写者是 `WalletDO`
 - `apikey:{keyHash}` — API Key 到 userId 的映射
 - `config:global` — 全局配置（每日/每月花费上限、服务暂停标志）
@@ -81,6 +83,7 @@ D1_ERROR: Network connection lost.
 **决策**：计费在响应返回后异步执行，不阻塞 API 响应。
 
 **实现**：
+
 - 非流式：从 JSON response body 提取 usage
 - 流式：用 `tee()` 分流 body，一份给客户端，一份给计费处理器
 - 通过 `c.executionCtx.waitUntil()` 执行计费管道：计算费用 → `WalletDO` 扣余额 → D1 记日志 → 告警检查
@@ -101,6 +104,7 @@ D1_ERROR: Network connection lost.
 **决策**：免费体验额度放在全局 KV 配置 `config:global.freeQuota`，用户侧只在 `user:{userId}.freeQuotaUsed` 记录已使用金额。
 
 **原因**：
+
 - 免费额度要能按模型白名单控制，优先用于 MiMo 等成本可控、希望推广的新模型
 - 额度是全局策略，不需要逐用户发券；调高额度时用户自动获得差额，调低或关闭时立即生效
 - 计费日志仍记录真实请求成本，实际钱包只扣除抵扣后的 `chargedCost`，便于统计真实成本与运营补贴
@@ -112,12 +116,12 @@ D1_ERROR: Network connection lost.
 
 **定价字段**（均为「每 100 万 token 美元单价」，存于 `models` 表）：
 
-| token 类别 | 标准档 | 长上下文档 |
-|------------|--------|-----------|
-| 普通输入 | `inputPrice` | `longContextInputPrice` |
+| token 类别     | 标准档             | 长上下文档                    |
+| -------------- | ------------------ | ----------------------------- |
+| 普通输入       | `inputPrice`       | `longContextInputPrice`       |
 | cache 命中输入 | `cachedInputPrice` | `longContextCachedInputPrice` |
-| cache 写入 | `cacheWritePrice` | `longContextCacheWritePrice` |
-| 输出 | `outputPrice` | `longContextOutputPrice` |
+| cache 写入     | `cacheWritePrice`  | `longContextCacheWritePrice`  |
+| 输出           | `outputPrice`      | `longContextOutputPrice`      |
 
 **档位判定**：`contextSize = inputTokens + cachedInputTokens + cacheWriteTokens`；当配置了 `longContextThresholdTokens` 且 `contextSize` 超过阈值时走 `long_context` 档，否则 `standard`。
 
@@ -142,6 +146,7 @@ D1_ERROR: Network connection lost.
 **决策**：根据不同 Provider 的特性采取不同的调用方式，不再一刀切地全部走 AI Gateway Stored Keys。
 
 **实现**（2026-08-26 起，c27e2b0）：
+
 - **OpenAI**：优先 `OPENAI_API_KEY` 直连 `https://api.openai.com/v1`，缺 key 回退 CF AI Gateway（Stored Keys）；配合 Worker placement 改 smart 规避直连时的 "Country not supported"。Google AI Studio 仍走 Gateway Stored Keys。
 - **Anthropic (Claude)**：全量经 CF AI Gateway（Stored Keys）+ 官方 `@anthropic-ai/sdk`，原生 `/v1/messages` 与 compat `/v1/chat/completions` 统一走 SDK，byok/unified 分流已移除（详见下方「Claude 计费模式演进」）。upstreamModelId 用 Anthropic 规范连字符 ID（如 `claude-haiku-4-5`；`claude-haiku-4.5` dot 写法已做兼容归一）。
   - **入站认证兼容 `x-api-key`**：Anthropic 官方 SDK / Claude Code 默认用 `x-api-key` 头而非 `Authorization: Bearer` 发送凭证，`authMiddleware` 两种头都接受（`middleware/auth.ts`），否则原生 SDK 直连会全部 401。
@@ -182,6 +187,7 @@ D1_ERROR: Network connection lost.
 **背景**：其它 provider 的 key 容易获得（OpenAI/Gemini 走 Gateway Stored Keys 自付、MiMo 直连自有 key），只有 Claude 因账号门槛走 CF 代付。Unified Billing 有 5% 充值费与 200 req/min/网关 限速，必须严格限定只有 Claude 用。
 
 **决策**：
+
 - `gateway-service.ts` 的代付凭证注入改为**显式 allow-list** `UNIFIED_BILLING_PROVIDERS = {anthropic}`（取代原来的反向 deny-list `SELF_PAID_PROVIDERS`）。默认「未知 provider → 自付」，杜绝将来新增 provider 忘记排除而静默落入代付烧 credits。单测断言 openai/google-ai-studio/workers-ai 均不被注入代付凭证。
 - **BYOK 开关** `ANTHROPIC_CREDENTIAL_MODE`（`unified` / `byok`）：byok 时原生路注入 `x-api-key`、compat 路注入 `Authorization: Bearer ANTHROPIC_API_KEY`，且**绝不带** `Authorization: Bearer CF_TOKEN`（带了会触发代付 / 被 compat 当成 key 报 401）。
 - **计费经济性**：Claude `markupRate` = 1.05（2026-07-08 起，从 1.1 下调），byok 下不再产生 CF Unified Billing 的 5% 充值费，只需覆盖 Stripe 手续费。
@@ -231,6 +237,7 @@ D1_ERROR: Network connection lost.
 **决策**：种子数据中 `xiaomi-mimo` 文本/多模态模型定价使用官方海外价格的 cache miss、`Input ≤ 256K` 档位；TTS 系列当前官方标记为限时免费，因此暂记为 `0 / 0`。
 
 **原因**：
+
 - `models` 表现已支持 cache 命中价与长上下文分档（见「计费定价矩阵」），但仍无法表达夜间折扣等时间相关定价
 - 选择 cache miss 基础档位能避免缓存命中假设带来的低估
 - `mimo-v2.5-pro` / `mimo-v2-pro` 在 256K-1M 输入区间存在更高档位，如果长上下文使用量明显增加，需要把模型计价扩展为上下文分段计费
@@ -255,6 +262,7 @@ D1_ERROR: Network connection lost.
 **决策**：Dashboard 全面采用 `next-intl` 提供多语言支持。
 
 **要点**：
+
 - 支持包括中文、英文在内的 8 种语言。
 - 语言配置文件和翻译文本由 `next-intl` 标准结构维护。
 - SEO 适配多语言，`sitemap.xml` 和 `robots.txt`、JSON-LD 都考虑了多语言版本的动态生成。
@@ -266,6 +274,7 @@ D1_ERROR: Network connection lost.
 **决策**：博客正文与元数据全部存 muicv Payload CMS 的 `articles` 集合（`site='muirouter'`，`site+locale+slug` 唯一），站点侧只保留只读客户端 `src/lib/cms-blog-client.ts`。阅读时间（`readingMinutes`）、引用来源（`sources` / `sourcePublishedAt`）是 articles 集合的可选字段；本地 `blog_posts` / `blog_post_translations` 表已 drop（迁移 `0030`），105 个 MDX 正文文件已删除。正文用 `MarkdownRenderer`（react-markdown + remark-gfm）运行时渲染，mermaid 代码块继续走 `Mermaid` 组件；`mdx-components.tsx` 与 `@next/mdx` 管线仅为 legal（terms/privacy/about）页面保留。
 
 **取数链路**（对齐 dyqr 仓库同款模式，2026-09 迁移）：
+
 - 运行时优先走 `MUICV_CMS` service binding（同 Cloudflare 账号内网，不出公网）；**构建期 `NEXT_PHASE === 'phase-production-build'` 与本地 `next dev`（NODE_ENV=development，platformProxy 的 binding 是 503 stub）都直接回落公网 `https://cms.muicv.com`**（env `MUICV_CMS_URL` 可覆盖）。这是 Workers Builds 场景最容易踩的坑。
 - **binding.fetch 不接受相对路径**（`Invalid URL`）：必须传完整 URL，baseUrl 用虚构 host `https://muicv-cms.internal` 即可（workerd 只按 binding 路由、忽略 host）。首版用空串 + 相对路径，列表/详情页靠构建期预渲染掩盖，运行期的 og-image/sitemap 直接 500/空，2026-09-06 修复（1559ae9）。dyqr 仓库的 cms-blog-client.ts 存在同款 bug，被其 D1 降级掩盖。
 - 一次全量拉 `site=muirouter` + `status=published`（limit 200，当前 112 条文档），列表/详情/sitemap/OG 图共用；locale 在 client 层映射（CMS `zh-CN` → 站点 `zh`），`publishedAt` 截取为 `YYYY-MM-DD`（页面 `formatDate` 拼 `T00:00:00.000Z` 依赖此格式）。
@@ -273,6 +282,7 @@ D1_ERROR: Network connection lost.
 - 运行期 CMS 返回空列表视为故障：`loadCmsBlogDocuments` 抛错让 `unstable_cache` 保留旧值，也不把空结果缓存一整天；构建期允许为空，详情页 `generateStaticParams` 返回 `[]` 降级按需 ISR，不阻断构建。
 
 **发文流程与缓存刷新机制（无需修改业务代码）**：
+
 - 在 muicv CMS 后台（或 MCP `upsert_article`，`site=muirouter`）新建文档、填齐 summary / seoTitle / seoDescription / sources，置为 published；新增文章/语言本身不需要修改仓库代码。
 - 博文列表走 24h `unstable_cache`，若需立刻同步最新文章上线，提供三种无需修改 TypeScript 代码的刷新方式：
   1. **方案 A（无需重新构建，线上秒级生效）**：在 Cloudflare Dashboard（Worker Settings -> Variables）中修改环境变量 `BLOG_CACHE_VERSION`（例如修改为新版本或当天日期），保存并部署后 Worker 运行时通过 `getCloudflareContext().env` 动态读取，缓存键立即失效回源 CMS。
@@ -282,6 +292,7 @@ D1_ERROR: Network connection lost.
 ### 数据库迁移（D1 / Drizzle）与数据回填原则
 
 **严格区分 Schema 迁移（DDL）与数据管理（DML）**：
+
 - **`packages/shared-db/drizzle/*.sql` 仅且只用于表结构变更**（如 `CREATE TABLE`、`ALTER TABLE`、`DROP TABLE`、`CREATE INDEX` 等）。
 - **严禁将数据回填、运营数据调整作为 Drizzle Migration 提交**：
   - 例如模型价格调整、模型元数据回填（`display_name`、`context_length`、`metadata_json`）等，属于业务数据操作。
@@ -329,6 +340,7 @@ D1_ERROR: Network connection lost.
 **背景**：GSC 显示 muirouter.com 曝光被 Material UI / MUI X 意图主导（`mui pricing`、`muix pricing`、`mui pro`），真正的 `ai router` 只排到 pos 47-87，CTR 0.66%。
 
 **决策**：
+
 - 品牌统一拼写为 **`MuiRouter`（一个词）**，不再用 `MUI Router`（空格 + 大写 MUI）。后者让每个页面标题带上独立的 `MUI` token，是 Material UI 曝光的头号来源；一个词且与域名一致，仍能命中 `mui router` 品牌词。改名覆盖 `lib/seo.ts` `SITE_NAME`、根 layout `title.template`、OG 图、JSON-LD、邮件等。
 - 文案/metadata 显式打出 `AI API Router / LLM Router / OpenAI-compatible / MCP server` 意图词，并**按语种本地化关键词**（de→KI、es/pt→IA + 保留 "router"、zh→AI 路由、ja→AI ルーター），不要机械直译。
 - 主题集群（pillar-spoke）：支柱页 `/ai-router` + 分簇页 `/llm-router`、`/openai-compatible-router`、`/mcp-router`，共用 `(marketing)/_components/router-landing.tsx`（内容全走 i18n namespace，8 语言；内联 FAQPage / BreadcrumbList 结构化数据）。新页 canonical/hreflang 由 `buildMetadata` 自动产出，sitemap 仅需在 `pages[]` 增条目并 bump `STATIC_PAGES_UPDATED_AT`。
@@ -341,6 +353,7 @@ D1_ERROR: Network connection lost.
 **背景**：Bing 判 muirouter.com「大量同文不同 URL」——同一 slug 在 7 个语言前缀下渲染同一份英文内容且各自自指 canonical；法律页（about/privacy/terms/contact）与模型目录只有 en+zh 文案，其余 6 语言同样自指。同时 Bing 报首页 title 过长、38 个页面描述 <120 字符。
 
 **决策**：
+
 - `buildMetadata` 新增 `translations`（该 path 真正有译文的语言集合）。无译文的语言页**保持 200 可访问**（正文照旧回退 + 提示条），但 canonical / `og:url` / `og:locale` 收敛到**原文语言版本**（`getPrimaryLocale`：按 `config.locales` 顺序取第一个，en 优先，中文先行文章落到 zh），hreflang 只列有译文的语言，`x-default` 指向主语言。sitemap 同样只为有译文的语言收录 URL。
 - 译文集合的来源：博客用 `LocalizedBlogPost.availableLocales`（由同 slug 文档分组推导），法律页用 `legal-content.ts` 的 `getLegalDocLocales()`（由 MDX loader 表推导，加了 ja 译本就自动生效），contact / models 用 `BILINGUAL_CONTENT_LOCALES`。
 - **新增语言内容时**：`about`/`contacts` 等只有中英两套的页面，文案放在 `src/lib/page-meta.ts`（页面与测试共用一份来源），并把该语言加进对应常量；否则它会继续通过 canonical 指向英文版。
@@ -353,6 +366,7 @@ D1_ERROR: Network connection lost.
 **背景**：Bing Webmaster 显示 muirouter.com 曝光极低，Bing Sitemaps 只发现 3 个 URL、最后抓取停留在很久之前，而实际 sitemap 早已扩展为多语言全量 URL（见上一节）。Bing 官方建议里包含"Set up IndexNow"——一个由 Bing/Yandex/Seznam/Naver 等共同支持的协议，站点主动推送 URL 而不是等搜索引擎自然重新抓取。
 
 **决策**：
+
 - Key 文件 `packages/dashboard/public/{key}.txt` 直接把 key 当作可公开访问的静态文件提交，**不当作 secret/env var 处理**——IndexNow 协议的验证机制本身就要求 key 文件公开可访问，加密/隐藏它没有安全收益，只会增加不必要的部署配置。`public/` 下的文件由 OpenNext 原样打包进 `.open-next/assets`，部署后由 Cloudflare Workers 在站点根路径直接提供服务，不需要额外路由。
 - 提交端点选用通用的 `https://api.indexnow.org/indexnow` 而非 Bing 专属端点：提交一次即可同时通知所有参与该协议的搜索引擎。
 - 只做**手动脚本**（`pnpm --dir packages/dashboard run submit:indexnow -- --dry-run`），不接入 GitHub Actions 定时任务或 Cloudflare Worker cron——仓库目前没有任何 schedule 类型的自动化先例，而这次的直接需求只是"推动一次重新发现"，人工控制发布节奏足够；`scripts/indexnow.ts` 已经把 URL 提取逻辑拆成纯函数，后续如果要接自动化触发点很容易。
@@ -381,6 +395,7 @@ D1_ERROR: Network connection lost.
 **messages.json 本轮膨胀到 ~1480 行、决定不拆分**：这批内容页（4 provider 页 + 4 对比/榜单页）让 8 个 locale 文件从 891-900 行涨到 ~1480 行。评估过按 namespace 拆成独立文件（如 `messages/{locale}/seo.json` 再在 `i18n/request.ts` 合并），但决定本轮不做：拆分要改全站唯一的消息加载入口 `i18n/request.ts`，爆炸半径覆盖所有页面（含 dashboard/admin 等无关部分），且目前 8 个文件从无分片先例，第一次引入分片逻辑应该单独验证、不该和内容改动混在一批交付。**如果以后再加一批内容页，届时再做一次性整体迁移**，不要每次加内容都重新纠结这个决策。
 
 **明确排除本轮、留作后续独立任务**（避免以后重新讨论）：
+
 - Provider 落地页加真实代码示例 slot（`codeSample` prop）——有说服力但会让文案工作量翻倍，可做 fast-follow
 - `ctaPrimary`/`ctaSecondary`/`ctaButton` 在 12 个 router/gateway/comparison namespace 里高度重复（"Start free"/"View pricing" 等），理论上可挪进 `common` namespace 去重，但要动全部已上线 namespace、回归面不小于收益，值得单独一个小任务处理
 - 根 layout 的 `NextIntlClientProvider` 未按需 `pick()` 消息子集，导致客户端 hydration payload 包含当前 locale 全部 messages（含无关的 dashboard/admin 内容）——这是本任务开始前就存在的架构特征，本次新增内容只是进一步放大它，不是本次引入的问题，真要收紧需要评估对 ThemeToggle/LanguageSwitcher 等客户端组件的影响，风险跟这批内容页改动不对等
@@ -390,6 +405,7 @@ D1_ERROR: Network connection lost.
 **背景**：自研 MCP server（`packages/app/src/routes/mcp.ts`）原实现 2025-06-18 协议。2026-07-28 规范是破坏性重写：移除 initialize 握手、完全无状态（版本/capability 走每请求 `_meta` + 头）、新增 `server/discover`、必填头校验、结果带 `resultType`。规范刚发布 10 天，主流第三方客户端（Cursor/Cline 等）大概率还未跟进，纯 2026-07-28 会让现有用户全部断开。
 
 **决策**：双 era 服务器（规范 Versioning and Compatibility 明确支持的形态）：
+
 - **modern（2026-07-28）**：请求带 `MCP-Protocol-Version` / `Mcp-Method` / `Mcp-Name` 头 + body `_meta`。实现 `server/discover`、`tools/list`（+`ttlMs`/`cacheScope`）、`tools/call`（+`resultType: "complete"`、`_meta.serverInfo`）；未知方法 → HTTP 404 + `-32601`；不支持版本 → 400 + `-32022`（带 supported 列表）；头不匹配 → 400 + `-32020`；notification → 202；GET/DELETE → 405。
 - **legacy（2025-11-25 / 2025-06-18）**：`initialize` 握手路径，版本协商回客户端请求版本（在支持列表内），否则回最高 legacy 版本 2025-11-25；响应形状保持旧式（不加 resultType/ttlMs，避免旧客户端困惑）。
 - era 检测：有版本头或 body `_meta` 带 protocolVersion → modern；`initialize` 及无头请求 → legacy。
@@ -398,17 +414,18 @@ D1_ERROR: Network connection lost.
 **实现分层**：纯协议逻辑（常量、era 检测、头校验、base64 sentinel 解码、结果构造）抽到 `services/mcp-protocol.ts`（零 Hono 依赖、可单测），`routes/mcp.ts` 只留 Hono 传输层 + 工具定义（双 era 共用同一 `tools` 数组与 handler）。`callToolLegacy`/`callToolModern` 的差异只有结果包装。
 
 **维护注意**：
+
 - 新增协议版本时：`SUPPORTED_VERSIONS` / `LEGACY_VERSIONS` 加版本字符串，`/mcp` 与 `/mcp-server` 页的 protocolNote/supportItems 文案要同步改（8 语言）。
 - `Mcp-Name` 支持 Base64 sentinel（`=?base64?...?=`）编码，校验时先解码再与 body 比对。
 - modern 下 `ping`、`logging/setLevel`、`notifications/initialized` 已从规范移除，一律按未知方法 404 处理；`notifications/cancelled` 仅在 stdio 用，streamable-HTTP 下取消靠断开 SSE 响应流。
 - 部署后验证清单：curl modern `server/discover`（带头 + `_meta`）、legacy `initialize`、GET /mcp 应 405。
-
 
 ### better-auth 统一用户体系
 
 **决策**：Dashboard 使用 better-auth 管理用户认证，`user` 表同时作为业务用户表。
 
 **要点**：
+
 - `getAuth()` 需要异步获取 Cloudflare context 来访问 D1 binding
 - 启用了 email/password 认证（最小密码长度 8）
 - Cookie 通过 `nextCookies()` 插件管理
@@ -419,6 +436,7 @@ D1_ERROR: Network connection lost.
 **决策**：用户自助充值采用 Stripe Checkout Session，一次性支付固定档位 `$10 / $20 / $50`，到账以 webhook 为准，不依赖前端回跳。
 
 **原因**：
+
 - Stripe Checkout 适合固定金额的一次性支付，落地快，减少自行处理支付表单和 SCA 的复杂度
 - 回跳页不可靠，用户可能关闭页面或使用异步支付方式，必须以 webhook 作为最终入账触发点
 - 通过 `recharge_logs(source, source_id)` 唯一标识和 `stripe_topup_sessions` 状态表做幂等，可以避免重复加余额
@@ -429,6 +447,7 @@ D1_ERROR: Network connection lost.
 **决策**：新增 `/admin/users/[userId]` 详情页，聚合展示指定用户的信息卡、充值记录、用量记录、按天用量统计（趋势图 + 明细表），并从用户管理、用量统计、统计分析三处提供跳转入口；`RechargeLogTable` / `UsageLogTable` / `lib/date-ranges.ts` 抽出供多处复用。充值/用量列表页同时支持 URL 参数 `userId` 预填筛选，配合详情页"查看全部"链接跳转定位。
 
 **顺带修复的两个 bug（因无 UI 调用、一直未被发现）**：
+
 - `GET /api/admin/user` 缺失 `rateMultiplier` 字段
 - `GET /api/admin/statistics` 按 `userId` 筛选聚合数据时，模型分布未生效过滤条件
 
@@ -439,11 +458,13 @@ D1_ERROR: Network connection lost.
 **背景**：opencode 连接本服务报 400 `Unsupported parameter: 'max_tokens'`。排查确认是本服务的问题：`/v1/chat/completions` 原样透传参数，而各上游对标准 OpenAI 参数支持不一。playground 没触发只是因为它不发 `max_tokens`。
 
 **决策**：
+
 - 转发前经 `lib/chat-body-normalize.ts` 归一化：openai `max_tokens`→`max_completion_tokens`（gpt-5 系列拒收旧参数，全部现役模型接受新参数）；grok strip `stop`/`presence_penalty`/`frequency_penalty`（grok-4 系推理模型发这三个会报错，xAI 文档明确）。
 - google-ai-studio 经 `services/gemini-compat.ts` 做双向翻译（messages→contents / 响应与 SSE 翻译回 chat.completion 形）。此前 `callGemini` 只读 `body.contents`，任何 OpenAI 客户端（含 playground）都不可用；且路由本身强制要求 `messages`，"原生 Gemini shape 调用方"这条路径从来不存在。翻译后 usage 为 OpenAI 形，计费与 anthropic compat 一样按 `billingProvider = 'openai'` 解析；completion_tokens 含 thinking token（`thoughtsTokenCount`），比旧的 gemini 解析（只算 candidatesTokenCount）更接近上游真实计费。
 - 上游错误经 `lib/errors.ts#upstreamError`：4xx（除 401/403）原状态码透传，客户端能分辨是自己的请求问题；401/403 是本服务与上游的凭证问题、连同 5xx 维持 502。
 
 **已核实但暂不处理的兼容性差异**（有人报问题再说）：
+
 - Moonshot temperature 范围 [0,1]（OpenAI 为 [0,2]），越界会被上游拒
 - Workers AI `max_tokens` 默认 256，客户端不传会静默截断
 - Gemini 翻译层暂不支持 tools / tool_choice / 图片 content，命中返回 400 说明
@@ -457,6 +478,7 @@ D1_ERROR: Network connection lost.
 - `/providers/anthropic/*`（裸透传）：完全透传
 
 **决策与修复**：
+
 - `/v1/messages` 现透传客户端 `anthropic-beta` 头（SDK 默认丢弃，extended-cache-ttl 1h TTL 依赖它）；入站日志带 `cache_control=N` 计数，是排查零命中的关键信号
 - CF AI Gateway 的"缓存"是**响应级**缓存（按请求体精确匹配），对多轮对话基本永远 miss，替代不了 Anthropic 的 prompt cache；且若精确重试命中，上游免费但平台仍按原 usage 扣客户费，存在重复计费隐患——是否对 chat 流量关闭该缓存待定
 - Anthropic 真实 key 在 CF 后台 Stored Keys（代码外隐藏状态，多 key 轮换会打散 org 级缓存），排查时需人工核对后台只配了一个 key
@@ -499,6 +521,7 @@ API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0）
 **具体清单以 [DEPLOYMENT.md](./DEPLOYMENT.md) 为单一权威来源**（含必需/可选划分、默认值、配置命令），不在此处重复维护第二份清单——两份独立清单曾经出现过其中一份漏更新新增 provider 的情况（见下方「SEO 重定位」一节 README 漏加 Grok 的同类教训）。
 
 这里只记录清单本身解释不到的决策性说明：
+
 - `CF_TOKEN` 只在 Claude Unified Billing（原生 `/v1/messages` 透传）代付时使用，`byok` 模式下不应再配置，否则会被当作 Anthropic key 触发 401（见上方「只有 Claude 走 Unified Billing / BYOK」一节）。
 - `MOONSHOT_API_KEY` / `MIMO_API_KEY` 对应的请求都不经过 CF AI Gateway，因此不会出现在 Gateway 日志里，排查问题时不要去 Gateway 后台找。
 
@@ -534,6 +557,7 @@ API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0）
 `models` 表的 `display_name` / `context_length` / `max_output_tokens` / `metadata_json` 由 `packages/app/scripts/fetch-model-metadata.ts` 从 models.dev 的 `api.json` 回填——我们转售的模型在那边基本都有第一方条目，抄元数据、价格用自己的，比手写靠谱。
 
 几个容易踩的点：
+
 - 匹配索引要**同时按完整 key 和裸名建**：workers-ai 的 `upstreamModelId` 是 `@cf/qwen/qwen3-30b-a3b-fp8` 这种完整名，只按裸名会漏。
 - 必须**优先取第一方 provider 的条目**。同一模型名在几十个转售商下都有条目，但只有原厂的能力标记和上下文长度可信。
 - **更新模型的脚本跑完即删，不入仓库**：数据回填或调价生成的 SQL 脚本（如 `temp-*.sql`）执行完成后直接删除，不作为 migration 也不提交进 git 仓库。
@@ -542,10 +566,10 @@ API Key 验证通过但 KV 中无用户数据时，自动初始化（余额=0）
 ### 博客缓存控制机制
 
 前台博客列表与详情页的 `unstable_cache` 预渲染缓存**统一只由 `BLOG_CACHE_VERSION` 一个变量控制**，不引入多余变量与不可控的自动时间戳：
+
 1. **配置文件**：修改 `packages/dashboard/wrangler.jsonc` 中的 `vars.BLOG_CACHE_VERSION`（如升级至 `"v5"`）。
 2. **线上环境变量**：在 Cloudflare Dashboard Worker 环境变量中覆盖 `BLOG_CACHE_VERSION`。
-发布新博文后若需即时刷新前台缓存，只需更新该变量重新部署即可，无需修改任何 TypeScript 代码。
-
+   发布新博文后若需即时刷新前台缓存，只需更新该变量重新部署即可，无需修改任何 TypeScript 代码。
 
 ### models.dev 提交的两个硬约束（首次 PR 踩过）
 

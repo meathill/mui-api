@@ -87,12 +87,13 @@ describe('blog metadata helpers', () => {
 
   describe('getBlogCacheVersion', () => {
     it('优先从 process.env.BLOG_CACHE_VERSION 读取', async () => {
-      const original = process.env.BLOG_CACHE_VERSION;
-      process.env.BLOG_CACHE_VERSION = 'v-custom-123';
+      const env = process.env as Record<string, string | undefined>;
+      const original = env.BLOG_CACHE_VERSION;
+      env.BLOG_CACHE_VERSION = 'v-custom-123';
       try {
         expect(await getBlogCacheVersion()).toBe('v-custom-123');
       } finally {
-        process.env.BLOG_CACHE_VERSION = original;
+        env.BLOG_CACHE_VERSION = original;
       }
     });
 

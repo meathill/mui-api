@@ -58,5 +58,8 @@
     "CF_GATEWAY_ID": "api-router",
     "MIMO_BASE_URL": "https://token-plan-cn.xiaomimimo.com/v1",
     "OPENCODE_GO_BASE_URL": "https://opencode.ai/zen/go/v1"
+  },
+  "secrets": {
+    "required": ["CF_AIG_TOKEN", "RESEND_API_KEY", "ADMIN_EMAIL"]
   }
 }

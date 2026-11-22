@@ -38,6 +38,7 @@ pnpm run deploy            # 构建 + 部署到 Cloudflare
 `packages/dashboard` 与 `packages/app` 只保留各自的运行时 binding。
 
 需要配置的 Cloudflare Secrets：
+
 - `BETTER_AUTH_SECRET`
 - `RESEND_API_KEY`
 - `FROM_EMAIL`

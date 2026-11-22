@@ -42,19 +42,18 @@ describe('GatewayService.proxyNative 凭证注入（全量 Stored Keys，仅 cf-
     expect(h.get('anthropic-version')).toBe('2023-06-01');
   });
 
-  it.each([
-    'openai',
-    'google-ai-studio',
-    'workers-ai',
-  ])('%s 仅带 cf-aig-authorization（Stored Keys）', async (provider) => {
-    const fetchMock = stubFetch();
-    await makeService().proxyNative(provider, 'v1/x', makeRequest());
+  it.each(['openai', 'google-ai-studio', 'workers-ai'])(
+    '%s 仅带 cf-aig-authorization（Stored Keys）',
+    async (provider) => {
+      const fetchMock = stubFetch();
+      await makeService().proxyNative(provider, 'v1/x', makeRequest());
 
-    const h = headersOf(fetchMock);
-    expect(h.get('authorization')).toBeNull();
-    expect(h.get('x-api-key')).toBeNull();
-    expect(h.get('cf-aig-authorization')).toBe('Bearer aig-token');
-  });
+      const h = headersOf(fetchMock);
+      expect(h.get('authorization')).toBeNull();
+      expect(h.get('x-api-key')).toBeNull();
+      expect(h.get('cf-aig-authorization')).toBe('Bearer aig-token');
+    },
+  );
 
   it('剥离客户端 Authorization，不透传给上游', async () => {
     const fetchMock = stubFetch();
