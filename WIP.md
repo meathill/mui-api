@@ -1,5 +1,16 @@
 # WIP
 
+## 已完成：根据 OpenCode Go、Cloudflare Workers AI、Xiaomi MiMo 更新模型库（2026-11-22）
+
+- [x] 调研三大上游最新模型与官方定价：
+  - OpenCode Go (`https://opencode.ai/zen/go/v1/models`)：新增 `qwen4-max`、`qwen3.8-flash`、`minimax-m3.1-flash`、`hy4`、`hy4-preview`、`hy4-flash-free`、`grok-4.7`；修正 `muse-spark-1.3-contributor` ID 与定价（保留 `muse-spark-1.3` 别名）；补齐 `minimax-m3` >512K 长上下文定价；清理 `qwen3.7-max`，`glm-5.2` 切至 `workers-ai`。
+  - Cloudflare Workers AI (`developers.cloudflare.com/workers-ai/platform/pricing`)：新增 13 款新一代 Cloudflare-hosted LLM（`inkling-2-small`、`gemma-4-26b-a4b-it`、`qwen3.8-27b`、`nemotron-3-120b-a12b`、`gpt-oss-120b`、`gpt-oss-20b`、`qwen3-30b-a3b-fp8`、`llama-4-scout-17b-16e-instruct`、`llama-3.3-70b-instruct-fp8-fast`、`mistral-small-3.1-24b-instruct`、`granite-4.0-h-micro`、`gemma-sea-lion-v4-27b-it`、`kimi-k2.6`），连同 `glm-5.2` 统一走 `@cf/*` 托管。
+  - Xiaomi MiMo：核对最新仍为 V2.6 系列与限时免费 TTS，现行价格与官方一致，无需改动。
+- [x] 更新基准种子数据与首页精选：`packages/app/src/db/seed.ts`、`seed-models.sql`、`packages/dashboard/seed-models.sql`、`models-section.tsx`（模型库收敛至 102 行）。
+- [x] 补充单元测试：在 `packages/app/src/services/model-catalog-service.test.ts` 增加 `qwen4-max`、`hy4-flash-free`、`inkling-2-small`（含 `@cf/` 前缀）解析测试。
+- [x] 生产 D1 同步与缓存刷新：写入/更新 102 行模型、删除 `qwen3.7-max`、通过 `fetch-model-metadata.ts --remote` 回填全部 102 条元数据（102/102 命中）并清理临时 SQL、清除 KV `models:catalog` 缓存。
+- [x] 运行全套质量门禁（format、typecheck、vitest、build）。
+
 ## 已完成：Google 登录后进控制台 14 秒修复（issue #22，2026-11-21 已关闭）
 
 Clarity 回放（会话 167ty30）实测新用户 Google OAuth 后 /zh/app 首屏 14s。排查结论：callback 是 better-auth 库内逻辑（2 次 Google 外网往返 + D1 三表写入，不可插桩）；可优化的是外层——多跳 307 重定向、SSR 阻塞 D1 session 查询、hydration 后 3 个 API 各自重复查 D1（无 cookieCache）、零观测、加载期只有一行文本。目标：登录 → 控制台可交互 ≤ 3s。

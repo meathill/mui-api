@@ -42,7 +42,7 @@ export function ModelsSection() {
       id: 'grok',
       name: 'xAI',
       color: 'bg-[var(--brand-ink)] text-[var(--brand-cream)] border border-[var(--brand-ink-soft)]',
-      models: ['Grok 4.6', 'Grok 4.5', 'Grok 4.3', 'Grok Imagine Image'],
+      models: ['Grok 4.7', 'Grok 4.6', 'Grok 4.5', 'Grok 4.3', 'Grok Imagine Image'],
       description: t('grokDesc'),
     },
     {
@@ -58,7 +58,7 @@ export function ModelsSection() {
       name: 'Qwen',
       color:
         'bg-amber-500/10 text-amber-800 border border-amber-500/30 dark:bg-amber-500/20 dark:text-amber-300 dark:border-amber-400/30',
-      models: ['Qwen3.8 Max', 'Qwen3.7 Max', 'Qwen3.7 Plus'],
+      models: ['Qwen4 Max', 'Qwen3.8 Max', 'Qwen3.8 Flash', 'Qwen3.7 Plus'],
       description: t('qwenDesc'),
     },
     {

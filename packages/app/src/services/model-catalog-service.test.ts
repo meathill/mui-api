@@ -279,4 +279,38 @@ describe('ModelCatalogService', () => {
     expect(foundShort?.id).toBe('gpt-6.2');
     expect(foundShort?.upstreamModelId).toBe('gpt-6.2-sol');
   });
+
+  it('支持 OpenCode Go 与 Workers AI 新增模型及 dot/hyphen、@cf/ 前缀解析', async () => {
+    const qwen4 = makeModel('qwen4-max', {
+      provider: 'qwen',
+      upstreamModelId: 'qwen4-max',
+      inputPrice: 1.5,
+      outputPrice: 4.5,
+      cachedInputPrice: 0.075,
+      cacheWritePrice: 1.875,
+    });
+    const hy4Free = makeModel('hy4-flash-free', {
+      provider: 'hy',
+      upstreamModelId: 'hy4-flash-free',
+      inputPrice: 0,
+      outputPrice: 0,
+      cachedInputPrice: 0,
+    });
+    const inkling = makeModel('inkling-2-small', {
+      provider: 'workers-ai',
+      upstreamModelId: '@cf/thinkingmachines/inkling-2-small',
+      inputPrice: 0.3,
+      outputPrice: 1,
+      cachedInputPrice: 0.1,
+    });
+    const { kv } = makeMockKv([qwen4, hy4Free, inkling]);
+    const { db } = makeMockDb([]);
+    const service = new ModelCatalogService(kv, db);
+
+    expect((await service.getById('qwen4-max'))?.cacheWritePrice).toBe(1.875);
+    expect((await service.getById('hy4-flash-free'))?.inputPrice).toBe(0);
+    const foundInkling = await service.getById('@cf/thinkingmachines/inkling-2-small');
+    expect(foundInkling?.id).toBe('inkling-2-small');
+    expect(foundInkling?.provider).toBe('workers-ai');
+  });
 });
