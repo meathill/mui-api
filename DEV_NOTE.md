@@ -170,6 +170,16 @@ D1_ERROR: Network connection lost.
 
 **运营须知**：网关路由已经能转发这些 model id，但真实调用能否成功取决于 CF AI Gateway 上游是否已对这几个具体 model id 开通访问——本项目侧无法验证，接入当天未做真实调用冒烟，只验证了 format/typecheck/单测/构建。
 
+### 模型 ID 别名（dot/hyphen）不写入 models 表
+
+**决策**：`claude-sonnet-5.5` / `gemini-3-8-flash` 这类与规范 ID 只差 `.` 和 `-` 的写法，靠 `ModelCatalogService.getById` 的归一化解析（全量替换、末段版本号、中间段版本号），不作为独立行落库。
+
+**原因**：2026-11-25 用户反馈 Playground 模型列表每个模型出现两遍（`claude-sonnet-5-5` 与 `claude-sonnet-5.5` 并列）。根源是历史别名行是 D1 真实记录，dashboard `/api/models`（直读 D1）和 `GET /v1/models`（KV→D1 catalog）都会把它们当独立模型展示，并同步污染定价页、admin 与 models.dev TOML。别名请求本来就能被 `getById` 解析，落库纯属冗余。
+
+**数据层保障**：`models_normalized_id_unique` 唯一索引（`0031_models_normalized_id_unique.sql`）约束 `replace(id, '.', '-')` 全局唯一，任何写入路径（seed / admin / 手工 SQL）都无法再产生 dot/hyphen 重复行。不能改成 `(provider, upstream_model_id)` 复合唯一——合法短名 alias（如 `gpt-6.2 → gpt-6.2-sol`）必须共享同一个 `upstream_model_id`。`seed.test.ts` 只负责让种子错误在提交前暴露、报错能直接指出冲突 id。
+
+**存量清理**：`packages/app/migrations/remove-dot-hyphen-alias-models.sql` 删除后，必须 `wrangler kv key delete models:catalog --namespace-id=<KV_ID> --remote`，否则旧 catalog 会继续生效（KV 无 TTL）。
+
 ### OpenAI Responses API 透传（/v1/responses，服务 Codex CLI）
 
 **背景**：OpenAI Codex CLI 的自定义 provider 只支持 Responses API（`wire_api = "responses"`），不支持 Chat Completions；Cloudflare AI Gateway 官方文档已确认 `.../openai/responses` 是受支持的透传路径，与 `.../openai/chat/completions` 同构。

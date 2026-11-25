@@ -54,31 +54,9 @@ export const GOOGLE_MODELS: NewModel[] = [
     ...geminiCache(0.75),
     ...NO_LONG_CONTEXT,
   },
-  // 别名支持 dash 形式：gemini-3-8-flash
-  {
-    id: 'gemini-3-8-flash',
-    provider: 'google-ai-studio',
-    upstreamModelId: 'gemini-3.8-flash',
-    inputPrice: 0.75,
-    outputPrice: 3.75,
-    markupRate: 1,
-    ...geminiCache(0.75),
-    ...NO_LONG_CONTEXT,
-  },
   // Gemini 3.5 Flash-Lite：
   {
     id: 'gemini-3.5-flash-lite',
-    provider: 'google-ai-studio',
-    upstreamModelId: 'gemini-3.5-flash-lite',
-    inputPrice: 0.3,
-    outputPrice: 2.5,
-    markupRate: 1,
-    ...geminiCache(0.3),
-    ...NO_LONG_CONTEXT,
-  },
-  // 别名支持 dash 形式：gemini-3-5-flash-lite
-  {
-    id: 'gemini-3-5-flash-lite',
     provider: 'google-ai-studio',
     upstreamModelId: 'gemini-3.5-flash-lite',
     inputPrice: 0.3,
@@ -102,35 +80,9 @@ export const GOOGLE_MODELS: NewModel[] = [
     longContextCacheWritePrice: null,
     longContextOutputPrice: 18,
   },
-  // 别名支持 dash 形式：gemini-3-1-pro-preview
-  {
-    id: 'gemini-3-1-pro-preview',
-    provider: 'google-ai-studio',
-    upstreamModelId: 'gemini-3.1-pro-preview',
-    inputPrice: 2,
-    outputPrice: 12,
-    markupRate: 1,
-    ...geminiCache(2),
-    longContextThresholdTokens: 200_000,
-    longContextInputPrice: 4,
-    longContextCachedInputPrice: round(4 * 0.1),
-    longContextCacheWritePrice: null,
-    longContextOutputPrice: 18,
-  },
   // Gemini 3.1 Flash-Lite：
   {
     id: 'gemini-3.1-flash-lite',
-    provider: 'google-ai-studio',
-    upstreamModelId: 'gemini-3.1-flash-lite',
-    inputPrice: 0.25,
-    outputPrice: 1.5,
-    markupRate: 1,
-    ...geminiCache(0.25),
-    ...NO_LONG_CONTEXT,
-  },
-  // 别名支持 dash 形式：gemini-3-1-flash-lite
-  {
-    id: 'gemini-3-1-flash-lite',
     provider: 'google-ai-studio',
     upstreamModelId: 'gemini-3.1-flash-lite',
     inputPrice: 0.25,

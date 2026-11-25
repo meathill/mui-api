@@ -9,6 +9,19 @@ import type { CloudflareBindings } from '../../types';
 const modelRoutes = new Hono<{ Bindings: CloudflareBindings }>();
 
 /**
+ * drizzle 会把 D1 的约束错误包进 DrizzleQueryError（message 是 SQL，真因在 cause 里），
+ * 这里沿 cause 链找 UNIQUE，避免误报 500。
+ */
+function hasUniqueConstraintError(error: unknown): boolean {
+  let current: unknown = error;
+  for (let depth = 0; current && depth < 4; depth++) {
+    if (String(current).includes('UNIQUE')) return true;
+    current = current instanceof Error ? current.cause : undefined;
+  }
+  return false;
+}
+
+/**
  * GET /admin/models
  * 列出所有模型
  */
@@ -37,8 +50,9 @@ modelRoutes.post('/', async (c) => {
     await createProxyServices(c.env, db).modelCatalog.refresh();
     return c.json({ success: true, model: result.data }, 201);
   } catch (error) {
-    if (String(error).includes('UNIQUE')) {
-      return badRequest(c, `模型 ${result.data.id} 已存在`);
+    if (hasUniqueConstraintError(error)) {
+      // models_normalized_id_unique 会把 dot/hyphen 等价写法视为同一模型。
+      return badRequest(c, `模型 ${result.data.id} 已存在（点号/连字符等价写法视为同一模型）`);
     }
     throw error;
   }

@@ -1,30 +1,40 @@
 import { sql } from 'drizzle-orm';
-import { integer, primaryKey, real, sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { integer, primaryKey, real, sqliteTable, text, uniqueIndex } from 'drizzle-orm/sqlite-core';
 import { user } from './auth-schema';
 
-export const models = sqliteTable('models', {
-  id: text('id').primaryKey(),
-  provider: text('provider').notNull(),
-  upstreamModelId: text('upstream_model_id'),
-  // 对外展示与能力元数据：喂 GET /v1/models 与 models.dev 的 TOML 生成器（同一份数据两个出口）。
-  // metadata_json 的结构见 @muirouter/shared-db/model-metadata。
-  displayName: text('display_name'),
-  contextLength: integer('context_length'),
-  maxOutputTokens: integer('max_output_tokens'),
-  metadataJson: text('metadata_json'),
-  inputPrice: real('input_price'),
-  outputPrice: real('output_price'),
-  markupRate: real('markup_rate').default(1.2),
-  // cache 分档（null 表示不启用，回退 inputPrice）
-  cachedInputPrice: real('cached_input_price'),
-  cacheWritePrice: real('cache_write_price'),
-  // 长上下文档位：input + cached + cache_write 之和超过阈值时启用 longContext* 价
-  longContextThresholdTokens: integer('long_context_threshold_tokens'),
-  longContextInputPrice: real('long_context_input_price'),
-  longContextCachedInputPrice: real('long_context_cached_input_price'),
-  longContextCacheWritePrice: real('long_context_cache_write_price'),
-  longContextOutputPrice: real('long_context_output_price'),
-});
+export const models = sqliteTable(
+  'models',
+  {
+    id: text('id').primaryKey(),
+    provider: text('provider').notNull(),
+    upstreamModelId: text('upstream_model_id'),
+    // 对外展示与能力元数据：喂 GET /v1/models 与 models.dev 的 TOML 生成器（同一份数据两个出口）。
+    // metadata_json 的结构见 @muirouter/shared-db/model-metadata。
+    displayName: text('display_name'),
+    contextLength: integer('context_length'),
+    maxOutputTokens: integer('max_output_tokens'),
+    metadataJson: text('metadata_json'),
+    inputPrice: real('input_price'),
+    outputPrice: real('output_price'),
+    markupRate: real('markup_rate').default(1.2),
+    // cache 分档（null 表示不启用，回退 inputPrice）
+    cachedInputPrice: real('cached_input_price'),
+    cacheWritePrice: real('cache_write_price'),
+    // 长上下文档位：input + cached + cache_write 之和超过阈值时启用 longContext* 价
+    longContextThresholdTokens: integer('long_context_threshold_tokens'),
+    longContextInputPrice: real('long_context_input_price'),
+    longContextCachedInputPrice: real('long_context_cached_input_price'),
+    longContextCacheWritePrice: real('long_context_cache_write_price'),
+    longContextOutputPrice: real('long_context_output_price'),
+  },
+  (table) => [
+    // 点号/连字符写法等价（ModelCatalogService.getById 归一化解析），归一化后的 id 必须全局唯一，
+    // 否则同一模型会以两种写法同时出现在 Playground / 定价页 / GET /v1/models。
+    // 注意：不能改成 (provider, upstream_model_id) 复合唯一——合法短名 alias（如 gpt-6.2 →
+    // gpt-6.2-sol）必须共享同一个 upstream_model_id。
+    uniqueIndex('models_normalized_id_unique').on(sql`replace(${table.id}, '.', '-')`),
+  ],
+);
 
 export const usageLogs = sqliteTable('usage_logs', {
   id: text('id').primaryKey(),

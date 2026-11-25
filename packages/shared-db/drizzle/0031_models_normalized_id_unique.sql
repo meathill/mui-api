@@ -1,0 +1,11 @@
+-- 模型 ID 的 dot/hyphen 写法等价（ModelCatalogService.getById 归一化解析），
+-- 归一化后的 id 必须全局唯一：否则同一模型会以两种写法同时出现在 Playground /
+-- 定价页 / GET /v1/models（2026-11-25 用户反馈的问题）。
+--
+-- 不要改成 (provider, upstream_model_id) 复合唯一：合法短名 alias（如 gpt-6.2 →
+-- gpt-6.2-sol）必须共享同一个 upstream_model_id。
+--
+-- 若某环境仍存在历史重复行，本索引创建会失败。先清理：
+--   SELECT replace(id, '.', '-') AS normalized, group_concat(id)
+--   FROM models GROUP BY normalized HAVING COUNT(*) > 1;
+CREATE UNIQUE INDEX IF NOT EXISTS models_normalized_id_unique ON models (replace(id, '.', '-'));

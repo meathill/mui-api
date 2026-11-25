@@ -16,37 +16,10 @@ export const ANTHROPIC_MODELS: NewModel[] = [
     ...anthropicCache2_5Percent(8),
     ...NO_LONG_CONTEXT,
   },
-  // 别名支持 dot 形式：claude-fable-5.2
-  {
-    id: 'claude-fable-5.2',
-    provider: 'anthropic',
-    upstreamModelId: 'claude-fable-5-2',
-    inputPrice: 8,
-    outputPrice: 40,
-    markupRate: 1,
-    ...anthropicCache2_5Percent(8),
-    ...NO_LONG_CONTEXT,
-  },
   // Claude Fable 5.1（2026-09-01 发布）：Mythos 级底座，基础 input $10 / output $50；
   // prompt caching 读单价 $0.25/1M（相比 Fable 5 降价 75%），写单价 $12.50/1M（1.25× input）。
   {
     id: 'claude-fable-5-1',
-    provider: 'anthropic',
-    upstreamModelId: 'claude-fable-5-1',
-    inputPrice: 10,
-    outputPrice: 50,
-    markupRate: 1,
-    cachedInputPrice: 0.25,
-    cacheWritePrice: 12.5,
-    longContextThresholdTokens: null,
-    longContextInputPrice: null,
-    longContextCachedInputPrice: null,
-    longContextCacheWritePrice: null,
-    longContextOutputPrice: null,
-  },
-  // 别名支持 dot 形式：claude-fable-5.1
-  {
-    id: 'claude-fable-5.1',
     provider: 'anthropic',
     upstreamModelId: 'claude-fable-5-1',
     inputPrice: 10,
@@ -65,22 +38,6 @@ export const ANTHROPIC_MODELS: NewModel[] = [
   // 2026-10-07 伴随 Haiku 5.5 发布，缓存读单价降价 50% 至 $0.10/1M（5%）
   {
     id: 'claude-sonnet-5-5',
-    provider: 'anthropic',
-    upstreamModelId: 'claude-sonnet-5-5',
-    inputPrice: 2,
-    outputPrice: 10,
-    markupRate: 1,
-    cachedInputPrice: 0.1,
-    cacheWritePrice: 2.5,
-    longContextThresholdTokens: null,
-    longContextInputPrice: null,
-    longContextCachedInputPrice: null,
-    longContextCacheWritePrice: null,
-    longContextOutputPrice: null,
-  },
-  // 别名支持 dot 形式：claude-sonnet-5.5
-  {
-    id: 'claude-sonnet-5.5',
     provider: 'anthropic',
     upstreamModelId: 'claude-sonnet-5-5',
     inputPrice: 2,
@@ -125,22 +82,6 @@ export const ANTHROPIC_MODELS: NewModel[] = [
     longContextCacheWritePrice: null,
     longContextOutputPrice: null,
   },
-  // 别名支持 dot 形式：claude-opus-5.5
-  {
-    id: 'claude-opus-5.5',
-    provider: 'anthropic',
-    upstreamModelId: 'claude-opus-5-5',
-    inputPrice: 4,
-    outputPrice: 20,
-    markupRate: 1,
-    cachedInputPrice: 0.2,
-    cacheWritePrice: 5,
-    longContextThresholdTokens: null,
-    longContextInputPrice: null,
-    longContextCachedInputPrice: null,
-    longContextCacheWritePrice: null,
-    longContextOutputPrice: null,
-  },
   {
     id: 'claude-opus-5',
     provider: 'anthropic',
@@ -161,22 +102,6 @@ export const ANTHROPIC_MODELS: NewModel[] = [
   // > 100K tokens: input $0.50 / output $2.50，缓存读 $0.05/1M（10%），写 $0.625/1M（1.25×）
   {
     id: 'claude-haiku-5-5',
-    provider: 'anthropic',
-    upstreamModelId: 'claude-haiku-5-5',
-    inputPrice: 0.1,
-    outputPrice: 0.5,
-    markupRate: 1,
-    cachedInputPrice: 0.01,
-    cacheWritePrice: 0.125,
-    longContextThresholdTokens: 100_000,
-    longContextInputPrice: 0.5,
-    longContextCachedInputPrice: 0.05,
-    longContextCacheWritePrice: 0.625,
-    longContextOutputPrice: 2.5,
-  },
-  // 别名支持 dot 形式：claude-haiku-5.5
-  {
-    id: 'claude-haiku-5.5',
     provider: 'anthropic',
     upstreamModelId: 'claude-haiku-5-5',
     inputPrice: 0.1,

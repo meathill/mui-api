@@ -22,16 +22,6 @@ export const OPENAI_MODELS: NewModel[] = [
     ...openaiCache5Percent(8),
     ...openaiLongContext5Percent(8, 40),
   },
-  {
-    id: 'gpt-6-2-astra',
-    provider: 'openai',
-    upstreamModelId: 'gpt-6.2-astra',
-    inputPrice: 8,
-    outputPrice: 40,
-    markupRate: 1,
-    ...openaiCache5Percent(8),
-    ...openaiLongContext5Percent(8, 40),
-  },
   // GPT-6.2 Sol（2026-11-17 发布）：高效率主力模型，延续 $2/$10 定价与 5% 缓存读（$0.10/1M），输出 token 消耗显著降低
   // @see https://developers.openai.com/api/docs/models/gpt-6.2-sol
   {
@@ -44,19 +34,9 @@ export const OPENAI_MODELS: NewModel[] = [
     ...openaiCache5Percent(2),
     ...openaiLongContext5Percent(2, 10),
   },
-  // 短名 alias：gpt-6.2 与 gpt-6-2-sol
+  // 短名 alias：gpt-6.2
   {
     id: 'gpt-6.2',
-    provider: 'openai',
-    upstreamModelId: 'gpt-6.2-sol',
-    inputPrice: 2,
-    outputPrice: 10,
-    markupRate: 1,
-    ...openaiCache5Percent(2),
-    ...openaiLongContext5Percent(2, 10),
-  },
-  {
-    id: 'gpt-6-2-sol',
     provider: 'openai',
     upstreamModelId: 'gpt-6.2-sol',
     inputPrice: 2,
@@ -131,19 +111,9 @@ export const OPENAI_MODELS: NewModel[] = [
     ...openaiCache5Percent(2),
     ...openaiLongContext5Percent(2, 10),
   },
-  // 短名 alias：gpt-6.1 与 gpt-6-1-sol
+  // 短名 alias：gpt-6.1
   {
     id: 'gpt-6.1',
-    provider: 'openai',
-    upstreamModelId: 'gpt-6.1-sol',
-    inputPrice: 2,
-    outputPrice: 10,
-    markupRate: 1,
-    ...openaiCache5Percent(2),
-    ...openaiLongContext5Percent(2, 10),
-  },
-  {
-    id: 'gpt-6-1-sol',
     provider: 'openai',
     upstreamModelId: 'gpt-6.1-sol',
     inputPrice: 2,
@@ -156,17 +126,6 @@ export const OPENAI_MODELS: NewModel[] = [
   // @see https://openai.com/index/gpt-6-1-terra/
   {
     id: 'gpt-6.1-terra',
-    provider: 'openai',
-    upstreamModelId: 'gpt-6.1-terra',
-    inputPrice: 1,
-    outputPrice: 5,
-    markupRate: 1,
-    ...openaiCache5Percent(1),
-    ...openaiLongContext5Percent(1, 5),
-  },
-  // 短名 alias：gpt-6-1-terra
-  {
-    id: 'gpt-6-1-terra',
     provider: 'openai',
     upstreamModelId: 'gpt-6.1-terra',
     inputPrice: 1,
