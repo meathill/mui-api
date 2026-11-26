@@ -37,7 +37,7 @@ export default defineConfig({
   ],
   webServer: {
     command: 'pnpm dev',
-    env: { MUI_API_STATE_PATH: e2eStatePath },
+    env: { MUI_API_STATE_PATH: e2eStatePath, E2E_AUTH_OTP: '1' },
     port: 3035,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

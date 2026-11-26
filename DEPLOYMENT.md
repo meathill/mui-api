@@ -93,10 +93,18 @@ pnpm --dir packages/app run deploy
 ### 必需 secrets
 
 - `BETTER_AUTH_SECRET`
-- `RESEND_API_KEY`
-- `FROM_EMAIL`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
+
+### 邮箱 OTP 发布检查
+
+OTP 使用 Cloudflare Email Service 的 `send_email` binding，发件人由 vars 中的 `FROM_EMAIL=support@muirouter.com` 指定；`muirouter.com` 必须已完成 Email Sending 域名接入。发布前先执行生产迁移：
+
+```bash
+pnpm --dir packages/shared-db run db:migrate:prod
+```
+
+如果同一主邮箱对应多个历史账号，必须人工确认保留账号并制定钱包 / API Key / OAuth 关联迁移方案，不能直接改邮箱或自动合并。旧密码凭证也应在备份后人工清理，不提交一次性脚本。
 
 ### 部署
 

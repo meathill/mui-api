@@ -39,6 +39,13 @@
   "images": {
     "binding": "IMAGES"
   },
+  "send_email": [
+    {
+      "name": "EMAIL",
+      "allowed_sender_addresses": ["support@muirouter.com"],
+      "remote": true
+    }
+  ],
   "r2_buckets": [
     {
       // OpenNext 增量缓存：预渲染 HTML / ISR 产物落在这里，issue #14 重新接回（见 open-next.config.ts）。
@@ -53,7 +60,7 @@
     }
   ],
   "observability": {
-    "enabled": true
+    "enabled": false
   },
   "placement": {
     "mode": "smart"
@@ -72,6 +79,7 @@
     "NEXT_PUBLIC_API_BASE": "https://api.muirouter.com",
     "NEXT_PUBLIC_SITE_URL": "https://muirouter.com",
     "ADMIN_EMAILS": "meathill@gmail.com",
+    "FROM_EMAIL": "support@muirouter.com",
     "BETTER_AUTH_URL": "https://muirouter.com",
     "GITHUB_CLIENT_ID": "Ov23liArbpaCvUyzy7di",
     "GOOGLE_CLIENT_ID": "553490336811-mmarli7qmgmcsllqbrs9bnr116pj145o.apps.googleusercontent.com",

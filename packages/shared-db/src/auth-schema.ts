@@ -57,6 +57,13 @@ export const verification = sqliteTable('verification', {
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull(),
 });
 
+export const rateLimit = sqliteTable('rate_limit', {
+  id: text('id').primaryKey(),
+  key: text('key').notNull().unique(),
+  count: integer('count').notNull(),
+  lastRequest: integer('last_request').notNull(),
+});
+
 export type AuthUser = typeof user.$inferSelect;
 export type NewAuthUser = typeof user.$inferInsert;
 

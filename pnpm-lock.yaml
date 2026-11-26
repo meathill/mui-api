@@ -138,9 +138,6 @@ importers:
       remark-gfm:
         specifier: ^4.0.1
         version: 4.0.1
-      resend:
-        specifier: ^6.39.0
-        version: 6.39.0
       stripe:
         specifier: 23.2.0
         version: 23.2.0(@types/node@26.6.6)

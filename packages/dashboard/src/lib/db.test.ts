@@ -44,6 +44,16 @@ describe('getDb', () => {
     drizzleMock.mockClear();
   });
 
+  it('认证等强一致读取可使用 first-primary', async () => {
+    const rawSession = createFakeSession(vi.fn().mockResolvedValue({ id: 1 }));
+    const withSession = vi.fn(() => rawSession);
+    getContextMock.mockResolvedValue({ env: { DB: { withSession } } });
+
+    await getDb({ consistentReads: true });
+
+    expect(withSession).toHaveBeenCalledWith('first-primary');
+  });
+
   it('用 first-unconstrained 打开 session，并把重试包装后的 session 与合并 schema 传给 drizzle', async () => {
     vi.useFakeTimers();
     const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});

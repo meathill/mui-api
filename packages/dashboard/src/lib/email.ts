@@ -1,29 +1,34 @@
 /**
- * 邮件服务
- * 从 packages/app/src/services/email-service.ts 搬移
+ * 邮件服务：通过 Cloudflare Email Service 的 Workers binding 发送事务邮件。
  */
 import { formatBalance } from '@muirouter/shared-db/money';
-import { Resend } from 'resend';
 
 interface EmailConfig {
-  apiKey: string;
-  fromEmail?: string;
+  sendEmail: (message: EmailMessageBuilder) => Promise<EmailSendResult>;
+  fromEmail: string;
   fromName?: string;
 }
 
 export function createEmailService(config: EmailConfig) {
-  const resend = new Resend(config.apiKey);
-  const fromEmail = config.fromEmail ?? 'noreply@example.com';
-  const fromName = config.fromName ?? 'MuiRouter';
-  const from = `${fromName} <${fromEmail}>`;
+  const from = { email: config.fromEmail, name: config.fromName ?? 'MuiRouter' };
 
   return {
+    async sendOtpEmail(email: string, otp: string): Promise<void> {
+      await config.sendEmail({
+        from,
+        to: email,
+        subject: 'MuiRouter 登录验证码 / Sign-in code',
+        text: getOtpEmailText(otp),
+        html: getOtpEmailHtml(otp),
+      });
+    },
     async sendRechargeSuccessEmail(email: string, amount: number, newBalance: number): Promise<boolean> {
       try {
-        await resend.emails.send({
+        await config.sendEmail({
           from,
           to: email,
           subject: '充值成功 - MuiRouter',
+          text: getRechargeSuccessEmailText(amount, newBalance),
           html: getRechargeSuccessEmailHtml(amount, newBalance),
         });
         return true;
@@ -33,6 +38,37 @@ export function createEmailService(config: EmailConfig) {
       }
     },
   };
+}
+
+function getOtpEmailText(otp: string): string {
+  return `您的 MuiRouter 验证码是：${otp}\n有效期 5 分钟。如非本人操作，请忽略此邮件。\n\nYour MuiRouter verification code is ${otp}.\nIt expires in 5 minutes. If you did not request it, please ignore this email.`;
+}
+
+function getOtpEmailHtml(otp: string): string {
+  return `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MuiRouter 登录验证码</title>
+</head>
+<body style="margin:0;background:#faf7ef;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:#3a2e23;">
+  <main style="max-width:520px;margin:0 auto;padding:40px 24px;">
+    <h1 style="font-size:24px;line-height:1.3;margin:0 0 24px;">登录 MuiRouter</h1>
+    <p style="font-size:16px;line-height:1.7;margin:0 0 16px;">您的验证码是：</p>
+    <p style="font-size:36px;font-weight:700;letter-spacing:8px;margin:0 0 24px;">${otp}</p>
+    <p style="font-size:14px;line-height:1.7;margin:0 0 24px;">验证码 5 分钟内有效。如非本人操作，请忽略此邮件。</p>
+    <hr style="border:0;border-top:1px solid #e7dfd0;margin:28px 0;">
+    <p style="font-size:14px;line-height:1.7;margin:0 0 8px;">Your MuiRouter verification code is:</p>
+    <p style="font-size:28px;font-weight:700;letter-spacing:6px;margin:0 0 16px;">${otp}</p>
+    <p style="font-size:13px;line-height:1.7;margin:0;">It expires in 5 minutes. If you did not request it, please ignore this email.</p>
+  </main>
+</body>
+</html>`;
+}
+
+function getRechargeSuccessEmailText(amount: number, newBalance: number): string {
+  return `感谢你的持续支持！你的充值已成功到账。\n充值金额：$${formatBalance(amount)}\n当前余额：$${formatBalance(newBalance)}\n\nMuiRouter`;
 }
 
 function getRechargeSuccessEmailHtml(amount: number, newBalance: number): string {

@@ -56,6 +56,8 @@ pnpm --dir packages/dashboard run test:e2e
 
 `test:e2e:prepare` 会在 `.wrangler/e2e-state` 的隔离 D1 中应用 migration，再写入 dashboard E2E 专用的最小模型 fixture，避免污染日常本地数据或依赖生产模型目录。
 
+Dashboard E2E 通过 `E2E_AUTH_OTP=1` 启用测试专用固定验证码 `123456`；开发环境默认关闭 Better Auth 全局限流，避免 D1 状态写入触发 Next 热重载。该开关只由 Playwright webServer 设置，生产环境不得启用。
+
 ## 推荐顺序
 
 ### 改动 `packages/app`

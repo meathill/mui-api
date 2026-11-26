@@ -32,9 +32,9 @@ export function logD1Failure(event: D1RetryAttemptFailure): void {
   );
 }
 
-export async function getDb() {
+export async function getDb(options: { consistentReads?: boolean } = {}) {
   const { env } = await getCloudflareContext({ async: true });
-  const session = env.DB.withSession('first-unconstrained');
+  const session = env.DB.withSession(options.consistentReads ? 'first-primary' : 'first-unconstrained');
   const resilientSession = withD1Retry(session, { onAttemptFailure: logD1Failure });
   // D1DatabaseSession 在 prepare/batch 上与 D1Database 结构兼容，drizzle-orm 当前版本类型未收录，故 cast。
   return drizzle(resilientSession as unknown as D1Database, { schema });

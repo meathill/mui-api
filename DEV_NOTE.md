@@ -78,6 +78,20 @@ D1_ERROR: Network connection lost.
 
 **观测配套**：`src/lib/request-timing.ts` 输出 `[dashboard-timing]` 前缀日志，打点 auth handler（覆盖 OAuth callback 的 Google 往返与 D1 写入）、dashboard layout getSession、`GET /api/user`、`GET /api/user/keys`；≥3s 自动升级 warn。dashboard 的 observability 已开启（Workers Logs），事后可按前缀过滤查真实用户耗时分布。
 
+### 注册登录改为邮箱 OTP 与 + 别名归一化（2026-11-25）
+
+**决策**：邮箱登录改为 better-auth `emailOTP`，关闭密码注册/登录；GitHub / Google 保留。新主邮箱验证后自动建档，`abc+tag@example.com` 统一按 `abc@example.com` 处理。
+
+**别名策略**：Better Auth 没有内置 + 别名配置，通过 `hooks.before` 在 OTP 发送/验证前归一化。别名只能登录已存在的主账号；历史别名账号首次 OTP 登录时会懒迁移为主邮箱，主账号不存在时返回统一响应，不发码、不建档。没有打开 `disableSignUp`，因为它是全局禁止 OTP 自动注册，会误伤正常新用户。OAuth 通过 `mapProfileToUser` 做同样归一化，确保社交登录关联主账号。
+
+**安全参数**：6 位验证码、5 分钟有效、最多 3 次尝试、60 秒重发冷却；验证码哈希存储。IP 限流使用 D1 `rate_limit` 表，避免 Workers 内存计数在多实例下失效；发送邮件通过请求上下文 `ctx.waitUntil` 后台执行。Dashboard 邮件统一走 Cloudflare Email Service `send_email` binding，发件人固定为 vars 中的 `support@muirouter.com`，不再依赖 Resend secret。
+
+**UI**：使用 Coss UI `@coss/otp-field`（基于 Base UI），登录/注册共用 `EmailOtpForm`。条款版本由服务端在新用户创建时写入，避免客户端伪造。
+
+**存量风险**：历史 `abc` 与 `abc+tag` 可能同时存在。钱包、API Key、并发和 OAuth 关联按 `user.id` 分键，不能只改邮箱或自动合并。生产发布前必须人工审计重复组并制定迁移方案，不提交一次性脚本。
+
+**E2E**：Playwright 设置 `E2E_AUTH_OTP=1`，使用固定验证码 `123456` 并放宽限流；生产环境禁止启用。
+
 ### 异步计费（waitUntil）
 
 **决策**：计费在响应返回后异步执行，不阻塞 API 响应。

@@ -34,9 +34,10 @@ export async function POST(request: Request) {
     }
 
     const { env } = await getCloudflareContext({ async: true });
-    const emailService = env.RESEND_API_KEY
-      ? createEmailService({ apiKey: env.RESEND_API_KEY, fromEmail: env.FROM_EMAIL })
-      : null;
+    const emailService = createEmailService({
+      sendEmail: (message) => env.EMAIL.send(message),
+      fromEmail: env.FROM_EMAIL,
+    });
 
     const db = await getDb();
     const kv = await getKV();

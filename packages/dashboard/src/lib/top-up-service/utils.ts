@@ -77,12 +77,8 @@ export function readStripeMetadata(checkoutSession: Stripe.Checkout.Session): St
 
 export async function sendRechargeEmailIfConfigured(email: string, amount: number, newBalance: number): Promise<void> {
   const { env } = await getCloudflareContext({ async: true });
-  if (!env.RESEND_API_KEY) {
-    return;
-  }
-
   const emailService = createEmailService({
-    apiKey: env.RESEND_API_KEY,
+    sendEmail: (message) => env.EMAIL.send(message),
     fromEmail: env.FROM_EMAIL,
   });
 

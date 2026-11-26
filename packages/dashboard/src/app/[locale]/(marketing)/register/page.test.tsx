@@ -10,6 +10,7 @@ import RegisterPage from './page';
 vi.mock('@/i18n/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
+    refresh: vi.fn(),
   }),
   Link: ({ children, href, ...props }: { children: React.ReactNode; href: string }) => (
     <a href={href} {...props}>
@@ -19,12 +20,11 @@ vi.mock('@/i18n/navigation', () => ({
 }));
 
 vi.mock('@/lib/auth-client', () => ({
-  signUp: {
-    email: vi.fn(),
+  authClient: {
+    emailOtp: { sendVerificationOtp: vi.fn() },
+    signIn: { emailOtp: vi.fn() },
   },
-  signIn: {
-    social: vi.fn(),
-  },
+  signIn: { social: vi.fn() },
 }));
 
 function renderRegisterPage(locale: 'zh' | 'es', messages: Record<string, unknown>): ReturnType<typeof render> {
@@ -44,7 +44,6 @@ describe('RegisterPage (语义与可访问性)', () => {
     expect(heading).toHaveTextContent('注册');
     expect(heading).toHaveClass('text-xl font-bold text-center mb-5');
 
-    // 页面不应再使用 h2 作为主标题
     expect(screen.queryByRole('heading', { level: 2 })).toBeNull();
   });
 
@@ -56,7 +55,13 @@ describe('RegisterPage (语义与可访问性)', () => {
     expect(heading).toHaveTextContent('Registrarse');
     expect(heading).toHaveClass('text-xl font-bold text-center mb-5');
 
-    // 页面不应再使用 h2 作为主标题
     expect(screen.queryByRole('heading', { level: 2 })).toBeNull();
+  });
+
+  it('底部展示使用协议与隐私政策链接', () => {
+    renderRegisterPage('zh', zhMessages);
+
+    expect(screen.getByRole('link', { name: '《使用协议》' })).toHaveAttribute('href', '/terms');
+    expect(screen.getByRole('link', { name: '《隐私政策》' })).toHaveAttribute('href', '/privacy');
   });
 });

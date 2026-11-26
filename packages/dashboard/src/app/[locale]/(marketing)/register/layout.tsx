@@ -13,6 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     title: t('title'),
     description: metaT('description'),
     locale: resolvedLocale,
+    noindex: true,
   });
 }
 

@@ -6,6 +6,7 @@ const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const packageRoot = path.resolve(scriptDir, '..');
 const sharedDbRoot = path.resolve(packageRoot, '..', 'shared-db');
 const fixturePath = path.resolve(packageRoot, 'e2e', 'fixtures', 'models.sql');
+const authFixturePath = path.resolve(packageRoot, 'e2e', 'fixtures', 'auth.sql');
 const e2eStatePath = path.resolve(packageRoot, '..', '..', '.wrangler', 'e2e-state');
 const packageManager = process.platform === 'win32' ? 'pnpm.cmd' : 'pnpm';
 const wrangler = process.platform === 'win32' ? 'wrangler.cmd' : 'wrangler';
@@ -15,6 +16,12 @@ await run(packageManager, ['run', 'db:migrate:local'], sharedDbRoot, environment
 await run(
   wrangler,
   ['d1', 'execute', 'DB', '--local', '--persist-to', e2eStatePath, '--file', fixturePath],
+  packageRoot,
+  environment,
+);
+await run(
+  wrangler,
+  ['d1', 'execute', 'DB', '--local', '--persist-to', e2eStatePath, '--file', authFixturePath],
   packageRoot,
   environment,
 );

@@ -5,7 +5,7 @@ MuiRouter 的管理面板，基于 Next.js 16 + OpenNext 部署在 Cloudflare Wo
 ## 技术栈
 
 - **框架**：Next.js 16 + OpenNext（`@opennextjs/cloudflare`）
-- **认证**：better-auth（drizzle adapter）
+- **认证**：better-auth emailOTP + GitHub / Google OAuth（drizzle adapter）
 - **数据库**：Cloudflare D1（SQLite），与 `packages/app` 共享
 - **KV 存储**：Cloudflare KV，与 `packages/app` 共享
 - **UI**：Tailwind CSS 4 + Base UI
@@ -15,7 +15,7 @@ MuiRouter 的管理面板，基于 Next.js 16 + OpenNext 部署在 Cloudflare Wo
 - 用户体系统一使用 better-auth 的 `user` 表，不存在独立的用户表
 - 业务数据（余额、API Key 等）存储在 KV 中，以 better-auth `user.id` 为 key
 - 用量日志、模型配置等存储在 D1 业务表中
-- 邮件发送使用 Resend
+- 邮件发送使用 Cloudflare Email Service 的 `send_email` binding
 
 ## 本地开发
 
@@ -40,8 +40,6 @@ pnpm run deploy            # 构建 + 部署到 Cloudflare
 需要配置的 Cloudflare Secrets：
 
 - `BETTER_AUTH_SECRET`
-- `RESEND_API_KEY`
-- `FROM_EMAIL`
 - `STRIPE_SECRET_KEY`
 - `STRIPE_WEBHOOK_SECRET`
 
