@@ -2,7 +2,6 @@
 
 import { formatBalance } from '@muirouter/shared-db/money';
 import { ChartBar, CreditCard, Gift, Key, Plus, Wallet } from '@phosphor-icons/react';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { PageHeader } from '@/components/page-header';
@@ -13,15 +12,10 @@ import { Card } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useAsyncResource } from '@/hooks/use-async-resource';
 import { setCustomTag, trackEvent } from '@/lib/analytics';
-import { type FreeQuotaStatus, type TopUpSessionResult, userApi } from '@/lib/api';
+import { type FreeQuotaStatus, userApi } from '@/lib/api';
 import { TOP_UP_AMOUNTS } from '@/lib/top-up';
 import { cn } from '@/lib/utils';
-
-interface TopUpNotice {
-  description: string;
-  title: string;
-  variant: 'error' | 'info' | 'success';
-}
+import { useTopUpReturn } from './use-top-up-return';
 
 interface HomeData {
   balance: number;
@@ -48,20 +42,16 @@ export default function DashboardHome() {
   const t = useTranslations('dashboard');
   const te = useTranslations('errors');
   const locale = useLocale();
-  const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
   const [topUpAmountLoading, setTopUpAmountLoading] = useState<number | null>(null);
-  const [topUpNotice, setTopUpNotice] = useState<TopUpNotice | null>(null);
   const [isTopUpDialogOpen, setTopUpDialogOpen] = useState(false);
   const [isTopUpCardHighlighted, setTopUpCardHighlighted] = useState(false);
-  const pollTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const highlightTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const confirmedBalanceRef = useRef<number | null>(null);
 
   const fetchHomeData = useCallback(async (): Promise<HomeData> => {
     const [profileRes, keysRes] = await Promise.all([userApi.getProfile(), userApi.getKeys()]);
     return {
-      balance: profileRes.user.balance,
+      balance: confirmedBalanceRef.current ?? profileRes.user.balance,
       freeQuota: profileRes.user.freeQuota ?? null,
       keyCount: keysRes.keys.filter((k) => k.isActive).length,
     };
@@ -73,82 +63,28 @@ export default function DashboardHome() {
     setData,
   } = useAsyncResource(fetchHomeData, EMPTY_HOME_DATA);
 
+  function handleTopUpBalanceUpdate(nextBalance: number) {
+    confirmedBalanceRef.current = nextBalance;
+    setData((current) => ({ ...current, balance: nextBalance }));
+  }
+
+  function handleTopUpSettled() {
+    setTopUpAmountLoading(null);
+  }
+
+  const { topUpNotice, setTopUpNotice, setFailedNotice } = useTopUpReturn({
+    onBalanceUpdate: handleTopUpBalanceUpdate,
+    onTopUpSettled: handleTopUpSettled,
+  });
+
   useEffect(() => {
-    const topUp = searchParams.get('topUp');
-    const sessionId = searchParams.get('session_id');
-
-    if (topUp === 'cancelled') {
-      trackEvent('topup_cancelled');
-      setTopUpNotice({
-        title: t('topUp.cancelledTitle'),
-        description: t('topUp.cancelledDesc'),
-        variant: 'info',
-      });
-      clearTopUpQuery(router, pathname);
-      return;
-    }
-
-    if (topUp !== 'success' || !sessionId) {
-      return;
-    }
-
-    // 已回到成功落地页，与 topup_completed（确认到账）分开度量，能看出 webhook 延迟或提前离开的比例
-    trackEvent('topup_returned_success');
-
-    const checkoutSessionId = sessionId;
-    let disposed = false;
-
-    async function handleReturnedCheckout() {
-      await pollTopUpSession(checkoutSessionId, disposed);
-    }
-
-    handleReturnedCheckout();
-
     return () => {
-      disposed = true;
-      if (pollTimerRef.current) {
-        clearTimeout(pollTimerRef.current);
-        pollTimerRef.current = null;
+      if (highlightTimerRef.current) {
+        clearTimeout(highlightTimerRef.current);
+        highlightTimerRef.current = null;
       }
     };
-  }, [pathname, router, searchParams, t, pollTopUpSession]);
-
-  function scheduleTopUpPoll(sessionId: string, disposed: boolean) {
-    if (disposed) {
-      return;
-    }
-
-    pollTimerRef.current = setTimeout(() => {
-      void pollTopUpSession(sessionId, disposed);
-    }, 2000);
-  }
-
-  function setProcessingNotice() {
-    setTopUpNotice({
-      title: t('topUp.processingTitle'),
-      description: t('topUp.processingDesc'),
-      variant: 'info',
-    });
-  }
-
-  function setSuccessNotice(result: TopUpSessionResult) {
-    setTopUpNotice({
-      title: t('topUp.successTitle'),
-      description: t('topUp.successDesc', {
-        amount: formatBalance(result.amount),
-        balance: formatBalance(result.balanceAfter ?? 0),
-      }),
-      variant: 'success',
-    });
-  }
-
-  function setFailedNotice(message?: string) {
-    setTopUpNotice({
-      title: t('topUp.failedTitle'),
-      description: message || t('topUp.failedDesc'),
-      variant: 'error',
-    });
-  }
+  }, []);
 
   async function handleTopUp(amount: number) {
     setTopUpAmountLoading(amount);
@@ -166,7 +102,7 @@ export default function DashboardHome() {
     }
   }
 
-  /** 余额卡整体可点：滚到充值卡并短暂高亮，承接"点余额想充值"的直觉（issue #23 dead click） */
+  // 余额卡整体可点：滚到充值卡并短暂高亮，承接"点余额想充值"的直觉（issue #23 dead click）
   function handleBalanceCardClick() {
     trackEvent('topup_balance_card_clicked', { balance });
     document.getElementById('topup-card')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -178,58 +114,10 @@ export default function DashboardHome() {
     highlightTimerRef.current = setTimeout(() => setTopUpCardHighlighted(false), 1500);
   }
 
-  /** 「充值」按钮：弹金额选择框，是比滚动更直接的充值入口 */
+  // 「充值」按钮：弹金额选择框，是比滚动更直接的充值入口
   function handleAddCreditClick() {
     trackEvent('topup_add_credit_clicked', { balance });
     setTopUpDialogOpen(true);
-  }
-
-  async function pollTopUpSession(sessionId: string, disposed: boolean) {
-    try {
-      setProcessingNotice();
-      const result = await userApi.getTopUpSession(sessionId);
-      if (disposed) {
-        return;
-      }
-
-      if (result.status === 'credited') {
-        trackEvent('topup_completed', { amount: result.amount });
-        setData((current) => ({ ...current, balance: result.balanceAfter ?? current.balance }));
-        setSuccessNotice(result);
-        setTopUpAmountLoading(null);
-        clearTopUpQuery(router, pathname);
-        return;
-      }
-
-      if (result.status === 'failed') {
-        setFailedNotice();
-        setTopUpAmountLoading(null);
-        clearTopUpQuery(router, pathname);
-        return;
-      }
-
-      if (result.status === 'cancelled') {
-        trackEvent('topup_cancelled');
-        setTopUpNotice({
-          title: t('topUp.cancelledTitle'),
-          description: t('topUp.cancelledDesc'),
-          variant: 'info',
-        });
-        setTopUpAmountLoading(null);
-        clearTopUpQuery(router, pathname);
-        return;
-      }
-
-      scheduleTopUpPoll(sessionId, disposed);
-    } catch (e) {
-      if (disposed) {
-        return;
-      }
-
-      setFailedNotice(e instanceof Error ? e.message : t('topUp.failedDesc'));
-      setTopUpAmountLoading(null);
-      clearTopUpQuery(router, pathname);
-    }
   }
 
   if (loading) {
@@ -384,8 +272,4 @@ export default function DashboardHome() {
       />
     </div>
   );
-}
-
-function clearTopUpQuery(router: ReturnType<typeof useRouter>, pathname: string) {
-  router.replace(pathname, { scroll: false });
 }

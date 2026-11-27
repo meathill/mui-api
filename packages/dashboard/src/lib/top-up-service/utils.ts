@@ -2,8 +2,15 @@ import { getCloudflareContext } from '@opennextjs/cloudflare';
 import type Stripe from 'stripe';
 import { defaultLocale, type Locale, locales } from '@/i18n/config';
 import { createEmailService } from '@/lib/email';
-import { parseTopUpAmount, TOP_UP_CURRENCY, toStripeUnitAmount } from '@/lib/top-up';
+import {
+  parseTopUpAmount,
+  STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER,
+  TOP_UP_CURRENCY,
+  toStripeUnitAmount,
+} from '@/lib/top-up';
 import type { SessionUser, StripeTopUpMetadata } from './types';
+
+const ENCODED_STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER = encodeURIComponent(STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER);
 
 export function buildStripeMetadata(params: { amount: number; user: SessionUser }): Record<string, string> {
   return {
@@ -26,7 +33,10 @@ export function buildReturnUrl(
       url.searchParams.set(key, value);
     }
   }
-  return url.toString();
+  // URLSearchParams 会把 `{}` 编码为 `%7B%7D`，而 Stripe 仅替换字面量 `{CHECKOUT_SESSION_ID}`，此处仅定点还原该占位符
+  return url
+    .toString()
+    .replaceAll(ENCODED_STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER, STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER);
 }
 
 export function getLocalizedPath(locale: Locale, pathname: string): string {

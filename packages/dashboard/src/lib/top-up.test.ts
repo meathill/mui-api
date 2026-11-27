@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import {
   deriveTopUpStatus,
+  isInvalidTopUpSessionId,
   parseTopUpAmount,
+  STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER,
   TOP_UP_AMOUNTS,
   TOP_UP_MINIMUM_AMOUNT,
   toStripeUnitAmount,
@@ -57,5 +59,18 @@ describe('top-up helpers', () => {
         paymentStatus: 'unpaid',
       }),
     ).toBe('cancelled');
+  });
+
+  it('should identify invalid or placeholder Stripe session IDs', () => {
+    expect(isInvalidTopUpSessionId(null)).toBe(true);
+    expect(isInvalidTopUpSessionId(undefined)).toBe(true);
+    expect(isInvalidTopUpSessionId('')).toBe(true);
+    expect(isInvalidTopUpSessionId('   ')).toBe(true);
+    expect(isInvalidTopUpSessionId(STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER)).toBe(true);
+    expect(isInvalidTopUpSessionId('{other}')).toBe(true);
+    expect(isInvalidTopUpSessionId('%7BCHECKOUT_SESSION_ID%7D')).toBe(true);
+    expect(isInvalidTopUpSessionId('%7bfoo')).toBe(true);
+    expect(isInvalidTopUpSessionId('cs_live_123')).toBe(false);
+    expect(isInvalidTopUpSessionId('cs_test_abc')).toBe(false);
   });
 });

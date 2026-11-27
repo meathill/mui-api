@@ -1,5 +1,6 @@
 import { connection, type NextRequest, NextResponse } from 'next/server';
 import { getSession } from '@/lib/session';
+import { isInvalidTopUpSessionId } from '@/lib/top-up';
 import { getTopUpSessionStatus } from '@/lib/top-up-service';
 
 export async function GET(request: NextRequest) {
@@ -14,6 +15,10 @@ export async function GET(request: NextRequest) {
     const sessionId = request.nextUrl.searchParams.get('sessionId');
     if (!sessionId) {
       return NextResponse.json({ error: '缺少 sessionId' }, { status: 400 });
+    }
+
+    if (isInvalidTopUpSessionId(sessionId)) {
+      return NextResponse.json({ error: '无效的 sessionId' }, { status: 400 });
     }
 
     const result = await getTopUpSessionStatus({

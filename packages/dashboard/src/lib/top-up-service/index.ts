@@ -7,6 +7,7 @@ import { getStripeClient } from '@/lib/stripe';
 import {
   deriveTopUpStatus,
   parseTopUpAmount,
+  STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER,
   STRIPE_TOP_UP_SOURCE,
   TOP_UP_AMOUNT_ERROR_MESSAGE,
   TOP_UP_CURRENCY,
@@ -53,7 +54,7 @@ export async function createTopUpCheckoutSession(params: {
   const customerId = await ensureStripeCustomerId(stripe, kv, wallet, params.user);
   const metadata = buildStripeMetadata({ amount, user: params.user });
   const successUrl = buildReturnUrl(params.origin, locale, '/app', {
-    session_id: '{CHECKOUT_SESSION_ID}',
+    session_id: STRIPE_CHECKOUT_SESSION_ID_PLACEHOLDER,
     topUp: 'success',
   });
   const cancelUrl = buildReturnUrl(params.origin, locale, '/app', {

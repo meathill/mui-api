@@ -472,6 +472,8 @@ D1_ERROR: Network connection lost.
 - 通过 `recharge_logs(source, source_id)` 唯一标识和 `stripe_topup_sessions` 状态表做幂等，可以避免重复加余额
 - 复用 KV 中的 `stripeCustomerId`，能保留 Stripe Customer 关联，减少重复建档
 
+**踩过的坑：`URLSearchParams` 编码 `{CHECKOUT_SESSION_ID}` 导致 Stripe 不替换回跳占位符**（issue #26）。`buildReturnUrl` 用 `url.searchParams.set('session_id', '{CHECKOUT_SESSION_ID}')` 会把 `{}` 编码为 `%7B%7D`，Stripe `success_url` 仅识别未编码字面量 `{CHECKOUT_SESSION_ID}`，导致用户回跳带着字面量占位符且轮询/清理失效。修复：`buildReturnUrl` 仅定点将 `%7BCHECKOUT_SESSION_ID%7D` 还原为字面量（其余参数保持正常编码），同时在 `GET /api/user/top-up/session` 与前端 `useTopUpReturn` 中拦截 `{...}` / `%7B...` 占位符——前端跳过会话查询与 `topup_returned_success` 埋点，改走「充值处理中」+ 余额短轮询并清理 URL query。
+
 ### 用量统计增加用户维度、新增用户详情页
 
 **决策**：新增 `/admin/users/[userId]` 详情页，聚合展示指定用户的信息卡、充值记录、用量记录、按天用量统计（趋势图 + 明细表），并从用户管理、用量统计、统计分析三处提供跳转入口；`RechargeLogTable` / `UsageLogTable` / `lib/date-ranges.ts` 抽出供多处复用。充值/用量列表页同时支持 URL 参数 `userId` 预填筛选，配合详情页"查看全部"链接跳转定位。
